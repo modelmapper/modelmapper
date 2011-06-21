@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite verbose="2" name="ModelMapper suite">
+	<test name="Functional" preserve-order="false">
+		<packages>
+			<package name="org.modelmapper.functional.*" />
+		</packages>
+	</test>
+</suite> 

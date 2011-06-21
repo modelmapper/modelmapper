@@ -1,0 +1,46 @@
+package org.modelmapper.functional;
+
+import static org.testng.Assert.*;
+
+import org.modelmapper.AbstractTest;
+import org.modelmapper.Conditions;
+import org.modelmapper.PropertyMap;
+import org.testng.annotations.Test;
+
+/**
+ * @author Jonathan Halterman
+ */
+@Test(groups = "functional")
+public class ConditionalMapping extends AbstractTest {
+  static class Source {
+    public String getName() {
+      return null;
+    }
+  }
+
+  static class Dest {
+    String name = "abc";
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public void shouldSkipConditionalTypeMapping() {
+    modelMapper.createTypeMap(Source.class, Dest.class).setCondition(Conditions.isNull());
+    Dest dest = modelMapper.map(new Source(), Dest.class);
+    assertEquals(dest.name, "abc");
+  }
+
+  public void shouldSkipConditionalPropertyMapping() {
+    modelMapper.addMappings(new PropertyMap<Source, Dest>() {
+      @Override
+      protected void configure() {
+        when(Conditions.isNull()).skip().setName(source.getName());
+      }
+    });
+
+    Dest dest = modelMapper.map(new Source(), Dest.class);
+    assertEquals(dest.name, "abc");
+  }
+}

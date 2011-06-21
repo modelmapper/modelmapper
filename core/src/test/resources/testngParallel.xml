@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite verbose="2" name="ModelMapper suite">
+	<test name="Functional" preserve-order="false" parallel="methods"
+		thread-count="25">
+		<classes>
+			<class name="org.modelmapper.ModelMapperTest" />
+		</classes>
+	</test>
+</suite> 
