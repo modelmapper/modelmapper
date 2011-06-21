@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.modelmapper</groupId>
 		<artifactId>modelmapper-parent</artifactId>
-		<version>0.3.0-SNAPSHOT</version>
+		<version>${version.number}-SNAPSHOT</version>
 	</parent>
 	<artifactId>modelmapper-examples</artifactId>
 	<name>ModelMapper - Examples</name>
