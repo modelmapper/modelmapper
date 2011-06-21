@@ -10,11 +10,59 @@
 	</parent>
 	<artifactId>modelmapper</artifactId>
 	<name>ModelMapper - Core Library</name>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<filters>
+						<filter>
+							<artifact>cglib:cglib</artifact>
+							<includes>
+								<include>net/sf/cglib/core/**</include>
+								<include>net/sf/cglib/proxy/**</include>
+							</includes>
+						</filter>
+						<filter>
+							<artifact>asm:asm</artifact>
+							<includes>
+								<include>org/objectweb/asm/**</include>
+							</includes>
+						</filter>
+					</filters>
+					<relocations>
+						<relocation>
+							<pattern>net.sf.cflib</pattern>
+							<shadedPattern>org.modelmapper.internal.cglib</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.objectweb.asm</pattern>
+							<shadedPattern>org.modelmapper.internal.asm</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
+			<artifactId>cglib</artifactId>
 			<version>2.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>3.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>javassist</groupId>
@@ -23,37 +71,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<profiles>
-		<profile>
-			<id>nodeps</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-shade-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>shade</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<filters>
-								<filter>
-									<artifact>cglib:cglib-nodep</artifact>
-									<includes>
-										<include>net/sf/cglib/core/**</include>
-										<include>net/sf/cglib/proxy/**</include>
-									</includes>
-								</filter>
-							</filters>
-							<finalName>${artifactId}-${version.number}-nodeps</finalName>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
