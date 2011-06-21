@@ -53,6 +53,7 @@
 									<goal>single</goal>
 								</goals>
 								<configuration>
+									<appendAssemblyId>false</appendAssemblyId>
 									<runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
 									<descriptors>
 										<descriptor>assembly.xml</descriptor>
