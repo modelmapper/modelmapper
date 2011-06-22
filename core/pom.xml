@@ -77,7 +77,7 @@
 					<excludePackageNames>*.internal</excludePackageNames>
 					<doctitle>ModelMapper ${version.number}</doctitle>
 					<windowtitle>ModelMapper ${version.number}</windowtitle>
-					<reportOutputDirectory>../</reportOutputDirectory>
+					<reportOutputDirectory>../docs</reportOutputDirectory>
 					<destDir>javadoc</destDir>
 				</configuration>
 			</plugin>
