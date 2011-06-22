@@ -76,22 +76,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<author>false</author>
-					<protected>true</protected>
-					<excludePackageNames>*.internal</excludePackageNames>
-					<doctitle>ModelMapper ${version.number}</doctitle>
-					<windowtitle>ModelMapper ${version.number}</windowtitle>
-					<destDir>javadoc</destDir>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
 	<mailingLists>
 		<mailingList>
 			<name>ModelMapper List</name>
