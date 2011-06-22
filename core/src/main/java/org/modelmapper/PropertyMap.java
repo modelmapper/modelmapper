@@ -84,8 +84,8 @@ import org.modelmapper.internal.util.TypeResolver;
  * 
  * <b>Note</b>: In order populate the destination object, deep mapping requires the
  * {@code getCustomer} method to have a corresponding mutator, such as a {@code setCustomer} method
- * or an {@link org.modelmapper.config.Configuration#setFieldAccessLevel(AccessLevel)
- * accessible} {@code customer} field.
+ * or an {@link org.modelmapper.config.Configuration#setFieldAccessLevel(AccessLevel) accessible}
+ * {@code customer} field.
  * 
  * <h3 id=3>Skipping properties</h3>
  * <p>
@@ -144,12 +144,12 @@ public abstract class PropertyMap<S, D> {
    * The source instance to be used in a mapping declaration. See the <a href="#1">EDSL
    * examples</a>.
    * <p>
-   * <b>Throws:</b> NullPointerException if dereferenced from outside the context of {@link #configure()} .
+   * <b>Throws:</b> NullPointerException if dereferenced from outside the context of
+   * {@link #configure()} .
    */
   public S source;
   Class<D> destinationType;
   Class<S> sourceType;
-
   private MappingBuilderImpl<S, D> builder;
 
   /**
@@ -204,8 +204,8 @@ public abstract class PropertyMap<S, D> {
   }
 
   /**
-   * Defines a mapping to a destination to be skipped during the mapping process. See the <a
-   * href="#3">EDSL examples</a>.
+   * Specifies that mapping for the destination property be skipped during the mapping process. See
+   * the <a href="#3">EDSL examples</a>.
    * 
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.

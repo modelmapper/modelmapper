@@ -24,6 +24,7 @@
 					</execution>
 				</executions>
 				<configuration>
+					<minimizeJar>true</minimizeJar>
 					<filters>
 						<filter>
 							<artifact>cglib:cglib</artifact>
@@ -32,16 +33,10 @@
 								<include>net/sf/cglib/proxy/**</include>
 							</includes>
 						</filter>
-						<filter>
-							<artifact>asm:asm</artifact>
-							<includes>
-								<include>org/objectweb/asm/**</include>
-							</includes>
-						</filter>
 					</filters>
 					<relocations>
 						<relocation>
-							<pattern>net.sf.cflib</pattern>
+							<pattern>net.sf.cglib</pattern>
 							<shadedPattern>org.modelmapper.internal.cglib</shadedPattern>
 						</relocation>
 						<relocation>
