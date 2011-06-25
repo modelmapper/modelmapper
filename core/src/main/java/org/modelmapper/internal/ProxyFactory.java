@@ -65,12 +65,6 @@ class ProxyFactory {
     }
   }
 
-  // static FastClass fastClassFor(Class<?> type) {
-  // FastClass.Generator generator = new FastClass.Generator();
-  // generator.setType(type);
-  // return generator.create();
-  // }
-
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
@@ -78,10 +72,7 @@ class ProxyFactory {
     if (Modifier.isFinal(type.getModifiers()))
       return null;
 
-    // setConstructorAccessible(type, true);
     Class<?> enhanced = proxyClassFor(type);
-
-    // FastClass fastClass = fastClassFor(enhanced);
 
     try {
       Enhancer.registerCallbacks(enhanced, new Callback[] {
@@ -94,13 +85,4 @@ class ProxyFactory {
       Enhancer.registerCallbacks(enhanced, null);
     }
   }
-
-  // private static void setConstructorAccessible(Class<?> type, boolean accessible) {
-  // try {
-  // Constructor<?> constructor = type.getDeclaredConstructor(new Class[] {});
-  // if (constructor != null)
-  // constructor.setAccessible(accessible);
-  // } catch (Exception ignore) {
-  // }
-  // }
 }

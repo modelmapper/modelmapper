@@ -23,13 +23,30 @@ import org.testng.annotations.Test;
 
 @Test
 public class CharacterConverterTest extends AbstractConverterTest {
+  static class Source {
+    Entity value;
+  }
+
+  static class Entity {
+    char value = 'a';
+  }
+
+  static class Dest {
+    char value;
+  }
+
   public CharacterConverterTest() {
     super(new CharacterConverter(), Character.class);
   }
 
-  public void testConvertToCharacter() {
+  public void shouldConvertToCharacter() {
     assertEquals(new Character('N'), convert(new Character('N')));
     assertEquals(new Character('F'), convert("FOO"));
     assertEquals(new Character('3'), convert(new Integer(321)));
+  }
+
+  public void shouldConvertComplexModel() {
+    Dest dest = modelMapper.map(new Source(), Dest.class);
+    assertEquals(dest.value, 'a');
   }
 }

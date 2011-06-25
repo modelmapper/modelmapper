@@ -193,5 +193,10 @@ public class MatchingStrategyTestSupport {
     public String getName() {
       return memberName;
     }
+
+    @Override
+    public Class<?> getInitialType() {
+      return null;
+    }
   }
 }

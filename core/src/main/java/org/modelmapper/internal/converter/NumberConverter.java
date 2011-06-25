@@ -34,6 +34,7 @@ import org.modelmapper.spi.MappingContext;
  * <li>Date</li>
  * <li>Calendar</li>
  * <li>String</li>
+ * <li>Object</li>
  * </ul>
  * 
  * instances to instances of:
@@ -70,11 +71,11 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
 
   @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
-    return Number.class.isAssignableFrom(Primitives.wrapperFor(destinationType))
-        && (Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
-            || sourceType == Boolean.class || sourceType == Boolean.TYPE
-            || sourceType == String.class || Date.class.isAssignableFrom(sourceType) || Calendar.class
-            .isAssignableFrom(sourceType));
+    return Number.class.isAssignableFrom(Primitives.wrapperFor(destinationType));
+//        && (Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
+//            || sourceType == Boolean.class || sourceType == Boolean.TYPE
+//            || sourceType == String.class || Date.class.isAssignableFrom(sourceType) || Calendar.class
+//            .isAssignableFrom(sourceType));
   }
 
   /**

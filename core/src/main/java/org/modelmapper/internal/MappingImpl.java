@@ -34,7 +34,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   private final boolean explicit;
   private final String path;
   private boolean skip;
-  private Condition condition;
+  private Condition<?, ?> condition;
   private Converter<?, ?> converter;
   private Provider<?> provider;
 
@@ -92,7 +92,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   }
 
   @Override
-  public Condition getCondition() {
+  public Condition<?, ?> getCondition() {
     return condition;
   }
 

@@ -7,7 +7,6 @@ import static org.testng.Assert.fail;
 
 import java.util.Map;
 
-import org.modelmapper.AbstractCondition;
 import org.modelmapper.Asserts;
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
@@ -37,8 +36,8 @@ public class MappingBuilderImplTest {
     }
   };
 
-  private static Condition CONDITION = new AbstractCondition() {
-    public boolean applies(MappingContext<?, ?> context) {
+  private static Condition<?, ?> CONDITION = new Condition<Object, Object>() {
+    public boolean applies(MappingContext<Object, Object> context) {
       return true;
     }
   };
@@ -344,22 +343,6 @@ public class MappingBuilderImplTest {
     } catch (ConfigurationException e) {
       Asserts.assertContains(e.getMessage(), "Invalid source method");
       Asserts.assertContains(e.getMessage(), "Invalid destination method");
-      return;
-    }
-
-    fail();
-  }
-
-  public void shouldThrowWhenMappingFromSourceObjectWithoutConverter() {
-    try {
-      builder.build(new PropertyMap<Person, PersonDTO>() {
-        protected void configure() {
-          map(source).setActive(true);
-        }
-      });
-    } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(),
-          "Cannot map from source object without using a Converter");
       return;
     }
 

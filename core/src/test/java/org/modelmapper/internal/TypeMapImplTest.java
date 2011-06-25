@@ -16,7 +16,8 @@ import static org.testng.Assert.*;
 @Test
 public class TypeMapImplTest {
   MappingImpl mapping(final String arg) throws Exception {
-    Mutator mutator = new FieldPropertyInfo(ArrayList.class.getDeclaredField("size"), arg) {
+    Mutator mutator = new FieldPropertyInfo(ArrayList.class,
+        ArrayList.class.getDeclaredField("size"), arg) {
     };
     return new MappingImpl(Arrays.asList(mutator)) {
       public String toString() {

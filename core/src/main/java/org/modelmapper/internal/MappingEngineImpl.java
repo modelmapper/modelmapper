@@ -25,7 +25,6 @@ import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
-import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
@@ -105,10 +104,8 @@ public class MappingEngineImpl implements MappingEngine {
   public <S, D> D map(MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     Class<D> destinationType = context.getDestinationType();
-    if (!Iterables.isIterable(destinationType) && contextImpl.currentlyMapping(destinationType)) {
-      throw contextImpl.errors.errorCircularMapping(context.getSourceType(), destinationType)
-          .toException();
-    }
+    if (!Iterables.isIterable(destinationType) && contextImpl.currentlyMapping(destinationType))
+      throw contextImpl.errors.errorCircularReference(destinationType).toException();
 
     D destination = null;
     TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), destinationType);
@@ -144,7 +141,8 @@ public class MappingEngineImpl implements MappingEngine {
         return null;
     }
 
-    Condition condition = typeMap.getCondition();
+    @SuppressWarnings("unchecked")
+    Condition<S, D> condition = (Condition<S, D>) typeMap.getCondition();
     Converter<S, D> converter = typeMap.getConverter();
     if (condition == null || condition.applies(context)) {
       if (converter != null)
@@ -160,28 +158,40 @@ public class MappingEngineImpl implements MappingEngine {
 
   @SuppressWarnings("unchecked")
   private <S, D> void propertyMap(Mapping mapping, MappingContextImpl<S, D> context) {
-    Condition condition = mapping.getCondition();
+    MappingImpl mappingImpl = (MappingImpl) mapping;
+    if (context.isShaded(mappingImpl.getPath()))
+      return;
+
+    Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
     if (condition == null && mapping.isSkipped())
       return;
 
-    Converter<Object, Object> converter = (Converter<Object, Object>) mapping.getConverter();
-    MappingContextImpl<Object, Object> propertyContext;
     Object source = resolveSourceValue(context, mapping);
-    propertyContext = propertyContextFor(context, source, mapping);
+    MappingContextImpl<Object, Object> propertyContext = propertyContextFor(context, source,
+        mapping);
 
-    if (condition == null || condition.applies(propertyContext)) {
-      if (condition != null && mapping.isSkipped())
+    if (condition != null) {
+      if (!condition.applies(propertyContext)) {
+        context.shadePath(mappingImpl.getPath());
         return;
-
-      // Create last destination via provider prior to mapping/conversion
-      createDestinationViaProvider(propertyContext);
-
-      Object destinationValue = null;
-      if (source != null)
-        destinationValue = converter == null ? map(propertyContext) : convert(propertyContext,
-            converter);
-      setDestinationValue(context.getDestination(), destinationValue, propertyContext, mapping);
+      } else if (mapping.isSkipped())
+        return;
     }
+
+    Converter<Object, Object> converter = (Converter<Object, Object>) mapping.getConverter();
+    if (converter != null)
+      context.shadePath(mappingImpl.getPath());
+    else if (mapping instanceof SourceMapping)
+      return;
+
+    // Create last destination via provider prior to mapping/conversion
+    createDestinationViaProvider(propertyContext);
+
+    Object destinationValue = null;
+    if (source != null)
+      destinationValue = converter == null ? map(propertyContext) : convert(propertyContext,
+          converter);
+    setDestinationValue(context.getDestination(), destinationValue, propertyContext, mappingImpl);
   }
 
   @SuppressWarnings("unchecked")
@@ -201,7 +211,7 @@ public class MappingEngineImpl implements MappingEngine {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   private void setDestinationValue(Object destination, Object destinationValue,
-      MappingContextImpl<?, ?> context, Mapping mapping) {
+      MappingContextImpl<?, ?> context, MappingImpl mapping) {
     List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
 
     for (int i = 0; i < mutatorChain.size(); i++) {
@@ -213,6 +223,8 @@ public class MappingEngineImpl implements MappingEngine {
         mutator.setValue(destination,
             destinationValue == null ? Primitives.defaultValue(mutator.getType())
                 : destinationValue);
+        if (destinationValue == null)
+          context.shadePath(mapping.getPath());
       } else {
         Object intermediateDest = context.destinationCache.get(mutator);
         if (intermediateDest == null) {
@@ -238,21 +250,21 @@ public class MappingEngineImpl implements MappingEngine {
   /**
    * Returns a property context.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
       Object source, Mapping mapping) {
-    Class<Object> sourceType;
+    Class<?> sourceType;
     if (mapping instanceof PropertyMapping) {
-      sourceType = (Class<Object>) ((PropertyMapping) mapping).getLastSourceProperty().getType();
+      sourceType = ((PropertyMapping) mapping).getLastSourceProperty().getType();
     } else if (mapping instanceof ConstantMapping) {
-      sourceType = Types.deProxy(((ConstantMapping) mapping).getConstant().getClass());
+      Object constant = ((ConstantMapping) mapping).getConstant();
+      sourceType = constant == null ? Object.class : Types.deProxy(constant.getClass());
     } else {
-      sourceType = (Class<Object>) ((SourceMapping) mapping).getSourceType();
+      sourceType = ((SourceMapping) mapping).getSourceType();
     }
 
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
-    return new MappingContextImpl<Object, Object>(context, source, sourceType, null,
-        destinationType, mapping);
+    return new MappingContextImpl(context, source, sourceType, null, destinationType, mapping);
   }
 
   /**
@@ -323,18 +335,5 @@ public class MappingEngineImpl implements MappingEngine {
     destination = instantiate(context.getDestinationType(), contextImpl.errors);
     contextImpl.setDestination(destination);
     return destination;
-  }
-
-  private static class ProvisionRequestImpl<T extends Object> implements ProvisionRequest<T> {
-    private final Class<T> requestedType;
-
-    ProvisionRequestImpl(Class<T> requestedType) {
-      this.requestedType = requestedType;
-    }
-
-    @Override
-    public Class<T> getRequestedType() {
-      return requestedType;
-    }
   }
 }

@@ -43,8 +43,7 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
     Mapping mapping = context.getMapping();
     if (mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = ((PropertyMapping) mapping).getLastDestinationProperty();
-      return TypeResolver.resolveArgument(destInfo.getGenericType(), destInfo.getMember()
-          .getDeclaringClass());
+      return TypeResolver.resolveArgument(destInfo.getGenericType(), destInfo.getInitialType());
     }
 
     return Object.class;

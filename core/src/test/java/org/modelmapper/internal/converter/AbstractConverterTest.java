@@ -3,6 +3,7 @@ package org.modelmapper.internal.converter;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import org.modelmapper.Fixtures;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.InheritingConfiguration;
@@ -29,10 +30,7 @@ public abstract class AbstractConverterTest {
 
   @BeforeMethod
   protected void init() {
-    modelMapper = new ModelMapper();
-    modelMapper.getConfiguration().enableFieldMatching(true)
-        .setFieldAccessLevel(AccessLevel.PACKAGE_PRIVATE)
-        .setMethodAccessLevel(AccessLevel.PACKAGE_PRIVATE);
+    modelMapper = Fixtures.createModelMapper();
   }
 
   @SuppressWarnings("unchecked")

@@ -34,8 +34,9 @@ import org.modelmapper.spi.PropertyInfo;
 interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
   PropertyResolver<Field, Mutator> FIELDS = new DefaultPropertyResolver<Field, Mutator>() {
     @Override
-    public Mutator propertyInfoFor(Field field, Configuration configuration, String name) {
-      return PropertyInfoRegistry.fieldPropertyFor(field, configuration, name);
+    public Mutator propertyInfoFor(Class<?> initialType, Field field, Configuration configuration,
+        String name) {
+      return PropertyInfoRegistry.fieldPropertyFor(initialType, field, configuration, name);
     }
 
     @Override
@@ -52,8 +53,9 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
     }
 
     @Override
-    public Accessor propertyInfoFor(Method method, Configuration configuration, String name) {
-      return PropertyInfoRegistry.accessorFor(method, configuration, name);
+    public Accessor propertyInfoFor(Class<?> initialType, Method method,
+        Configuration configuration, String name) {
+      return PropertyInfoRegistry.accessorFor(initialType, method, configuration, name);
     }
 
     @Override
@@ -70,8 +72,9 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
     }
 
     @Override
-    public Mutator propertyInfoFor(Method method, Configuration configuration, String name) {
-      return PropertyInfoRegistry.mutatorFor(method, configuration, name);
+    public Mutator propertyInfoFor(Class<?> initialType, Method method,
+        Configuration configuration, String name) {
+      return PropertyInfoRegistry.mutatorFor(initialType, method, configuration, name);
     }
 
     @Override
@@ -90,7 +93,7 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
 
   boolean isValid(M member);
 
-  PI propertyInfoFor(M member, Configuration configuration, String name);
+  PI propertyInfoFor(Class<?> initialType, M member, Configuration configuration, String name);
 
   M[] membersFor(Class<?> type);
 }

@@ -15,8 +15,10 @@
  */
 package org.modelmapper.internal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +46,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   private final S source;
   private final Class<S> sourceType;
   private TypeMap<S, D> typeMap;
+  /** Tracks destination hierarchy paths that were shaded by a condition */
+  private final List<String> shadedPaths;
 
   /**
    * Create initial MappingContext.
@@ -58,6 +62,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     currentlyMapping = new HashSet<Class<?>>();
     errors = new Errors();
     destinationCache = new HashMap<Mutator, Object>();
+    shadedPaths = new ArrayList<String>();
   }
 
   /**
@@ -75,6 +80,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     currentlyMapping = context.currentlyMapping;
     errors = context.errors;
     destinationCache = context.destinationCache;
+    shadedPaths = context.shadedPaths;
   }
 
   @Override
@@ -171,11 +177,29 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return !currentlyMapping.add(type);
   }
 
+  /**
+   * Determines whether the {@code subpath} is shaded.
+   */
+  boolean isShaded(String subpath) {
+    for (String shadedPath : shadedPaths)
+      if (subpath.startsWith(shadedPath))
+        return true;
+    return false;
+  }
+
   void setDestination(D destination) {
     this.destination = destination;
   }
 
   void setTypeMap(TypeMap<S, D> typeMap) {
     this.typeMap = typeMap;
+  }
+
+  /**
+   * Shades the {@code path} such that subsequent subpaths can be skipped during the mapping
+   * process.
+   */
+  void shadePath(String path) {
+    shadedPaths.add(path);
   }
 }

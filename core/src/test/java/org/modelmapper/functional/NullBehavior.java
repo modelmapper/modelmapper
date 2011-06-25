@@ -4,21 +4,23 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.TypeMap;
 import org.testng.annotations.Test;
 
 /**
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")
-@SuppressWarnings("unused")
 public class NullBehavior extends AbstractTest {
-  private static class S1 {
+  static class S1 {
     S2 sub;
     String nullString;
+
+    public S2 getSub() {
+      return sub;
+    }
   }
 
-  private static class S2 {
+  static class S2 {
     int something;
 
     int[] getItems() {
@@ -26,13 +28,17 @@ public class NullBehavior extends AbstractTest {
     }
   }
 
-  private static class D1 {
+  static class D1 {
     D2 sub;
     int subSomething;
     String nullString;
+
+    public void setSub(D2 sub) {
+      this.sub = sub;
+    }
   }
 
-  private static class D2 {
+  static class D2 {
     int[] items;
   }
 

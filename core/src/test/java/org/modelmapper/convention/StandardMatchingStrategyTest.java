@@ -3,7 +3,7 @@ package org.modelmapper.convention;
 import org.testng.annotations.Test;
 
 /**
- * Tests the {@link IntelligentMatchingStrategy} against various source and destination hierarchy
+ * Tests the {@link StandardMatchingStrategy} against various source and destination hierarchy
  * scenarios.
  * 
  * @author Jonathan Halterman
@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 @Test
 public class StandardMatchingStrategyTest extends InexactMatchingStrategyTest {
   public StandardMatchingStrategyTest() {
-    super(new IntelligentMatchingStrategy());
+    super(new StandardMatchingStrategy());
   }
 
   /**

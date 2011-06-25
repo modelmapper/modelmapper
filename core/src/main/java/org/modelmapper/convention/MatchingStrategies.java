@@ -49,7 +49,7 @@ public class MatchingStrategies {
    * <li>All source property names must have at least one token matched</li>
    * </ul>
    */
-  public static final MatchingStrategy INTELLIGENT = new IntelligentMatchingStrategy();
+  public static final MatchingStrategy STANDARD = new StandardMatchingStrategy();
 
   /**
    * A matching strategy that allows for source properties to be strictly matched to destination

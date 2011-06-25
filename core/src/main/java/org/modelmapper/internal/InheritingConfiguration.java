@@ -64,7 +64,7 @@ public class InheritingConfiguration implements Configuration {
     destinationNamingConvention = NamingConventions.JAVABEANS_MUTATOR;
     sourceNameTransformer = NameTransformers.JAVABEANS_ACCESSOR;
     destinationNameTransformer = NameTransformers.JAVABEANS_MUTATOR;
-    matchingStrategy = MatchingStrategies.INTELLIGENT;
+    matchingStrategy = MatchingStrategies.STANDARD;
     fieldAccessLevel = AccessLevel.PUBLIC;
     methodAccessLevel = AccessLevel.PUBLIC;
     enableFieldMatching = Boolean.FALSE;

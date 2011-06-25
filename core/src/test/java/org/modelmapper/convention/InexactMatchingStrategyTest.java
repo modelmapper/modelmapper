@@ -24,7 +24,7 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
   }
 
   public InexactMatchingStrategyTest() {
-    super(new IntelligentMatchingStrategy());
+    super(new StandardMatchingStrategy());
   }
 
   protected InexactMatchingStrategyTest(MatchingStrategy matchingStrategy) {

@@ -20,13 +20,16 @@ import org.modelmapper.spi.MappingContext;
 /**
  * Condition that must apply in order for mapping to occur.
  * 
+ * @param <S> source type
+ * @param <D> destination type
+ * 
  * @author Jonathan Halterman
  */
-public interface Condition {
+public interface Condition<S, D> {
   /**
    * Specifies whether the condition applies to the {@code context}.
    * 
    * @param context of current mapping process
    */
-  boolean applies(MappingContext<?, ?> context);
+  boolean applies(MappingContext<S, D> context);
 }

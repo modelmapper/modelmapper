@@ -47,7 +47,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   /** Guarded by "mappings" */
   private final Map<String, MappingImpl> mappings = new TreeMap<String, MappingImpl>();
   private Converter<S, D> converter;
-  private Condition condition;
+  private Condition<?, ?> condition;
   private Provider<D> provider;
 
   TypeMapImpl(Class<S> sourceType, Class<D> destinationType, Configuration configuration,
@@ -72,7 +72,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   @Override
-  public Condition getCondition() {
+  public Condition<?, ?> getCondition() {
     return condition;
   }
 
@@ -150,7 +150,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   @Override
-  public TypeMap<S, D> setCondition(Condition condition) {
+  public TypeMap<S, D> setCondition(Condition<?, ?> condition) {
     this.condition = Assert.notNull(condition, "condition");
     return this;
   }

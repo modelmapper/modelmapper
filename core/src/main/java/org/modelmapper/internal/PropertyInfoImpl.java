@@ -6,6 +6,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
 
@@ -14,21 +15,23 @@ import org.modelmapper.spi.PropertyType;
  * {@link #hashCode()} operations based on the property name.
  */
 abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
+  protected final Class<?> initialType;
   protected final M member;
   protected final Class<?> type;
   protected final String name;
   private final PropertyType propertyType;
 
-  private PropertyInfoImpl(M member, PropertyType propertyType, Class<?> type, String name) {
+  private PropertyInfoImpl(Class<?> initialType, M member, PropertyType propertyType, String name) {
+    this.initialType = initialType;
     this.member = member;
     this.propertyType = propertyType;
-    this.type = type;
+    this.type = TypeResolver.resolveClass(getGenericType(), initialType);
     this.name = name;
   }
 
   static abstract class AbstractMethodInfo extends PropertyInfoImpl<Method> {
-    private AbstractMethodInfo(Method method, Class<?> type, String name) {
-      super(method, PropertyType.METHOD, type, name);
+    private AbstractMethodInfo(Class<?> initialType, Method method, String name) {
+      super(initialType, method, PropertyType.METHOD, name);
       method.setAccessible(true);
     }
 
@@ -39,8 +42,8 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   }
 
   static class FieldPropertyInfo extends PropertyInfoImpl<Field> implements Accessor, Mutator {
-    FieldPropertyInfo(Field field, String name) {
-      super(field, PropertyType.FIELD, field.getType(), name);
+    FieldPropertyInfo(Class<?> initialType, Field field, String name) {
+      super(initialType, field, PropertyType.FIELD, name);
       field.setAccessible(true);
     }
 
@@ -74,8 +77,8 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   }
 
   static class MethodAccessor extends AbstractMethodInfo implements Accessor {
-    MethodAccessor(Method method, String name) {
-      super(method, method.getReturnType(), name);
+    MethodAccessor(Class<?> initialType, Method method, String name) {
+      super(initialType, method, name);
     }
 
     @Override
@@ -97,8 +100,8 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   }
 
   static class MethodMutator extends AbstractMethodInfo implements Mutator {
-    MethodMutator(Method method, String name) {
-      super(method, method.getParameterTypes()[0], name);
+    MethodMutator(Class<?> initialType, Method method, String name) {
+      super(initialType, method, name);
     }
 
     @Override
@@ -125,6 +128,11 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     PropertyInfoImpl<?> other = (PropertyInfoImpl<?>) obj;
     return member.getDeclaringClass().equals(other.member.getDeclaringClass())
         && name.equals(other.getName());
+  }
+
+  @Override
+  public Class<?> getInitialType() {
+    return initialType;
   }
 
   @Override

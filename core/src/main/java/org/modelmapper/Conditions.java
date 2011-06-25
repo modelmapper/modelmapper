@@ -12,25 +12,55 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 public class Conditions {
-  private static class AndCondition extends AbstractCondition implements Serializable {
+  private static final Condition<?, ?> IS_NULL = new AbstractCondition<Object, Object>() {
+    @SuppressWarnings("unused")
     private static final long serialVersionUID = 0;
-    private final Condition a;
-    private final Condition b;
 
-    AndCondition(Condition a, Condition b) {
+    @Override
+    public boolean applies(MappingContext<Object, Object> context) {
+      return context.getSource() == null;
+    }
+
+    @Override
+    public String toString() {
+      return "isNull()";
+    }
+  };
+
+  private static final Condition<?, ?> IS_NOT_NULL = new AbstractCondition<Object, Object>() {
+    @SuppressWarnings("unused")
+    private static final long serialVersionUID = 0;
+
+    @Override
+    public boolean applies(MappingContext<Object, Object> context) {
+      return context.getSource() != null;
+    }
+
+    @Override
+    public String toString() {
+      return "isNotNull()";
+    }
+  };
+
+  private static class AndCondition<S, D> extends AbstractCondition<S, D> implements Serializable {
+    private static final long serialVersionUID = 0;
+    private final Condition<S, D> a;
+    private final Condition<S, D> b;
+
+    AndCondition(Condition<S, D> a, Condition<S, D> b) {
       this.a = a;
       this.b = b;
     }
 
     @Override
-    public boolean applies(MappingContext<?, ?> context) {
+    public boolean applies(MappingContext<S, D> context) {
       return a.applies(context) && b.applies(context);
     }
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof AndCondition && ((AndCondition) other).a.equals(a)
-          && ((AndCondition) other).b.equals(b);
+      return other instanceof AndCondition && ((AndCondition<?, ?>) other).a.equals(a)
+          && ((AndCondition<?, ?>) other).b.equals(b);
     }
 
     @Override
@@ -44,21 +74,21 @@ public class Conditions {
     }
   }
 
-  private static class Not extends AbstractCondition implements Serializable {
+  private static class Not<S, D> extends AbstractCondition<S, D> implements Serializable {
     private static final long serialVersionUID = 0;
-    private final Condition delegate;
+    private final Condition<S, D> delegate;
 
-    private Not(Condition delegate) {
+    private Not(Condition<S, D> delegate) {
       this.delegate = Assert.notNull(delegate, "delegate");
     }
 
-    public boolean applies(MappingContext<?, ?> context) {
+    public boolean applies(MappingContext<S, D> context) {
       return !delegate.applies(context);
     }
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof Not && ((Not) other).delegate.equals(delegate);
+      return other instanceof Not && ((Not<?, ?>) other).delegate.equals(delegate);
     }
 
     @Override
@@ -72,25 +102,25 @@ public class Conditions {
     }
   }
 
-  private static class OrCondition extends AbstractCondition implements Serializable {
+  private static class OrCondition<S, D> extends AbstractCondition<S, D> implements Serializable {
     private static final long serialVersionUID = 0;
-    private final Condition a;
-    private final Condition b;
+    private final Condition<S, D> a;
+    private final Condition<S, D> b;
 
-    OrCondition(Condition a, Condition b) {
+    OrCondition(Condition<S, D> a, Condition<S, D> b) {
       this.a = a;
       this.b = b;
     }
 
     @Override
-    public boolean applies(MappingContext<?, ?> context) {
+    public boolean applies(MappingContext<S, D> context) {
       return a.applies(context) || b.applies(context);
     }
 
     @Override
     public boolean equals(Object other) {
-      return other instanceof OrCondition && ((OrCondition) other).a.equals(a)
-          && ((OrCondition) other).b.equals(b);
+      return other instanceof OrCondition && ((OrCondition<?, ?>) other).a.equals(a)
+          && ((OrCondition<?, ?>) other).b.equals(b);
     }
 
     @Override
@@ -110,48 +140,26 @@ public class Conditions {
    * @return new condition
    * @throws IllegalArgumentException if {@code condition1} or {@code condition2} is null
    */
-  public static Condition and(Condition condition1, Condition condition2) {
+  public static <S, D> Condition<S, D> and(Condition<S, D> condition1, Condition<S, D> condition2) {
     Assert.notNull(condition1, "condition1");
     Assert.notNull(condition2, "condition2");
-    return new AndCondition(condition1, condition2);
+    return new AndCondition<S, D>(condition1, condition2);
   }
 
   /**
    * Returns a condition that applies when the mapping source is not {@code null}.
    */
-  public static Condition isNotNull() {
-    return new AbstractCondition() {
-      private static final long serialVersionUID = 0;
 
-      @Override
-      public boolean applies(MappingContext<?, ?> context) {
-        return context.getSource() != null;
-      }
-
-      @Override
-      public String toString() {
-        return "isNotNull()";
-      }
-    };
+  public static Condition<?, ?> isNotNull() {
+    return IS_NOT_NULL;
   }
 
   /**
    * Returns a condition that applies when the mapping source is {@code null}.
    */
-  public static Condition isNull() {
-    return new AbstractCondition() {
-      private static final long serialVersionUID = 0;
 
-      @Override
-      public boolean applies(MappingContext<?, ?> context) {
-        return context.getSource() == null;
-      }
-
-      @Override
-      public String toString() {
-        return "isNull()";
-      }
-    };
+  public static Condition<?, ?> isNull() {
+    return IS_NULL;
   }
 
   /**
@@ -159,9 +167,9 @@ public class Conditions {
    * 
    * @throws IllegalArgumentException if {@code condition} is null
    */
-  public static Condition not(Condition condition) {
+  public static <S, D> Condition<S, D> not(Condition<S, D> condition) {
     Assert.notNull(condition, "condition");
-    return new Not(condition);
+    return new Not<S, D>(condition);
   }
 
   /**
@@ -170,9 +178,9 @@ public class Conditions {
    * @return new condition
    * @throws IllegalArgumentException if {@code condition1} or {@code condition2} is null
    */
-  public static Condition or(Condition condition1, Condition condition2) {
+  public static <S, D> Condition<S, D> or(Condition<S, D> condition1, Condition<S, D> condition2) {
     Assert.notNull(condition1, "condition1");
     Assert.notNull(condition2, "condition2");
-    return new OrCondition(condition1, condition2);
+    return new OrCondition<S, D>(condition1, condition2);
   }
 }

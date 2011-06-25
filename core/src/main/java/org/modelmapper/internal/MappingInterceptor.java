@@ -17,6 +17,8 @@ package org.modelmapper.internal;
 
 import java.lang.reflect.Method;
 
+import org.modelmapper.internal.util.Types;
+
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -35,7 +37,7 @@ final class MappingInterceptor implements MethodInterceptor {
   @Override
   public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
       throws Throwable {
-    mappingProgress.encountered(method, args);
+    mappingProgress.encountered(Types.deProxy(obj.getClass()), method, args);
     
     return method.getReturnType() == void.class ? null : ProxyFactory.proxyFor(
         method.getReturnType(), mappingProgress);

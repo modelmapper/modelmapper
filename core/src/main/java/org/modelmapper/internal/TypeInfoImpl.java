@@ -76,7 +76,7 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
    * {@code namingConvention}.
    */
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> void buildProperties(
-      Class<?> type, InitRequest<M, PI> initRequest) {
+      Class<?> initialType, Class<?> type, InitRequest<M, PI> initRequest) {
 
     for (M member : initRequest.propertyResolver.membersFor(type)) {
       if (canAccessMember(member, initRequest.accessLevel)
@@ -85,7 +85,8 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
 
         String name = initRequest.nameTransformer.transform(member.getName(), PropertyType.FIELD
             .equals(initRequest.propertyType) ? NameableType.FIELD : NameableType.METHOD);
-        PI info = initRequest.propertyResolver.propertyInfoFor(member, initRequest.config, name);
+        PI info = initRequest.propertyResolver.propertyInfoFor(initialType, member,
+            initRequest.config, name);
         initRequest.propertyInfo.put(name, info);
 
         if (!Modifier.isPublic(member.getModifiers())
@@ -100,7 +101,7 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
 
     Class<?> superType = type.getSuperclass();
     if (superType != null && superType != Object.class)
-      buildProperties(superType, initRequest);
+      buildProperties(initialType, superType, initRequest);
   }
 
   @Override
@@ -181,7 +182,7 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
       initRequest.accessLevel = configuration.getMethodAccessLevel();
     }
 
-    buildProperties(type, initRequest);
+    buildProperties(type, type, initRequest);
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })

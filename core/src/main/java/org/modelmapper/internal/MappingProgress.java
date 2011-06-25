@@ -49,16 +49,17 @@ abstract class MappingProgress<T extends PropertyInfo> {
     }
 
     @Override
-    public void encountered(Method method, Object[] args) {
+    public void encountered(Class<?> proxyType, Method method, Object[] args) {
       if (PropertyResolver.MUTATORS.isValid(method)) {
         String propertyName = config.getDestinationNameTransformer().transform(method.getName(),
             NameableType.METHOD);
-        propertyInfo.add(PropertyInfoRegistry.mutatorFor(method, config, propertyName));
+        propertyInfo.add(PropertyInfoRegistry.mutatorFor(proxyType, method, config,
+            propertyName));
         argument = args.length == 1 ? args[0] : null;
       } else if (PropertyResolver.ACCESSORS.isValid(method)) {
         // Find mutator corresponding to accessor
-        Mutator mutator = TypeInfoRegistry.typeInfoFor(method.getDeclaringClass(), config)
-            .mutatorForAccessor(method.getName());
+        Mutator mutator = TypeInfoRegistry.typeInfoFor(proxyType, config).mutatorForAccessor(
+            method.getName());
         if (mutator != null)
           propertyInfo.add(mutator);
         else
@@ -83,11 +84,12 @@ abstract class MappingProgress<T extends PropertyInfo> {
     }
 
     @Override
-    public void encountered(Method method, Object[] args) {
+    public void encountered(Class<?> proxyType, Method method, Object[] args) {
       if (PropertyResolver.ACCESSORS.isValid(method)) {
         String propertyName = config.getSourceNameTransformer().transform(method.getName(),
             NameableType.METHOD);
-        propertyInfo.add(PropertyInfoRegistry.accessorFor(method, config, propertyName));
+        propertyInfo.add(PropertyInfoRegistry.accessorFor(proxyType, method, config,
+            propertyName));
       } else
         builder.errors.invalidSourceMethod(method);
     }
@@ -95,9 +97,9 @@ abstract class MappingProgress<T extends PropertyInfo> {
 
   boolean contains(Object object) {
     return propertyInfo.contains(object);
-  };
+  }
 
-  abstract void encountered(Method method, Object[] args);
+  abstract void encountered(Class<?> proxyType, Method method, Object[] args);;
 
   void reset() {
     propertyInfo.clear();

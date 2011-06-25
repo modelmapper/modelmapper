@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.AbstractTest;
+import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -41,12 +41,9 @@ public class CircularDependencies2 extends AbstractTest {
     DestinationStreet street;
   }
 
-  @BeforeMethod
-  public void initMethodContext() {
+  @Test(expectedExceptions = ConfigurationException.class)
+  public void shouldThrowOnCreateTypeMap() {
     modelMapper.createTypeMap(SourceTown.class, DestinationTown.class);
-    modelMapper.createTypeMap(SourceStreet.class, DestinationStreet.class);
-    modelMapper.createTypeMap(SourceHouse.class, DestinationHouse.class);
-    modelMapper.validate();
   }
 
   @Test(expectedExceptions = MappingException.class)

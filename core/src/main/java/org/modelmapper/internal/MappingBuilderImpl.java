@@ -59,11 +59,11 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
   }
 
   static class MappingOptions {
-    Condition condition;
+    Condition<?, ?> condition;
+    Converter<?, ?> converter;
+    Provider<?> provider;
     boolean skip;
     boolean mapFromSource;
-    Provider<?> provider;
-    Converter<?, ?> converter;
   }
 
   MappingBuilderImpl(Class<S> sourceType, Class<D> destinationType, Configuration configuration) {
@@ -103,7 +103,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
   }
 
   @Override
-  public ConditionExpression<S, D> when(Condition condition) {
+  public ConditionExpression<S, D> when(Condition<?, ?> condition) {
     saveLastMapping();
     Assert.state(options.condition == null, "when() can only be called once per mapping.");
     options.condition = condition;
@@ -189,8 +189,8 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
 
     if (destinationProgress.propertyInfo.isEmpty())
       errors.missingDestination();
-    if (options.mapFromSource && options.converter == null)
-      errors.mapFromSourceWithoutConverter();
+    // if (options.mapFromSource && options.converter == null)
+    // errors.mapFromSourceWithoutConverter();
 
     try {
       if (!destinationProgress.propertyInfo.isEmpty()) {

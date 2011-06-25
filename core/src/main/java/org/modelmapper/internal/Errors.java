@@ -193,9 +193,8 @@ public final class Errors {
         unmappedProperties);
   }
 
-  public Errors errorCircularMapping(Class<?> sourceType, Class<?> destinationType) {
-    return addMessage("Circular mapping detected when mapping to %s to %s.", sourceType,
-        destinationType);
+  public Errors errorCircularReference(Class<?> type) {
+    return addMessage("Circular reference detected in %s.", type);
   }
 
   public Errors errorUnsupportedMapping(Class<?> sourceType, Class<?> destinationType) {
@@ -275,10 +274,6 @@ public final class Errors {
 
   Errors errorAccessingProperty(PropertyInfo propertyInfo) {
     return addMessage("Failed to access %s.", propertyInfo);
-  }
-
-  Errors mapFromSourceWithoutConverter() {
-    return addMessage("Cannot map from source object without using a Converter.");
   }
 
   Errors errorConverting(org.modelmapper.Converter<?, ?> converter, Class<?> sourceType,

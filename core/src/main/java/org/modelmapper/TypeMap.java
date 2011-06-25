@@ -46,7 +46,7 @@ public interface TypeMap<S, D> {
    * 
    * @see #setCondition(Condition)
    */
-  Condition getCondition();
+  Condition<?, ?> getCondition();
 
   /**
    * Returns the Converter configured for this TypeMap, else {@code null} if no Converter has been
@@ -116,7 +116,7 @@ public interface TypeMap<S, D> {
    * 
    * @throws IllegalArgumentException if {@code condition} is null
    */
-  TypeMap<S, D> setCondition(Condition condition);
+  TypeMap<S, D> setCondition(Condition<?, ?> condition);
 
   /**
    * Sets the {@code converter} to be used for any conversion requests for the TypeMap's source to

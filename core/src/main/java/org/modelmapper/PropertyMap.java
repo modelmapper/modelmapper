@@ -237,7 +237,7 @@ public abstract class PropertyMap<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final ProviderExpression<S, D> when(Condition condition) {
+  protected final ProviderExpression<S, D> when(Condition<?, ?> condition) {
     checkBuilder();
     return builder.when(condition);
   }

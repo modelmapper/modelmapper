@@ -32,7 +32,7 @@ public interface Mapping {
    * 
    * @return condition, else null if none was configured
    */
-  Condition getCondition();
+  Condition<?, ?> getCondition();
 
   /**
    * Gets the Converter to be used when performing a mapping.

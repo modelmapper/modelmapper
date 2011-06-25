@@ -28,26 +28,33 @@ import org.modelmapper.internal.PropertyInfoImpl.MethodMutator;
 import org.modelmapper.spi.PropertyInfo;
 
 /**
- * Statically stores and retrieves MemberInfo by member and configuration.
+ * Statically stores and retrieves MemberInfo by member and configuration. This registry is designed
+ * to return a distinct PropertyInfo instance for each initial type, member and configuration object
+ * set.
  * 
  * @author Jonathan Halterman
  */
 class PropertyInfoRegistry {
   private static final Map<Integer, PropertyInfo> cache = new HashMap<Integer, PropertyInfo>();
 
-  private static Integer hashCodeFor(Member member, Configuration configuration) {
-    return Integer.valueOf(member.hashCode() * 31 + configuration.hashCode());
+  private static Integer hashCodeFor(Class<?> initialType, Member member,
+      Configuration configuration) {
+    int result = 31 * +initialType.hashCode();
+    result = 31 * result + member.hashCode();
+    result = 31 * result + configuration.hashCode();
+    return Integer.valueOf(result);
   }
 
   /**
    * Returns an Accessor for the given accessor method. The method must be externally validated to
    * ensure that it accepts zero arguments and does not return void.class.
    */
-  static synchronized Accessor accessorFor(Method method, Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(method, configuration);
+  static synchronized Accessor accessorFor(Class<?> initialType, Method method,
+      Configuration configuration, String name) {
+    Integer hashCode = hashCodeFor(initialType, method, configuration);
     Accessor accessor = (Accessor) cache.get(hashCode);
     if (accessor == null) {
-      accessor = new MethodAccessor(method, name);
+      accessor = new MethodAccessor(initialType, method, name);
       cache.put(hashCode, accessor);
     }
 
@@ -57,12 +64,12 @@ class PropertyInfoRegistry {
   /**
    * Returns a FieldPropertyInfo instance for the given field.
    */
-  static synchronized FieldPropertyInfo fieldPropertyFor(Field field, Configuration configuration,
-      String name) {
-    Integer hashCode = hashCodeFor(field, configuration);
+  static synchronized FieldPropertyInfo fieldPropertyFor(Class<?> initialType, Field field,
+      Configuration configuration, String name) {
+    Integer hashCode = hashCodeFor(initialType, field, configuration);
     FieldPropertyInfo fieldPropertyInfo = (FieldPropertyInfo) cache.get(hashCode);
     if (fieldPropertyInfo == null) {
-      fieldPropertyInfo = new FieldPropertyInfo(field, name);
+      fieldPropertyInfo = new FieldPropertyInfo(initialType, field, name);
       cache.put(hashCode, fieldPropertyInfo);
     }
 
@@ -73,11 +80,12 @@ class PropertyInfoRegistry {
    * Returns a Mutator instance for the given mutator method. The method must be externally
    * validated to ensure that it accepts one argument and returns void.class.
    */
-  static synchronized Mutator mutatorFor(Method method, Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(method, configuration);
+  static synchronized Mutator mutatorFor(Class<?> initialType, Method method,
+      Configuration configuration, String name) {
+    Integer hashCode = hashCodeFor(initialType, method, configuration);
     Mutator mutator = (Mutator) cache.get(hashCode);
     if (mutator == null) {
-      mutator = new MethodMutator(method, name);
+      mutator = new MethodMutator(initialType, method, name);
       cache.put(hashCode, mutator);
     }
 

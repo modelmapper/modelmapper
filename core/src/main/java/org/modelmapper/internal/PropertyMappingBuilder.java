@@ -1,22 +1,25 @@
 package org.modelmapper.internal;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.modelmapper.TypeMap;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.converter.ConverterStore;
+import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Primitives;
-import org.modelmapper.internal.util.Stack;
 import org.modelmapper.internal.util.Strings;
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.PropertyInfo;
 
 /**
- * Builds implicit property mappings for a TypeMap.
+ * Builds and populates implicit property mappings for a TypeMap.
  * 
  * @param <S> source type
  * @param <D> destination type
@@ -34,8 +37,11 @@ class PropertyMappingBuilder<S, D> {
   /** Mutable state */
   private final Errors errors = new Errors();
   private final PropertyNameInfoImpl propertyNameInfo;
-  private final Stack<Class<?>> sourceTypes = new Stack<Class<?>>();
+  private final Set<Class<?>> sourceTypes = new HashSet<Class<?>>();
+  private final Set<Class<?>> destinationTypes = new HashSet<Class<?>>();
   private final List<PropertyMappingImpl> mappings = new ArrayList<PropertyMappingImpl>();
+  /** Mappings for which the source accessor type was not verified by the supported converter */
+  private final List<PropertyMappingImpl> unverifiedMappings = new ArrayList<PropertyMappingImpl>();
 
   PropertyMappingBuilder(TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
@@ -53,6 +59,10 @@ class PropertyMappingBuilder<S, D> {
   }
 
   private void process(TypeInfo<?> destinationTypeInfo) {
+    Class<?> destinationType = destinationTypeInfo.getType();
+    if (!Iterables.isIterable(destinationType) && !destinationTypes.add(destinationType))
+      throw errors.errorCircularReference(destinationType).toConfigurationException();
+
     for (Map.Entry<String, Mutator> entry : destinationTypeInfo.getMutators().entrySet()) {
       Mutator mutator = entry.getValue();
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
@@ -76,6 +86,7 @@ class PropertyMappingBuilder<S, D> {
         }
 
         mappings.clear();
+        unverifiedMappings.clear();
       } else {
         TypeMap<?, ?> destinationMap = typeMapStore.get(typeMap.getSourceType(), mutator.getType());
         if (destinationMap == null) {
@@ -88,6 +99,7 @@ class PropertyMappingBuilder<S, D> {
       propertyNameInfo.popDestination();
     }
 
+    destinationTypes.remove(destinationTypeInfo.getType());
     errors.throwConfigurationExceptionIfErrorsExist();
   }
 
@@ -95,19 +107,29 @@ class PropertyMappingBuilder<S, D> {
    * Matches a source accessor hierarchy to the {@code destinationMutator}.
    */
   private void buildMappings(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
-    sourceTypes.push(sourceTypeInfo.getType());
+    sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
       Accessor accessor = entry.getValue();
       propertyNameInfo.pushSource(entry.getKey(), entry.getValue());
 
-      if (matchingStrategy.matches(propertyNameInfo)
-          && typeConverterStore.getFirstSupported(accessor.getType(), destinationMutator.getType()) != null) {
-        mappings.add(new PropertyMappingImpl(propertyNameInfo.sourceProperties,
-            propertyNameInfo.destinationProperties));
+      if (matchingStrategy.matches(propertyNameInfo)) {
+        ConditionalConverter<?, ?> converter = typeConverterStore.getFirstSupported(
+            accessor.getType(), destinationMutator.getType());
 
-        if (matchingStrategy.isExact())
-          return;
+        // Ensure that a converter supports the match
+        if (converter != null) {
+          PropertyMappingImpl mapping = new PropertyMappingImpl(propertyNameInfo.sourceProperties,
+              propertyNameInfo.destinationProperties);
+
+          //if (converter.verifiesSource())
+            mappings.add(mapping);
+          //else
+          //  unverifiedMappings.add(mapping);
+
+          if (matchingStrategy.isExact())
+            return;
+        }
       }
 
       if (isRecursivelyMatchable(accessor.getType()))
@@ -117,7 +139,7 @@ class PropertyMappingBuilder<S, D> {
       propertyNameInfo.popSource();
     }
 
-    sourceTypes.pop();
+    sourceTypes.remove(sourceTypeInfo.getType());
   }
 
   /**
@@ -192,6 +214,9 @@ class PropertyMappingBuilder<S, D> {
     return multipleMax ? null : closestMapping;
   }
 
+  /**
+   * Merges mappings from an existing TypeMap into the type map under construction.
+   */
   private void mergeMappings(TypeMap<?, ?> destinationMap) {
     for (Mapping mapping : destinationMap.getMappings())
       typeMap.addMapping(((MappingImpl) mapping)

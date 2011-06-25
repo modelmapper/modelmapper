@@ -17,11 +17,14 @@ public interface Configuration {
    * The level at and below which properties can be accessed.
    */
   public enum AccessLevel {
+    /** Only public properties are accessible. */
+    PUBLIC,
+    /** All public and protected properties are accessible. */
+    PROTECTED,
     /** All public, protected and package private properties are accessible. */
-    PACKAGE_PRIVATE, /** All properties are accessible. */
-    PRIVATE, /** All public and protected properties are accessible. */
-    PROTECTED, /** Only public properties are accessible. */
-    PUBLIC;
+    PACKAGE_PRIVATE,
+    /** All properties are accessible. */
+    PRIVATE;
   }
 
   /**
@@ -45,6 +48,8 @@ public interface Configuration {
    * Sets whether field matching should be enabled. When true, mapping may take place between
    * accessible fields. Default is {@code false}.
    * 
+   * @param enabled whether field matching is enabled
+   * @see #isFieldMatchingEnabled()
    * @see #setFieldAccessLevel(AccessLevel)
    */
   Configuration enableFieldMatching(boolean enabled);
@@ -123,6 +128,9 @@ public interface Configuration {
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true ambiguous destination properties are skipped during the matching process. When false
    * a ConfigurationException is thrown when ambiguous properties are encountered.
+   * 
+   * @param ignore whether ambiguity is to be ignored
+   * @see #isAmbiguityIgnored()
    */
   Configuration ignoreAmbiguity(boolean ignore);
 
