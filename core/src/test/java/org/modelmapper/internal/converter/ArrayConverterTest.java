@@ -30,6 +30,7 @@ public class ArrayConverterTest extends AbstractConverterTest {
     String[] array;
   }
 
+  @SuppressWarnings("serial")
   static class LongList extends ArrayList<Long> {
   }
 
@@ -75,13 +76,11 @@ public class ArrayConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-// TODO fix
-    //    assertTrue(converter.supports(ArrayList.class, ArrayList.class, Object[].class, Object[].class));
-//    assertTrue(converter.supports(Object[].class, Object[].class, String[].class, String[].class));
-//    assertTrue(converter.supports(LongList.class, LongList[].class, Long[].class, Long[].class));
-//    
-//    // Negative
-//    assertFalse(converter
-//        .supports(Object[].class, Object[].class, ArrayList.class, ArrayList.class));
+    assertTrue(converter.supports(ArrayList.class, Object[].class));
+    assertTrue(converter.supports(Object[].class, String[].class));
+    assertTrue(converter.supports(LongList.class, Long[].class));
+
+    // Negative
+    assertFalse(converter.supports(Object[].class, ArrayList.class));
   }
 }

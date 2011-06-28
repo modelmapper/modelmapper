@@ -5,7 +5,6 @@ import static org.testng.Assert.fail;
 
 import org.modelmapper.Fixtures;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.InheritingConfiguration;
 import org.modelmapper.internal.MappingContextImpl;
 import org.modelmapper.internal.MappingEngineImpl;

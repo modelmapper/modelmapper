@@ -1,4 +1,4 @@
-0.3.1
+0.3.1 (6/27/2011)
 
 - Added better handling of inherited generic component types
 - Added support for shaded properties when using a converter, a skipped mapping or a null source constant
