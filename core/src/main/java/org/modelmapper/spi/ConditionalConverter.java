@@ -30,11 +30,6 @@ public interface ConditionalConverter<S, D> extends Converter<S, D> {
    * {@code destinationType}. Implementors should only return true for source and destination types
    * that satisfy {@code S} and {@code D}.
    * 
-   * <p>
-   * For implementations that are not concerned with generic type information, support for the
-   * conditional converter can be checked simply by examining the {@code sourceType} and
-   * {@code destinationType}.
-   * 
    * @param sourceType to match
    * @param genericSourceType from which generic type information can be retrieved
    * @param destinationType to match
@@ -44,8 +39,14 @@ public interface ConditionalConverter<S, D> extends Converter<S, D> {
   boolean supports(Class<?> sourceType, Class<?> destinationType);
 
   /**
+   * Returns whether the Converter supports conversion from the {@code sourceType}. Used only for
+   * converters where {@link #verifiesSource()} is {@code false}.
+   */
+  boolean supportsSource(Class<?> sourceType);
+
+  /**
    * Returns whether the Converter verifies the source type when
    * {@link ConditionalConverter#supports(Class, Class) supports} is called.
    */
-  //boolean verifiesSource();
+  boolean verifiesSource();
 }

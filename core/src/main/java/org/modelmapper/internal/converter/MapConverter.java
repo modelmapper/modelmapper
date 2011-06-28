@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.modelmapper.internal.util.TypeResolver;
-import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyInfo;
@@ -31,7 +30,7 @@ import org.modelmapper.spi.PropertyMapping;
  * 
  * @author Jonathan Halterman
  */
-class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object>> {
+class MapConverter extends AbstractConditionalConverter<Map<?, ?>, Map<Object, Object>> {
   @Override
   public Map<Object, Object> convert(MappingContext<Map<?, ?>, Map<Object, Object>> context) {
     Map<?, ?> source = context.getSource();

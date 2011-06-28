@@ -48,4 +48,14 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return destinationType == Boolean.class || destinationType == Boolean.TYPE;
   }
+
+  @Override
+  public boolean supportsSource(Class<?> sourceType) {
+    return sourceType == Boolean.class || sourceType == Boolean.TYPE;
+  }
+
+  @Override
+  public boolean verifiesSource() {
+    return false;
+  }
 }

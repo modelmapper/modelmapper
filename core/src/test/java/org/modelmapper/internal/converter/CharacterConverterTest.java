@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 @Test
 public class CharacterConverterTest extends AbstractConverterTest {
   static class Source {
-    Entity value;
+    Entity value = new Entity();
   }
 
   static class Entity {

@@ -34,8 +34,13 @@ class StringConverter implements ConditionalConverter<Object, String> {
     return destinationType == String.class;
   }
 
-//  @Override
-//  public boolean verifiesSource() {
-//    return false;
-//  }
+  @Override
+  public boolean supportsSource(Class<?> sourceType) {
+    return sourceType == String.class;
+  }
+
+  @Override
+  public boolean verifiesSource() {
+    return false;
+  }
 }

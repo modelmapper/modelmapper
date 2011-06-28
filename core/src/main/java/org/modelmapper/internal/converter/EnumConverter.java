@@ -15,7 +15,6 @@
  */
 package org.modelmapper.internal.converter;
 
-import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -23,7 +22,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class EnumConverter implements ConditionalConverter<Enum<?>, Enum<?>> {
+class EnumConverter extends AbstractConditionalConverter<Enum<?>, Enum<?>> {
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Enum<?> convert(MappingContext<Enum<?>, Enum<?>> context) {

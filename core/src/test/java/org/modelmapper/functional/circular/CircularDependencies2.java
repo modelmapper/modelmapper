@@ -41,9 +41,13 @@ public class CircularDependencies2 extends AbstractTest {
     DestinationStreet street;
   }
 
+  /**
+   * Should throw since component types are eagerly checked during matching process.
+   */
   @Test(expectedExceptions = ConfigurationException.class)
   public void shouldThrowOnCreateTypeMap() {
-    modelMapper.createTypeMap(SourceTown.class, DestinationTown.class);
+    Object o = modelMapper.map(SourceTown.class, DestinationTown.class);
+    int i = 0;
   }
 
   @Test(expectedExceptions = MappingException.class)

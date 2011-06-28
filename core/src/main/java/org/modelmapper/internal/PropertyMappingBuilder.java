@@ -55,10 +55,10 @@ class PropertyMappingBuilder<S, D> {
   }
 
   void build() {
-    process(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration));
+    matchDestination(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration));
   }
 
-  private void process(TypeInfo<?> destinationTypeInfo) {
+  private void matchDestination(TypeInfo<?> destinationTypeInfo) {
     Class<?> destinationType = destinationTypeInfo.getType();
     if (!Iterables.isIterable(destinationType) && !destinationTypes.add(destinationType))
       throw errors.errorCircularReference(destinationType).toConfigurationException();
@@ -69,10 +69,13 @@ class PropertyMappingBuilder<S, D> {
 
       // Skip explicit mappings
       if (!typeMap.isMapped(Strings.join(propertyNameInfo.destinationProperties))) {
-        buildMappings(sourceTypeInfo, mutator);
+        matchSource(sourceTypeInfo, mutator);
         propertyNameInfo.clearSource();
         sourceTypes.clear();
       }
+
+      if (!unverifiedMappings.isEmpty() && mappings.isEmpty())
+        mappings.addAll(unverifiedMappings);
 
       if (!mappings.isEmpty()) {
         if (mappings.size() == 1) {
@@ -90,7 +93,7 @@ class PropertyMappingBuilder<S, D> {
       } else {
         TypeMap<?, ?> destinationMap = typeMapStore.get(typeMap.getSourceType(), mutator.getType());
         if (destinationMap == null) {
-          process(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
+          matchDestination(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
         } else {
           mergeMappings(destinationMap);
         }
@@ -106,7 +109,7 @@ class PropertyMappingBuilder<S, D> {
   /**
    * Matches a source accessor hierarchy to the {@code destinationMutator}.
    */
-  private void buildMappings(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
+  private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
     sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
@@ -122,18 +125,17 @@ class PropertyMappingBuilder<S, D> {
           PropertyMappingImpl mapping = new PropertyMappingImpl(propertyNameInfo.sourceProperties,
               propertyNameInfo.destinationProperties);
 
-          //if (converter.verifiesSource())
+          if (converter.verifiesSource() || converter.supportsSource(accessor.getType())) {
             mappings.add(mapping);
-          //else
-          //  unverifiedMappings.add(mapping);
-
-          if (matchingStrategy.isExact())
-            return;
+            if (matchingStrategy.isExact())
+              return;
+          } else
+            unverifiedMappings.add(mapping);
         }
       }
 
       if (isRecursivelyMatchable(accessor.getType()))
-        buildMappings(TypeInfoRegistry.typeInfoFor(accessor.getType(), configuration),
+        matchSource(TypeInfoRegistry.typeInfoFor(accessor.getType(), configuration),
             destinationMutator);
 
       propertyNameInfo.popSource();

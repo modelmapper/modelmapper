@@ -33,4 +33,14 @@ class CharacterConverter implements ConditionalConverter<Object, Character> {
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return destinationType == Character.class || destinationType == Character.TYPE;
   }
+
+  @Override
+  public boolean supportsSource(Class<?> sourceType) {
+    return sourceType == Character.class || sourceType == Character.TYPE;
+  }
+
+  @Override
+  public boolean verifiesSource() {
+    return false;
+  }
 }

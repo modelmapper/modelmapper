@@ -21,7 +21,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.modelmapper.internal.Errors;
-import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -47,7 +46,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class DateConverter implements ConditionalConverter<Object, Object> {
+class DateConverter extends AbstractConditionalConverter<Object, Object> {
   @Override
   public Object convert(MappingContext<Object, Object> context) {
     Object source = context.getSource();

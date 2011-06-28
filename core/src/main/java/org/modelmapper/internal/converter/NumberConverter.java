@@ -72,10 +72,18 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
   @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return Number.class.isAssignableFrom(Primitives.wrapperFor(destinationType));
-//        && (Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
-//            || sourceType == Boolean.class || sourceType == Boolean.TYPE
-//            || sourceType == String.class || Date.class.isAssignableFrom(sourceType) || Calendar.class
-//            .isAssignableFrom(sourceType));
+  }
+
+  @Override
+  public boolean supportsSource(Class<?> sourceType) {
+    return Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
+        || sourceType == Boolean.class || sourceType == Boolean.TYPE || sourceType == String.class
+        || Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType);
+  }
+
+  @Override
+  public boolean verifiesSource() {
+    return false;
   }
 
   /**
