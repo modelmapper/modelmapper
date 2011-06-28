@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
 import org.testng.annotations.Test;
 
@@ -39,15 +38,6 @@ public class CircularDependencies2 extends AbstractTest {
 
   static class DestinationHouse {
     DestinationStreet street;
-  }
-
-  /**
-   * Should throw since component types are eagerly checked during matching process.
-   */
-  @Test(expectedExceptions = ConfigurationException.class)
-  public void shouldThrowOnCreateTypeMap() {
-    Object o = modelMapper.map(SourceTown.class, DestinationTown.class);
-    int i = 0;
   }
 
   @Test(expectedExceptions = MappingException.class)

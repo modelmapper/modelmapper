@@ -62,15 +62,14 @@ public class MappingEngineImpl implements MappingEngine {
   public <S, D> D map(S source, Class<S> sourceType, D destination, Class<D> destinationType) {
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
         destination, destinationType, this);
-    if (!Iterables.isIterable(destinationType))
-      context.currentlyMapping(destinationType);
-
     D result = null;
 
     try {
-      result = mapInitial(context);
+      result = map(context);
     } catch (ConfigurationException e) {
       throw e;
+    } catch (ErrorsException e) {
+      throw context.errors.toMappingException();
     } catch (Throwable t) {
       context.errors.errorMapping(sourceType, destinationType, t);
     }
@@ -81,24 +80,7 @@ public class MappingEngineImpl implements MappingEngine {
 
   /**
    * Performs mapping using a TypeMap if one exists, else a converter if one applies, else a newly
-   * created TypeMap.
-   */
-  private <S, D> D mapInitial(MappingContext<S, D> context) {
-    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType());
-    if (typeMap != null)
-      return typeMap(context, typeMap);
-
-    Converter<S, D> converter = converterFor(context);
-    if (converter != null)
-      return convert(context, converter);
-
-    // Call getOrCreate in case TypeMap was created concurrently
-    typeMap = typeMapStore.getOrCreate(context.getSourceType(), context.getDestinationType(), this);
-    return typeMap(context, typeMap);
-  }
-
-  /**
-   * Recursive entry point.
+   * created TypeMap. Recursive entry point.
    */
   @Override
   public <S, D> D map(MappingContext<S, D> context) {
@@ -108,19 +90,18 @@ public class MappingEngineImpl implements MappingEngine {
       throw contextImpl.errors.errorCircularReference(destinationType).toException();
 
     D destination = null;
-    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), destinationType);
-
+    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType());
     if (typeMap != null) {
       destination = typeMap(context, typeMap);
     } else {
       Converter<S, D> converter = converterFor(context);
-      if (converter == null && context.getSource() != null) {
-        if (context.getDestination() == null)
-          contextImpl.errors.errorUnsupportedMapping(context.getSourceType(), destinationType);
-        else
-          destination = context.getDestination();
-      } else {
+      if (converter != null) {
         destination = convert(context, converter);
+      } else {
+        // Call getOrCreate in case TypeMap was created concurrently
+        typeMap = typeMapStore.getOrCreate(context.getSourceType(), context.getDestinationType(),
+            this);
+        destination = typeMap(context, typeMap);
       }
     }
 
@@ -273,6 +254,8 @@ public class MappingEngineImpl implements MappingEngine {
   private <S, D> D convert(MappingContext<S, D> context, Converter<S, D> converter) {
     try {
       return converter.convert(context);
+    } catch (ErrorsException e) {
+      throw e;
     } catch (Exception e) {
       ((MappingContextImpl<S, D>) context).errors.errorConverting(converter,
           context.getSourceType(), context.getDestinationType(), e);

@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import static org.testng.Assert.*;
 
 /**
  * Adapted from http://stackoverflow.com/questions/6123759/
@@ -89,6 +90,8 @@ public class GenericElementMapping extends AbstractTest {
     });
 
     DtoListWrapper wrapper = modelMapper.map(listWrapper, DtoListWrapper.class);
+    assertEquals(wrapper.getEntries().get(0).getAccountName(), "Person A");
+    assertEquals(wrapper.getEntries().get(1).getAccountName(), "Person B");
   }
 
   public void shouldMapDeeplyMappedExplicitGenericElements() {
@@ -100,6 +103,8 @@ public class GenericElementMapping extends AbstractTest {
     });
 
     DtoListWrapperWrapper wrapper = modelMapper.map(listWrapper, DtoListWrapperWrapper.class);
+    assertEquals(wrapper.getWrapper().getEntries().get(0).getAccountName(), "Person A");
+    assertEquals(wrapper.getWrapper().getEntries().get(1).getAccountName(), "Person B");
   }
 
   public void shouldMapImplicitGenericElements() {
@@ -114,6 +119,7 @@ public class GenericElementMapping extends AbstractTest {
 
     ModelMapper modelMapper = new ModelMapper();
     DtoListWrapper wrapper = modelMapper.map(listWrapperBo, DtoListWrapper.class);
-    int i = 0;
+    assertEquals(wrapper.getEntries().get(0).getAccountName(), "Person A");
+    assertEquals(wrapper.getEntries().get(1).getAccountName(), "Person B");
   }
 }
