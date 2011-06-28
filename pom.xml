@@ -14,6 +14,32 @@
 	<description>ModelMapper is a simple, intelligent object mapper</description>
 	<url>http://modelmapper.org</url>
 	<inceptionYear>2011</inceptionYear>
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Jonathan Halterman</name>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/jhalterman/modelmapper.git</connection>
+		<developerConnection>scm:git:git://github.com/jhalterman/modelmapper.git</developerConnection>
+		<url>scm:git:git://github.com/jhalterman/modelmapper.git</url>
+	</scm>
+	<mailingLists>
+		<mailingList>
+			<name>ModelMapper List</name>
+			<archive>http://groups.google.com/group/modelmapper/topics</archive>
+			<subscribe>http://groups.google.com/group/modelmapper/subscribe</subscribe>
+			<unsubscribe>http://groups.google.com/group/modelmapper/subscribe</unsubscribe>
+			<post>http://groups.google.com/group/google-guice/post</post>
+		</mailingList>
+	</mailingLists>
 	<modules>
 		<module>core</module>
 		<module>extensions</module>
@@ -76,31 +102,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<mailingLists>
-		<mailingList>
-			<name>ModelMapper List</name>
-			<archive>http://groups.google.com/group/modelmapper/topics</archive>
-			<subscribe>http://groups.google.com/group/modelmapper/subscribe</subscribe>
-			<unsubscribe>http://groups.google.com/group/modelmapper/subscribe</unsubscribe>
-			<post>http://groups.google.com/group/google-guice/post</post>
-		</mailingList>
-	</mailingLists>
-	<scm>
-		<connection>scm:git:git://github.com/jhalterman/modelmapper.git</connection>
-		<developerConnection>scm:git:git://github.com/jhalterman/modelmapper.git</developerConnection>
-		<url>scm:git:git://github.com/jhalterman/modelmapper.git</url>
-	</scm>
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>http://apache.org/licenses/LICENSE-2.0</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<developers>
-		<developer>
-			<id>jhalterman</id>
-			<name>Jonathan Halterman</name>
-		</developer>
-	</developers>
 </project>
