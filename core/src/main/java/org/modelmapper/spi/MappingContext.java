@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,8 +72,6 @@ public interface MappingContext<S, D> {
   /**
    * Returns the TypeMap associated with the mapping request else {@code null} if the request did
    * not originate from a TypeMap.
-   * 
-   * @return
    */
   TypeMap<S, D> typeMap();
 }

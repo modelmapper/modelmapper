@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,6 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * A mutator that encapsulates a property.
- * 
- * @param mutated property type
  * 
  * @author Jonathan Halterman
  */

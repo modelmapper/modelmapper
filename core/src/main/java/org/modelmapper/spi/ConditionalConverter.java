@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,9 +31,7 @@ public interface ConditionalConverter<S, D> extends Converter<S, D> {
    * that satisfy {@code S} and {@code D}.
    * 
    * @param sourceType to match
-   * @param genericSourceType from which generic type information can be retrieved
    * @param destinationType to match
-   * @param genericDestinationType from which generic type information can be retrieved resolved
    * @return true if conversion is supported, else false
    */
   boolean supports(Class<?> sourceType, Class<?> destinationType);
