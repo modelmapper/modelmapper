@@ -9,8 +9,17 @@
 		<version>${version.number}-SNAPSHOT</version>
 	</parent>
 	<artifactId>modelmapper-guice</artifactId>
+	<version>0.3.0-SNAPSHOT</version>
 	<name>ModelMapper - Extensions - Guice</name>
+	<properties>
+		<version.number>0.3.0</version.number>
+	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>[0.3.0,)</version>
+		</dependency>
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
