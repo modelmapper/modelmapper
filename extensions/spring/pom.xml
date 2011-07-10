@@ -9,6 +9,7 @@
 		<version>${version.number}-SNAPSHOT</version>
 	</parent>
 	<artifactId>modelmapper-spring</artifactId>
+	<version>0.3.0-SNAPSHOT</version>
 	<name>ModelMapper - Extensions - Spring</name>
 	<dependencies>
 		<dependency>
