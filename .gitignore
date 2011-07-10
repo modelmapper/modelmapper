@@ -1,6 +1,7 @@
 *~
 target/
 docs/
+*/javadoc/
 test-output/
 release.properties
 .project
