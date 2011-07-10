@@ -29,9 +29,9 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:git://github.com/jhalterman/modelmapper.git</connection>
-		<developerConnection>scm:git:git://github.com/jhalterman/modelmapper.git</developerConnection>
-		<url>scm:git:git://github.com/jhalterman/modelmapper.git</url>
+		<connection>scm:git:git@github.com:jhalterman/modelmapper.git</connection>
+		<developerConnection>scm:git:git@github.com:jhalterman/modelmapper.git</developerConnection>
+		<url>git@github.com:jhalterman/modelmapper.git</url>
 	</scm>
 	<mailingLists>
 		<mailingList>
