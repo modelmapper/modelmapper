@@ -6,11 +6,14 @@
 	<parent>
 		<groupId>org.modelmapper.extensions</groupId>
 		<artifactId>modelmapper-extensions</artifactId>
-		<version>${version.number}-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>modelmapper-spring</artifactId>
 	<version>0.3.0-SNAPSHOT</version>
 	<name>ModelMapper - Extensions - Spring</name>
+	<properties>
+		<version.number>0.3.0</version.number>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.modelmapper</groupId>
