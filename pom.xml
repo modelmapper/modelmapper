@@ -69,8 +69,7 @@
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>6.0.2</version>
-			<classifier>beta</classifier>
+			<version>6.1.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

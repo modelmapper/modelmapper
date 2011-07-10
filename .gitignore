@@ -1,8 +1,8 @@
-archive/
+*~
 target/
 docs/
 test-output/
-*~
+release.properties
 .project
 .classpath
 .settings/
