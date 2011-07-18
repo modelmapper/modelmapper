@@ -12,7 +12,7 @@
 	<groupId>org.modelmapper</groupId>
 	<artifactId>modelmapper-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>ModelMapper</name>
+	<name>ModelMapper Parent</name>
 	<description>ModelMapper is a simple, intelligent object mapper</description>
 	<url>http://modelmapper.org</url>
 	<inceptionYear>2011</inceptionYear>
@@ -77,6 +77,15 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<author>false</author>
+					<protected>true</protected>
+					<excludePackageNames>*.internal</excludePackageNames>
+				</configuration>
+			</plugin>			
 		</plugins>
 	</build>
 	<dependencies>

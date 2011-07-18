@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>modelmapper</artifactId>
 	<version>0.3.2-SNAPSHOT</version>
-	<name>ModelMapper - Core Library</name>
+	<name>ModelMapper</name>
 	<scm>
 		<connection>scm:git:git@github.com:jhalterman/modelmapper.git</connection>
 		<developerConnection>scm:git:git@github.com:jhalterman/modelmapper.git</developerConnection>

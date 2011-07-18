@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>modelmapper-spring</artifactId>
 	<version>0.3.1-SNAPSHOT</version>
-	<name>ModelMapper - Extensions - Spring</name>
+	<name>ModelMapper Spring Extension</name>
 	<scm>
 		<connection>scm:git:git@github.com:jhalterman/modelmapper.git</connection>
 		<developerConnection>scm:git:git@github.com:jhalterman/modelmapper.git</developerConnection>

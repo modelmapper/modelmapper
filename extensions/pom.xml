@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	<groupId>org.modelmapper.extensions</groupId>
 	<artifactId>modelmapper-extensions</artifactId>
-	<name>ModelMapper - Extensions</name>
+	<name>ModelMapper Extensions</name>
 	<modules>
 		<module>spring</module>
 		<module>guice</module>
