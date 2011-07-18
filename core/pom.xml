@@ -9,13 +9,10 @@
 	<artifactId>modelmapper</artifactId>
 	<version>0.3.2-SNAPSHOT</version>
 	<name>ModelMapper - Core Library</name>
-	<properties>
-		<version.number>0.3.1</version.number>
-	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:jhalterman/modelmapper.git</connection>
 		<developerConnection>scm:git:git@github.com:jhalterman/modelmapper.git</developerConnection>
-		<url>git@github.com:jhalterman/modelmapper.git</url>
+		<url>http://github.com/jhalterman/modelmapper/</url>
 	</scm>	
 	<build>
 		<plugins>
