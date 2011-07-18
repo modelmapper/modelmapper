@@ -43,7 +43,7 @@
 		</mailingList>
 	</mailingLists>
 	<modules>
-		<module>modelmapper</module>
+		<module>core</module>
 		<module>extensions</module>
 	</modules>
 	<build>
