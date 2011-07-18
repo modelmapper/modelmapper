@@ -7,7 +7,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>modelmapper-guice</artifactId>
-	<version>0.3.0</version>
+	<version>0.3.1-SNAPSHOT</version>
 	<name>ModelMapper - Extensions - Guice</name>
 	<properties>
 		<version.number>0.3.0</version.number>
