@@ -31,7 +31,6 @@ public class Conditions {
     @SuppressWarnings("unused")
     private static final long serialVersionUID = 0;
 
-    @Override
     public boolean applies(MappingContext<Object, Object> context) {
       return context.getSource() == null;
     }
@@ -46,7 +45,6 @@ public class Conditions {
     @SuppressWarnings("unused")
     private static final long serialVersionUID = 0;
 
-    @Override
     public boolean applies(MappingContext<Object, Object> context) {
       return context.getSource() != null;
     }
@@ -67,7 +65,6 @@ public class Conditions {
       this.b = b;
     }
 
-    @Override
     public boolean applies(MappingContext<S, D> context) {
       return a.applies(context) && b.applies(context);
     }
@@ -127,7 +124,6 @@ public class Conditions {
       this.b = b;
     }
 
-    @Override
     public boolean applies(MappingContext<S, D> context) {
       return a.applies(context) || b.applies(context);
     }

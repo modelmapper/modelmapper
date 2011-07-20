@@ -97,8 +97,8 @@ public class MatchingStrategyTestSupport {
     }
 
     public MatchBuilder to(PropertyType memberType, String memberName) {
-      memberNameInfo.pushDestination(memberName, new TestMemberInfo(Object.class, Object.class, memberType,
-          memberName));
+      memberNameInfo.pushDestination(memberName, new TestMemberInfo(Object.class, Object.class,
+          memberType, memberName));
       return this;
     }
 
@@ -120,22 +120,18 @@ public class MatchingStrategyTestSupport {
       this.declaringClass = declaringClass;
     }
 
-    @Override
     public Class<?> getDeclaringClass() {
       return declaringClass;
     }
 
-    @Override
     public int getModifiers() {
       return 0;
     }
 
-    @Override
     public String getName() {
       return null;
     }
 
-    @Override
     public boolean isSynthetic() {
       return false;
     }
@@ -155,46 +151,37 @@ public class MatchingStrategyTestSupport {
       this.memberType = memberType;
     }
 
-    @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
       return null;
     }
 
-    @Override
     public Member getMember() {
       return member;
     }
 
-    @Override
     public PropertyType getPropertyType() {
       return memberType;
     }
 
-    @Override
     public Class<?> getType() {
       return memberClass;
     }
 
-    @Override
     public void setValue(Object subject, Object value) {
     }
 
-    @Override
     public Object getValue(Object subject) {
       return null;
     }
 
-    @Override
     public Type getGenericType() {
       return null;
     }
 
-    @Override
     public String getName() {
       return memberName;
     }
 
-    @Override
     public Class<?> getInitialType() {
       return null;
     }

@@ -28,7 +28,6 @@ public class ProxyTest extends AbstractTest {
   }
 
   static class TestCallback implements MethodInterceptor {
-    @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
         throws Throwable {
       if (method.getName().equals("getValue"))

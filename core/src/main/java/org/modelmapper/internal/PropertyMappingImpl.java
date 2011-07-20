@@ -54,13 +54,11 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
     this.sourceAccessors = mapping.sourceAccessors;
   }
 
-  @Override
   public PropertyInfo getLastSourceProperty() {
     return sourceAccessors == null || sourceAccessors.isEmpty() ? null : sourceAccessors
         .get(sourceAccessors.size() - 1);
   }
 
-  @Override
   public List<? extends PropertyInfo> getSourceProperties() {
     return sourceAccessors;
   }

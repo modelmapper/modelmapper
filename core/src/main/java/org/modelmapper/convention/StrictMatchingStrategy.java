@@ -23,12 +23,10 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class StrictMatchingStrategy implements MatchingStrategy {
-  @Override
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     return false;
   }
 
-  @Override
   public boolean isExact() {
     return true;
   }

@@ -82,7 +82,6 @@ public class MappingEngineImpl implements MappingEngine {
    * Performs mapping using a TypeMap if one exists, else a converter if one applies, else a newly
    * created TypeMap. Recursive entry point.
    */
-  @Override
   public <S, D> D map(MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     Class<D> destinationType = context.getDestinationType();
@@ -308,7 +307,6 @@ public class MappingEngineImpl implements MappingEngine {
     return destination;
   }
 
-  @Override
   public <S, D> D createDestination(MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     D destination = createDestinationViaProvider(contextImpl);

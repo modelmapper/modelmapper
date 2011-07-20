@@ -52,7 +52,6 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       method.setAccessible(true);
     }
 
-    @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
       return member.getAnnotation(annotationClass);
     }
@@ -64,17 +63,14 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       field.setAccessible(true);
     }
 
-    @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
       return member.getAnnotation(annotationClass);
     }
 
-    @Override
     public Type getGenericType() {
       return member.getGenericType();
     }
 
-    @Override
     public Object getValue(Object subject) {
       try {
         return member.get(subject);
@@ -83,7 +79,6 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       }
     }
 
-    @Override
     public void setValue(Object subject, Object value) {
       try {
         member.set(subject, value);
@@ -98,12 +93,10 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       super(initialType, method, name);
     }
 
-    @Override
     public Type getGenericType() {
       return member.getGenericReturnType();
     }
 
-    @Override
     public Object getValue(Object subject) {
       try {
         return member.invoke(subject);
@@ -121,12 +114,10 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       super(initialType, method, name);
     }
 
-    @Override
     public Type getGenericType() {
       return member.getGenericParameterTypes()[0];
     }
 
-    @Override
     public void setValue(Object subject, Object value) {
       try {
         member.invoke(subject, value);
@@ -147,27 +138,22 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
         && name.equals(other.getName());
   }
 
-  @Override
   public Class<?> getInitialType() {
     return initialType;
   }
 
-  @Override
   public M getMember() {
     return member;
   }
 
-  @Override
   public String getName() {
     return name;
   }
 
-  @Override
   public PropertyType getPropertyType() {
     return propertyType;
   }
 
-  @Override
   public Class<?> getType() {
     return type;
   }

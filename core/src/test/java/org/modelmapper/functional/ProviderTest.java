@@ -72,7 +72,6 @@ public class ProviderTest extends AbstractTest {
     final Dest1 dest = new Dest1();
     TypeMap<Source, Dest1> typeMap = modelMapper.createTypeMap(Source.class, Dest1.class);
     typeMap.setProvider(new Provider<Dest1>() {
-      @Override
       public Dest1 get(ProvisionRequest<Dest1> request) {
         return dest;
       }
@@ -90,7 +89,6 @@ public class ProviderTest extends AbstractTest {
     inner2.valueinner = "xyz";
 
     modelMapper.getConfiguration().setProvider(new Provider<Object>() {
-      @Override
       public Object get(ProvisionRequest<Object> request) {
         if (request.getRequestedType().equals(Inner1.class))
           return inner1;

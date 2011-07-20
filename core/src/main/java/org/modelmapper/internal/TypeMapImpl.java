@@ -58,7 +58,6 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     this.engine = engine;
   }
 
-  @Override
   public void addMappings(PropertyMap<S, D> propertyMap) {
     synchronized (mappings) {
       for (MappingImpl mapping : new MappingBuilderImpl<S, D>(sourceType, destinationType,
@@ -71,39 +70,32 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     }
   }
 
-  @Override
   public Condition<?, ?> getCondition() {
     return condition;
   }
 
-  @Override
   public Converter<S, D> getConverter() {
     return converter;
   }
 
-  @Override
   public Class<D> getDestinationType() {
     return destinationType;
   }
 
-  @Override
   public List<Mapping> getMappings() {
     synchronized (mappings) {
       return new ArrayList<Mapping>(mappings.values());
     }
   }
 
-  @Override
   public Provider<D> getProvider() {
     return provider;
   }
 
-  @Override
   public Class<S> getSourceType() {
     return sourceType;
   }
 
-  @Override
   public List<PropertyInfo> getUnmappedProperties() {
     TypeInfo<D> destinationInfo = TypeInfoRegistry.typeInfoFor(destinationType, configuration);
     List<PropertyInfo> unmapped = new ArrayList<PropertyInfo>();
@@ -117,7 +109,6 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return unmapped;
   }
 
-  @Override
   public D map(S source) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, null,
@@ -134,7 +125,6 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return result;
   }
 
-  @Override
   public void map(S source, D destination) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
@@ -149,19 +139,16 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     context.errors.throwMappingExceptionIfErrorsExist();
   }
 
-  @Override
   public TypeMap<S, D> setCondition(Condition<?, ?> condition) {
     this.condition = Assert.notNull(condition, "condition");
     return this;
   }
 
-  @Override
   public TypeMap<S, D> setConverter(Converter<S, D> converter) {
     this.converter = Assert.notNull(converter, "converter");
     return this;
   }
 
-  @Override
   public TypeMap<S, D> setProvider(Provider<D> provider) {
     this.provider = Assert.notNull(provider, "provider");
     return this;
@@ -173,7 +160,6 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
         Types.toString(destinationType));
   }
 
-  @Override
   public void validate() {
     if (converter != null)
       return;

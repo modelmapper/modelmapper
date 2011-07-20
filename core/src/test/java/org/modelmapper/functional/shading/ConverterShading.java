@@ -69,7 +69,6 @@ public class ConverterShading extends AbstractTest {
   }
 
   Converter<?, ?> converter = new Converter<Object, Object>() {
-    @Override
     public Object convert(MappingContext<Object, Object> context) {
       return null;
     }

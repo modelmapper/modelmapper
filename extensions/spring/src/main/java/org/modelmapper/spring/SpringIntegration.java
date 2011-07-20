@@ -35,7 +35,6 @@ public class SpringIntegration {
       this.beanFactory = beanFactory;
     }
 
-    @Override
     public Object get(ProvisionRequest<Object> request) {
       return beanFactory.getBean(request.getRequestedType());
     }

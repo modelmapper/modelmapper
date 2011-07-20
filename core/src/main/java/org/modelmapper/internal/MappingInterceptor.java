@@ -34,7 +34,6 @@ final class MappingInterceptor implements MethodInterceptor {
     this.mappingProgress = mappingProgress;
   }
 
-  @Override
   public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
       throws Throwable {
     mappingProgress.encountered(Types.deProxy(obj.getClass()), method, args);

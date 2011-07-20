@@ -51,7 +51,6 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
     this.sourceType = mapping.sourceType;
   }
 
-  @Override
   public Class<?> getSourceType() {
     return sourceType;
   }

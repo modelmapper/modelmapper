@@ -23,12 +23,10 @@ import org.modelmapper.spi.ConditionalConverter;
  * @author Jonathan Halterman
  */
 abstract class AbstractConditionalConverter<S, D> implements ConditionalConverter<S, D> {
-  @Override
   public boolean supportsSource(Class<?> sourceType) {
     return true;
   }
 
-  @Override
   public boolean verifiesSource() {
     return true;
   }

@@ -29,7 +29,6 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 abstract class IterableConverter<S, D> extends AbstractConditionalConverter<S, D> {
-  @Override
   public D convert(MappingContext<S, D> context) {
     S source = context.getSource();
     int sourceLength = getSourceLength(source);

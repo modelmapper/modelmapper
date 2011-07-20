@@ -29,7 +29,6 @@ public abstract class AbstractConverter<S, D> implements Converter<S, D> {
   /**
    * Delegates conversion to {@link #convert(Object)}.
    */
-  @Override
   public D convert(MappingContext<S, D> context) {
     return convert(context.getSource());
   }

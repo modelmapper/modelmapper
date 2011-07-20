@@ -36,7 +36,6 @@ public class GuiceIntegration {
       this.injector = injector;
     }
 
-    @Override
     public Object get(ProvisionRequest<Object> request) {
       return injector.getInstance(request.getRequestedType());
     }

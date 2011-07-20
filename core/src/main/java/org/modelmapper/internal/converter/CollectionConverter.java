@@ -33,7 +33,6 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class CollectionConverter extends IterableConverter<Object, Collection<Object>> {
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return Collection.class.isAssignableFrom(destinationType) && Iterables.isIterable(sourceType);
   }

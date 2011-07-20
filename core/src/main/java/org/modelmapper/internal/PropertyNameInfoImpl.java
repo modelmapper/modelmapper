@@ -43,12 +43,10 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
     this.configuration = configuration;
   }
 
-  @Override
   public List<String[]> getDestinationPropertyTokens() {
     return destinationPropertyTokens;
   }
 
-  @Override
   public String[] getSourceClassTokens() {
     if (sourceClassTokens == null) {
       String className = configuration.getSourceNameTransformer().transform(
@@ -60,12 +58,10 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
     return sourceClassTokens;
   }
 
-  @Override
   public List<String[]> getSourcePropertyTokens() {
     return sourcePropertyTokens;
   }
 
-  @Override
   public List<String[]> getSourcePropertyTypeTokens() {
     if (sourcePropertyTypeTokens == null) {
       sourcePropertyTypeTokens = new Stack<String[]>();

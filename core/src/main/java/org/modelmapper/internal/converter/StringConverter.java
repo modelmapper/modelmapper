@@ -24,22 +24,18 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class StringConverter implements ConditionalConverter<Object, String> {
-  @Override
   public String convert(MappingContext<Object, String> context) {
     return context.getSource().toString();
   }
 
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return destinationType == String.class;
   }
 
-  @Override
   public boolean supportsSource(Class<?> sourceType) {
     return sourceType == String.class;
   }
 
-  @Override
   public boolean verifiesSource() {
     return false;
   }

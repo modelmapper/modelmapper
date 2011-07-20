@@ -31,7 +31,6 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class MapConverter extends AbstractConditionalConverter<Map<?, ?>, Map<Object, Object>> {
-  @Override
   public Map<Object, Object> convert(MappingContext<Map<?, ?>, Map<Object, Object>> context) {
     Map<?, ?> source = context.getSource();
     Map<Object, Object> destination = context.getDestination() == null ? createDestination(context)
@@ -61,7 +60,6 @@ class MapConverter extends AbstractConditionalConverter<Map<?, ?>, Map<Object, O
     return destination;
   }
 
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return Map.class.isAssignableFrom(sourceType) && Map.class.isAssignableFrom(destinationType);
   }

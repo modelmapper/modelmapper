@@ -97,19 +97,15 @@ public class InheritingConfiguration implements Configuration {
     }
   }
 
-  @Override
   public Configuration addConverter(ConditionalConverter<?, ?> converter) {
     Assert.notNull(converter, "converter");
     converterStore.add(converter);
     return this;
   }
 
-  @Override
   public Configuration copy() {
     return new InheritingConfiguration(this, false);
   }
-
-  @Override
   public Configuration enableFieldMatching(boolean enabled) {
     enableFieldMatching = enabled;
     return this;
@@ -139,56 +135,46 @@ public class InheritingConfiguration implements Configuration {
     return true;
   }
 
-  @Override
   public NameTokenizer getDestinationNameTokenizer() {
     return destinationNameTokenizer == null ? parent.getDestinationNameTokenizer()
         : destinationNameTokenizer;
   }
 
-  @Override
   public NameTransformer getDestinationNameTransformer() {
     return destinationNameTransformer == null ? parent.getDestinationNameTransformer()
         : destinationNameTransformer;
   }
 
-  @Override
   public NamingConvention getDestinationNamingConvention() {
     return destinationNamingConvention == null ? parent.getDestinationNamingConvention()
         : destinationNamingConvention;
   }
 
-  @Override
   public AccessLevel getFieldAccessLevel() {
     return fieldAccessLevel == null ? parent.getFieldAccessLevel() : fieldAccessLevel;
   }
 
-  @Override
   public MatchingStrategy getMatchingStrategy() {
     return matchingStrategy == null ? parent.getMatchingStrategy() : matchingStrategy;
   }
 
-  @Override
   public AccessLevel getMethodAccessLevel() {
     return methodAccessLevel == null ? parent.getMethodAccessLevel() : methodAccessLevel;
   }
 
-  @Override
   public Provider<?> getProvider() {
     return provider;
   }
 
-  @Override
   public NameTokenizer getSourceNameTokenizer() {
     return sourceNameTokenizer == null ? parent.getSourceNameTokenizer() : sourceNameTokenizer;
   }
 
-  @Override
   public NameTransformer getSourceNameTransformer() {
     return sourceNameTransformer == null ? parent.getSourceNameTransformer()
         : sourceNameTransformer;
   }
 
-  @Override
   public NamingConvention getSourceNamingConvention() {
     return sourceNamingConvention == null ? parent.getSourceNamingConvention()
         : sourceNamingConvention;
@@ -210,77 +196,64 @@ public class InheritingConfiguration implements Configuration {
     return result;
   }
 
-  @Override
   public Configuration ignoreAmbiguity(boolean ignore) {
     this.ignoreAmbiguity = ignore;
     return this;
   }
 
-  @Override
   public boolean isAmbiguityIgnored() {
     return ignoreAmbiguity == null ? parent.isAmbiguityIgnored() : ignoreAmbiguity;
   }
 
-  @Override
   public boolean isFieldMatchingEnabled() {
     return enableFieldMatching == null ? parent.isFieldMatchingEnabled() : enableFieldMatching;
   }
 
-  @Override
   public Configuration setDestinationNameTokenizer(NameTokenizer nameTokenizer) {
     destinationNameTokenizer = Assert.notNull(nameTokenizer);
     return this;
   }
 
-  @Override
   public Configuration setDestinationNameTransformer(NameTransformer nameTransformer) {
     destinationNameTransformer = Assert.notNull(nameTransformer);
     return this;
   }
 
-  @Override
   public Configuration setDestinationNamingConvention(NamingConvention namingConvention) {
     destinationNamingConvention = Assert.notNull(namingConvention);
     return this;
   }
 
-  @Override
   public Configuration setFieldAccessLevel(AccessLevel accessLevel) {
     fieldAccessLevel = Assert.notNull(accessLevel);
     return this;
   }
 
-  @Override
   public Configuration setMatchingStrategy(MatchingStrategy matchingStrategy) {
     this.matchingStrategy = Assert.notNull(matchingStrategy);
     return this;
   }
 
-  @Override
   public Configuration setMethodAccessLevel(AccessLevel accessLevel) {
     methodAccessLevel = Assert.notNull(accessLevel);
     return this;
   }
 
-  @Override
   public Configuration setProvider(Provider<?> provider) {
     this.provider = Assert.notNull(provider);
     return this;
   }
 
-  @Override
   public Configuration setSourceNameTokenizer(NameTokenizer nameTokenizer) {
     sourceNameTokenizer = Assert.notNull(nameTokenizer);
     return this;
   }
 
-  @Override
   public Configuration setSourceNameTransformer(NameTransformer nameTransformer) {
     sourceNameTransformer = Assert.notNull(nameTransformer);
     return this;
   }
 
-  @Override
   public Configuration setSourceNamingConvention(NamingConvention namingConvention) {
     sourceNamingConvention = Assert.notNull(namingConvention);
     return this;

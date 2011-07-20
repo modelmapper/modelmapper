@@ -28,7 +28,6 @@ public class NamingConventions {
    * JavaBeans naming convention for accessors.
    */
   public static final NamingConvention JAVABEANS_ACCESSOR = new NamingConvention() {
-    @Override
     public boolean applies(String propertyName, PropertyType propertyType) {
       return (PropertyType.FIELD.equals(propertyType) || propertyName.startsWith("get") || propertyName
           .startsWith("is"));
@@ -39,7 +38,6 @@ public class NamingConventions {
    * JavaBeans naming convention for mutators.
    */
   public static final NamingConvention JAVABEANS_MUTATOR = new NamingConvention() {
-    @Override
     public boolean applies(String propertyName, PropertyType propertyType) {
       return (PropertyType.FIELD.equals(propertyType) || propertyName.startsWith("set"));
     }
@@ -51,7 +49,6 @@ public class NamingConventions {
    * all properties to be eligible for matching.
    */
   public static final NamingConvention NONE = new NamingConvention() {
-    @Override
     public boolean applies(String propertyName, PropertyType propertyType) {
       return true;
     }

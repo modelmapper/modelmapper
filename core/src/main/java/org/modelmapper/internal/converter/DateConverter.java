@@ -47,7 +47,6 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class DateConverter extends AbstractConditionalConverter<Object, Object> {
-  @Override
   public Object convert(MappingContext<Object, Object> context) {
     Object source = context.getSource();
     Class<?> destinationType = context.getDestinationType();
@@ -63,7 +62,6 @@ class DateConverter extends AbstractConditionalConverter<Object, Object> {
     return dateFor(source.toString(), destinationType);
   }
 
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     boolean validDestination = Date.class.isAssignableFrom(destinationType)
         || Calendar.class.isAssignableFrom(destinationType);

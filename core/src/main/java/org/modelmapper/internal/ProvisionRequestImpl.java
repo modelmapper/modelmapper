@@ -29,7 +29,6 @@ class ProvisionRequestImpl<T extends Object> implements ProvisionRequest<T> {
     this.requestedType = requestedType;
   }
 
-  @Override
   public Class<T> getRequestedType() {
     return requestedType;
   }

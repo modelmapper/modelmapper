@@ -117,13 +117,11 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   /**
    * Lazily initializes and gets accessors.
    */
-  @Override
   public synchronized Map<String, Accessor> getAccessors() {
     initAccessors();
     return accessors;
   }
 
-  @Override
   public Configuration getConfiguration() {
     return configuration;
   }
@@ -131,13 +129,11 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   /**
    * Lazily initializes and gets mutators.
    */
-  @Override
   public synchronized Map<String, Mutator> getMutators() {
     initMutators();
     return mutators;
   }
 
-  @Override
   public Class<T> getType() {
     return type;
   }

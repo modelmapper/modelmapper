@@ -83,7 +83,6 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     shadedPaths = context.shadedPaths;
   }
 
-  @Override
   public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
@@ -112,37 +111,30 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     currentlyMapping.remove(type);
   }
 
-  @Override
   public D getDestination() {
     return destination;
   }
 
-  @Override
   public Class<D> getDestinationType() {
     return destinationType;
   }
 
-  @Override
   public Mapping getMapping() {
     return mapping;
   }
 
-  @Override
   public MappingEngine getMappingEngine() {
     return mappingEngine;
   }
 
-  @Override
   public Class<D> getRequestedType() {
     return destinationType;
   }
 
-  @Override
   public S getSource() {
     return source;
   }
 
-  @Override
   public Class<S> getSourceType() {
     return sourceType;
   }
@@ -162,7 +154,6 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return String.format("MappingContext[%s -> %s]", source, Types.toString(destinationType));
   }
 
-  @Override
   public TypeMap<S, D> typeMap() {
     return typeMap;
   }

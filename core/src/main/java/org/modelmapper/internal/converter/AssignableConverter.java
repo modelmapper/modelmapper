@@ -23,12 +23,10 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class AssignableConverter extends AbstractConditionalConverter<Object, Object> {
-  @Override
   public Object convert(MappingContext<Object, Object> context) {
     return context.getDestination() == null ? context.getSource() : context.getDestination();
   }
 
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return destinationType.isAssignableFrom(sourceType);
   }

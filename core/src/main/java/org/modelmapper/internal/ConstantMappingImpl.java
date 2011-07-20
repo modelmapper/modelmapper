@@ -51,7 +51,6 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
     this.constant = constant;
   }
 
-  @Override
   public Object getConstant() {
     return constant;
   }

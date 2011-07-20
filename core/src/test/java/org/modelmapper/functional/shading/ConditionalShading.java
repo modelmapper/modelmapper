@@ -75,7 +75,6 @@ public class ConditionalShading extends AbstractTest {
       this.applies = applies;
     }
 
-    @Override
     public boolean applies(MappingContext<Object, Object> context) {
       return applies;
     }

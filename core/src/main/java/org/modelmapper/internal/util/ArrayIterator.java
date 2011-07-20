@@ -35,17 +35,14 @@ public class ArrayIterator implements Iterator<Object> {
     length = Array.getLength(array);
   }
 
-  @Override
   public boolean hasNext() {
     return index < length;
   }
 
-  @Override
   public Object next() {
     return Array.get(array, index++);
   }
 
-  @Override
   public void remove() {
   }
 }

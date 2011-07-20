@@ -74,27 +74,23 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     destinationProgress = new DestinationProgress(this);
   }
 
-  @Override
   public D skip() {
     saveLastMapping();
     options.skip = true;
     return getDestination();
   }
 
-  @Override
   public D map() {
     saveLastMapping();
     return getDestination();
   }
 
-  @Override
   public D map(Object source) {
     saveLastMapping();
     options.mapFromSource = source == this.source;
     return getDestination();
   }
 
-  @Override
   public ConditionExpression<S, D> using(Converter<?, ?> converter) {
     saveLastMapping();
     Assert.state(options.converter == null, "using() can only be called once per mapping.");
@@ -102,7 +98,6 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     return this;
   }
 
-  @Override
   public ConditionExpression<S, D> when(Condition<?, ?> condition) {
     saveLastMapping();
     Assert.state(options.condition == null, "when() can only be called once per mapping.");
@@ -110,7 +105,6 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     return this;
   }
 
-  @Override
   public ConditionExpression<S, D> withProvider(Provider<?> provider) {
     saveLastMapping();
     Assert.state(options.provider == null, "withProvider() can only be called once per mapping.");

@@ -28,7 +28,6 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
   private static final String[] TRUE_STRINGS = { "true", "yes", "y", "on", "1" };
   private static final String[] FALSE_STRINGSS = { "false", "no", "n", "off", "0" };
 
-  @Override
   public Boolean convert(MappingContext<Object, Boolean> context) {
     String stringValue = context.getSource().toString().toLowerCase();
 
@@ -44,17 +43,14 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
         .toMappingException();
   }
 
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return destinationType == Boolean.class || destinationType == Boolean.TYPE;
   }
 
-  @Override
   public boolean supportsSource(Class<?> sourceType) {
     return sourceType == Boolean.class || sourceType == Boolean.TYPE;
   }
 
-  @Override
   public boolean verifiesSource() {
     return false;
   }

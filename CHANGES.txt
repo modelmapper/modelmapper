@@ -1,3 +1,7 @@
+0.3.2 (7/19/2011)
+
+- Rolled back class file target version to 1.5
+
 0.3.1 (6/27/2011)
 
 - Added better handling of inherited generic component types

@@ -35,7 +35,6 @@ public class NameTokenizers {
     private static final Pattern camelCase = Pattern
         .compile("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
 
-    @Override
     public String[] tokenize(String name, NameableType nameableType) {
       return camelCase.split(name);
     }

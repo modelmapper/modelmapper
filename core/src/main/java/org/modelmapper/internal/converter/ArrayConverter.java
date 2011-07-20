@@ -27,7 +27,6 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class ArrayConverter extends IterableConverter<Object, Object> {
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return Iterables.isIterable(sourceType) && destinationType.isArray();
   }

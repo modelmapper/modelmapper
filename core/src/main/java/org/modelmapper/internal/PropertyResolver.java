@@ -33,13 +33,11 @@ import org.modelmapper.spi.PropertyInfo;
  */
 interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
   PropertyResolver<Field, Mutator> FIELDS = new DefaultPropertyResolver<Field, Mutator>() {
-    @Override
     public Mutator propertyInfoFor(Class<?> initialType, Field field, Configuration configuration,
         String name) {
       return PropertyInfoRegistry.fieldPropertyFor(initialType, field, configuration, name);
     }
 
-    @Override
     public Field[] membersFor(Class<?> type) {
       return type.getDeclaredFields();
     }
@@ -52,13 +50,11 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
           && !method.getReturnType().equals(void.class);
     }
 
-    @Override
     public Accessor propertyInfoFor(Class<?> initialType, Method method,
         Configuration configuration, String name) {
       return PropertyInfoRegistry.accessorFor(initialType, method, configuration, name);
     }
 
-    @Override
     public Method[] membersFor(Class<?> type) {
       return type.getDeclaredMethods();
     }
@@ -71,13 +67,11 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
           && method.getReturnType().equals(void.class);
     }
 
-    @Override
     public Mutator propertyInfoFor(Class<?> initialType, Method method,
         Configuration configuration, String name) {
       return PropertyInfoRegistry.mutatorFor(initialType, method, configuration, name);
     }
 
-    @Override
     public Method[] membersFor(Class<?> type) {
       return type.getDeclaredMethods();
     }
@@ -85,7 +79,6 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
 
   static abstract class DefaultPropertyResolver<M extends Member, PI extends PropertyInfo>
       implements PropertyResolver<M, PI> {
-    @Override
     public boolean isValid(M member) {
       return !Modifier.isStatic(member.getModifiers());
     }

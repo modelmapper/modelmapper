@@ -31,7 +31,6 @@ public class NameTransformers {
    * Class and field names are unchanged.
    */
   public static final NameTransformer JAVABEANS_ACCESSOR = new NameTransformer() {
-    @Override
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType)) {
         if (name.startsWith("get"))
@@ -49,7 +48,6 @@ public class NameTransformers {
    * Class and field names are unchanged.
    */
   public static final NameTransformer JAVABEANS_MUTATOR = new NameTransformer() {
-    @Override
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType) && name.startsWith("set"))
         return Introspector.decapitalize(name.substring(3));

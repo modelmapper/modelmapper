@@ -26,7 +26,6 @@ public abstract class AbstractProvider<T> implements Provider<T> {
   /**
    * Delegates provisioning to {@link #get()}.
    */
-  @Override
   public T get(ProvisionRequest<T> request) {
     return get();
   }

@@ -76,7 +76,6 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     explicit = copy.explicit;
   }
 
-  @Override
   public int compareTo(MappingImpl mapping) {
     return path.compareToIgnoreCase(mapping.path);
   }
@@ -91,27 +90,22 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     return path.equals(other.path);
   }
 
-  @Override
   public Condition<?, ?> getCondition() {
     return condition;
   }
 
-  @Override
   public Converter<?, ?> getConverter() {
     return converter;
   }
 
-  @Override
   public List<? extends PropertyInfo> getDestinationProperties() {
     return destinationMutators;
   }
 
-  @Override
   public PropertyInfo getLastDestinationProperty() {
     return destinationMutators.get(destinationMutators.size() - 1);
   }
 
-  @Override
   public Provider<?> getProvider() {
     return provider;
   }
@@ -121,7 +115,6 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     return path.hashCode();
   }
 
-  @Override
   public boolean isSkipped() {
     return skip;
   };

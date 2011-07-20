@@ -23,7 +23,6 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class EnumConverter extends AbstractConditionalConverter<Enum<?>, Enum<?>> {
-  @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Enum<?> convert(MappingContext<Enum<?>, Enum<?>> context) {
     String name = context.getSource().name();
@@ -37,7 +36,6 @@ class EnumConverter extends AbstractConditionalConverter<Enum<?>, Enum<?>> {
     return null;
   }
 
-  @Override
   public boolean supports(Class<?> sourceType, Class<?> destinationType) {
     return sourceType.isEnum() && destinationType.isEnum();
   }
