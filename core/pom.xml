@@ -7,7 +7,7 @@
 		<version>1.0.0</version>
 	</parent>
 	<artifactId>modelmapper</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.3-SNAPSHOT</version>
 	<name>ModelMapper</name>
 	<scm>
 		<connection>scm:git:git@github.com:jhalterman/modelmapper.git</connection>
