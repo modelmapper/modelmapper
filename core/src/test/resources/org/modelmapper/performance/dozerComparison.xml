@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://dozer.sourceforge.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://dozer.sourceforge.net http://dozer.sourceforge.net/schema/beanmapping.xsd">
+  <mapping stop-on-errors="true">
+    <class-a>org.modelmapper.performance.DozerComparison$Order</class-a>
+    <class-b>org.modelmapper.performance.DozerComparison$OrderDTO
+    </class-b>
+    <field>
+      <a>customer.name</a>
+      <b>customerName</b>
+    </field>
+    <field>
+      <a>customer.billingAddress.street</a>
+      <b>billingStreetAddress</b>
+    </field>
+    <field>
+      <a>customer.billingAddress.city</a>
+      <b>billingCity</b>
+    </field>
+    <field>
+      <a>customer.shippingAddress.street</a>
+      <b>shippingStreetAddress</b>
+    </field>
+    <field>
+      <a>customer.shippingAddress.city</a>
+      <b>shippingCity</b>
+    </field>
+  </mapping>
+</mappings>

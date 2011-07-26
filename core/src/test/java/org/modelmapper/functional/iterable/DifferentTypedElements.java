@@ -11,7 +11,7 @@ import org.modelmapper.PropertyMap;
 import org.testng.annotations.Test;
 
 /**
- * Maps collections with elements whose types vary.
+ * Maps collections with elements whose types vary. Consider supporting...
  * 
  * Taken from http://stackoverflow.com/questions/1916786/
  * 
@@ -97,6 +97,15 @@ public class DifferentTypedElements extends AbstractTest {
     }
   }
 
+  /**
+   * Should map:
+   * 
+   * <pre>
+   * Foo.id -> Bar.barId
+   * Foo.nameGroup.names.nameValue -> Bar.barNames.names
+   * </pre>
+   */
+  @Test(enabled = false)
   public void shouldMapFooToBar() {
     Foo foo = new Foo();
     foo.id = "123";
