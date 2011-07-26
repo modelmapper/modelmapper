@@ -60,10 +60,12 @@ public final class Types {
    */
   @SuppressWarnings("unchecked")
   public static <T> Class<T> deProxy(Class<?> type) {
+    // Ignore JDK proxies
+    if (type.isInterface())
+      return (Class<T>) type;
+
     // CGLib
-    if (net.sf.cglib.proxy.Proxy.isProxyClass(type))
-      return (Class<T>) type.getSuperclass();
-    else if (net.sf.cglib.proxy.Enhancer.isEnhanced(type))
+    if (type.getName().contains("$$EnhancerByCGLIB$$"))
       return (Class<T>) type.getSuperclass();
 
     // Javassist
