@@ -28,7 +28,6 @@
           </execution>
         </executions>
         <configuration>
-          <minimizeJar>true</minimizeJar>
           <filters>
             <filter>
               <artifact>cglib:cglib</artifact>
