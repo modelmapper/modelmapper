@@ -55,39 +55,29 @@ public class GenericMapping {
     }
   }
 
-  // public void shouldMapToSameType() {
-  // EntityLong source = new EntityLong();
-  // source.setId(Long.valueOf(5000));
-  //
-  // EntityLong dest = modelMapper.map(source, EntityLong.class);
-  // assertEquals(5000, dest.getId().longValue());
-  // }
-  //
-  // public void shouldMapToDifferentType() {
-  // // Scenario 1
-  // EntityLong source1 = new EntityLong();
-  // source1.setId(Long.valueOf(5000));
-  //
-  // EntityString dest1 = modelMapper.map(source1, EntityString.class);
-  // assertEquals("5000", dest1.getId());
-  //
-  // // Scenario 2
-  // EntityString source2 = new EntityString();
-  // source2.setId("5000");
-  //
-  // EntityLong dest2 = modelMapper.map(source1, EntityLong.class);
-  // assertEquals(5000, dest2.getId().longValue());
-  // }
-  //
+//  public void shouldMapToSameType() {
+//    EntityLong source = new EntityLong();
+//    source.setId(Long.valueOf(5000));
+//
+//    EntityLong dest = modelMapper.map(source, EntityLong.class);
+//    assertEquals(5000, dest.getId().longValue());
+//  }
 
-  public void test() {
-    Source source = new Source();
-    source.setId("5000");
-
-    Mapper mapper = new DozerBeanMapper();
-    Dest dest = mapper.map(source, Dest.class);
-    assertEquals(5000, dest.getId().longValue());
-  }
+//  public void shouldMapToDifferentType() {
+//    // Scenario 1
+//    EntityLong source1 = new EntityLong();
+//    source1.setId(Long.valueOf(5000));
+//
+//    EntityString dest1 = modelMapper.map(source1, EntityString.class);
+//    assertEquals("5000", dest1.getId());
+//
+//    // Scenario 2
+//    EntityString source2 = new EntityString();
+//    source2.setId("5000");
+//
+//    EntityLong dest2 = modelMapper.map(source1, EntityLong.class);
+//    assertEquals(5000, dest2.getId().longValue());
+//  }
 
   /**
    * This scenario is mappable since the component type Serializable happens to be convertable to

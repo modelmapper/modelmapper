@@ -16,10 +16,10 @@ public class CollectionConversion extends AbstractTest {
   }
 
   static class Product {
-    String product;
+    String name;
 
-    Product(String product) {
-      this.product = product;
+    Product(String name) {
+      this.name = name;
     }
   }
 
@@ -27,6 +27,11 @@ public class CollectionConversion extends AbstractTest {
     List<String> products;
   }
 
+  /**
+   * <pre>
+   * Order/products/name -> OrderDTO products[]
+   * </pre>
+   */
   public void shouldPerformCollectionConversion() {
     Order order = new Order();
     order.products.add(new Product("socks"));
