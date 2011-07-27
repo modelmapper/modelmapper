@@ -103,8 +103,6 @@
               <author>false</author>
               <protected>true</protected>
               <excludePackageNames>*.internal</excludePackageNames>
-              <doctitle>ModelMapper ${version.number}</doctitle>
-              <windowtitle>ModelMapper ${version.number}</windowtitle>
               <reportOutputDirectory>../docs</reportOutputDirectory>
               <destDir>javadoc</destDir>
             </configuration>

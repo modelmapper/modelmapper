@@ -1,4 +1,5 @@
 #!/bin/sh
+cd ../
 rm -rf docs
 git clone git@github.com:jhalterman/modelmapper.git docs -b gh-pages
 cd core
