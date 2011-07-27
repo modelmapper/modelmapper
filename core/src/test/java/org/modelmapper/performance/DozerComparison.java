@@ -115,7 +115,7 @@ public class DozerComparison {
 
     time = System.currentTimeMillis() - time;
 
-    System.out.println(label + format.format(count * 1000 / time) + " map operations per second");
+    System.out.println(label + format.format(count * 1000 / time) + " map operations / second");
   }
 
   static void concurrentlyIterate(final OrderMapper orderMapper, String label, final Order order) {
@@ -154,7 +154,7 @@ public class DozerComparison {
 
     time = System.currentTimeMillis() - time;
 
-    System.out.println(label + format.format(count * 1000 / time) + " map operations per second");
+    System.out.println(label + format.format(count * 1000 / time) + " map operations / second");
   }
 
   public static class Order {
