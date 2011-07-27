@@ -1,7 +1,9 @@
 package org.modelmapper.performance;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.dozer.DozerBeanMapper;
 import org.modelmapper.ModelMapper;
@@ -15,6 +17,8 @@ import org.testng.Assert;
  * @author Jonathan Halterman
  */
 public class DozerComparison {
+  static final DecimalFormat format = new DecimalFormat();
+
   interface OrderMapper {
     OrderDTO map(Order source);
   }
@@ -22,8 +26,7 @@ public class DozerComparison {
   public static void main(String... args) throws Exception {
     Order order = buildOrder();
 
-    // Once warm up. Takes lazy loading out of the equation and ensures we created the graphs
-    // properly.
+    // Warm up to initialize mapper internals
     validate(modelMapper, order);
     validate(dozerMapper, order);
 
@@ -75,30 +78,6 @@ public class DozerComparison {
       return beanMapper.map(source, OrderDTO.class);
     }
   };
-
-  static Order buildOrder() {
-    Order order = new Order();
-    order.customer = new Customer();
-    order.customer.name = "Joe Smith";
-    order.customer.billingAddress = new Address();
-    order.customer.billingAddress.street = "1234 Market Street";
-    order.customer.billingAddress.city = "San Fran";
-    order.customer.shippingAddress = new Address();
-    order.customer.shippingAddress.street = "1234 West Townsend";
-    order.customer.shippingAddress.city = "Boston";
-    return order;
-  }
-
-  static void validate(OrderMapper orderMapper, Order source) throws Exception {
-    OrderDTO dto = orderMapper.map(source);
-    Assert.assertEquals(dto.customerName, "Joe Smith");
-    Assert.assertEquals(dto.billingStreetAddress, "1234 Market Street");
-    Assert.assertEquals(dto.billingCity, "San Fran");
-    Assert.assertEquals(dto.shippingStreetAddress, "1234 West Townsend");
-    Assert.assertEquals(dto.shippingCity, "Boston");
-  }
-
-  static final DecimalFormat format = new DecimalFormat();
 
   static void iterate(OrderMapper orderMapper, String label, Order order) {
     int count = 100000;
@@ -157,8 +136,36 @@ public class DozerComparison {
     System.out.println(label + format.format(count * 1000 / time) + " map operations / second");
   }
 
+  static Order buildOrder() {
+    Order order = new Order();
+    order.customer = new Customer();
+    order.customer.name = "Joe Smith";
+    order.customer.billingAddress = new Address();
+    order.customer.billingAddress.street = "1234 Market Street";
+    order.customer.billingAddress.city = "San Fran";
+    order.customer.shippingAddress = new Address();
+    order.customer.shippingAddress.street = "1234 West Townsend";
+    order.customer.shippingAddress.city = "Boston";
+    order.products = new ArrayList<Product>();
+    order.products.add(new Product("socks"));
+    order.products.add(new Product("shoes"));
+    return order;
+  }
+
+  static void validate(OrderMapper orderMapper, Order source) throws Exception {
+    OrderDTO dto = orderMapper.map(source);
+    Assert.assertEquals(dto.customerName, "Joe Smith");
+    Assert.assertEquals(dto.billingStreetAddress, "1234 Market Street");
+    Assert.assertEquals(dto.billingCity, "San Fran");
+    Assert.assertEquals(dto.shippingStreetAddress, "1234 West Townsend");
+    Assert.assertEquals(dto.shippingCity, "Boston");
+    Assert.assertEquals(dto.products.get(0).name, "socks");
+    Assert.assertEquals(dto.products.get(1).name, "shoes");
+  }
+
   public static class Order {
     private Customer customer;
+    private List<Product> products;
 
     public Customer getCustomer() {
       return customer;
@@ -166,6 +173,14 @@ public class DozerComparison {
 
     public void setCustomer(Customer customer) {
       this.customer = customer;
+    }
+
+    public List<Product> getProducts() {
+      return products;
+    }
+
+    public void setProducts(List<Product> products) {
+      this.products = products;
     }
   }
 
@@ -202,6 +217,10 @@ public class DozerComparison {
   public static class Product {
     private String name;
 
+    Product(String name) {
+      this.name = name;
+    }
+
     public String getName() {
       return name;
     }
@@ -233,6 +252,7 @@ public class DozerComparison {
   }
 
   public static class OrderDTO {
+    private List<ProductDTO> products;
     private String customerName;
     private String shippingStreetAddress;
     private String shippingCity;
@@ -277,6 +297,26 @@ public class DozerComparison {
 
     public void setBillingCity(String billingCity) {
       this.billingCity = billingCity;
+    }
+
+    public List<ProductDTO> getProducts() {
+      return products;
+    }
+
+    public void setProducts(List<ProductDTO> products) {
+      this.products = products;
+    }
+  }
+
+  public static class ProductDTO {
+    private String name;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
     }
   }
 }
