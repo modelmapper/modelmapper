@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.converter;
 
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -22,7 +23,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class EnumConverter extends AbstractConditionalConverter<Enum<?>, Enum<?>> {
+class EnumConverter implements ConditionalConverter<Enum<?>, Enum<?>> {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Enum<?> convert(MappingContext<Enum<?>, Enum<?>> context) {
     String name = context.getSource().name();
@@ -36,7 +37,8 @@ class EnumConverter extends AbstractConditionalConverter<Enum<?>, Enum<?>> {
     return null;
   }
 
-  public boolean supports(Class<?> sourceType, Class<?> destinationType) {
-    return sourceType.isEnum() && destinationType.isEnum();
+  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+    return sourceType.isEnum() && destinationType.isEnum() ? MatchResult.SOURCE_AND_DEST
+        : MatchResult.NONE;
   }
 }

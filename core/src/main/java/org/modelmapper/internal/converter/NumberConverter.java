@@ -68,18 +68,16 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
     return numberFor(source.toString(), destinationType);
   }
 
-  public boolean supports(Class<?> sourceType, Class<?> destinationType) {
-    return Number.class.isAssignableFrom(Primitives.wrapperFor(destinationType));
-  }
-
-  public boolean supportsSource(Class<?> sourceType) {
-    return Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
-        || sourceType == Boolean.class || sourceType == Boolean.TYPE || sourceType == String.class
-        || Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType);
-  }
-
-  public boolean verifiesSource() {
-    return false;
+  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+    boolean destMatch = Number.class.isAssignableFrom(Primitives.wrapperFor(destinationType));
+    if (destMatch) {
+      return Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
+          || sourceType == Boolean.class || sourceType == Boolean.TYPE
+          || sourceType == String.class || Date.class.isAssignableFrom(sourceType)
+          || Calendar.class.isAssignableFrom(sourceType) ? MatchResult.SOURCE_AND_DEST
+          : MatchResult.DEST;
+    } else
+      return MatchResult.NONE;
   }
 
   /**

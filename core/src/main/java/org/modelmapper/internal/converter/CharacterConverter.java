@@ -28,15 +28,10 @@ class CharacterConverter implements ConditionalConverter<Object, Character> {
     return new Character(context.getSource().toString().charAt(0));
   }
 
-  public boolean supports(Class<?> sourceType, Class<?> destinationType) {
-    return destinationType == Character.class || destinationType == Character.TYPE;
-  }
-
-  public boolean supportsSource(Class<?> sourceType) {
-    return sourceType == Character.class || sourceType == Character.TYPE;
-  }
-
-  public boolean verifiesSource() {
-    return false;
+  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+    boolean destMatch = destinationType == Character.class || destinationType == Character.TYPE;
+    return destMatch ? sourceType == Character.class || sourceType == Character.TYPE ? MatchResult.SOURCE_AND_DEST
+        : MatchResult.DEST
+        : MatchResult.NONE;
   }
 }

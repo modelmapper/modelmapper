@@ -1,15 +1,13 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.modelmapper.internal.converter.AssignableConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
 /**
@@ -26,10 +24,10 @@ public class AssignableConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertTrue(converter.supports(ArrayList.class, List.class));
-    assertTrue(converter.supports(LinkedHashMap.class, Map.class));
+    assertEquals(converter.apply(ArrayList.class, List.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.apply(LinkedHashMap.class, Map.class), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertFalse(converter.supports(List.class, ArrayList.class));
+    assertEquals(converter.apply(List.class, ArrayList.class), MatchResult.NONE);
   }
 }

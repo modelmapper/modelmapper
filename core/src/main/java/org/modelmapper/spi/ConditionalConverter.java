@@ -18,33 +18,33 @@ package org.modelmapper.spi;
 import org.modelmapper.Converter;
 
 /**
- * Converter that converts supported source objects to instances of destination type {@code D}.
+ * Conditionally converts matching source objects to instances of destination type {@code D}.
  * 
  * @param <S> source type
  * @param <D> destination type
  * @author Jonathan Halterman
  */
 public interface ConditionalConverter<S, D> extends Converter<S, D> {
+  public enum MatchResult {
+    /** Indicates that conversion from the source to destination type is supported. */
+    SOURCE_AND_DEST,
+    /** Indicates that conversion from <i>any</i> source to the destination type is supported. */
+    DEST,
+    /** Indicates that conversion to the destination type is not supported. */
+    NONE;
+  }
+
   /**
-   * Indicates whether the Converter supports conversion from the {@code sourceType} to the
-   * {@code destinationType}. Implementors should only return true for source and destination types
-   * that satisfy {@code S} and {@code D}.
+   * Determines whether the converter applies to {@code sourceType} and {@code destinationType}.
    * 
-   * @param sourceType to match
-   * @param destinationType to match
-   * @return true if conversion is supported, else false
+   * @param sourceType to evaluate
+   * @param destinationType to evaluate
+   * @return <ul>
+   *         <li>{@link MatchResult#SOURCE_AND_DEST} if {@code sourceType} and
+   *         {@code destinationType} are supported</li>
+   *         <li>{@link MatchResult#DEST} if {@code destinationType} is supported</li>
+   *         <li>{@link MatchResult#NONE} if {@code destinationType} is not supported</li>
+   *         </ul>
    */
-  boolean supports(Class<?> sourceType, Class<?> destinationType);
-
-  /**
-   * Returns whether the Converter supports conversion from the {@code sourceType}. Used only for
-   * converters where {@link #verifiesSource()} is {@code false}.
-   */
-  boolean supportsSource(Class<?> sourceType);
-
-  /**
-   * Returns whether the Converter verifies the source type when
-   * {@link ConditionalConverter#supports(Class, Class) supports} is called.
-   */
-  boolean verifiesSource();
+  MatchResult apply(Class<?> sourceType, Class<?> destinationType);
 }

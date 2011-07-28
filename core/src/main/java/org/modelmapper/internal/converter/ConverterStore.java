@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 
 /**
  * @author Jonathan Halterman
@@ -48,8 +49,12 @@ public final class ConverterStore {
   public <S, D> ConditionalConverter<S, D> getFirstSupported(Class<?> sourceType,
       Class<?> destinationType) {
     for (ConditionalConverter<?, ?> converter : converters)
-      if (converter.supports(sourceType, destinationType))
+      if (!MatchResult.NONE.equals(converter.apply(sourceType, destinationType)))
         return (ConditionalConverter<S, D>) converter;
     return null;
+  }
+  
+  public List<ConditionalConverter<?, ?>> getConverters() {
+    return converters;
   }
 }

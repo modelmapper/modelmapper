@@ -1,7 +1,6 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.modelmapper.Asserts;
-import org.modelmapper.internal.converter.CollectionConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
 /**
@@ -90,10 +89,10 @@ public class CollectionConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertTrue(converter.supports(ArrayList.class, List.class));
-    assertTrue(converter.supports(Object[].class, Set.class));
+    assertEquals(converter.apply(ArrayList.class, List.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.apply(Object[].class, Set.class), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertFalse(converter.supports(Map.class, ArrayList.class));
+    assertEquals(converter.apply(Map.class, ArrayList.class), MatchResult.NONE);
   }
 }

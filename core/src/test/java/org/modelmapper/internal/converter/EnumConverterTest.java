@@ -1,13 +1,11 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
 
 import java.util.Map;
 
-import org.modelmapper.internal.converter.EnumConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
 /**
@@ -34,8 +32,10 @@ public class EnumConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertTrue(converter.supports(Source.class, Dest.class));
-    assertFalse(converter.supports(Source.class, Map.class));
-    assertFalse(converter.supports(Map.class, Dest.class));
+    assertEquals(converter.apply(Source.class, Dest.class), MatchResult.SOURCE_AND_DEST);
+    
+    // Negative
+    assertEquals(converter.apply(Source.class, Map.class), MatchResult.NONE);
+    assertEquals(converter.apply(Map.class, Dest.class), MatchResult.NONE);
   }
 }

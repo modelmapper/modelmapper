@@ -17,7 +17,6 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -29,7 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.modelmapper.MappingException;
-import org.modelmapper.internal.converter.NumberConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -151,10 +150,10 @@ public class NumberConverterTest extends AbstractConverterTest {
         new Float(8), new Float(9), new Float(10), new Float(11.1), new Float(12.2) };
 
     for (int i = 0; i < expected.length; i++) {
-      assertEquals(expected[i].floatValue(), ((Float) (convert(input[i], Float.class))).floatValue(),
-          0.00001);
-      assertEquals(expected[i].floatValue(), ((Float) (convert(input[i], Float.TYPE))).floatValue(),
-          0.00001);
+      assertEquals(expected[i].floatValue(),
+          ((Float) (convert(input[i], Float.class))).floatValue(), 0.00001);
+      assertEquals(expected[i].floatValue(),
+          ((Float) (convert(input[i], Float.TYPE))).floatValue(), 0.00001);
 
     }
   }
@@ -336,12 +335,11 @@ public class NumberConverterTest extends AbstractConverterTest {
 
     for (Class<?> sourceType : sourceTypes)
       for (Class<?> destinationType : destinationTypes)
-        assertTrue(converter.supports(sourceType, destinationType), "Should support mapping from "
-            + sourceType + " to " + destinationType);
+        assertEquals(converter.apply(sourceType, destinationType), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertFalse(converter.supports(Object[].class, ArrayList.class));
-    assertFalse(converter.supports(Number.class, Boolean.class));
+    assertEquals(converter.apply(Object[].class, ArrayList.class), MatchResult.NONE);
+    assertEquals(converter.apply(Number.class, Boolean.class), MatchResult.NONE);
   }
 
   @Test(expectedExceptions = MappingException.class, dataProvider = "numbersProvider")

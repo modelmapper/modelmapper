@@ -19,6 +19,7 @@ package org.modelmapper.internal.converter;
 import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.internal.converter.CharacterConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
 @Test
@@ -48,5 +49,11 @@ public class CharacterConverterTest extends AbstractConverterTest {
   public void shouldConvertComplexModel() {
     Dest dest = modelMapper.map(new Source(), Dest.class);
     assertEquals(dest.value, 'a');
+  }
+
+  public void testSupported() {
+    assertEquals(converter.apply(Character.class, Character.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.apply(String.class, Character.class), MatchResult.DEST);
+    assertEquals(converter.apply(String.class, String.class), MatchResult.NONE);
   }
 }

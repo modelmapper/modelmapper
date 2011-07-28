@@ -28,6 +28,7 @@ import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameableType;
@@ -132,20 +133,23 @@ class PropertyMappingBuilder<S, D> {
       propertyNameInfo.pushSource(entry.getKey(), entry.getValue());
 
       if (matchingStrategy.matches(propertyNameInfo)) {
-        ConditionalConverter<?, ?> converter = typeConverterStore.getFirstSupported(
-            accessor.getType(), destinationMutator.getType());
+        for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
+          MatchResult matchResult = converter.apply(accessor.getType(),
+              destinationMutator.getType());
 
-        // Ensure that a converter supports the match
-        if (converter != null) {
-          PropertyMappingImpl mapping = new PropertyMappingImpl(propertyNameInfo.sourceProperties,
-              propertyNameInfo.destinationProperties);
+          if (!MatchResult.NONE.equals(matchResult)) {
+            PropertyMappingImpl mapping = new PropertyMappingImpl(
+                propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties);
 
-          if (converter.verifiesSource() || converter.supportsSource(accessor.getType())) {
-            mappings.add(mapping);
-            if (matchingStrategy.isExact())
-              return;
-          } else
-            unverifiedMappings.add(mapping);
+            if (MatchResult.SOURCE_AND_DEST.equals(matchResult)) {
+              mappings.add(mapping);
+              if (matchingStrategy.isExact())
+                return;
+            } else
+              unverifiedMappings.add(mapping);
+            
+            break;
+          }
         }
       }
 

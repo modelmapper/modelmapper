@@ -1,7 +1,19 @@
+Legend:
+
+GC - Issues filed at Google Code
+GH - Issues filed at Github
+
+Releases:
+
+0.3.4
+
+- Fixed GC #5: Copy null values for primitives
+- Simplified the ConditionalConverter API
+
 0.3.3 (7/26/2011)
 
- - Fixed missing repacked cglib dependencies
- - Fixed UnsupportedOperationException when adding ConditionalConverters to configuration
+- Fixed GC #3: Missing repackaged cglib dependencies
+- Fixed GC #2: UnsupportedOperationException when adding ConditionalConverters to configuration
 
 0.3.2 (7/19/2011)
 

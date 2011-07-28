@@ -17,7 +17,6 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -31,7 +30,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.modelmapper.MappingException;
-import org.modelmapper.internal.converter.DateConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -141,12 +140,11 @@ public class DateConverterTest extends AbstractConverterTest {
 
     for (Class<?> sourceType : sourceTypes)
       for (Class<?> destinationType : destinationTypes)
-        assertTrue(converter.supports(sourceType, destinationType), "Should support mapping from "
-            + sourceType + " to " + destinationType);
+        assertEquals(converter.apply(sourceType, destinationType), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertFalse(converter.supports(Object[].class, Date.class));
-    assertFalse(converter.supports(Number.class, Date.class));
+    assertEquals(converter.apply(Object[].class, Date.class), MatchResult.NONE);
+    assertEquals(converter.apply(Number.class, Date.class), MatchResult.NONE);
   }
 
   private long getTimeInMillis(Object date) {

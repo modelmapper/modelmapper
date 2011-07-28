@@ -28,15 +28,9 @@ class StringConverter implements ConditionalConverter<Object, String> {
     return context.getSource().toString();
   }
 
-  public boolean supports(Class<?> sourceType, Class<?> destinationType) {
-    return destinationType == String.class;
-  }
-
-  public boolean supportsSource(Class<?> sourceType) {
-    return sourceType == String.class;
-  }
-
-  public boolean verifiesSource() {
-    return false;
+  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+    return destinationType == String.class ? sourceType == String.class ? MatchResult.SOURCE_AND_DEST
+        : MatchResult.DEST
+        : MatchResult.NONE;
   }
 }

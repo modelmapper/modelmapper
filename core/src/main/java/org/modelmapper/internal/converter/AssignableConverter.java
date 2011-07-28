@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.converter;
 
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -22,17 +23,13 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class AssignableConverter extends AbstractConditionalConverter<Object, Object> {
+class AssignableConverter implements ConditionalConverter<Object, Object> {
   public Object convert(MappingContext<Object, Object> context) {
     return context.getDestination() == null ? context.getSource() : context.getDestination();
   }
 
-  public boolean supports(Class<?> sourceType, Class<?> destinationType) {
-    return destinationType.isAssignableFrom(sourceType);
-  }
-
-  @Override
-  public boolean verifiesSource() {
-    return true;
+  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+    return destinationType.isAssignableFrom(sourceType) ? MatchResult.SOURCE_AND_DEST
+        : MatchResult.NONE;
   }
 }

@@ -26,7 +26,7 @@ import java.util.Map;
 public final class Primitives {
   private static Map<Class<?>, Class<?>> primitiveToWrapper;
   private static Map<Class<?>, Class<?>> wrapperToPrimitive;
-  private static Map<Class<?>, Object> wrapperToDefault;
+  private static Map<Class<?>, Object> defaultValue;
 
   private Primitives() {
   }
@@ -52,22 +52,22 @@ public final class Primitives {
     wrapperToPrimitive.put(Float.class, Float.TYPE);
     wrapperToPrimitive.put(Double.class, Double.TYPE);
 
-    wrapperToDefault = new HashMap<Class<?>, Object>();
-    wrapperToDefault.put(Boolean.class, Boolean.FALSE);
-    wrapperToDefault.put(Character.class, Character.valueOf('\u0000'));
-    wrapperToDefault.put(Byte.class, Byte.valueOf((byte) 0));
-    wrapperToDefault.put(Short.class, Short.valueOf((short) 0));
-    wrapperToDefault.put(Integer.class, Integer.valueOf(0));
-    wrapperToDefault.put(Long.class, Long.valueOf(0L));
-    wrapperToDefault.put(Float.class, Float.valueOf(0.0f));
-    wrapperToDefault.put(Double.class, Double.valueOf(0.0d));
+    defaultValue = new HashMap<Class<?>, Object>();
+    defaultValue.put(Boolean.TYPE, Boolean.FALSE);
+    defaultValue.put(Character.TYPE, Character.valueOf('\u0000'));
+    defaultValue.put(Byte.TYPE, Byte.valueOf((byte) 0));
+    defaultValue.put(Short.TYPE, Short.valueOf((short) 0));
+    defaultValue.put(Integer.TYPE, Integer.valueOf(0));
+    defaultValue.put(Long.TYPE, Long.valueOf(0L));
+    defaultValue.put(Float.TYPE, Float.valueOf(0.0f));
+    defaultValue.put(Double.TYPE, Double.valueOf(0.0d));
   }
 
   /**
-   * Returns the default value for {@code type} if {@code type} is a primitive, else null.
+   * Returns the boxed default value for {@code type} if {@code type} is a primitive, else null.
    */
   public static Object defaultValue(Class<?> type) {
-    return wrapperToDefault.get(wrapperFor(type));
+    return type.isPrimitive() ? defaultValue.get(type) : null;
   }
 
   /**

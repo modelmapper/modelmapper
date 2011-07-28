@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.modelmapper.internal.util.ArrayIterator;
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -28,7 +29,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-abstract class IterableConverter<S, D> extends AbstractConditionalConverter<S, D> {
+abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
   public D convert(MappingContext<S, D> context) {
     S source = context.getSource();
     int sourceLength = getSourceLength(source);

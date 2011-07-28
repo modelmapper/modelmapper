@@ -20,6 +20,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.MappingException;
 import org.modelmapper.internal.converter.BooleanConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
 @Test
@@ -49,5 +50,11 @@ public class BooleanConverterTest extends AbstractConverterTest {
       assertEquals(Boolean.TRUE, convert(trueValues[i]));
     for (int i = 0; i < falseValues.length; i++)
       assertEquals(Boolean.FALSE, convert(falseValues[i]));
+  }
+
+  public void testSupported() {
+    assertEquals(converter.apply(Boolean.class, Boolean.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.apply(String.class, Boolean.class), MatchResult.DEST);
+    assertEquals(converter.apply(String.class, String.class), MatchResult.NONE);
   }
 }

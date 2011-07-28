@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.modelmapper.internal.Errors;
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -46,7 +47,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class DateConverter extends AbstractConditionalConverter<Object, Object> {
+class DateConverter implements ConditionalConverter<Object, Object> {
   public Object convert(MappingContext<Object, Object> context) {
     Object source = context.getSource();
     Class<?> destinationType = context.getDestinationType();
@@ -62,12 +63,13 @@ class DateConverter extends AbstractConditionalConverter<Object, Object> {
     return dateFor(source.toString(), destinationType);
   }
 
-  public boolean supports(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
     boolean validDestination = Date.class.isAssignableFrom(destinationType)
         || Calendar.class.isAssignableFrom(destinationType);
     return validDestination
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
-            || sourceType == Long.class || sourceType == Long.TYPE || sourceType == String.class);
+            || sourceType == Long.class || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.SOURCE_AND_DEST
+        : MatchResult.NONE;
   }
 
   Object dateFor(long source, Class<?> destinationType) {

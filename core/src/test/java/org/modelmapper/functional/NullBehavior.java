@@ -14,6 +14,7 @@ public class NullBehavior extends AbstractTest {
   static class S1 {
     S2 sub;
     String nullString;
+    Long longValue;
 
     public S2 getSub() {
       return sub;
@@ -30,8 +31,9 @@ public class NullBehavior extends AbstractTest {
 
   static class D1 {
     D2 sub;
-    int subSomething;
+    int subSomething = 5;
     String nullString;
+    Long longValue = Long.valueOf(4);
 
     public void setSub(D2 sub) {
       this.sub = sub;
@@ -59,5 +61,6 @@ public class NullBehavior extends AbstractTest {
     assertNull(result.sub.items);
     assertEquals(result.subSomething, 0);
     assertNull(result.nullString);
+    assertNull(result.longValue);
   }
 }
