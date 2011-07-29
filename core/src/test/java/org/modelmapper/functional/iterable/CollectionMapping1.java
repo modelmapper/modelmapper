@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")
-public class CollectionMapping extends AbstractTest {
+public class CollectionMapping1 extends AbstractTest {
   static class DArray {
     String[] name;
 
