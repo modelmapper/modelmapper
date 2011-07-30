@@ -87,7 +87,6 @@ public class DeepMappingTest1 extends AbstractTest {
         }
       });
     } catch (ConfigurationException e) {
-      e.printStackTrace();
       Asserts.assertContains(e.getMessage(), "1) No corresponding mutator was found");
       assertEquals(e.getErrorMessages().size(), 3);
       return;

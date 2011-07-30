@@ -39,9 +39,11 @@ class ProxyFactory {
     }
   };
 
-  private static final CallbackFilter BRIDGE_METHOD_FILTER = new CallbackFilter() {
+  private static final CallbackFilter METHOD_FILTER = new CallbackFilter() {
     public int accept(Method method) {
-      return method.isBridge() ? 1 : 0;
+      return method.isBridge()
+          || (method.getName().equals("finalize") && method.getParameterTypes().length == 0) ? 1
+          : 0;
     }
   };
 
@@ -55,7 +57,7 @@ class ProxyFactory {
     enhancer.setUseFactory(false);
     enhancer.setUseCache(true);
     enhancer.setNamingPolicy(NAMING_POLICY);
-    enhancer.setCallbackFilter(BRIDGE_METHOD_FILTER);
+    enhancer.setCallbackFilter(METHOD_FILTER);
     enhancer.setCallbackTypes(new Class[] { MethodInterceptor.class, NoOp.class });
 
     try {
