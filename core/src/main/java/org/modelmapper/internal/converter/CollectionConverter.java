@@ -39,6 +39,18 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
   }
 
   @Override
+  protected Collection<Object> createDestination(
+      MappingContext<Object, Collection<Object>> context, int length) {
+    if (context.getDestinationType().isInterface())
+      if (Set.class.isAssignableFrom(context.getDestinationType()))
+        return new HashSet<Object>();
+      else
+        return new ArrayList<Object>(length);
+
+    return context.getMappingEngine().createDestination(context);
+  }
+
+  @Override
   protected Class<?> getElementType(MappingContext<Object, Collection<Object>> context) {
     Mapping mapping = context.getMapping();
     if (mapping instanceof PropertyMapping) {
@@ -52,17 +64,5 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
   @Override
   protected void setElement(Collection<Object> destination, Object element, int index) {
     destination.add(element);
-  }
-
-  @Override
-  protected Collection<Object> createDestination(
-      MappingContext<Object, Collection<Object>> context, int length) {
-    if (context.getDestinationType().isInterface())
-      if (Set.class.isAssignableFrom(context.getDestinationType()))
-        return new HashSet<Object>();
-      else
-        return new ArrayList<Object>(length);
-
-    return context.getMappingEngine().createDestination(context);
   }
 }

@@ -7,8 +7,9 @@ Releases:
 
 0.3.4
 
+- Simplified the ConditionalConverter SPI
+- Fixed GC #4: Exposed conditional converters for mutation via Configuration.getConverters()
 - Fixed GC #5: Copy null values for primitives
-- Simplified the ConditionalConverter API
 
 0.3.3 (7/26/2011)
 

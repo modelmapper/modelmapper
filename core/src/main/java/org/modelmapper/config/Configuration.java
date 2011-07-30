@@ -15,6 +15,8 @@
  */
 package org.modelmapper.config;
 
+import java.util.List;
+
 import org.modelmapper.Provider;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MatchingStrategy;
@@ -43,18 +45,6 @@ public interface Configuration {
   }
 
   /**
-   * Registers the conditional {@code converter}. The {@code converter} will be first in list of
-   * converters used to fulfill mapping requests.
-   * 
-   * <p>
-   * This method is part of the ModelMapper SPI.
-   * 
-   * @param converter to register
-   * @throws IllegalArgumentException if {@code converter} is null
-   */
-  Configuration addConverter(ConditionalConverter<?, ?> converter);
-
-  /**
    * Returns a copy of the Configuration.
    */
   Configuration copy();
@@ -68,6 +58,16 @@ public interface Configuration {
    * @see #setFieldAccessLevel(AccessLevel)
    */
   Configuration enableFieldMatching(boolean enabled);
+
+  /**
+   * Gets the ordered list of internal conditional converters that are used to perform type
+   * conversion. This list is mutable and may be modified to control which converters are used to
+   * perform type conversion along with the order in which converters are selected.
+   * 
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   */
+  List<ConditionalConverter<?, ?>> getConverters();
 
   /**
    * Returns the destination name tokenizer.

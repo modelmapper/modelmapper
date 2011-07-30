@@ -15,6 +15,8 @@
  */
 package org.modelmapper.internal;
 
+import java.util.List;
+
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
@@ -97,15 +99,10 @@ public class InheritingConfiguration implements Configuration {
     }
   }
 
-  public Configuration addConverter(ConditionalConverter<?, ?> converter) {
-    Assert.notNull(converter, "converter");
-    converterStore.add(converter);
-    return this;
-  }
-
   public Configuration copy() {
     return new InheritingConfiguration(this, false);
   }
+
   public Configuration enableFieldMatching(boolean enabled) {
     enableFieldMatching = enabled;
     return this;
@@ -133,6 +130,11 @@ public class InheritingConfiguration implements Configuration {
     if (isFieldMatchingEnabled() != other.isFieldMatchingEnabled())
       return false;
     return true;
+  }
+
+  @Override
+  public List<ConditionalConverter<?, ?>> getConverters() {
+    return converterStore.getConverters();
   }
 
   public NameTokenizer getDestinationNameTokenizer() {
