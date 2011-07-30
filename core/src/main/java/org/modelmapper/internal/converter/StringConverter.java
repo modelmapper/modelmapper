@@ -29,8 +29,7 @@ class StringConverter implements ConditionalConverter<Object, String> {
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    return destinationType == String.class ? sourceType == String.class ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.DEST
-        : MatchResult.NO_MATCH;
+    return destinationType == String.class ? sourceType == String.class ? MatchResult.FULL
+        : MatchResult.PARTIAL : MatchResult.NONE;
   }
 }

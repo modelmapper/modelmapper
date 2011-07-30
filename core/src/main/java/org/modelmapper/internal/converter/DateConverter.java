@@ -68,8 +68,8 @@ class DateConverter implements ConditionalConverter<Object, Object> {
         || Calendar.class.isAssignableFrom(destinationType);
     return validDestination
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
-            || sourceType == Long.class || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NO_MATCH;
+            || sourceType == Long.class || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.FULL
+        : MatchResult.NONE;
   }
 
   Object dateFor(long source, Class<?> destinationType) {

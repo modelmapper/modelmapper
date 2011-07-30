@@ -30,8 +30,8 @@ class CharacterConverter implements ConditionalConverter<Object, Character> {
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     boolean destMatch = destinationType == Character.class || destinationType == Character.TYPE;
-    return destMatch ? sourceType == Character.class || sourceType == Character.TYPE ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.DEST
-        : MatchResult.NO_MATCH;
+    return destMatch ? sourceType == Character.class || sourceType == Character.TYPE ? MatchResult.FULL
+        : MatchResult.PARTIAL
+        : MatchResult.NONE;
   }
 }

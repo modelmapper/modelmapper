@@ -137,11 +137,11 @@ class PropertyMappingBuilder<S, D> {
           MatchResult matchResult = converter.match(accessor.getType(),
               destinationMutator.getType());
 
-          if (!MatchResult.NO_MATCH.equals(matchResult)) {
+          if (!MatchResult.NONE.equals(matchResult)) {
             PropertyMappingImpl mapping = new PropertyMappingImpl(
                 propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties);
 
-            if (MatchResult.SOURCE_AND_DEST.equals(matchResult)) {
+            if (MatchResult.FULL.equals(matchResult)) {
               mappings.add(mapping);
               if (matchingStrategy.isExact())
                 return;

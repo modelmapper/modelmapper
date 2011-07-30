@@ -74,10 +74,9 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
       return Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
           || sourceType == Boolean.class || sourceType == Boolean.TYPE
           || sourceType == String.class || Date.class.isAssignableFrom(sourceType)
-          || Calendar.class.isAssignableFrom(sourceType) ? MatchResult.SOURCE_AND_DEST
-          : MatchResult.DEST;
+          || Calendar.class.isAssignableFrom(sourceType) ? MatchResult.FULL : MatchResult.PARTIAL;
     } else
-      return MatchResult.NO_MATCH;
+      return MatchResult.NONE;
   }
 
   /**

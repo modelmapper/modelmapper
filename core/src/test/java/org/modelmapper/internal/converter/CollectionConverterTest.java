@@ -89,10 +89,10 @@ public class CollectionConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertEquals(converter.match(ArrayList.class, List.class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.match(Object[].class, Set.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(ArrayList.class, List.class), MatchResult.FULL);
+    assertEquals(converter.match(Object[].class, Set.class), MatchResult.FULL);
 
     // Negative
-    assertEquals(converter.match(Map.class, ArrayList.class), MatchResult.NO_MATCH);
+    assertEquals(converter.match(Map.class, ArrayList.class), MatchResult.NONE);
   }
 }

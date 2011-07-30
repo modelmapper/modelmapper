@@ -53,8 +53,8 @@ public class BooleanConverterTest extends AbstractConverterTest {
   }
 
   public void testSupported() {
-    assertEquals(converter.match(Boolean.class, Boolean.class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.match(String.class, Boolean.class), MatchResult.DEST);
-    assertEquals(converter.match(String.class, String.class), MatchResult.NO_MATCH);
+    assertEquals(converter.match(Boolean.class, Boolean.class), MatchResult.FULL);
+    assertEquals(converter.match(String.class, Boolean.class), MatchResult.PARTIAL);
+    assertEquals(converter.match(String.class, String.class), MatchResult.NONE);
   }
 }

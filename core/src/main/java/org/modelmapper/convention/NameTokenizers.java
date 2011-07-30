@@ -21,7 +21,7 @@ import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameableType;
 
 /**
- * {@link NameTokenizer} imlpementations.
+ * {@link NameTokenizer} implementations.
  * 
  * @author Jonathan Halterman
  */

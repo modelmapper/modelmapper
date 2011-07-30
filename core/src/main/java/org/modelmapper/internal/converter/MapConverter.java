@@ -62,8 +62,8 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    return Map.class.isAssignableFrom(sourceType) && Map.class.isAssignableFrom(destinationType) ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NO_MATCH;
+    return Map.class.isAssignableFrom(sourceType) && Map.class.isAssignableFrom(destinationType) ? MatchResult.FULL
+        : MatchResult.NONE;
   }
 
   protected Map<Object, Object> createDestination(

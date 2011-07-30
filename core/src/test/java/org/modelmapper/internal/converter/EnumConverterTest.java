@@ -32,10 +32,10 @@ public class EnumConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertEquals(converter.match(Source.class, Dest.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(Source.class, Dest.class), MatchResult.FULL);
     
     // Negative
-    assertEquals(converter.match(Source.class, Map.class), MatchResult.NO_MATCH);
-    assertEquals(converter.match(Map.class, Dest.class), MatchResult.NO_MATCH);
+    assertEquals(converter.match(Source.class, Map.class), MatchResult.NONE);
+    assertEquals(converter.match(Map.class, Dest.class), MatchResult.NONE);
   }
 }

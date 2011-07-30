@@ -29,7 +29,6 @@ class AssignableConverter implements ConditionalConverter<Object, Object> {
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    return destinationType.isAssignableFrom(sourceType) ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NO_MATCH;
+    return destinationType.isAssignableFrom(sourceType) ? MatchResult.FULL : MatchResult.NONE;
   }
 }

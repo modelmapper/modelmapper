@@ -27,24 +27,24 @@ import org.modelmapper.Converter;
 public interface ConditionalConverter<S, D> extends Converter<S, D> {
   public enum MatchResult {
     /** Indicates that the source and destination types were matched. */
-    SOURCE_AND_DEST,
-    /** Indicates that the destination type was matched. */
-    DEST,
+    FULL,
+    /** Indicates that only the destination type was matched. */
+    PARTIAL,
     /** Indicates that the destination type was not matched. */
-    NO_MATCH;
+    NONE;
   }
 
   /**
-   * Determines whether the converter support conversion from {@code sourceType} to
+   * Determines whether the converter matches and supports conversion from {@code sourceType} to
    * {@code destinationType}.
    * 
-   * @param sourceType to evaluate
-   * @param destinationType to evaluate
+   * @param sourceType to match
+   * @param destinationType to match
    * @return <ul>
-   *         <li>{@link MatchResult#SOURCE_AND_DEST} if {@code sourceType} and
-   *         {@code destinationType} are supported</li>
-   *         <li>{@link MatchResult#DEST} if {@code destinationType} is supported</li>
-   *         <li>{@link MatchResult#NO_MATCH} if {@code destinationType} is not supported</li>
+   *         <li>{@link MatchResult#FULL} if {@code sourceType} and {@code destinationType} are
+   *         matched</li>
+   *         <li>{@link MatchResult#PARTIAL} if {@code destinationType} is matched</li>
+   *         <li>{@link MatchResult#NONE} if {@code destinationType} is not matched</li>
    *         </ul>
    */
   MatchResult match(Class<?> sourceType, Class<?> destinationType);

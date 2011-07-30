@@ -45,8 +45,7 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     boolean destMatch = destinationType == Boolean.class || destinationType == Boolean.TYPE;
-    return destMatch ? sourceType == Boolean.class || sourceType == Boolean.TYPE ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.DEST
-        : MatchResult.NO_MATCH;
+    return destMatch ? sourceType == Boolean.class || sourceType == Boolean.TYPE ? MatchResult.FULL
+        : MatchResult.PARTIAL : MatchResult.NONE;
   }
 }

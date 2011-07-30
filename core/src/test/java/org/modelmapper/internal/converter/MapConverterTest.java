@@ -76,10 +76,10 @@ public class MapConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertEquals(converter.match(HashMap.class, TreeMap.class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.match(Map.class, HashMap.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(HashMap.class, TreeMap.class), MatchResult.FULL);
+    assertEquals(converter.match(Map.class, HashMap.class), MatchResult.FULL);
 
     // Negative
-    assertEquals(converter.match(Map.class, ArrayList.class), MatchResult.NO_MATCH);
+    assertEquals(converter.match(Map.class, ArrayList.class), MatchResult.NONE);
   }
 }
