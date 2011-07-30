@@ -5,7 +5,7 @@ GH - Issues filed at Github
 
 Releases:
 
-0.3.4
+0.3.4 (7/30/2011)
 
 - Simplified the ConditionalConverter SPI
 - Fixed GC #4: Exposed conditional converters for mutation via Configuration.getConverters()

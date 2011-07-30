@@ -15,8 +15,8 @@
  */
 package org.modelmapper.internal.converter;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
@@ -29,7 +29,7 @@ public final class ConverterStore {
       new StringConverter(), new EnumConverter(), new ArrayConverter(), new CollectionConverter(),
       new MapConverter(), new AssignableConverter(), new NumberConverter(), new BooleanConverter(),
       new CharacterConverter(), new DateConverter() };
-  private final List<ConditionalConverter<?, ?>> converters = new LinkedList<ConditionalConverter<?, ?>>();
+  private final List<ConditionalConverter<?, ?>> converters = new CopyOnWriteArrayList<ConditionalConverter<?, ?>>();
 
   public ConverterStore() {
     for (ConditionalConverter<?, ?> converter : defaultConverters)
