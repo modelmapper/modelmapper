@@ -24,10 +24,10 @@ public class AssignableConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertEquals(converter.apply(ArrayList.class, List.class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.apply(LinkedHashMap.class, Map.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(ArrayList.class, List.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(LinkedHashMap.class, Map.class), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertEquals(converter.apply(List.class, ArrayList.class), MatchResult.NONE);
+    assertEquals(converter.match(List.class, ArrayList.class), MatchResult.NO_MATCH);
   }
 }

@@ -28,8 +28,8 @@ class AssignableConverter implements ConditionalConverter<Object, Object> {
     return context.getDestination() == null ? context.getSource() : context.getDestination();
   }
 
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return destinationType.isAssignableFrom(sourceType) ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NONE;
+        : MatchResult.NO_MATCH;
   }
 }

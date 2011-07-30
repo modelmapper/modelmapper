@@ -52,8 +52,8 @@ public class CharacterConverterTest extends AbstractConverterTest {
   }
 
   public void testSupported() {
-    assertEquals(converter.apply(Character.class, Character.class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.apply(String.class, Character.class), MatchResult.DEST);
-    assertEquals(converter.apply(String.class, String.class), MatchResult.NONE);
+    assertEquals(converter.match(Character.class, Character.class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(String.class, Character.class), MatchResult.DEST);
+    assertEquals(converter.match(String.class, String.class), MatchResult.NO_MATCH);
   }
 }

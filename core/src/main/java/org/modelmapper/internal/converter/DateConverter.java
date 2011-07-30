@@ -63,13 +63,13 @@ class DateConverter implements ConditionalConverter<Object, Object> {
     return dateFor(source.toString(), destinationType);
   }
 
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     boolean validDestination = Date.class.isAssignableFrom(destinationType)
         || Calendar.class.isAssignableFrom(destinationType);
     return validDestination
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
             || sourceType == Long.class || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NONE;
+        : MatchResult.NO_MATCH;
   }
 
   Object dateFor(long source, Class<?> destinationType) {

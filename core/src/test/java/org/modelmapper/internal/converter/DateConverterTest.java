@@ -140,11 +140,11 @@ public class DateConverterTest extends AbstractConverterTest {
 
     for (Class<?> sourceType : sourceTypes)
       for (Class<?> destinationType : destinationTypes)
-        assertEquals(converter.apply(sourceType, destinationType), MatchResult.SOURCE_AND_DEST);
+        assertEquals(converter.match(sourceType, destinationType), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertEquals(converter.apply(Object[].class, Date.class), MatchResult.NONE);
-    assertEquals(converter.apply(Number.class, Date.class), MatchResult.NONE);
+    assertEquals(converter.match(Object[].class, Date.class), MatchResult.NO_MATCH);
+    assertEquals(converter.match(Number.class, Date.class), MatchResult.NO_MATCH);
   }
 
   private long getTimeInMillis(Object date) {

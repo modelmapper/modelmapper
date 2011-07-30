@@ -134,10 +134,10 @@ class PropertyMappingBuilder<S, D> {
 
       if (matchingStrategy.matches(propertyNameInfo)) {
         for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
-          MatchResult matchResult = converter.apply(accessor.getType(),
+          MatchResult matchResult = converter.match(accessor.getType(),
               destinationMutator.getType());
 
-          if (!MatchResult.NONE.equals(matchResult)) {
+          if (!MatchResult.NO_MATCH.equals(matchResult)) {
             PropertyMappingImpl mapping = new PropertyMappingImpl(
                 propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties);
 

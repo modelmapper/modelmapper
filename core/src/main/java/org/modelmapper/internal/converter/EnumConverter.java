@@ -37,8 +37,8 @@ class EnumConverter implements ConditionalConverter<Enum<?>, Enum<?>> {
     return null;
   }
 
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return sourceType.isEnum() && destinationType.isEnum() ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NONE;
+        : MatchResult.NO_MATCH;
   }
 }

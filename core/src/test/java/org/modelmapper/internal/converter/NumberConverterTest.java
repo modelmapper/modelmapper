@@ -335,11 +335,11 @@ public class NumberConverterTest extends AbstractConverterTest {
 
     for (Class<?> sourceType : sourceTypes)
       for (Class<?> destinationType : destinationTypes)
-        assertEquals(converter.apply(sourceType, destinationType), MatchResult.SOURCE_AND_DEST);
+        assertEquals(converter.match(sourceType, destinationType), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertEquals(converter.apply(Object[].class, ArrayList.class), MatchResult.NONE);
-    assertEquals(converter.apply(Number.class, Boolean.class), MatchResult.NONE);
+    assertEquals(converter.match(Object[].class, ArrayList.class), MatchResult.NO_MATCH);
+    assertEquals(converter.match(Number.class, Boolean.class), MatchResult.NO_MATCH);
   }
 
   @Test(expectedExceptions = MappingException.class, dataProvider = "numbersProvider")

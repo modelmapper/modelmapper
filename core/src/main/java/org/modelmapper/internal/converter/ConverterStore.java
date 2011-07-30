@@ -49,7 +49,7 @@ public final class ConverterStore {
   public <S, D> ConditionalConverter<S, D> getFirstSupported(Class<?> sourceType,
       Class<?> destinationType) {
     for (ConditionalConverter<?, ?> converter : converters)
-      if (!MatchResult.NONE.equals(converter.apply(sourceType, destinationType)))
+      if (!MatchResult.NO_MATCH.equals(converter.match(sourceType, destinationType)))
         return (ConditionalConverter<S, D>) converter;
     return null;
   }

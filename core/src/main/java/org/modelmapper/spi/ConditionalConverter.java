@@ -26,16 +26,17 @@ import org.modelmapper.Converter;
  */
 public interface ConditionalConverter<S, D> extends Converter<S, D> {
   public enum MatchResult {
-    /** Indicates that conversion from the source to destination type is supported. */
+    /** Indicates that the source and destination types were matched. */
     SOURCE_AND_DEST,
-    /** Indicates that conversion from <i>any</i> source to the destination type is supported. */
+    /** Indicates that the destination type was matched. */
     DEST,
-    /** Indicates that conversion to the destination type is not supported. */
-    NONE;
+    /** Indicates that the destination type was not matched. */
+    NO_MATCH;
   }
 
   /**
-   * Determines whether the converter applies to {@code sourceType} and {@code destinationType}.
+   * Determines whether the converter support conversion from {@code sourceType} to
+   * {@code destinationType}.
    * 
    * @param sourceType to evaluate
    * @param destinationType to evaluate
@@ -43,8 +44,8 @@ public interface ConditionalConverter<S, D> extends Converter<S, D> {
    *         <li>{@link MatchResult#SOURCE_AND_DEST} if {@code sourceType} and
    *         {@code destinationType} are supported</li>
    *         <li>{@link MatchResult#DEST} if {@code destinationType} is supported</li>
-   *         <li>{@link MatchResult#NONE} if {@code destinationType} is not supported</li>
+   *         <li>{@link MatchResult#NO_MATCH} if {@code destinationType} is not supported</li>
    *         </ul>
    */
-  MatchResult apply(Class<?> sourceType, Class<?> destinationType);
+  MatchResult match(Class<?> sourceType, Class<?> destinationType);
 }

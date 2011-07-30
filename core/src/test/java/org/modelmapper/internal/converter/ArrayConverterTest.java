@@ -74,11 +74,11 @@ public class ArrayConverterTest extends AbstractConverterTest {
   }
 
   public void testMatches() {
-    assertEquals(converter.apply(ArrayList.class, Object[].class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.apply(Object[].class, String[].class), MatchResult.SOURCE_AND_DEST);
-    assertEquals(converter.apply(LongList.class, Long[].class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(ArrayList.class, Object[].class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(Object[].class, String[].class), MatchResult.SOURCE_AND_DEST);
+    assertEquals(converter.match(LongList.class, Long[].class), MatchResult.SOURCE_AND_DEST);
 
     // Negative
-    assertEquals(converter.apply(Object[].class, ArrayList.class), MatchResult.NONE);
+    assertEquals(converter.match(Object[].class, ArrayList.class), MatchResult.NO_MATCH);
   }
 }

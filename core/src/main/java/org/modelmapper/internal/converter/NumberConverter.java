@@ -68,7 +68,7 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
     return numberFor(source.toString(), destinationType);
   }
 
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     boolean destMatch = Number.class.isAssignableFrom(Primitives.wrapperFor(destinationType));
     if (destMatch) {
       return Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
@@ -77,7 +77,7 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
           || Calendar.class.isAssignableFrom(sourceType) ? MatchResult.SOURCE_AND_DEST
           : MatchResult.DEST;
     } else
-      return MatchResult.NONE;
+      return MatchResult.NO_MATCH;
   }
 
   /**

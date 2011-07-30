@@ -28,9 +28,9 @@ class StringConverter implements ConditionalConverter<Object, String> {
     return context.getSource().toString();
   }
 
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return destinationType == String.class ? sourceType == String.class ? MatchResult.SOURCE_AND_DEST
         : MatchResult.DEST
-        : MatchResult.NONE;
+        : MatchResult.NO_MATCH;
   }
 }

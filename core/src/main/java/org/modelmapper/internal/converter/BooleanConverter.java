@@ -43,10 +43,10 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
         .toMappingException();
   }
 
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     boolean destMatch = destinationType == Boolean.class || destinationType == Boolean.TYPE;
     return destMatch ? sourceType == Boolean.class || sourceType == Boolean.TYPE ? MatchResult.SOURCE_AND_DEST
         : MatchResult.DEST
-        : MatchResult.NONE;
+        : MatchResult.NO_MATCH;
   }
 }

@@ -33,9 +33,9 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class CollectionConverter extends IterableConverter<Object, Collection<Object>> {
-  public MatchResult apply(Class<?> sourceType, Class<?> destinationType) {
+  public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Collection.class.isAssignableFrom(destinationType) && Iterables.isIterable(sourceType) ? MatchResult.SOURCE_AND_DEST
-        : MatchResult.NONE;
+        : MatchResult.NO_MATCH;
   }
 
   @Override
