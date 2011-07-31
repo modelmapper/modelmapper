@@ -33,4 +33,15 @@ public class StandardMatchingStrategyTest extends InexactMatchingStrategyTest {
     match("a", "b", "c").to("aC").assertNoMatch();
     match("a", "b", "c").to("a", "c").assertNoMatch();
   }
+
+  /**
+   * <pre>
+   * a/bc/d -> a/c/bd
+   * order/cust/addr/value -> order/addr/cust/value
+   * </pre>
+   */
+  public void shouldMatchUnorderedSourceTokens() {
+    match("a", "bC", "d").to("a", "c", "bD").assertMatch();
+    match("order", "cust", "addr", "value").to("order", "addr", "cust", "value").assertMatch();
+  }
 }

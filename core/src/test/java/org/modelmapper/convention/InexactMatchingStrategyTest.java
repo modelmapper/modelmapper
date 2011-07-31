@@ -130,7 +130,7 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
    * </pre>
    */
   public void shouldMatchInvertedDeclaringClass() {
-  //  match(Address.class, String.class, "home").to("homeAddress").assertMatch();
+    match(Address.class, String.class, "home").to("homeAddress").assertMatch();
     match(Address.class, String.class, "home").to("home", "address").assertMatch();
   }
 
@@ -147,6 +147,7 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
     match(Address.class, "address").to("addressAddress").assertMatch();
     match(Address.class, "address").to("address", "address").assertMatch();
     match(Address.class, "address").$(String.class, "address").to("address").assertMatch();
+    match(Object.class, "address").$(String.class, "address").to("address").assertMatch();
     match(Address.class, "address").$(String.class, "address").to("addressAddress").assertMatch();
     match(Address.class, "address").$(Object.class, "address").$(String.class, "foo")
         .to("addressFoo").assertMatch();
