@@ -9,7 +9,7 @@
 	<packaging>pom</packaging>
 	<groupId>org.modelmapper</groupId>
 	<artifactId>modelmapper-parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<name>ModelMapper Parent</name>
 	<description>ModelMapper is a simple, intelligent object mapper</description>
 	<url>http://modelmapper.org</url>
