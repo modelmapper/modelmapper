@@ -60,7 +60,6 @@ public class DozerComparison {
       });
     }
 
-    @Override
     public OrderDTO map(Order source) {
       return modelMapper.map(source, OrderDTO.class);
     }
@@ -73,7 +72,6 @@ public class DozerComparison {
       beanMapper.setMappingFiles(Arrays.asList("org/modelmapper/performance/dozerComparison.xml"));
     }
 
-    @Override
     public OrderDTO map(Order source) {
       return beanMapper.map(source, OrderDTO.class);
     }

@@ -132,7 +132,6 @@ public class InheritingConfiguration implements Configuration {
     return true;
   }
 
-  @Override
   public List<ConditionalConverter<?, ?>> getConverters() {
     return converterStore.getConverters();
   }

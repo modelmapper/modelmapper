@@ -1,9 +1,6 @@
-Legend:
+0.3.5 (8/8/2011)
 
-GC - Issues filed at Google Code
-GH - Issues filed at Github
-
-Releases:
+- Fixed GC #9: Compatibility with Java 5
 
 0.3.4 (7/30/2011)
 
