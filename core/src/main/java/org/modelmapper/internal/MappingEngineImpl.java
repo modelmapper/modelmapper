@@ -50,7 +50,7 @@ public class MappingEngineImpl implements MappingEngine {
   private final TypeMapStore typeMapStore;
   private final ConverterStore converterStore;
 
-  public MappingEngineImpl(InheritingConfiguration configuration) {
+  public MappingEngineImpl(final InheritingConfiguration configuration) {
     this.configuration = configuration;
     this.typeMapStore = configuration.typeMapStore;
     this.converterStore = configuration.converterStore;
@@ -59,7 +59,7 @@ public class MappingEngineImpl implements MappingEngine {
   /**
    * Initial entry point.
    */
-  public <S, D> D map(S source, Class<S> sourceType, D destination, Class<D> destinationType) {
+  public <S, D> D map(final S source, final Class<S> sourceType, final D destination, final Class<D> destinationType) {
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
         destination, destinationType, this);
     D result = null;
@@ -82,7 +82,8 @@ public class MappingEngineImpl implements MappingEngine {
    * Performs mapping using a TypeMap if one exists, else a converter if one applies, else a newly
    * created TypeMap. Recursive entry point.
    */
-  public <S, D> D map(MappingContext<S, D> context) {
+  @Override
+public <S, D> D map(final MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     Class<D> destinationType = context.getDestinationType();
     if (!Iterables.isIterable(destinationType) && contextImpl.currentlyMapping(destinationType))
@@ -111,7 +112,7 @@ public class MappingEngineImpl implements MappingEngine {
   /**
    * Performs a type mapping for the {@code typeMap} and {@code context}.
    */
-  <S, D> D typeMap(MappingContext<S, D> context, TypeMap<S, D> typeMap) {
+  <S, D> D typeMap(final MappingContext<S, D> context, final TypeMap<S, D> typeMap) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
 
     contextImpl.setTypeMap(typeMap);
@@ -137,7 +138,7 @@ public class MappingEngineImpl implements MappingEngine {
   }
 
   @SuppressWarnings("unchecked")
-  private <S, D> void propertyMap(Mapping mapping, MappingContextImpl<S, D> context) {
+  private <S, D> void propertyMap(final Mapping mapping, final MappingContextImpl<S, D> context) {
     MappingImpl mappingImpl = (MappingImpl) mapping;
     if (context.isShaded(mappingImpl.getPath()))
       return;
@@ -175,13 +176,16 @@ public class MappingEngineImpl implements MappingEngine {
   }
 
   @SuppressWarnings("unchecked")
-  private Object resolveSourceValue(MappingContextImpl<?, ?> context, Mapping mapping) {
+  private Object resolveSourceValue(final MappingContextImpl<?, ?> context, final Mapping mapping) {
     Object source = context.getSource();
     if (mapping instanceof PropertyMapping)
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
+    	context.setParentSource(source);
         source = accessor.getValue(source);
         if (source == null)
+        {
           return null;
+        }
       }
     else if (mapping instanceof ConstantMapping)
       source = ((ConstantMapping) mapping).getConstant();
@@ -190,8 +194,8 @@ public class MappingEngineImpl implements MappingEngine {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void setDestinationValue(Object destination, Object destinationValue,
-      MappingContextImpl<?, ?> context, MappingImpl mapping) {
+  private void setDestinationValue(Object destination, final Object destinationValue,
+      final MappingContextImpl<?, ?> context, final MappingImpl mapping) {
     List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
 
     for (int i = 0; i < mutatorChain.size(); i++) {
@@ -211,7 +215,7 @@ public class MappingEngineImpl implements MappingEngine {
           // Create intermediate destination via global provider
           if (configuration.getProvider() != null)
             intermediateDest = configuration.getProvider().get(
-                new ProvisionRequestImpl(mutator.getType()));
+                new ProvisionRequestImpl(mutator.getType(), context.getParentSource()));
           else
             intermediateDest = instantiate(mutator.getType(), context.errors);
 
@@ -231,8 +235,8 @@ public class MappingEngineImpl implements MappingEngine {
    * Returns a property context.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
-      Object source, Mapping mapping) {
+  private MappingContextImpl<Object, Object> propertyContextFor(final MappingContextImpl<?, ?> context,
+      final Object source, final Mapping mapping) {
     Class<?> sourceType;
     if (mapping instanceof PropertyMapping) {
       sourceType = ((PropertyMapping) mapping).getLastSourceProperty().getType();
@@ -250,7 +254,7 @@ public class MappingEngineImpl implements MappingEngine {
   /**
    * Performs a mapping using a Converter.
    */
-  private <S, D> D convert(MappingContext<S, D> context, Converter<S, D> converter) {
+  private <S, D> D convert(final MappingContext<S, D> context, final Converter<S, D> converter) {
     try {
       return converter.convert(context);
     } catch (ErrorsException e) {
@@ -266,7 +270,7 @@ public class MappingEngineImpl implements MappingEngine {
    * Retrieves a converter from the store or from the cache.
    */
   @SuppressWarnings("unchecked")
-  private <S, D> Converter<S, D> converterFor(MappingContext<S, D> context) {
+  private <S, D> Converter<S, D> converterFor(final MappingContext<S, D> context) {
     TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType());
     Converter<S, D> converter = (Converter<S, D>) converterCache.get(typePair);
     if (converter == null) {
@@ -279,7 +283,7 @@ public class MappingEngineImpl implements MappingEngine {
     return converter;
   }
 
-  private <T> T instantiate(Class<T> type, Errors errors) {
+  private <T> T instantiate(final Class<T> type, final Errors errors) {
     try {
       Constructor<T> constructor = type.getDeclaredConstructor();
       if (!constructor.isAccessible())
@@ -292,7 +296,7 @@ public class MappingEngineImpl implements MappingEngine {
   }
 
   @SuppressWarnings("unchecked")
-  private <S, D> D createDestinationViaProvider(MappingContextImpl<S, D> context) {
+  private <S, D> D createDestinationViaProvider(final MappingContextImpl<S, D> context) {
     Provider<D> provider = null;
     if (context.getMapping() != null)
       provider = (Provider<D>) context.getMapping().getProvider();
@@ -308,7 +312,8 @@ public class MappingEngineImpl implements MappingEngine {
     return destination;
   }
 
-  public <S, D> D createDestination(MappingContext<S, D> context) {
+  @Override
+public <S, D> D createDestination(final MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     D destination = createDestinationViaProvider(contextImpl);
     if (destination != null)

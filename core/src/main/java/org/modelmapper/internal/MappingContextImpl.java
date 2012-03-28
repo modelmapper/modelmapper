@@ -38,12 +38,13 @@ import org.modelmapper.spi.MappingEngine;
 public class MappingContextImpl<S, D> implements MappingContext<S, D>, ProvisionRequest<D> {
   final Map<Mutator, Object> destinationCache;
   final Errors errors;
-  private Set<Class<?>> currentlyMapping;
+  private final Set<Class<?>> currentlyMapping;
   private D destination;
   private final Class<D> destinationType;
   private Mapping mapping;
   private final MappingEngine mappingEngine;
   private final S source;
+  private Object parentSource;
   private final Class<S> sourceType;
   private TypeMap<S, D> typeMap;
   /** Tracks destination hierarchy paths that were shaded by a condition */
@@ -52,8 +53,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   /**
    * Create initial MappingContext.
    */
-  public MappingContextImpl(S source, Class<S> sourceType, D destination, Class<D> destinationType,
-      MappingEngine mappingEngine) {
+  public MappingContextImpl(final S source, final Class<S> sourceType, final D destination, final Class<D> destinationType,
+      final MappingEngine mappingEngine) {
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
@@ -68,14 +69,15 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   /**
    * Create child MappingContext. The mapping is no longer mapped to S and D in this scope.
    */
-  MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, Class<D> destinationType, Mapping mapping) {
+  MappingContextImpl(final MappingContextImpl<?, ?> context, final S source, final Class<S> sourceType,
+      final D destination, final Class<D> destinationType, final Mapping mapping) {
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
     this.typeMap = null;
     this.mapping = mapping;
+    parentSource = context.getParentSource();
     mappingEngine = context.mappingEngine;
     currentlyMapping = context.currentlyMapping;
     errors = context.errors;
@@ -83,7 +85,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     shadedPaths = context.shadedPaths;
   }
 
-  public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
+  @Override
+public <CS, CD> MappingContext<CS, CD> create(final CS source, final Class<CD> destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
@@ -91,7 +94,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null || getClass() != obj.getClass())
@@ -107,35 +110,42 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return true;
   }
 
-  public void finishedMapping(Class<?> type) {
+  public void finishedMapping(final Class<?> type) {
     currentlyMapping.remove(type);
   }
 
-  public D getDestination() {
+  @Override
+public D getDestination() {
     return destination;
   }
 
-  public Class<D> getDestinationType() {
+  @Override
+public Class<D> getDestinationType() {
     return destinationType;
   }
 
-  public Mapping getMapping() {
+  @Override
+public Mapping getMapping() {
     return mapping;
   }
 
-  public MappingEngine getMappingEngine() {
+  @Override
+public MappingEngine getMappingEngine() {
     return mappingEngine;
   }
 
-  public Class<D> getRequestedType() {
+  @Override
+public Class<D> getRequestedType() {
     return destinationType;
   }
 
-  public S getSource() {
+  @Override
+public S getSource() {
     return source;
   }
 
-  public Class<S> getSourceType() {
+  @Override
+public Class<S> getSourceType() {
     return sourceType;
   }
 
@@ -154,7 +164,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return String.format("MappingContext[%s -> %s]", source, Types.toString(destinationType));
   }
 
-  public TypeMap<S, D> typeMap() {
+  @Override
+public TypeMap<S, D> typeMap() {
     return typeMap;
   }
 
@@ -164,25 +175,25 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * @param type to mark as being mapped
    * @return boolean true if {@code type} is currently being mapped
    */
-  boolean currentlyMapping(Class<?> type) {
+  boolean currentlyMapping(final Class<?> type) {
     return !currentlyMapping.add(type);
   }
 
   /**
    * Determines whether the {@code subpath} is shaded.
    */
-  boolean isShaded(String subpath) {
+  boolean isShaded(final String subpath) {
     for (String shadedPath : shadedPaths)
       if (subpath.startsWith(shadedPath))
         return true;
     return false;
   }
 
-  void setDestination(D destination) {
+  void setDestination(final D destination) {
     this.destination = destination;
   }
 
-  void setTypeMap(TypeMap<S, D> typeMap) {
+  void setTypeMap(final TypeMap<S, D> typeMap) {
     this.typeMap = typeMap;
   }
 
@@ -190,7 +201,17 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * Shades the {@code path} such that subsequent subpaths can be skipped during the mapping
    * process.
    */
-  void shadePath(String path) {
+  void shadePath(final String path) {
     shadedPaths.add(path);
   }
+
+  public Object getParentSource() {
+    return parentSource;
+  }
+	
+	
+  public void setParentSource(final Object parentSource) {
+    this.parentSource = parentSource;
+  }
+
 }

@@ -31,6 +31,11 @@ public interface Provider<T> {
      * Returns the type being requested.
      */
     Class<T> getRequestedType();
+    
+    /**
+     * Returns the source object being mapped from.
+     **/
+    Object getSource();
   };
 
   /**
@@ -41,4 +46,5 @@ public interface Provider<T> {
    * @throws MappingException if an error occurs while providing the requested type
    */
   T get(ProvisionRequest<T> request);
+ 
 }
