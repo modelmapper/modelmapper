@@ -167,17 +167,10 @@ class PropertyMappingBuilder<S, D> {
 
   /**
    * Disambiguates the captured mappings by looking for the mapping with property tokens that most
-   * closely match the destination. Match closeness is calculated as the total number of matched
-   * source and destination tokens / the total number of source and destination tokens. Currently
-   * this algorithm does not consider class name tokens.
-   * 
-   * This doesn't take into account duplicated path values - e.g. defaultValue.value in both source and destination 
-   * gets a lower score than defaultValue.value in source and defaultValue in destination.
-   * 
-   * What we should be doing is:
+   * closely match the destination. 
    *
+   * Mappings with exact matches take priority over those which do not.
    * Mappings with a completely matched path in the same order take priority over paths which just happen to match in some order.
-   * Mappings with a longer destination take priority over those which match and have a shorter destination.
    * Otherwise - the mapping with the most matches wins.
    * 
    * @return closest matching mapping, else {@code null} if one could not be determined
