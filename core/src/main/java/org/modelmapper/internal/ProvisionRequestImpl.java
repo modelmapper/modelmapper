@@ -24,12 +24,20 @@ import org.modelmapper.Provider.ProvisionRequest;
  */
 class ProvisionRequestImpl<T extends Object> implements ProvisionRequest<T> {
   private final Class<T> requestedType;
+  private final Object source;
 
-  ProvisionRequestImpl(Class<T> requestedType) {
+  ProvisionRequestImpl(final Class<T> requestedType, final Object source) {
     this.requestedType = requestedType;
+	this.source = source;
   }
 
+  @Override
   public Class<T> getRequestedType() {
     return requestedType;
   }
+  
+  @Override
+  public Object getSource() {
+	  return source;
+  };
 }
