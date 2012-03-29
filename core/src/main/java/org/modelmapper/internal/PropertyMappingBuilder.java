@@ -31,7 +31,6 @@ import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MatchingStrategy;
-import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.PropertyInfo;
 
 /**
@@ -43,6 +42,7 @@ import org.modelmapper.spi.PropertyInfo;
  * @author Jonathan Halterman
  */
 class PropertyMappingBuilder<S, D> {
+	
   private final TypeMapImpl<S, D> typeMap;
   private final TypeInfo<S> sourceTypeInfo;
   private final TypeMapStore typeMapStore;
@@ -58,23 +58,25 @@ class PropertyMappingBuilder<S, D> {
   private final List<PropertyMappingImpl> mappings = new ArrayList<PropertyMappingImpl>();
   /** Mappings for which the source accessor type was not verified by the supported converter */
   private final List<PropertyMappingImpl> unverifiedMappings = new ArrayList<PropertyMappingImpl>();
-
-  PropertyMappingBuilder(TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
-      ConverterStore converterStore) {
+  private final PropertiesMatcher propertiesMatcher;
+  
+  PropertyMappingBuilder(final TypeMapImpl<S, D> typeMap, final TypeMapStore typeMapStore,
+      final ConverterStore converterStore) {
     this.typeMap = typeMap;
     this.typeConverterStore = converterStore;
     this.typeMapStore = typeMapStore;
     this.configuration = typeMap.configuration;
-    sourceTypeInfo = TypeInfoRegistry.typeInfoFor(typeMap.getSourceType(), configuration);
-    matchingStrategy = configuration.getMatchingStrategy();
-    propertyNameInfo = new PropertyNameInfoImpl(typeMap.getSourceType(), configuration);
+    this.sourceTypeInfo = TypeInfoRegistry.typeInfoFor(typeMap.getSourceType(), configuration);
+    this.matchingStrategy = configuration.getMatchingStrategy();
+    this.propertyNameInfo = new PropertyNameInfoImpl(typeMap.getSourceType(), configuration);
+    this.propertiesMatcher = new PropertiesMatcher(configuration);
   }
 
   void build() {
     matchDestination(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration));
   }
 
-  private void matchDestination(TypeInfo<?> destinationTypeInfo) {
+  private void matchDestination(final TypeInfo<?> destinationTypeInfo) {
     Class<?> destinationType = destinationTypeInfo.getType();
     if (!Iterables.isIterable(destinationType) && !destinationTypes.add(destinationType))
       throw errors.errorCircularReference(destinationType).toConfigurationException();
@@ -125,7 +127,7 @@ class PropertyMappingBuilder<S, D> {
   /**
    * Matches a source accessor hierarchy to the {@code destinationMutator}.
    */
-  private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
+  private void matchSource(final TypeInfo<?> sourceTypeInfo, final Mutator destinationMutator) {
     sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
@@ -169,83 +171,65 @@ class PropertyMappingBuilder<S, D> {
    * source and destination tokens / the total number of source and destination tokens. Currently
    * this algorithm does not consider class name tokens.
    * 
+   * This doesn't take into account duplicated path values - e.g. defaultValue.value in both source and destination 
+   * gets a lower score than defaultValue.value in source and defaultValue in destination.
+   * 
+   * What we should be doing is:
+   *
+   * Mappings with a completely matched path in the same order take priority over paths which just happen to match in some order.
+   * Mappings with a longer destination take priority over those which match and have a shorter destination.
+   * Otherwise - the mapping with the most matches wins.
+   * 
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
   MappingImpl disambiguateMappings() {
-    double maxMatchRatio = -1;
-    // Whether multiple mappings have the same max ratio
-    boolean multipleMax = false;
-    MappingImpl closestMapping = null;
-
-    for (PropertyMappingImpl mapping : mappings) {
-      double matches = 0, totalSourceTokens = 0, totalDestTokens = 0;
-      String[][] allSourceTokens = new String[mapping.getSourceProperties().size()][];
-      boolean[][] sourceMatches = new boolean[allSourceTokens.length][];
-
-      // Build source tokens
-      for (int i = 0; i < mapping.getSourceProperties().size(); i++) {
-        PropertyInfo source = mapping.getSourceProperties().get(i);
-        NameableType nameableType = NameableType.forPropertyType(source.getPropertyType());
-        allSourceTokens[i] = configuration.getSourceNameTokenizer().tokenize(source.getName(),
-            nameableType);
-        sourceMatches[i] = new boolean[allSourceTokens[i].length];
-        totalSourceTokens += allSourceTokens[i].length;
-      }
-
-      for (int destIndex = 0; destIndex < mapping.getDestinationProperties().size(); destIndex++) {
-        PropertyInfo dest = mapping.getDestinationProperties().get(destIndex);
-        NameableType nameableType = NameableType.forPropertyType(dest.getPropertyType());
-        String[] destTokens = configuration.getDestinationNameTokenizer().tokenize(dest.getName(),
-            nameableType);
-        totalDestTokens += destTokens.length;
-
-        for (String destToken : destTokens) {
-          boolean matched = false;
-
-          for (int i = 0; i < allSourceTokens.length && !matched; i++) {
-            String[] sourceTokens = allSourceTokens[i];
-
-            for (int j = 0; j < sourceTokens.length && !matched; j++) {
-              if (sourceTokens[j].equalsIgnoreCase(destToken)) {
-                matched = true;
-                matches++;
-
-                // Prevents the same source token from being counted twice
-                if (!sourceMatches[i][j]) {
-                  sourceMatches[i][j] = true;
-                  matches++;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      double matchRatio = matches / (totalSourceTokens + totalDestTokens);
-      if (matchRatio == maxMatchRatio)
-        multipleMax = true;
-
-      if (matchRatio > maxMatchRatio) {
-        maxMatchRatio = matchRatio;
-        closestMapping = mapping;
-        multipleMax = false;
-      }
-    }
-
-    return multipleMax ? null : closestMapping;
+	  
+	int bestScore = Integer.MIN_VALUE;
+	PropertyMappingImpl closestMatch = null;
+	boolean singleMatch = true;
+	
+	for (PropertyMappingImpl mapping : mappings) {
+		int mappingScore = 0;
+		List<? extends PropertyInfo> sourceProperties = mapping.getSourceProperties();
+		List<? extends PropertyInfo> destinationProperties = mapping.getDestinationProperties();
+		
+		List<MatchStrength> combinedStrengths = new ArrayList<MatchStrength>();
+		combinedStrengths.addAll(propertiesMatcher.compareProperties(sourceProperties, destinationProperties));
+		combinedStrengths.addAll(propertiesMatcher.compareProperties(destinationProperties, sourceProperties));
+		
+		for (MatchStrength matchStrength : combinedStrengths)
+		{
+			mappingScore -= matchStrength.getPriority();
+		}
+		if(mappingScore > bestScore){
+			closestMatch = mapping;
+			bestScore = mappingScore;
+			singleMatch = true;
+		}else if(mappingScore == bestScore){
+			singleMatch = false;
+		}
+	}
+	
+	if(singleMatch){
+		return closestMatch;
+	}else{
+		return null;
+	}
+	  
   }
 
   /**
    * Merges mappings from an existing TypeMap into the type map under construction.
    */
-  private void mergeMappings(TypeMap<?, ?> destinationMap) {
+  private void mergeMappings(final TypeMap<?, ?> destinationMap) {
     for (Mapping mapping : destinationMap.getMappings())
       typeMap.addMapping(((MappingImpl) mapping)
           .createMergedCopy(propertyNameInfo.destinationProperties));
   }
 
-  boolean isRecursivelyMatchable(Class<?> type) {
+  boolean isRecursivelyMatchable(final Class<?> type) {
     return !Primitives.isPrimitive(type) && !type.isArray() && type != String.class
         && !sourceTypes.contains(type);
   }
+  
 }

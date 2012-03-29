@@ -39,11 +39,11 @@ public class ModelMapperTest extends AbstractTest {
       return employerName;
     }
 
-    void setEmployerName(String employerName) {
+    void setEmployerName(final String employerName) {
       this.employerName = employerName;
     }
 
-    void setSurName(String surName) {
+    void setSurName(final String surName) {
       this.surName = surName;
     }
   }
@@ -72,7 +72,8 @@ public class ModelMapperTest extends AbstractTest {
 
   public void shouldRegisterMapper() {
     modelMapper.addConverter(new AbstractConverter<Object, Object>() {
-      public Object convert(Object source) {
+      @Override
+	public Object convert(final Object source) {
         return null;
       }
     });
