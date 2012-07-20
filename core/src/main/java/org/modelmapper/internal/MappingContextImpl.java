@@ -31,7 +31,8 @@ import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.MappingEngine;
 
 /**
- * MappingContext implementation that caches destination values by their corresponding Mutator.
+ * MappingContext implementation that caches destination values for an object graph by their
+ * corresponding Mutator.
  * 
  * @author Jonathan Halterman
  */
@@ -67,9 +68,13 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   /**
    * Create child MappingContext. The mapping is no longer mapped to S and D in this scope.
+   * 
+   * @param isProperty indicates whether the context is being created for a property of
+   *          {@code context.source}, which will copy destinationCache and shadedPaths from the
+   *          given {@code context} to the new context
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, Class<D> destinationType, Mapping mapping) {
+      D destination, Class<D> destinationType, Mapping mapping, boolean isProperty) {
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
@@ -79,15 +84,15 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     mappingEngine = context.mappingEngine;
     currentlyMapping = context.currentlyMapping;
     errors = context.errors;
-    destinationCache = context.destinationCache;
-    shadedPaths = context.shadedPaths;
+    destinationCache = isProperty ? context.destinationCache : new HashMap<Mutator, Object>();
+    shadedPaths = isProperty ? context.shadedPaths : new ArrayList<String>();
   }
 
   public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
-        destinationType, mapping);
+        destinationType, mapping, false);
   }
 
   @Override
