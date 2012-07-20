@@ -203,8 +203,6 @@ public class MappingEngineImpl implements MappingEngine {
         mutator.setValue(destination,
             destinationValue == null ? Primitives.defaultValue(mutator.getType())
                 : destinationValue);
-        if (destinationValue == null)
-          context.shadePath(mapping.getPath());
       } else {
         Object intermediateDest = context.destinationCache.get(mutator);
         if (intermediateDest == null) {
