@@ -65,7 +65,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
         MappingImpl existingMapping = addMapping(mapping);
         if (existingMapping != null && existingMapping.isExplicit())
           new Errors().duplicateMapping(mapping.getLastDestinationProperty())
-              .throwConfigurationExceptionIfErrorsExist();
+                      .throwConfigurationExceptionIfErrorsExist();
       }
     }
   }
@@ -174,8 +174,8 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   MappingImpl addMapping(MappingImpl mapping) {
     synchronized (mappings) {
-      mappedProperties.put(mapping.getDestinationProperties().get(0).getName(), mapping
-          .getDestinationProperties().get(0));
+      mappedProperties.put(mapping.getDestinationProperties().get(0).getName(),
+          mapping.getDestinationProperties().get(0));
       return mappings.put(mapping.getPath(), mapping);
     }
   }
@@ -186,5 +186,14 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
    */
   boolean isMapped(String path) {
     return mappedProperties.containsKey(path);
+  }
+
+  /**
+   * Used by PropertyMapBuilder to determine if a skipped mapping exists for the {@code path}. No
+   * need to synchronize here since the TypeMap is not exposed publicly yet.
+   */
+  boolean isSkipped(String path) {
+    Mapping mapping = mappings.get(path);
+    return mapping != null && mapping.isSkipped();
   }
 }
