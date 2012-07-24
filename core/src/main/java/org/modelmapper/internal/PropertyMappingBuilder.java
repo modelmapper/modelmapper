@@ -58,6 +58,8 @@ class PropertyMappingBuilder<S, D> {
   private final List<PropertyMappingImpl> mappings = new ArrayList<PropertyMappingImpl>();
   /** Mappings for which the source accessor type was not verified by the supported converter */
   private final List<PropertyMappingImpl> unverifiedMappings = new ArrayList<PropertyMappingImpl>();
+  /** Mappings which are to be merged in from a pre-existing TypeMap */
+  private final List<MappingImpl> mergedMappings = new ArrayList<MappingImpl>();
 
   PropertyMappingBuilder(TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
@@ -84,7 +86,8 @@ class PropertyMappingBuilder<S, D> {
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
 
       // Skip explicit mappings
-      if (!typeMap.isMapped(Strings.join(propertyNameInfo.destinationProperties))) {
+      String destPath = Strings.join(propertyNameInfo.destinationProperties);
+      if (!typeMap.isMapped(destPath)) {
         matchSource(sourceTypeInfo, mutator);
         propertyNameInfo.clearSource();
         sourceTypes.clear();
@@ -106,13 +109,12 @@ class PropertyMappingBuilder<S, D> {
 
         mappings.clear();
         unverifiedMappings.clear();
-      } else {
-        TypeMap<?, ?> destinationMap = typeMapStore.get(typeMap.getSourceType(), mutator.getType());
-        if (destinationMap == null) {
-          matchDestination(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
-        } else {
-          mergeMappings(destinationMap);
-        }
+      } else if (!mergedMappings.isEmpty()) {
+        for (MappingImpl mapping : mergedMappings)
+          typeMap.addMapping(mapping);
+        mergedMappings.clear();
+      } else if (!typeMap.isSkipped(destPath)) {
+        matchDestination(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
       }
 
       propertyNameInfo.popDestination();
@@ -123,9 +125,19 @@ class PropertyMappingBuilder<S, D> {
   }
 
   /**
-   * Matches a source accessor hierarchy to the {@code destinationMutator}.
+   * Matches a source accessor hierarchy to the {@code destinationMutator}, first by checking the
+   * {@code typeMapStore} for any existing TypeMaps and merging the mappings if one exists, else by
+   * running the {@code matchingStrategy} against all accessors for the {@code sourceTypeInfo}.
    */
   private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
+    // Match and merge with pre-existing TypeMaps
+    TypeMap<?, ?> propertyTypeMap = typeMapStore.get(sourceTypeInfo.getType(),
+        destinationMutator.getType());
+    if (propertyTypeMap != null) {
+      mergeMappings(propertyTypeMap);
+      return;
+    }
+
     sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
@@ -240,7 +252,8 @@ class PropertyMappingBuilder<S, D> {
    */
   private void mergeMappings(TypeMap<?, ?> destinationMap) {
     for (Mapping mapping : destinationMap.getMappings())
-      typeMap.addMapping(((MappingImpl) mapping).createMergedCopy(propertyNameInfo.destinationProperties));
+      mergedMappings.add(((MappingImpl) mapping).createMergedCopy(
+          propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties));
   }
 
   boolean isRecursivelyMatchable(Class<?> type) {

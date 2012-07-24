@@ -1,7 +1,10 @@
 0.3.6
 
+- Fixed GH #9: Incorrect shading of null paramters
 - Fixed GH #3: Disambiguation enhancements
-- Fixed GH #5: Incorrect shading of null parameter values
+- Improved generic type resolution
+- Added support for TypeMap merging
+- Fixed GC #8: Skipped circular properties
 
 0.3.5 (8/8/2011)
 
