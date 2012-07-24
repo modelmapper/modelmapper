@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.modelmapper.internal.util.TypeResolver;
+import org.modelmapper.internal.util.TypeResolver.Unknown;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
@@ -42,11 +43,11 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
     Class<?> valueElementType = Object.class;
     if (mapping != null && mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = ((PropertyMapping) mapping).getLastDestinationProperty();
-      Class<?>[] elementTypes = TypeResolver.resolveArguments(destInfo.getGenericType(), destInfo
-          .getMember().getDeclaringClass());
+      Class<?>[] elementTypes = TypeResolver.resolveArguments(destInfo.getGenericType(),
+          destInfo.getMember().getDeclaringClass());
       if (elementTypes != null) {
-        keyElementType = elementTypes[0];
-        valueElementType = elementTypes[1];
+        keyElementType = elementTypes[0] == Unknown.class ? Object.class : elementTypes[0];
+        valueElementType = elementTypes[1] == Unknown.class ? Object.class : elementTypes[1];
       }
     }
 

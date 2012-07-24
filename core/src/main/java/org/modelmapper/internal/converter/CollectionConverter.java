@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.TypeResolver;
+import org.modelmapper.internal.util.TypeResolver.Unknown;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyInfo;
@@ -55,7 +56,9 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
     Mapping mapping = context.getMapping();
     if (mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = ((PropertyMapping) mapping).getLastDestinationProperty();
-      return TypeResolver.resolveArgument(destInfo.getGenericType(), destInfo.getInitialType());
+      Class<?> elementType = TypeResolver.resolveArgument(destInfo.getGenericType(),
+          destInfo.getInitialType());
+      return elementType == Unknown.class ? Object.class : elementType;
     }
 
     return Object.class;
