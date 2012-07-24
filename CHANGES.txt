@@ -1,3 +1,8 @@
+0.3.6
+
+- Fixed GH #3: Disambiguation enhancements
+- Fixed GH #5: Incorrect shading of null parameter values
+
 0.3.5 (8/8/2011)
 
 - Fixed GC #9: Compatibility with Java 5
