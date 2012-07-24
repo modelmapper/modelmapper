@@ -25,7 +25,8 @@ public class TypeMapImplTest {
       }
 
       @Override
-      MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedMutators) {
+      MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+          List<? extends PropertyInfo> mergedMutators) {
         return null;
       }
     };
