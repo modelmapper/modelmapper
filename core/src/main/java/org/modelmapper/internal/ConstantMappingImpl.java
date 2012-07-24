@@ -18,6 +18,7 @@ package org.modelmapper.internal;
 import java.util.List;
 
 import org.modelmapper.internal.MappingBuilderImpl.MappingOptions;
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.ConstantMapping;
 import org.modelmapper.spi.PropertyInfo;
 
@@ -57,7 +58,8 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
 
   @Override
   public String toString() {
-    return String.format("ConstantMapping[%s -> %s]", constant, getLastDestinationProperty());
+    return String.format("ConstantMapping[%s -> %s]", constant,
+        Strings.joinWithFirstType(destinationMutators));
   }
 
   @Override

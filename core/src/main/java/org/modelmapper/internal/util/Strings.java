@@ -36,4 +36,15 @@ public final class Strings {
 
     return sb.toString();
   }
+
+  public static String joinWithFirstType(List<? extends PropertyInfo> properties) {
+    StringBuilder sb = new StringBuilder();
+    String delim = "";
+    for (PropertyInfo info : properties) {
+      sb.append(delim).append(delim.equals("") ? info : info.getName());
+      delim = ".";
+    }
+
+    return sb.toString();
+  }
 }

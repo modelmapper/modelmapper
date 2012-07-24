@@ -18,6 +18,7 @@ package org.modelmapper.internal;
 import java.util.List;
 
 import org.modelmapper.internal.MappingBuilderImpl.MappingOptions;
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceMapping;
 
@@ -57,7 +58,8 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
 
   @Override
   public String toString() {
-    return String.format("SourceMapping[%s -> %s]", sourceType, getLastDestinationProperty());
+    return String.format("SourceMapping[%s -> %s]", sourceType,
+        Strings.joinWithFirstType(destinationMutators));
   }
 
   @Override

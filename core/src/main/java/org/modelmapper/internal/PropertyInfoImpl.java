@@ -165,6 +165,6 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
 
   @Override
   public String toString() {
-    return member.getDeclaringClass().getName() + "." + name;
+    return member.getDeclaringClass().getSimpleName() + "." + name;
   }
 }

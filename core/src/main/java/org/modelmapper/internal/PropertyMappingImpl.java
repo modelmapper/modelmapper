@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.internal.MappingBuilderImpl.MappingOptions;
-import org.modelmapper.spi.PropertyMapping;
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.PropertyInfo;
+import org.modelmapper.spi.PropertyMapping;
 
 /**
  * @author Jonathan Halterman
@@ -55,8 +56,8 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
   }
 
   public PropertyInfo getLastSourceProperty() {
-    return sourceAccessors == null || sourceAccessors.isEmpty() ? null : sourceAccessors
-        .get(sourceAccessors.size() - 1);
+    return sourceAccessors == null || sourceAccessors.isEmpty() ? null
+        : sourceAccessors.get(sourceAccessors.size() - 1);
   }
 
   public List<? extends PropertyInfo> getSourceProperties() {
@@ -65,8 +66,8 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
 
   @Override
   public String toString() {
-    return String.format("PropertyMapping[%s -> %s]", getLastSourceProperty(),
-        getLastDestinationProperty());
+    return String.format("PropertyMapping[%s -> %s]", Strings.joinWithFirstType(sourceAccessors),
+        Strings.joinWithFirstType(destinationMutators));
   }
 
   @Override
