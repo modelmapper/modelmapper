@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.modelmapper.internal.util.TypeResolver.Unresolved;
+import org.modelmapper.internal.util.TypeResolver.Unknown;
 import org.testng.annotations.Test;
 
 /**
@@ -115,9 +115,9 @@ public class TypeResolverTest {
   @Test
   public void shouldResolveArgumentsForRepoImplCFromRepoImplB() {
     Class<?>[] types = TypeResolver.resolveArguments(RepoImplB.class, RepoImplC.class);
-    assertEquals(types[0], Unresolved.class);
+    assertEquals(types[0], Unknown.class);
     assertEquals(types[1], HashSet.class);
-    assertEquals(types[2], Unresolved.class);
+    assertEquals(types[2], Unknown.class);
   }
 
   @Test
@@ -132,10 +132,10 @@ public class TypeResolverTest {
   @Test
   public void shouldResolveArgumentsForIRepoFromRepoImplC() {
     Class<?>[] types = TypeResolver.resolveArguments(RepoImplC.class, IRepo.class);
-    assertEquals(types[0], Unresolved.class);
-    assertEquals(types[1], Unresolved.class);
+    assertEquals(types[0], Unknown.class);
+    assertEquals(types[1], Unknown.class);
     assertEquals(types[2], Vector.class);
-    assertEquals(types[3], Unresolved.class);
+    assertEquals(types[3], Unknown.class);
   }
 
   @Test
@@ -148,7 +148,7 @@ public class TypeResolverTest {
   @Test
   public void shouldResolveArgumentsForRepoImplBFromRepoImplA() {
     Class<?>[] types = TypeResolver.resolveArguments(RepoImplA.class, RepoImplB.class);
-    assertEquals(types[0], Unresolved.class);
+    assertEquals(types[0], Unknown.class);
     assertEquals(types[1], ArrayList.class);
   }
 

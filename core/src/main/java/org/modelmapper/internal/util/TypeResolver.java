@@ -33,7 +33,8 @@ import java.util.WeakHashMap;
  * @author Jonathan Halterman
  */
 public final class TypeResolver {
-  public static final class Unresolved {
+  /** An unknown type. */
+  public static final class Unknown {
   }
 
   private TypeResolver() {
@@ -45,7 +46,7 @@ public final class TypeResolver {
   /**
    * Returns the raw class representing the type argument for the {@code targetType} resolved
    * upwards from the {@code initialType}. If no arguments can be resolved then
-   * {@code Unresolved.class} is returned.
+   * {@code Unknown.class} is returned.
    * 
    * @param initialType to resolve upwards from
    * @param targetType to resolve arguments for
@@ -61,7 +62,7 @@ public final class TypeResolver {
   /**
    * Resolves the type argument for the {@code genericType} using type variable information from the
    * {@code sourceType}. If {@code genericType} is an instance of class, then {@code genericType} is
-   * returned. If no arguments can be resolved then {@code Unresolved.class} is returned.
+   * returned. If no arguments can be resolved then {@code Unknown.class} is returned.
    * 
    * @param genericType to resolve upwards from
    * @param targetType to resolve arguments for
@@ -73,7 +74,7 @@ public final class TypeResolver {
   public static Class<?> resolveArgument(Type genericType, Class<?> targetType) {
     Class<?>[] arguments = resolveArguments(genericType, targetType);
     if (arguments == null)
-      return Unresolved.class;
+      return Unknown.class;
 
     if (arguments.length != 1)
       throw new IllegalArgumentException("Expected 1 type argument on generic type "
@@ -85,7 +86,7 @@ public final class TypeResolver {
   /**
    * Returns an array of raw classes representing type arguments for the {@code targetType} resolved
    * upwards from the {@code initialType}. Arguments for {@code targetType} that cannot be resolved
-   * to a Class are returned as {@code Unresolved.class}. If no arguments can be resolved then
+   * to a Class are returned as {@code Unknown.class}. If no arguments can be resolved then
    * {@code null} is returned.
    * 
    * @param initialType to resolve upwards from
@@ -170,7 +171,7 @@ public final class TypeResolver {
           targetType);
     }
 
-    return genericType instanceof Class ? (Class<?>) genericType : Unresolved.class;
+    return genericType instanceof Class ? (Class<?>) genericType : Unknown.class;
   }
 
   private static Map<TypeVariable<?>, Type> getTypeVariableMap(final Class<?> targetType) {
@@ -260,18 +261,18 @@ public final class TypeResolver {
   }
 
   /**
-   * Resolves the first bound for the {@code typeVariable}, returning {@code Unresolved.class} if
-   * none can be resolved.
+   * Resolves the first bound for the {@code typeVariable}, returning {@code Unknown.class} if none
+   * can be resolved.
    */
   public static Type resolveBound(TypeVariable<?> typeVariable) {
     Type[] bounds = typeVariable.getBounds();
     if (bounds.length == 0)
-      return Unresolved.class;
+      return Unknown.class;
 
     Type bound = bounds[0];
     if (bound instanceof TypeVariable)
       bound = resolveBound((TypeVariable<?>) bound);
 
-    return bound == Object.class ? Unresolved.class : bound;
+    return bound == Object.class ? Unknown.class : bound;
   }
 }
