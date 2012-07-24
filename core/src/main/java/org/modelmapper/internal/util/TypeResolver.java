@@ -35,6 +35,8 @@ import java.util.WeakHashMap;
 public final class TypeResolver {
   /** An unknown type. */
   public static final class Unknown {
+    private Unknown() {
+    }
   }
 
   private TypeResolver() {
