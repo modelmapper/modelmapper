@@ -147,7 +147,7 @@ class PropertyMappingBuilder<S, D> {
                 return;
             } else
               unverifiedMappings.add(mapping);
-            
+
             break;
           }
         }
@@ -240,12 +240,11 @@ class PropertyMappingBuilder<S, D> {
    */
   private void mergeMappings(TypeMap<?, ?> destinationMap) {
     for (Mapping mapping : destinationMap.getMappings())
-      typeMap.addMapping(((MappingImpl) mapping)
-          .createMergedCopy(propertyNameInfo.destinationProperties));
+      typeMap.addMapping(((MappingImpl) mapping).createMergedCopy(propertyNameInfo.destinationProperties));
   }
 
   boolean isRecursivelyMatchable(Class<?> type) {
-    return !Primitives.isPrimitive(type) && !type.isArray() && type != String.class
-        && !sourceTypes.contains(type);
+    return type != Object.class && !Primitives.isPrimitive(type) && !type.isArray()
+        && type != String.class && !sourceTypes.contains(type);
   }
 }
