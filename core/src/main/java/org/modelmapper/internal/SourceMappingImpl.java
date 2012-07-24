@@ -63,7 +63,8 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
   }
 
   @Override
-  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedMutators) {
+  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+      List<? extends PropertyInfo> mergedMutators) {
     return new SourceMappingImpl(this, mergedMutators);
   }
 }

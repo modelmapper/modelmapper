@@ -50,9 +50,13 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
   /**
    * Creates a merged PropertyMapping.
    */
-  PropertyMappingImpl(PropertyMappingImpl mapping, List<? extends PropertyInfo> mergedMutators) {
+  PropertyMappingImpl(PropertyMappingImpl mapping, List<? extends PropertyInfo> mergedAccessors,
+      List<? extends PropertyInfo> mergedMutators) {
     super(mapping, mergedMutators);
-    this.sourceAccessors = mapping.sourceAccessors;
+    sourceAccessors = new ArrayList<PropertyInfo>(mapping.sourceAccessors.size()
+        + (mergedAccessors == null ? 0 : mergedAccessors.size()));
+    sourceAccessors.addAll(mergedAccessors);
+    sourceAccessors.addAll(mapping.sourceAccessors);
   }
 
   public PropertyInfo getLastSourceProperty() {
@@ -71,7 +75,8 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
   }
 
   @Override
-  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedMutators) {
-    return new PropertyMappingImpl(this, mergedMutators);
+  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+      List<? extends PropertyInfo> mergedMutators) {
+    return new PropertyMappingImpl(this, mergedAccessors, mergedMutators);
   }
 }

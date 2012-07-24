@@ -66,8 +66,8 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   MappingImpl(MappingImpl copy, List<? extends PropertyInfo> mergedMutators) {
     destinationMutators = new ArrayList<PropertyInfo>(copy.destinationMutators.size()
         + (mergedMutators == null ? 0 : mergedMutators.size()));
-    this.destinationMutators.addAll(mergedMutators);
-    this.destinationMutators.addAll(copy.destinationMutators);
+    destinationMutators.addAll(mergedMutators);
+    destinationMutators.addAll(copy.destinationMutators);
     path = Strings.join(destinationMutators);
     skip = copy.skip;
     condition = copy.condition;
@@ -120,9 +120,11 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   };
 
   /**
-   * Creates a merged mapping whose path begins with the {@code mergedMutators}.
+   * Creates a merged mapping whose source path begins with the {@code mergedAccessors} and
+   * destination path begins with the {@code mergedMutators}.
    */
-  abstract MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedMutators);
+  abstract MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+      List<? extends PropertyInfo> mergedMutators);
 
   /**
    * Returns a string key representing the path of the destination property hierarchy.

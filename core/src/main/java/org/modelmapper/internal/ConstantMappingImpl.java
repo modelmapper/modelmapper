@@ -63,7 +63,8 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
   }
 
   @Override
-  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedMutators) {
+  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+      List<? extends PropertyInfo> mergedMutators) {
     return new ConstantMappingImpl(this, mergedMutators);
   }
 }
