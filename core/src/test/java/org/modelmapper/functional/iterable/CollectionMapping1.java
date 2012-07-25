@@ -15,36 +15,24 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "functional")
 public class CollectionMapping1 extends AbstractTest {
+  static class SList {
+    List<Integer> name;
+  }
+
   static class DArray {
     String[] name;
-
-    public void setName(String[] name) {
-      this.name = name;
-    }
   }
 
   static class DList {
     List<String> name;
-
-    public void setName(List<String> name) {
-      this.name = name;
-    }
   }
 
   static class DCollection {
     Collection<String> name;
-
-    public void setName(Collection<String> name) {
-      this.name = name;
-    }
   }
 
   static class DSet {
     Set<String> name;
-
-    public void setName(Set<String> name) {
-      this.name = name;
-    }
   }
 
   public void shouldMapListToArray() {
@@ -72,5 +60,14 @@ public class CollectionMapping1 extends AbstractTest {
 
     modelMapper.validate();
     assertEquals(d.name, list.name);
+  }
+
+  public void shouldMapListToListOfDifferentTypes() {
+    SList list = new SList();
+    list.name = Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3));
+    DList d = modelMapper.map(list, DList.class);
+
+    modelMapper.validate();
+    assertEquals(d.name, Arrays.asList("1", "2", "3"));
   }
 }
