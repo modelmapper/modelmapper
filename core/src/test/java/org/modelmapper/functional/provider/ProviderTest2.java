@@ -1,4 +1,4 @@
-package org.modelmapper.functional;
+package org.modelmapper.functional.provider;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")
-public class ProviderTest extends AbstractTest {
+public class ProviderTest2 extends AbstractTest {
   public static class Source {
     private Inner1 value;
 
@@ -107,11 +107,23 @@ public class ProviderTest extends AbstractTest {
     assertEquals(result2.value.valueinner, "abc");
   }
 
+  public void shouldMapWithPropertyProviderViaTypeMap() {
+    Inner1 destInner = new Inner1();
+    destInner.valueinner = "test";
+
+    modelMapper.createTypeMap(Source.class, Dest1.class).setPropertyProvider(
+        new CustomProvider(destInner));
+
+    Dest1 result = modelMapper.map(new Source(), Dest1.class);
+    assertTrue(result.value == destInner);
+    assertEquals(result.value.valueinner, "test");
+  }
+
   /**
    * Asserts that the provided value is used for a property and that mapping takes place with that
    * value.
    */
-  public void shouldMapPropertyWithProvider() {
+  public void shouldMapWithPropertyProviderViaPropertyMap() {
     final Inner1 destInner = new Inner1();
 
     modelMapper.addMappings(new PropertyMap<Source, Dest1>() {

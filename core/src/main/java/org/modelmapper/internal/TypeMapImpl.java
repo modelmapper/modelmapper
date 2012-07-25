@@ -49,6 +49,9 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   private Converter<S, D> converter;
   private Condition<?, ?> condition;
   private Provider<D> provider;
+  private Converter<?, ?> propertyConverter;
+  private Condition<?, ?> propertyCondition;
+  private Provider<?> propertyProvider;
 
   TypeMapImpl(Class<S> sourceType, Class<D> destinationType, Configuration configuration,
       MappingEngineImpl engine) {
@@ -86,6 +89,18 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     synchronized (mappings) {
       return new ArrayList<Mapping>(mappings.values());
     }
+  }
+
+  public Condition<?, ?> getPropertyCondition() {
+    return propertyCondition;
+  }
+
+  public Converter<?, ?> getPropertyConverter() {
+    return propertyConverter;
+  }
+
+  public Provider<?> getPropertyProvider() {
+    return propertyProvider;
   }
 
   public Provider<D> getProvider() {
@@ -146,6 +161,21 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   public TypeMap<S, D> setConverter(Converter<S, D> converter) {
     this.converter = Assert.notNull(converter, "converter");
+    return this;
+  }
+
+  public TypeMap<S, D> setPropertyCondition(Condition<?, ?> condition) {
+    propertyCondition = Assert.notNull(condition, "condition");
+    return this;
+  }
+
+  public TypeMap<S, D> setPropertyConverter(Converter<?, ?> converter) {
+    propertyConverter = Assert.notNull(converter, "converter");
+    return this;
+  }
+
+  public TypeMap<S, D> setPropertyProvider(Provider<?> provider) {
+    propertyProvider = Assert.notNull(provider, "provider");
     return this;
   }
 

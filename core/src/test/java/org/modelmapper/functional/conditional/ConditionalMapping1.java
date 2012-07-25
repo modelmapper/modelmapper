@@ -32,7 +32,7 @@ public class ConditionalMapping1 extends AbstractTest {
     assertEquals(dest.name, "abc");
   }
 
-  public void shouldSkipConditionalPropertyMapping() {
+  public void shouldSkipConditionalPropertyMappingViaPropertyMap() {
     modelMapper.addMappings(new PropertyMap<Source, Dest>() {
       @Override
       protected void configure() {

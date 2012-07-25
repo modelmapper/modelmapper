@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")
-public class NullMapping extends AbstractTest {
+public class NullMapping1 extends AbstractTest {
   static class Order {
     Customer customer;
 

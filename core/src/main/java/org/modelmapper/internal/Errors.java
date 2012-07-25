@@ -37,8 +37,7 @@ import org.modelmapper.spi.PropertyMapping;
 public final class Errors {
   private List<ErrorMessage> errors;
 
-  @SuppressWarnings("rawtypes")
-  private static final Converter<?>[] converters = new Converter[] {
+  @SuppressWarnings("rawtypes") private static final Converter<?>[] converters = new Converter[] {
       new Converter<Class>(Class.class) {
         public String toString(Class type) {
           return type.getName();
@@ -298,6 +297,12 @@ public final class Errors {
         t,
         "Failed to instantiate instance of destination %s. Ensure that %s has a non-private no-argument constructor.",
         type, type);
+  }
+
+  public Errors invalidProvidedDestinationInstance(Object destination, Class<?> requiredType) {
+    return addMessage(
+    "The provided destination instance %s is not of the required type %s.", destination,
+        requiredType);
   }
 
   Errors invalidDestinationMethod(Method method) {

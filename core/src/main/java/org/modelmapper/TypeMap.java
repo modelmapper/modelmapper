@@ -70,6 +70,30 @@ public interface TypeMap<S, D> {
   List<Mapping> getMappings();
 
   /**
+   * Returns the Condition that must apply in properties in this TypeMap to be mapped, else
+   * {@code null} if no condition has been configured.
+   * 
+   * @see #setCondition(Condition)
+   */
+  Condition<?, ?> getPropertyCondition();
+
+  /**
+   * Returns the Converter used for converting properties in the TypeMap, else {@code null} if no
+   * Converter has been configured.
+   * 
+   * @see #setPropertyConverter(Converter)
+   */
+  Converter<?, ?> getPropertyConverter();
+
+  /**
+   * Returns the Provider configured for this TypeMap, else {@code null} if no Provider has been
+   * configured.
+   * 
+   * @see #setPropertyProvider(Provider)
+   */
+  Provider<?> getPropertyProvider();
+
+  /**
    * Returns the Provider configured for this TypeMap, else {@code null} if no Provider has been
    * configured.
    * 
@@ -125,6 +149,30 @@ public interface TypeMap<S, D> {
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setConverter(Converter<S, D> converter);
+
+  /**
+   * Sets the {@code condition} that must apply in order for properties in this TypeMap to be
+   * mapped. This is overridden by any conditions defined in a PropertyMap.
+   * 
+   * @throws IllegalArgumentException if {@code condition} is null
+   */
+  TypeMap<S, D> setPropertyCondition(Condition<?, ?> condition);
+
+  /**
+   * Sets the {@code converter} to be used for converting properties in the TypeMap. This is
+   * overridden by any converters defined in a PropertyMap.
+   * 
+   * @throws IllegalArgumentException if {@code converter} is null
+   */
+  TypeMap<S, D> setPropertyConverter(Converter<?, ?> converter);
+
+  /**
+   * Sets the {@code provider} to be used for providing instances of properties during mapping. This
+   * is overriden by any providers defined in a PropertyMap.
+   * 
+   * @throws IllegalArgumentException if {@code provider} is null
+   */
+  TypeMap<S, D> setPropertyProvider(Provider<?> provider);
 
   /**
    * Sets the {@code provider} to be used for providing instances of destination type {@code D}

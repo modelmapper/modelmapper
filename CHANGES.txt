@@ -1,10 +1,12 @@
-0.3.6
+0.4.0
 
+- Added support for TypeMap-wide property conditions, converters and providers
 - Improved generic type resolution
-- Added support for TypeMap merging
+- Added support for auto-TypeMap merging
 - Fixed GH #3: Disambiguation enhancements
 - Fixed GH #4: Added source to ProvisionRequest
-- Fixed GH #9: Incorrect shading of null paramters
+- Fixed GH #5: Incorrect shading of null paramters
+- Fixed GH #7: Conversion skipped when source is null
 - Fixed GC #8: Skipped circular properties
 - Fixed GC #10: Incorrect mappings created for multiple source mappings
 

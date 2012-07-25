@@ -143,6 +143,8 @@ public class MappingEngineImpl implements MappingEngine {
       return;
 
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
+    if (condition == null)
+      condition = (Condition<Object, Object>) context.typeMap().getPropertyCondition();
     if (condition == null && mapping.isSkipped())
       return;
 
@@ -159,6 +161,8 @@ public class MappingEngineImpl implements MappingEngine {
     }
 
     Converter<Object, Object> converter = (Converter<Object, Object>) mapping.getConverter();
+    if (converter == null)
+      converter = (Converter<Object, Object>) context.typeMap().getPropertyConverter();
     if (converter != null)
       context.shadePath(mappingImpl.getPath());
     else if (mapping instanceof SourceMapping)
@@ -167,10 +171,8 @@ public class MappingEngineImpl implements MappingEngine {
     // Create last destination via provider prior to mapping/conversion
     createDestinationViaProvider(propertyContext);
 
-    Object destinationValue = null;
-    if (source != null)
-      destinationValue = converter == null ? map(propertyContext) : convert(propertyContext,
-          converter);
+    Object destinationValue = converter != null ? convert(propertyContext, converter)
+        : source != null ? map(propertyContext) : null;
     setDestinationValue(context.getDestination(), destinationValue, propertyContext, mappingImpl);
   }
 
@@ -179,7 +181,7 @@ public class MappingEngineImpl implements MappingEngine {
     Object source = context.getSource();
     if (mapping instanceof PropertyMapping)
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
-        context.setSourceParent(source);
+        context.setParentSource(source);
         source = accessor.getValue(source);
         if (source == null)
           return null;
@@ -212,7 +214,7 @@ public class MappingEngineImpl implements MappingEngine {
           // Create intermediate destination via global provider
           if (configuration.getProvider() != null)
             intermediateDest = configuration.getProvider().get(
-                new ProvisionRequestImpl(context.getSourceParent(), mutator.getType()));
+                new ProvisionRequestImpl(context.parentSource(), mutator.getType()));
           else
             intermediateDest = instantiate(mutator.getType(), context.errors);
 
@@ -292,11 +294,19 @@ public class MappingEngineImpl implements MappingEngine {
     }
   }
 
+  /**
+   * Returns a destination object via a provider with the current Mapping's provider used first,
+   * else the TypeMap's property provider, else the TypeMap's provider, else the configuration's
+   * provider.
+   */
   @SuppressWarnings("unchecked")
   private <S, D> D createDestinationViaProvider(MappingContextImpl<S, D> context) {
     Provider<D> provider = null;
-    if (context.getMapping() != null)
+    if (context.getMapping() != null) {
       provider = (Provider<D>) context.getMapping().getProvider();
+      if (provider == null && context.parentTypeMap() != null)
+        provider = (Provider<D>) context.parentTypeMap().getPropertyProvider();
+    }
     if (provider == null && context.typeMap() != null)
       provider = context.typeMap().getProvider();
     if (provider == null && configuration.getProvider() != null)
@@ -305,6 +315,9 @@ public class MappingEngineImpl implements MappingEngine {
       return null;
 
     D destination = provider.get(context);
+    if (destination != null
+        && !context.getDestinationType().isAssignableFrom(destination.getClass()))
+      context.errors.invalidProvidedDestinationInstance(destination, context.getDestinationType());
     context.setDestination(destination);
     return destination;
   }

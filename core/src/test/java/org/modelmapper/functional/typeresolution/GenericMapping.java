@@ -1,4 +1,4 @@
-package org.modelmapper.functional;
+package org.modelmapper.functional.typeresolution;
 
 import static org.testng.Assert.assertEquals;
 

@@ -1,4 +1,4 @@
-package org.modelmapper.functional;
+package org.modelmapper.functional.merging;
 
 import static org.testng.Assert.assertEquals;
 

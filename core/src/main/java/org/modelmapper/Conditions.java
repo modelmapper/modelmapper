@@ -28,8 +28,7 @@ import org.modelmapper.spi.MappingContext;
  */
 public class Conditions {
   private static final Condition<?, ?> IS_NULL = new AbstractCondition<Object, Object>() {
-    @SuppressWarnings("unused")
-    private static final long serialVersionUID = 0;
+    @SuppressWarnings("unused") private static final long serialVersionUID = 0;
 
     public boolean applies(MappingContext<Object, Object> context) {
       return context.getSource() == null;
@@ -42,8 +41,7 @@ public class Conditions {
   };
 
   private static final Condition<?, ?> IS_NOT_NULL = new AbstractCondition<Object, Object>() {
-    @SuppressWarnings("unused")
-    private static final long serialVersionUID = 0;
+    @SuppressWarnings("unused") private static final long serialVersionUID = 0;
 
     public boolean applies(MappingContext<Object, Object> context) {
       return context.getSource() != null;
