@@ -1,4 +1,4 @@
-package org.modelmapper.functional.disambiguation;
+package org.modelmapper.functional.typeresolution;
 
 import static org.testng.Assert.assertEquals;
 
@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
  * @author https://github.com/andy-m
  */
 @Test(groups = "functional")
-public class DisambiguationTest5 extends AbstractTest {
+public class TypeResolutionTest3 extends AbstractTest {
   static class Source {
     Prop<?> someValue = new StringProp("Some String");
   }
