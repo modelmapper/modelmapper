@@ -31,6 +31,9 @@ public interface Provider<T> {
      * Returns the type being requested.
      */
     Class<T> getRequestedType();
+
+    /** Returns the source object being mapped from. */
+    Object getSource();
   };
 
   /**

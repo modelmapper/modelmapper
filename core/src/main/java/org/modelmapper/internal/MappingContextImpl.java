@@ -46,6 +46,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   private final MappingEngine mappingEngine;
   private final S source;
   private final Class<S> sourceType;
+  private Object sourceParent;
   private TypeMap<S, D> typeMap;
   /** Tracks destination hierarchy paths that were shaded by a condition */
   private final List<String> shadedPaths;
@@ -81,6 +82,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     this.destinationType = destinationType;
     this.typeMap = null;
     this.mapping = mapping;
+    sourceParent = context.sourceParent;
     mappingEngine = context.mappingEngine;
     currentlyMapping = context.currentlyMapping;
     errors = context.errors;
@@ -173,6 +175,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return !currentlyMapping.add(type);
   }
 
+  Object getSourceParent() {
+    return sourceParent;
+  }
+
   /**
    * Determines whether the {@code subpath} is shaded.
    */
@@ -185,6 +191,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   void setDestination(D destination) {
     this.destination = destination;
+  }
+
+  void setSourceParent(final Object sourceParent) {
+    this.sourceParent = sourceParent;
   }
 
   void setTypeMap(TypeMap<S, D> typeMap) {

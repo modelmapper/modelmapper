@@ -179,6 +179,7 @@ public class MappingEngineImpl implements MappingEngine {
     Object source = context.getSource();
     if (mapping instanceof PropertyMapping)
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
+        context.setSourceParent(source);
         source = accessor.getValue(source);
         if (source == null)
           return null;
@@ -211,7 +212,7 @@ public class MappingEngineImpl implements MappingEngine {
           // Create intermediate destination via global provider
           if (configuration.getProvider() != null)
             intermediateDest = configuration.getProvider().get(
-                new ProvisionRequestImpl(mutator.getType()));
+                new ProvisionRequestImpl(context.getSourceParent(), mutator.getType()));
           else
             intermediateDest = instantiate(mutator.getType(), context.errors);
 

@@ -3,6 +3,7 @@
 - Improved generic type resolution
 - Added support for TypeMap merging
 - Fixed GH #3: Disambiguation enhancements
+- Fixed GH #4: Added source to ProvisionRequest
 - Fixed GH #9: Incorrect shading of null paramters
 - Fixed GC #8: Skipped circular properties
 - Fixed GC #10: Incorrect mappings created for multiple source mappings

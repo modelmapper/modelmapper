@@ -19,17 +19,22 @@ import org.modelmapper.Provider.ProvisionRequest;
 
 /**
  * @param <T> requested type
- * 
  * @author Jonathan Halterman
  */
 class ProvisionRequestImpl<T extends Object> implements ProvisionRequest<T> {
+  private final Object source;
   private final Class<T> requestedType;
 
-  ProvisionRequestImpl(Class<T> requestedType) {
+  ProvisionRequestImpl(Object source, Class<T> requestedType) {
+    this.source = source;
     this.requestedType = requestedType;
   }
 
   public Class<T> getRequestedType() {
     return requestedType;
+  }
+
+  public Object getSource() {
+    return source;
   }
 }
