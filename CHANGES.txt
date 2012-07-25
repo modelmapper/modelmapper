@@ -1,4 +1,8 @@
-0.4.0
+0.4.1
+
+- Fixed conversion of char[] to String
+
+0.4.0 (7/22/2012)
 
 - Added support for TypeMap-wide property conditions, converters and providers
 - Improved generic type resolution
