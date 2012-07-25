@@ -53,8 +53,7 @@ abstract class MappingProgress<T extends PropertyInfo> {
       if (PropertyResolver.MUTATORS.isValid(method)) {
         String propertyName = config.getDestinationNameTransformer().transform(method.getName(),
             NameableType.METHOD);
-        propertyInfo.add(PropertyInfoRegistry.mutatorFor(proxyType, method, config,
-            propertyName));
+        propertyInfo.add(PropertyInfoRegistry.mutatorFor(proxyType, method, config, propertyName));
         argument = args.length == 1 ? args[0] : null;
       } else if (PropertyResolver.ACCESSORS.isValid(method)) {
         // Find mutator corresponding to accessor
@@ -73,12 +72,15 @@ abstract class MappingProgress<T extends PropertyInfo> {
 
     @Override
     public void reset() {
-      super.reset();
+      propertyInfo.clear();
       argument = null;
     }
   }
 
   static class SourceProgress extends MappingProgress<Accessor> {
+    /** Property info for the next mapping in the PropertyMapping. */
+    protected final List<Accessor> nextPropertyInfo = new ArrayList<Accessor>();
+
     SourceProgress(MappingBuilderImpl<?, ?> builder) {
       super(builder);
     }
@@ -88,10 +90,30 @@ abstract class MappingProgress<T extends PropertyInfo> {
       if (PropertyResolver.ACCESSORS.isValid(method)) {
         String propertyName = config.getSourceNameTransformer().transform(method.getName(),
             NameableType.METHOD);
-        propertyInfo.add(PropertyInfoRegistry.accessorFor(proxyType, method, config,
-            propertyName));
+        Accessor propInfo = PropertyInfoRegistry.accessorFor(proxyType, method, config,
+            propertyName);
+        if (!builder.destinationRequested)
+          propertyInfo.add(propInfo);
+        else
+          nextPropertyInfo.add(propInfo);
       } else
         builder.errors.invalidSourceMethod(method);
+    }
+
+    /** Returns the current property info, else the next property info if the current is empty. */
+    List<Accessor> propertyInfo() {
+      return propertyInfo.isEmpty() ? nextPropertyInfo : propertyInfo;
+    }
+
+    /** Moves the next property info to the current property info and clears the next property info. */
+    @Override
+    void reset() {
+      if (!propertyInfo.isEmpty()) {
+        propertyInfo.clear();
+        propertyInfo.addAll(nextPropertyInfo);
+      }
+
+      nextPropertyInfo.clear();
     }
   }
 
@@ -101,7 +123,5 @@ abstract class MappingProgress<T extends PropertyInfo> {
 
   abstract void encountered(Class<?> proxyType, Method method, Object[] args);;
 
-  void reset() {
-    propertyInfo.clear();
-  }
+  abstract void reset();
 }

@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.modelmapper.Condition;
@@ -189,15 +190,16 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     try {
       if (!destinationProgress.propertyInfo.isEmpty()) {
         MappingImpl mapping = null;
+        List<Accessor> sourcePropertyInfo = sourceProgress.propertyInfo();
 
         if (options.mapFromSource)
           mapping = new SourceMappingImpl(sourceType, destinationProgress.propertyInfo, options);
-        else if (sourceProgress.propertyInfo.isEmpty())
+        else if (sourcePropertyInfo.isEmpty())
           mapping = new ConstantMappingImpl(destinationProgress.argument,
               destinationProgress.propertyInfo, options);
         else
-          mapping = new PropertyMappingImpl(sourceProgress.propertyInfo,
-              destinationProgress.propertyInfo, options);
+          mapping = new PropertyMappingImpl(sourcePropertyInfo, destinationProgress.propertyInfo,
+              options);
 
         if (!propertyMappings.add(mapping))
           errors.duplicateMapping(mapping.getLastDestinationProperty());
