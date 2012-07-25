@@ -158,7 +158,6 @@ public class Conditions {
   /**
    * Returns a condition that applies when the mapping source is not {@code null}.
    */
-
   public static Condition<?, ?> isNotNull() {
     return IS_NOT_NULL;
   }
@@ -166,9 +165,19 @@ public class Conditions {
   /**
    * Returns a condition that applies when the mapping source is {@code null}.
    */
-
   public static Condition<?, ?> isNull() {
     return IS_NULL;
+  }
+
+  /**
+   * Returns a condition that applies when the mapping source is of the type {@code type}.
+   */
+  public static Condition<?, ?> isType(final Class<?> type) {
+    return new Condition<Object, Object>() {
+      public boolean applies(MappingContext<Object, Object> context) {
+        return type.isAssignableFrom(context.getSourceType());
+      }
+    };
   }
 
   /**

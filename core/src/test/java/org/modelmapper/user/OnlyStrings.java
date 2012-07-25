@@ -3,8 +3,7 @@ package org.modelmapper.user;
 import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.Condition;
-import org.modelmapper.spi.MappingContext;
+import org.modelmapper.Conditions;
 import org.testng.annotations.Test;
 
 /**
@@ -28,11 +27,7 @@ public class OnlyStrings extends AbstractTest {
 
   public void shouldOnlyCopyStrings() {
     modelMapper.createTypeMap(Source.class, Destination.class).setPropertyCondition(
-        new Condition<String, Object>() {
-          public boolean applies(MappingContext<String, Object> context) {
-            return context.getSourceType() == String.class;
-          }
-        });
+        Conditions.isType(String.class));
 
     Source source = new Source();
     source.a = 5;
