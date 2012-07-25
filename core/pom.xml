@@ -4,10 +4,10 @@
   <parent>
     <groupId>org.modelmapper</groupId>
     <artifactId>modelmapper-parent</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.1</version>
   </parent>
   <artifactId>modelmapper</artifactId>
-  <version>0.3.6-SNAPSHOT</version>
+  <version>0.3.6</version>
   <name>ModelMapper</name>
   <scm>
     <connection>scm:git:git@github.com:jhalterman/modelmapper.git</connection>
