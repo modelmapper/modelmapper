@@ -5,18 +5,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+import ma.glasnost.orika.metadata.ClassMapBuilder;
+
 import org.dozer.DozerBeanMapper;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.testng.Assert;
 
 /**
- * Semi-useless micro-benchmark comparing object mapping performance in ModelMapper to Dozer. Based
- * on Bob Lee's Guice micro-benchmark.
+ * Semi-useless micro-benchmark comparing object mapping performance in ModelMapper to Dozer and
+ * Orika. Based on Bob Lee's Guice micro-benchmark.
  * 
  * @author Jonathan Halterman
  */
-public class DozerComparison {
+public class Comparison {
   static final DecimalFormat format = new DecimalFormat();
 
   interface OrderMapper {
@@ -29,10 +34,12 @@ public class DozerComparison {
     // Warm up to initialize mapper internals
     validate(modelMapper, order);
     validate(dozerMapper, order);
+    validate(orikaMapper, order);
 
     for (int i2 = 0; i2 < 10; i2++) {
       iterate(modelMapper, "ModelMapper:  ", order);
       iterate(dozerMapper, "Dozer:   ", order);
+      iterate(orikaMapper, "Orika:   ", order);
       System.out.println();
     }
 
@@ -41,6 +48,7 @@ public class DozerComparison {
     for (int i2 = 0; i2 < 10; i2++) {
       concurrentlyIterate(modelMapper, "ModelMapper:  ", order);
       concurrentlyIterate(dozerMapper, "Dozer:   ", order);
+      concurrentlyIterate(orikaMapper, "Orika:   ", order);
       System.out.println();
     }
   }
@@ -74,6 +82,30 @@ public class DozerComparison {
 
     public OrderDTO map(Order source) {
       return beanMapper.map(source, OrderDTO.class);
+    }
+  };
+
+  static final OrderMapper orikaMapper = new OrderMapper() {
+    final MapperFacade facade;
+    {
+      MapperFactory factory = new DefaultMapperFactory.Builder().build();
+      factory.registerClassMap(ClassMapBuilder.map(Order.class, OrderDTO.class)
+                                              .field("customer.name", "customerName")
+                                              .field("customer.billingAddress.street",
+                                                  "billingStreetAddress")
+                                              .field("customer.billingAddress.city", "billingCity")
+                                              .field("customer.shippingAddress.street",
+                                                  "shippingStreetAddress")
+                                              .field("customer.shippingAddress.city",
+                                                  "shippingCity")
+                                              .field("products", "products")
+                                              .toClassMap());
+      factory.build();
+      facade = factory.getMapperFacade();
+    }
+
+    public OrderDTO map(Order source) {
+      return facade.map(source, OrderDTO.class);
     }
   };
 
