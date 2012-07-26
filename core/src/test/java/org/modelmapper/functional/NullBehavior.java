@@ -4,6 +4,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 import org.modelmapper.AbstractTest;
+import org.modelmapper.Conditions;
 import org.testng.annotations.Test;
 
 /**
@@ -62,5 +63,16 @@ public class NullBehavior extends AbstractTest {
     assertEquals(result.subSomething, 0);
     assertNull(result.nullString);
     assertNull(result.longValue);
+  }
+
+  public void shouldSkipNulls() {
+    modelMapper.createTypeMap(S1.class, D1.class).setPropertyCondition(Conditions.isNotNull());
+
+    S1 source = new S1();
+    D1 d = modelMapper.map(source, D1.class);
+    assertEquals(d.longValue, Long.valueOf(4));
+    assertEquals(d.subSomething, 5);
+    assertNull(d.sub);
+    assertNull(d.nullString);
   }
 }
