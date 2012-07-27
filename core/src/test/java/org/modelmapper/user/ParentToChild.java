@@ -1,4 +1,4 @@
-package org.modelmapper.functional.circular;
+package org.modelmapper.user;
 
 import java.util.ArrayList;
 import java.util.List;

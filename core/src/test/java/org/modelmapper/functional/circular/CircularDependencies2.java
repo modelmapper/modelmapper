@@ -1,113 +1,76 @@
 package org.modelmapper.functional.circular;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.testng.Assert.*;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.MappingException;
+import org.modelmapper.ConfigurationException;
+import org.modelmapper.PropertyMap;
 import org.testng.annotations.Test;
 
 /**
- * Tests many to many and circular scenarios.
+ * Tests the handling of circular references.
  * 
- * Adapted from an AutoMapper test case.
+ * @author Jonathan Halterman
  */
 @Test(groups = "functional")
 public class CircularDependencies2 extends AbstractTest {
-  static class SourceTown {
-    List<SourceStreet> streets = new ArrayList<SourceStreet>();
+  static class Tree {
+    Node node;
   }
 
-  static class SourceStreet {
-    List<SourceHouse> houses = new ArrayList<SourceHouse>();
-    SourceTown town;
+  static class Node {
+    Tree tree;
+    String value;
   }
 
-  static class SourceHouse {
-    SourceStreet street;
+  static class DTree {
+    DNode node;
+
+    public DNode getNode() {
+      return node;
+    }
   }
 
-  static class DestinationTown {
-    List<DestinationStreet> streets = new ArrayList<DestinationStreet>();
+  static class DNode {
+    DTree tree;
+    String value;
+
+    public void setTree(DTree tree) {
+      this.tree = tree;
+    }
   }
 
-  static class DestinationStreet {
-    List<DestinationHouse> houses = new ArrayList<DestinationHouse>();
-    DestinationTown town;
+  @Test(expectedExceptions = ConfigurationException.class)
+  public void shouldThrowOnNonSkippedCircularReference() {
+    modelMapper.map(new Tree(), DTree.class);
   }
 
-  static class DestinationHouse {
-    DestinationStreet street;
+  public void shouldAllowSkippedCircularReference() {
+    modelMapper.addMappings(new PropertyMap<Tree, DTree>() {
+      @Override
+      protected void configure() {
+        skip().getNode().setTree(null);
+      }
+    });
+
+    modelMapper.map(new Tree(), DTree.class);
   }
 
-  @Test(expectedExceptions = MappingException.class)
-  public void shouldThrowOnMap() {
-    SourceTown sourceTown = new SourceTown();
-    SourceStreet sourceStreet = new SourceStreet();
-    sourceStreet.town = sourceTown;
-    sourceTown.streets.add(sourceStreet);
+  // Asserts that the Node->DNode mapping is merged into the Tree->DTree mapping, and skipped
+  public void shouldAllowSkippedCircularReferenceForInnerProperty() {
+    modelMapper.addMappings(new PropertyMap<Node, DNode>() {
+      @Override
+      protected void configure() {
+        skip().setTree(null);
+      }
+    });
 
-    SourceHouse sourceHouse = new SourceHouse();
-    sourceHouse.street = sourceStreet;
-    sourceStreet.houses.add(sourceHouse);
-    SourceHouse sourceHouse2 = new SourceHouse();
-    sourceHouse2.street = sourceStreet;
-    sourceStreet.houses.add(sourceHouse2);
+    Tree tree = new Tree();
+    tree.node = new Node();
+    tree.node.value = "test";
+    DTree dt = modelMapper.map(tree, DTree.class);
 
-    modelMapper.map(sourceHouse, DestinationHouse.class);
+    assertNull(dt.node.tree);
+    assertEquals(dt.node.value, "test");
   }
-
-  // public void shouldMapStreets() {
-  // SourceTown sourceTown = new SourceTown();
-  // SourceStreet sourceStreet = new SourceStreet();
-  // sourceStreet.town = sourceTown;
-  // sourceTown.streets.add(sourceStreet);
-  //
-  // SourceHouse sourceHouse = new SourceHouse();
-  // sourceHouse.street = sourceStreet;
-  // sourceStreet.houses.add(sourceHouse);
-  // SourceHouse sourceHouse2 = new SourceHouse();
-  // sourceHouse2.street = sourceStreet;
-  // sourceStreet.houses.add(sourceHouse2);
-  //
-  // DestinationHouse targetHouse = modelMapper.map(sourceHouse, DestinationHouse.class);
-  // DestinationStreet targetStreet = targetHouse.street;
-  // assertEquals(targetStreet.houses.get(0).street, targetStreet);
-  // assertEquals(targetStreet.houses.get(1).street, targetStreet);
-  // }
-  //
-  // [Test]
-  // public void MapsTownStreetRelationshipCorrectlyWhenOneHouseAndOneStreetAndOneTown()
-  // {
-  // var sourceTown = new Source.Town();
-  //
-  // var sourceStreet = new Source.Street { Town = sourceTown };
-  // sourceTown.Streets.Add(sourceStreet);
-  //
-  // var sourceHouse = new Source.House { Street = sourceStreet };
-  // sourceStreet.Houses.Add(sourceHouse);
-  //
-  // var targetHouse = AutoMapper.Mapper.Map<Source.House, Target.House>(sourceHouse);
-  //
-  // Assert.That(targetHouse.Street.Town.Streets[0], Is.EqualTo(targetHouse.Street));
-  // }
-  //
-  // [Test]
-  // public void MapsTownStreetRelationshipCorrectlyWhenMultipleStreetsInTown()
-  // {
-  // var sourceTown = new Source.Town();
-  //
-  // var sourceStreet = new Source.Street { Town = sourceTown};
-  // sourceTown.Streets.Add(sourceStreet);
-  //
-  // var sourceStreet2 = new Source.Street { Town = sourceTown};
-  // sourceTown.Streets.Add(sourceStreet2);
-  //
-  // var sourceHouse = new Source.House {Street = sourceStreet2};
-  // sourceStreet2.Houses.Add(sourceHouse);
-  //
-  // var targetHouse = AutoMapper.Mapper.Map<Source.House, Target.House>(sourceHouse);
-  //
-  // Assert.That(targetHouse.Street.Town.Streets[1], Is.EqualTo(targetHouse.Street));
-  // }
 }
