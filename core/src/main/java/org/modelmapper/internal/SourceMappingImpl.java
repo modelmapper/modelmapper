@@ -29,14 +29,6 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
   private final Class<?> sourceType;
 
   /**
-   * Creates an implicit merged ConstantMappingImpl.
-   */
-  SourceMappingImpl(Class<?> sourceType, List<Mutator> destinationMutators) {
-    super(destinationMutators);
-    this.sourceType = sourceType;
-  }
-
-  /**
    * Creates an explicit SourceMappingImpl.
    */
   SourceMappingImpl(Class<?> sourceType, List<Mutator> destinationMutators, MappingOptions options) {
