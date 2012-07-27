@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface PropertyMapping extends Mapping {
   /**
-   * Get the hierarchy of source propertys.
+   * Get the hierarchy of source properties.
    */
   List<? extends PropertyInfo> getSourceProperties();
 
