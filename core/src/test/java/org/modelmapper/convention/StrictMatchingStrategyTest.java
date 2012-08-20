@@ -15,4 +15,18 @@ public class StrictMatchingStrategyTest extends MatchingStrategyTestSupport {
     super(new StrictMatchingStrategy());
   }
 
+  public void shouldMatchExactTokensWithDuplicates() {
+    match("address").$("address").to("address").assertNoMatch();
+    match("address").$("address").assertMatch();
+  }
+
+  public void shouldMatchExactTokens() {
+    match("address").$("street").to("street").assertNoMatch();
+    match("address").$("street").to("addressStreet").assertNoMatch();
+    match("address", "street").to("address", "street").assertMatch();
+    match("address", "streetName").to("address", "streetName").assertMatch();
+    match("address", "streetName").to("address", "streetName").assertMatch();
+    match("order", "cust", "addr", "value").to("order", "cust", "value").assertNoMatch();
+    match("order", "cust", "addr", "value").to("order", "cust", "addr", "value").assertMatch();
+  }
 }

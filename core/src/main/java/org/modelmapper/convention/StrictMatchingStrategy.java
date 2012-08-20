@@ -15,6 +15,8 @@
  */
 package org.modelmapper.convention;
 
+import java.util.List;
+
 import org.modelmapper.spi.MatchingStrategy;
 
 /**
@@ -23,11 +25,28 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class StrictMatchingStrategy implements MatchingStrategy {
-  public boolean matches(PropertyNameInfo propertyNameInfo) {
-    return false;
+  public boolean isExact() {
+    return true;
   }
 
-  public boolean isExact() {
+  public boolean matches(PropertyNameInfo propertyNameInfo) {
+    List<String[]> sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+    List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+    if (sourceTokens.size() != destTokens.size())
+      return false;
+
+    for (int propIndex = 0; propIndex < destTokens.size(); propIndex++) {
+      String[] sTokens = sourceTokens.get(propIndex);
+      String[] dTokens = destTokens.get(propIndex);
+
+      if (sTokens.length != dTokens.length)
+        return false;
+
+      for (int tokenIndex = 0; tokenIndex < sTokens.length; tokenIndex++)
+        if (!sTokens[tokenIndex].equalsIgnoreCase(dTokens[tokenIndex]))
+          return false;
+    }
+
     return true;
   }
 }

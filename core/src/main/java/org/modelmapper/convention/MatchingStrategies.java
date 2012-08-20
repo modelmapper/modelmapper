@@ -63,5 +63,5 @@ public class MatchingStrategies {
    * <li>All source property names must have all tokens matched</li>
    * </ul>
    */
-  // public static final MatchingStrategy STRICT = new StrictMatchingStrategy();
+  public static final MatchingStrategy STRICT = new StrictMatchingStrategy();
 }
