@@ -77,16 +77,14 @@ class PropertyMappingBuilder<S, D> {
   }
 
   private void matchDestination(TypeInfo<?> destinationTypeInfo) {
-    Class<?> destinationType = destinationTypeInfo.getType();
-    if (!Iterables.isIterable(destinationType) && !destinationTypes.add(destinationType))
-      throw errors.errorCircularReference(destinationType).toConfigurationException();
+    destinationTypes.add(destinationTypeInfo.getType());
 
     for (Map.Entry<String, Mutator> entry : destinationTypeInfo.getMutators().entrySet()) {
-      Mutator mutator = entry.getValue();
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
-
-      // Skip explicit mappings
       String destPath = Strings.join(propertyNameInfo.destinationProperties);
+      Mutator mutator = entry.getValue();
+      
+      // Skip explicit mappings
       if (!typeMap.isMapped(destPath)) {
         matchSource(sourceTypeInfo, mutator);
         propertyNameInfo.clearSource();
@@ -113,7 +111,8 @@ class PropertyMappingBuilder<S, D> {
         for (MappingImpl mapping : mergedMappings)
           typeMap.addMapping(mapping);
         mergedMappings.clear();
-      } else if (!typeMap.isSkipped(destPath)) {
+      } else if (isMatchable(mutator.getType()) && !destinationTypes.contains(mutator.getType())
+          && !typeMap.isSkipped(destPath)) {
         matchDestination(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
       }
 
@@ -145,27 +144,32 @@ class PropertyMappingBuilder<S, D> {
       propertyNameInfo.pushSource(entry.getKey(), entry.getValue());
 
       if (matchingStrategy.matches(propertyNameInfo)) {
-        for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
-          MatchResult matchResult = converter.match(accessor.getType(),
-              destinationMutator.getType());
+        if (destinationTypes.contains(destinationMutator.getType())) {
+          mappings.add((PropertyMappingImpl) new CircularMappingImpl(
+              propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties));
+        } else {
+          for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
+            MatchResult matchResult = converter.match(accessor.getType(),
+                destinationMutator.getType());
 
-          if (!MatchResult.NONE.equals(matchResult)) {
-            PropertyMappingImpl mapping = new PropertyMappingImpl(
-                propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties);
+            if (!MatchResult.NONE.equals(matchResult)) {
+              PropertyMappingImpl mapping = new PropertyMappingImpl(
+                  propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties);
 
-            if (MatchResult.FULL.equals(matchResult)) {
-              mappings.add(mapping);
-              if (matchingStrategy.isExact())
-                return;
-            } else
-              unverifiedMappings.add(mapping);
+              if (MatchResult.FULL.equals(matchResult)) {
+                mappings.add(mapping);
+                if (matchingStrategy.isExact())
+                  return;
+              } else
+                unverifiedMappings.add(mapping);
 
-            break;
+              break;
+            }
           }
         }
       }
 
-      if (isRecursivelyMatchable(accessor.getType()))
+      if (isMatchable(accessor.getType()) && !sourceTypes.contains(accessor.getType()))
         matchSource(TypeInfoRegistry.typeInfoFor(accessor.getType(), configuration),
             destinationMutator);
 
@@ -178,7 +182,7 @@ class PropertyMappingBuilder<S, D> {
   /**
    * Disambiguates the captured mappings by looking for the mapping with property tokens that most
    * closely match the destination. Match closeness is calculated as the total number of matched
-   * source and destination tokens / the total number of source and destination tokens. Currently
+   * source to destination tokens / the total number of source and destination tokens. Currently
    * this algorithm does not consider class name tokens.
    * 
    * @return closest matching mapping, else {@code null} if one could not be determined
@@ -192,6 +196,7 @@ class PropertyMappingBuilder<S, D> {
     for (PropertyMappingImpl mapping : mappings) {
       double matches = 0, totalSourceTokens = 0, totalDestTokens = 0;
       String[][] allSourceTokens = new String[mapping.getSourceProperties().size()][];
+      // Tracks whether a source token has been matched
       boolean[][] sourceMatches = new boolean[allSourceTokens.length][];
 
       // Build source tokens
@@ -211,22 +216,20 @@ class PropertyMappingBuilder<S, D> {
             nameableType);
         totalDestTokens += destTokens.length;
 
-        for (String destToken : destTokens) {
+        for (int destTokenIndex = 0; destTokenIndex < destTokens.length
+            && matches < totalSourceTokens; destTokenIndex++) {
+          String destToken = destTokens[destTokenIndex];
           boolean matched = false;
 
-          for (int i = 0; i < allSourceTokens.length && !matched; i++) {
+          for (int i = 0; i < allSourceTokens.length && !matched && matches < totalSourceTokens; i++) {
             String[] sourceTokens = allSourceTokens[i];
 
-            for (int j = 0; j < sourceTokens.length && !matched; j++) {
+            for (int j = 0; j < sourceTokens.length && !matched && !sourceMatches[i][j]
+                && matches < totalSourceTokens; j++) {
               if (sourceTokens[j].equalsIgnoreCase(destToken)) {
                 matched = true;
                 matches++;
-
-                // Prevents the same source token from being counted twice
-                if (!sourceMatches[i][j]) {
-                  sourceMatches[i][j] = true;
-                  matches++;
-                }
+                sourceMatches[i][j] = true;
               }
             }
           }
@@ -256,8 +259,8 @@ class PropertyMappingBuilder<S, D> {
           propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties));
   }
 
-  boolean isRecursivelyMatchable(Class<?> type) {
-    return type != Object.class && !Primitives.isPrimitive(type) && !type.isArray()
-        && type != String.class && !sourceTypes.contains(type);
+  boolean isMatchable(Class<?> type) {
+    return type != Object.class && !Primitives.isPrimitive(type) && !Iterables.isIterable(type)
+        && type != String.class;
   }
 }

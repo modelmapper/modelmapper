@@ -117,8 +117,9 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
 
   @Override
   public String toString() {
-    return new ToStringBuilder(PropertyNameInfoImpl.class)
-        .add("sourcePropertyTokens", sourcePropertyTokens)
-        .add("destinationPropertyTokens", destinationPropertyTokens).toString();
+    return new ToStringBuilder(PropertyNameInfoImpl.class).add("sourceProperties", sourceProperties)
+                                                          .add("destinationProperties",
+                                                              destinationProperties)
+                                                          .toString();
   }
 }

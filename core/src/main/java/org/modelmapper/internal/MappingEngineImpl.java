@@ -179,7 +179,7 @@ public class MappingEngineImpl implements MappingEngine {
   @SuppressWarnings("unchecked")
   private Object resolveSourceValue(MappingContextImpl<?, ?> context, Mapping mapping) {
     Object source = context.getSource();
-    if (mapping instanceof PropertyMapping)
+    if (mapping instanceof PropertyMappingImpl)
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
         context.setParentSource(source);
         source = accessor.getValue(source);
@@ -187,8 +187,7 @@ public class MappingEngineImpl implements MappingEngine {
           return null;
       }
     else if (mapping instanceof ConstantMapping)
-      source = ((ConstantMapping) mapping).getConstant();
-
+      source = ((ConstantMapping) mapping).getConstant();      
     return source;
   }
 

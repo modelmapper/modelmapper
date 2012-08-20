@@ -46,7 +46,9 @@ final class StandardMatchingStrategy implements MatchingStrategy {
         String[] tokens = destTokens.get(destIndex);
 
         for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++)
-          if (!matchSourceProperty(tokens[destTokenIndex]))
+          if (!matchSourcePropertyName(tokens[destTokenIndex])
+              && !matchSourcePropertyType(tokens[destTokenIndex])
+              && !matchSourceClass(tokens[destTokenIndex]))
             return false;
       }
 
@@ -57,7 +59,7 @@ final class StandardMatchingStrategy implements MatchingStrategy {
       return true;
     }
 
-    boolean matchSourceProperty(String destination) {
+    boolean matchSourcePropertyName(String destination) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
         String[] tokens = sourceTokens.get(sourceIndex);
         for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
@@ -66,23 +68,27 @@ final class StandardMatchingStrategy implements MatchingStrategy {
             return true;
           }
         }
-
-        tokens = propertyNameInfo.getSourcePropertyTypeTokens().get(sourceIndex);
-        for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
-          if (tokens[tokenIndex].equalsIgnoreCase(destination)) {
-            return true;
-          }
-        }
-
-        if (sourceIndex == 0) {
-          tokens = propertyNameInfo.getSourceClassTokens();
-          for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
-            if (tokens[tokenIndex].equalsIgnoreCase(destination))
-              return true;
-          }
-        }
       }
 
+      return false;
+    }
+
+    boolean matchSourcePropertyType(String destination) {
+      for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
+        String[] tokens = propertyNameInfo.getSourcePropertyTypeTokens().get(sourceIndex);
+        for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
+          if (tokens[tokenIndex].equalsIgnoreCase(destination))
+            return true;
+      }
+
+      return false;
+    }
+
+    boolean matchSourceClass(String destination) {
+      String[] tokens = propertyNameInfo.getSourceClassTokens();
+      for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
+        if (tokens[tokenIndex].equalsIgnoreCase(destination))
+          return true;
       return false;
     }
 

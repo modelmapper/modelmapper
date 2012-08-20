@@ -1,10 +1,11 @@
 package org.modelmapper.functional.circular;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.ConfigurationException;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.TypeMap;
 import org.testng.annotations.Test;
 
 /**
@@ -20,7 +21,14 @@ public class CircularDependencies2 extends AbstractTest {
 
   static class Node {
     Tree tree;
-    String value;
+    Child child;
+    String nodeValue;
+  }
+
+  static class Child {
+    Tree tree;
+    Node node;
+    String childValue;
   }
 
   static class DTree {
@@ -33,16 +41,67 @@ public class CircularDependencies2 extends AbstractTest {
 
   static class DNode {
     DTree tree;
-    String value;
+    DChild child;
+    String nodeValue;
 
     public void setTree(DTree tree) {
       this.tree = tree;
     }
   }
 
-  @Test(expectedExceptions = ConfigurationException.class)
-  public void shouldThrowOnNonSkippedCircularReference() {
-    modelMapper.map(new Tree(), DTree.class);
+  static class DChild {
+    DTree tree;
+    DNode node;
+    String childValue;
+  }
+
+  // @Test(expectedExceptions = ConfigurationException.class)
+  public void shouldMapNonCircularReferences() {
+    Tree tree1 = new Tree();
+    Tree tree2 = new Tree();
+    Node node1 = new Node();
+    Node node2 = new Node();
+    Node node3 = new Node();
+    Child child1 = new Child();
+    Child child2 = new Child();
+
+    tree1.node = node1;
+    tree1.node.tree = tree2; // Link to second tree
+    tree1.node.nodeValue = "tree1nodevalue";
+    tree1.node.child = child1;
+    tree1.node.child.childValue = "cv";
+    tree1.node.child.node = node2; // Link to second node
+
+    tree2.node = node2;
+    tree2.node.nodeValue = "tree2nodevalue";
+    tree2.node.child = child2;
+    tree2.node.child.node = node3;
+    tree2.node.child.node.nodeValue = "tree2nodechildnodevalue";
+
+    TypeMap tm = modelMapper.createTypeMap(Tree.class, DTree.class);
+    Object m = tm.getMappings();
+    DTree d = modelMapper.map(tree1, DTree.class);
+    assertEquals(d.node.tree, d);
+    assertEquals(d.node.tree.node, d.node);
+    assertEquals(tree1.node.child.childValue, d.node.tree.node.child.childValue);
+    assertEquals(tree1.node.nodeValue, d.node.nodeValue);
+  }
+
+  public void shouldMapCircularReferences() {
+    Tree tree = new Tree();
+    tree.node = new Node();
+    tree.node.tree = tree;
+    tree.node.child = new Child();
+    tree.node.child.node = tree.node;
+    tree.node.child.childValue = "cv";
+    tree.node.nodeValue = "test";
+
+    Object tm = modelMapper.createTypeMap(Tree.class, DTree.class);
+    DTree d = modelMapper.map(tree, DTree.class);
+    assertEquals(d.node.tree, d);
+    assertEquals(d.node.tree.node, d.node);
+    assertEquals(tree.node.child.childValue, d.node.tree.node.child.childValue);
+    assertEquals(tree.node.nodeValue, d.node.nodeValue);
   }
 
   public void shouldAllowSkippedCircularReference() {
@@ -67,10 +126,10 @@ public class CircularDependencies2 extends AbstractTest {
 
     Tree tree = new Tree();
     tree.node = new Node();
-    tree.node.value = "test";
+    tree.node.nodeValue = "test";
     DTree dt = modelMapper.map(tree, DTree.class);
 
     assertNull(dt.node.tree);
-    assertEquals(dt.node.value, "test");
+    assertEquals(dt.node.nodeValue, "test");
   }
 }
