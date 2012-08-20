@@ -26,19 +26,40 @@ import org.modelmapper.config.Configuration;
  * @author Jonathan Halterman
  */
 class TypeInfoRegistry {
-  private static final Map<Integer, TypeInfoImpl<?>> cache = new HashMap<Integer, TypeInfoImpl<?>>();
+  private static final Map<TypeConfigurationPair, TypeInfoImpl<?>> cache = new HashMap<TypeConfigurationPair, TypeInfoImpl<?>>();
 
-  private static Integer hashCodeFor(Class<?> type, Configuration configuration) {
-    return Integer.valueOf(type.hashCode() * 31 + configuration.hashCode());
+  private static class TypeConfigurationPair {
+    private final Class<?> type;
+    private final Configuration configuration;
+
+    TypeConfigurationPair(Class<?> type, Configuration configuration) {
+      this.type = type;
+      this.configuration = configuration;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o == this)
+        return true;
+      if (!(o instanceof TypeConfigurationPair))
+        return false;
+      TypeConfigurationPair other = (TypeConfigurationPair) o;
+      return type.equals(other.type) && configuration.equals(other.configuration);
+    }
+
+    @Override
+    public int hashCode() {
+      return type.hashCode() * 31 + configuration.hashCode();
+    }
   }
 
   static synchronized <T> TypeInfoImpl<T> typeInfoFor(Class<T> type, Configuration configuration) {
-    Integer hashCode = hashCodeFor(type, configuration);
+    TypeConfigurationPair pair = new TypeConfigurationPair(type, configuration);
     @SuppressWarnings("unchecked")
-    TypeInfoImpl<T> typeInfo = (TypeInfoImpl<T>) cache.get(hashCode);
+    TypeInfoImpl<T> typeInfo = (TypeInfoImpl<T>) cache.get(pair);
     if (typeInfo == null) {
       typeInfo = new TypeInfoImpl<T>(type, configuration);
-      cache.put(hashCode, typeInfo);
+      cache.put(pair, typeInfo);
     }
 
     return typeInfo;
