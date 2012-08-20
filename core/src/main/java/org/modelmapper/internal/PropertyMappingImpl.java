@@ -27,7 +27,7 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
-  private final List<PropertyInfo> sourceAccessors;
+  protected final List<PropertyInfo> sourceAccessors;
 
   /**
    * Creates an implicit PropertyMapping.

@@ -1,0 +1,36 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.modelmapper.spi;
+
+import java.util.List;
+
+/**
+ * A mapping from one destination property hierarchy to another. The source for the mapping is
+ * unknown until mapping takes place.
+ * 
+ * @author Jonathan Halterman
+ */
+public interface CircularMapping extends Mapping {
+  /**
+   * Get the hierarchy of source properties.
+   */
+  List<? extends PropertyInfo> getSourceProperties();
+
+  /**
+   * Gets the last member info in the source members hierarchy.
+   */
+  PropertyInfo getLastSourceProperty();
+}
