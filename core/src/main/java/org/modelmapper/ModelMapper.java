@@ -67,8 +67,7 @@ public class ModelMapper {
   public <S, D> void addConverter(Converter<S, D> converter) {
     Assert.notNull(converter, "converter");
     Class<?>[] typeArguments = TypeResolver.resolveArguments(converter.getClass(), Converter.class);
-    Assert
-        .notNull("Must declare source type argument <S> and destination type argument <D> for converter");
+    Assert.notNull("Must declare source type argument <S> and destination type argument <D> for converter");
     config.typeMapStore.<S, D>getOrCreate((Class<S>) typeArguments[0], (Class<D>) typeArguments[1],
         null, converter, engine);
   }
@@ -82,8 +81,6 @@ public class ModelMapper {
    * @param <D> destination type
    * @param propertyMap from which mappings should be loaded
    * @return TypeMap corresponding to the {@code propertyMap}
-   * @throws ConfigurationException if an error occurred while reading mappings from the
-   *           {@code propertyMap}
    * @throws IllegalArgumentException if {@code propertyMap} is null
    * @throws ConfigurationException if a configuration error occurs while adding mappings for the
    *           {@code propertyMap}
@@ -102,6 +99,7 @@ public class ModelMapper {
    * @param <D> destination type
    * @param sourceType
    * @param destinationType
+   * @throws IllegalArgumentException if {@code sourceType} or {@code destinationType} are null
    * @throws IllegalStateException if a TypeMap already exists for {@code sourceType} and
    *           {@code destinationType}
    * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
@@ -120,6 +118,8 @@ public class ModelMapper {
    * @param sourceType
    * @param destinationType
    * @param configuration
+   * @throws IllegalArgumentException if {@code sourceType}, {@code destinationType} or
+   *           {@code configuration} are null
    * @throws IllegalStateException if a TypeMap already exists for {@code sourceType} and
    *           {@code destinationType}
    * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
@@ -127,6 +127,9 @@ public class ModelMapper {
    */
   public <S, D> TypeMap<S, D> createTypeMap(Class<S> sourceType, Class<D> destinationType,
       Configuration configuration) {
+    Assert.notNull(sourceType, "sourceType");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(configuration, "configuration");
     synchronized (config.typeMapStore.lock()) {
       Assert.state(config.typeMapStore.get(sourceType, destinationType) == null,
           String.format("A TypeMap already exists for %s and %s", sourceType, destinationType));

@@ -1,8 +1,11 @@
 package org.modelmapper.internal;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
+import org.modelmapper.config.Configuration;
+import org.modelmapper.config.Configuration.AccessLevel;
 import org.testng.annotations.Test;
 
 /**
@@ -10,7 +13,7 @@ import org.testng.annotations.Test;
  */
 @Test
 public class TypeInfoRegistryTest {
-  public void shouldHashCorrectly() {
+  public void shouldHashCorrectly1() {
     InheritingConfiguration config1 = new InheritingConfiguration();
     InheritingConfiguration config2 = new InheritingConfiguration();
     TypeInfo<Integer> typeInfo1 = TypeInfoRegistry.typeInfoFor(Integer.class, config1);
@@ -20,5 +23,27 @@ public class TypeInfoRegistryTest {
     config1.enableFieldMatching(true);
     typeInfo1 = TypeInfoRegistry.typeInfoFor(Integer.class, config1);
     assertTrue(typeInfo1 != typeInfo2);
+  }
+
+  public void shouldHashCorrectly2() {
+    Class<?> type = Byte.class;
+    Configuration conf1 = new InheritingConfiguration() {
+      @Override
+      public int hashCode() {
+        return 0;
+      }
+    };
+    Configuration conf2 = new InheritingConfiguration() {
+      @Override
+      public int hashCode() {
+        return 0;
+      }
+    };
+
+    conf1.setMethodAccessLevel(AccessLevel.PRIVATE);
+    conf2.setMethodAccessLevel(AccessLevel.PUBLIC);
+    assertNotEquals(conf1, conf2);
+    assertNotEquals(TypeInfoRegistry.typeInfoFor(type, conf1),
+        TypeInfoRegistry.typeInfoFor(type, conf2));
   }
 }
