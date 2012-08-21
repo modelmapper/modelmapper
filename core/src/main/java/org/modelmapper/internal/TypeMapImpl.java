@@ -68,7 +68,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
         MappingImpl existingMapping = addMapping(mapping);
         if (existingMapping != null && existingMapping.isExplicit())
           new Errors().duplicateMapping(mapping.getLastDestinationProperty())
-                      .throwConfigurationExceptionIfErrorsExist();
+              .throwConfigurationExceptionIfErrorsExist();
       }
     }
   }
@@ -215,7 +215,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
    * need to synchronize here since the TypeMap is not exposed publicly yet.
    */
   boolean isMapped(String path) {
-    return mappedProperties.containsKey(path);
+    return mappings.containsKey(path);
   }
 
   /**
