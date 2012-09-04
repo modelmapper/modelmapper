@@ -4,7 +4,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.AbstractTest;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.testng.annotations.Test;
 
 /**
