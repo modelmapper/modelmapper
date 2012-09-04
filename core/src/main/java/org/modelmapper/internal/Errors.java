@@ -192,10 +192,6 @@ public final class Errors {
         unmappedProperties);
   }
 
-  public Errors errorCircularReference(Class<?> type) {
-    return addMessage("Circular reference detected in %s.", type);
-  }
-
   public Errors errorUnsupportedMapping(Class<?> sourceType, Class<?> destinationType) {
     return addMessage("Missing type map configuration or unsupported mapping for %s to %s.",
         sourceType, destinationType);
