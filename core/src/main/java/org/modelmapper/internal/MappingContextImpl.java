@@ -17,10 +17,8 @@ package org.modelmapper.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
@@ -38,8 +36,13 @@ import org.modelmapper.spi.MappingEngine;
  */
 public class MappingContextImpl<S, D> implements MappingContext<S, D>, ProvisionRequest<D> {
   final Map<Mutator, Object> destinationCache;
+  /** Tracks destination objects for each source. Used for circular mapping. */
+  final Map<Object, Object> sourceToDestination;
+  /** Tracks intermediate destination objects on the path to the destination */
+  final List<Object> intermediateDestinations;
+
   final Errors errors;
-  private Set<Class<?>> currentlyMapping;
+  private final MappingContextImpl<?, ?> parent;
   private D destination;
   private final Class<D> destinationType;
   private Mapping mapping;
@@ -57,41 +60,44 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    */
   public MappingContextImpl(S source, Class<S> sourceType, D destination, Class<D> destinationType,
       MappingEngine mappingEngine) {
+    parent = null;
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
     this.mappingEngine = mappingEngine;
-    currentlyMapping = new HashSet<Class<?>>();
     errors = new Errors();
     destinationCache = new HashMap<Mutator, Object>();
     shadedPaths = new ArrayList<String>();
+    sourceToDestination = new HashMap<Object, Object>();
+    intermediateDestinations = new ArrayList<Object>();
   }
 
   /**
-   * Create child MappingContext. The mapping is no longer mapped to S and D in this scope.
+   * Create derived MappingContext. The mapping is no longer mapped to S and D in this scope.
    * 
-   * @param isProperty indicates whether the context is being created for a property of
-   *          {@code context.source}, which will copy destinationCache and shadedPaths from the
-   *          given {@code context} to the new context
+   * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, Class<D> destinationType, Mapping mapping, boolean isProperty) {
+      D destination, Class<D> destinationType, Mapping mapping, boolean inheritValues) {
+    this.parent = context;
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
     this.typeMap = null;
-    this.parentTypeMap = isProperty ? context.typeMap : null;
+    this.parentTypeMap = context.typeMap;
     this.mapping = mapping;
     parentSource = context.parentSource;
     mappingEngine = context.mappingEngine;
-    currentlyMapping = context.currentlyMapping;
     errors = context.errors;
-    destinationCache = isProperty ? context.destinationCache : new HashMap<Mutator, Object>();
-    shadedPaths = isProperty ? context.shadedPaths : new ArrayList<String>();
+    destinationCache = inheritValues ? context.destinationCache : new HashMap<Mutator, Object>();
+    shadedPaths = inheritValues ? context.shadedPaths : new ArrayList<String>();
+    sourceToDestination = context.sourceToDestination;
+    intermediateDestinations = new ArrayList<Object>();
   }
 
+  /** Creates a child MappingContext for an element of a destination collection. */
   public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
@@ -114,10 +120,6 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     if (!destinationType.equals(other.destinationType))
       return false;
     return true;
-  }
-
-  public void finishedMapping(Class<?> type) {
-    currentlyMapping.remove(type);
   }
 
   public D getDestination() {
@@ -160,29 +162,17 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   @Override
   public String toString() {
-    return String.format("MappingContext[%s -> %s]", source, Types.toString(destinationType));
+    return String.format("MappingContext[%s -> %s]", source.getClass().getSimpleName(),
+        destinationType.getSimpleName());
   }
 
   public TypeMap<S, D> typeMap() {
     return typeMap;
   }
 
-  /**
-   * Marks {@code type} as currently being mapped.
-   * 
-   * @param type to mark as being mapped
-   * @return boolean true if {@code type} is currently being mapped
-   */
-  boolean currentlyMapping(Class<?> type) {
-    return !currentlyMapping.add(type);
-  }
-
-  Object parentSource() {
-    return parentSource;
-  }
-
-  TypeMap<?, ?> parentTypeMap() {
-    return parentTypeMap;
+  @SuppressWarnings("unchecked")
+  D destinationForSource() {
+    return (D) sourceToDestination.get(source);
   }
 
   /**
@@ -195,8 +185,17 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return false;
   }
 
+  Object parentSource() {
+    return parentSource;
+  }
+
+  TypeMap<?, ?> parentTypeMap() {
+    return parentTypeMap;
+  }
+
   void setDestination(D destination) {
     this.destination = destination;
+    sourceToDestination.put(source, destination);
   }
 
   void setParentSource(Object parentSource) {

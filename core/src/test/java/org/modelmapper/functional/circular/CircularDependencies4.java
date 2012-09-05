@@ -1,6 +1,10 @@
 package org.modelmapper.functional.circular;
 
+import static org.testng.Assert.*;
+
 import org.modelmapper.AbstractTest;
+import org.modelmapper.ConfigurationException;
+import org.modelmapper.PropertyMap;
 import org.testng.annotations.Test;
 
 /**
@@ -9,14 +13,18 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")
+@SuppressWarnings("unused")
 public class CircularDependencies4 extends AbstractTest {
-  static class VeryCircular {
-    VeryCircular very;
-    String value;
+  private static class A {
+    B value = new B();
   }
 
-  static class DVeryCircular {
-    DVeryCircular very;
-    String value;
+  private static class B {
+    A value;
+  }
+
+  public void shouldNotThrowOnMatchingCircularReference() {
+    B b2 = modelMapper.map(new A(), B.class);
+    assertNull(b2.value);
   }
 }

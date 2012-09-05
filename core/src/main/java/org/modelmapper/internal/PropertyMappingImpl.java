@@ -28,14 +28,16 @@ import org.modelmapper.spi.PropertyMapping;
  */
 class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
   protected final List<PropertyInfo> sourceAccessors;
+  protected boolean cyclic;
 
   /**
    * Creates an implicit PropertyMapping.
    */
   PropertyMappingImpl(List<? extends PropertyInfo> sourceAccessors,
-      List<? extends PropertyInfo> destinationMutators) {
+      List<? extends PropertyInfo> destinationMutators, boolean cyclic) {
     super(destinationMutators);
     this.sourceAccessors = new ArrayList<PropertyInfo>(sourceAccessors);
+    this.cyclic = cyclic;
   }
 
   /**
@@ -57,6 +59,7 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
         + (mergedAccessors == null ? 0 : mergedAccessors.size()));
     sourceAccessors.addAll(mergedAccessors);
     sourceAccessors.addAll(mapping.sourceAccessors);
+    cyclic = mapping.cyclic;
   }
 
   public PropertyInfo getLastSourceProperty() {

@@ -16,6 +16,7 @@
 package org.modelmapper.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +57,11 @@ class PropertyMappingBuilder<S, D> {
   private final Set<Class<?>> sourceTypes = new HashSet<Class<?>>();
   private final Set<Class<?>> destinationTypes = new HashSet<Class<?>>();
   private final List<PropertyMappingImpl> mappings = new ArrayList<PropertyMappingImpl>();
-  /** Mappings for which the source accessor type was not verified by the supported converter */
-  private final List<PropertyMappingImpl> unverifiedMappings = new ArrayList<PropertyMappingImpl>();
-  /** Mappings which are to be merged in from a pre-existing TypeMap */
+  /** Mappings for which the source accessor type was not verified by the supported converter. */
+  private final List<PropertyMappingImpl> partiallyMatchedMappings = new ArrayList<PropertyMappingImpl>();
+  /** Mappings whose source and destination paths match by name, but not by type. */
+  private final Map<Accessor, PropertyMappingImpl> intermediateMappings = new HashMap<Accessor, PropertyMappingImpl>();
+  /** Mappings which are to be merged in from a pre-existing TypeMap. */
   private final List<MappingImpl> mergedMappings = new ArrayList<MappingImpl>();
 
   PropertyMappingBuilder(TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
@@ -83,7 +86,7 @@ class PropertyMappingBuilder<S, D> {
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
       String destPath = Strings.join(propertyNameInfo.destinationProperties);
       Mutator mutator = entry.getValue();
-      
+
       // Skip explicit mappings
       if (!typeMap.isMapped(destPath)) {
         matchSource(sourceTypeInfo, mutator);
@@ -91,22 +94,36 @@ class PropertyMappingBuilder<S, D> {
         sourceTypes.clear();
       }
 
-      if (!unverifiedMappings.isEmpty() && mappings.isEmpty())
-        mappings.addAll(unverifiedMappings);
+      // Use partially matched mappings only if there is no fully matched mapping
+      if (mappings.isEmpty() && !partiallyMatchedMappings.isEmpty())
+        mappings.addAll(partiallyMatchedMappings);
 
       if (!mappings.isEmpty()) {
+        PropertyMappingImpl mapping = null;
         if (mappings.size() == 1) {
-          typeMap.addMapping(mappings.get(0));
+          mapping = mappings.get(0);
         } else {
-          MappingImpl mapping = disambiguateMappings();
-          if (mapping != null)
-            typeMap.addMapping(mapping);
-          else if (!configuration.isAmbiguityIgnored())
+          mapping = disambiguateMappings();
+          if (mapping == null && !configuration.isAmbiguityIgnored())
             errors.ambiguousDestination(mutator, mappings);
         }
 
+        if (mapping != null) {
+          typeMap.addMapping(mapping);
+          
+          // If the mapping is potentially circular, add intermediate mappings
+          if (Iterables.isIterable(mapping.getLastDestinationProperty().getType())) {
+            for (PropertyInfo sourceAccessor : mapping.sourceAccessors) {
+              PropertyMappingImpl intermediateMapping = intermediateMappings.get(sourceAccessor);
+              if (intermediateMapping != null)
+                typeMap.addMapping(intermediateMapping);
+            }
+          }
+        }
+
         mappings.clear();
-        unverifiedMappings.clear();
+        partiallyMatchedMappings.clear();
+        intermediateMappings.clear();
       } else if (!mergedMappings.isEmpty()) {
         for (MappingImpl mapping : mergedMappings)
           typeMap.addMapping(mapping);
@@ -145,27 +162,32 @@ class PropertyMappingBuilder<S, D> {
 
       if (matchingStrategy.matches(propertyNameInfo)) {
         if (destinationTypes.contains(destinationMutator.getType())) {
-          mappings.add((PropertyMappingImpl) new CircularMappingImpl(
-              propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties));
+          mappings.add(new PropertyMappingImpl(propertyNameInfo.sourceProperties,
+              propertyNameInfo.destinationProperties, true));
         } else {
+          PropertyMappingImpl mapping = null;
           for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
             MatchResult matchResult = converter.match(accessor.getType(),
                 destinationMutator.getType());
 
             if (!MatchResult.NONE.equals(matchResult)) {
-              PropertyMappingImpl mapping = new PropertyMappingImpl(
-                  propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties);
+              mapping = new PropertyMappingImpl(propertyNameInfo.sourceProperties,
+                  propertyNameInfo.destinationProperties, false);
 
               if (MatchResult.FULL.equals(matchResult)) {
                 mappings.add(mapping);
                 if (matchingStrategy.isExact())
                   return;
               } else
-                unverifiedMappings.add(mapping);
+                partiallyMatchedMappings.add(mapping);
 
               break;
             }
           }
+
+          if (mapping == null)
+            intermediateMappings.put(accessor, new PropertyMappingImpl(
+                propertyNameInfo.sourceProperties, propertyNameInfo.destinationProperties, false));
         }
       }
 
@@ -187,11 +209,11 @@ class PropertyMappingBuilder<S, D> {
    * 
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
-  MappingImpl disambiguateMappings() {
+  PropertyMappingImpl disambiguateMappings() {
     double maxMatchRatio = -1;
     // Whether multiple mappings have the same max ratio
     boolean multipleMax = false;
-    MappingImpl closestMapping = null;
+    PropertyMappingImpl closestMapping = null;
 
     for (PropertyMappingImpl mapping : mappings) {
       double matches = 0, totalSourceTokens = 0, totalDestTokens = 0;
@@ -224,9 +246,8 @@ class PropertyMappingBuilder<S, D> {
           for (int i = 0; i < allSourceTokens.length && !matched && matches < totalSourceTokens; i++) {
             String[] sourceTokens = allSourceTokens[i];
 
-            for (int j = 0; j < sourceTokens.length && !matched && !sourceMatches[i][j]
-                && matches < totalSourceTokens; j++) {
-              if (sourceTokens[j].equalsIgnoreCase(destToken)) {
+            for (int j = 0; j < sourceTokens.length && !matched && matches < totalSourceTokens; j++) {
+              if (!sourceMatches[i][j] && sourceTokens[j].equalsIgnoreCase(destToken)) {
                 matched = true;
                 matches++;
                 sourceMatches[i][j] = true;
@@ -260,7 +281,7 @@ class PropertyMappingBuilder<S, D> {
   }
 
   boolean isMatchable(Class<?> type) {
-    return type != Object.class && !Primitives.isPrimitive(type) && !Iterables.isIterable(type)
-        && type != String.class;
+    return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
+        && !Iterables.isIterable(type);
   }
 }
