@@ -177,15 +177,11 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
 
   private void saveLastMapping() {
     if (!destinationRequested) {
-      // if (sourceProgress.hasProperties())
-      // errors.sourceOutsideOfMap();
       return;
     }
 
     if (destinationProgress.propertyInfo.isEmpty())
       errors.missingDestination();
-    // if (options.mapFromSource && options.converter == null)
-    // errors.mapFromSourceWithoutConverter();
 
     try {
       if (!destinationProgress.propertyInfo.isEmpty()) {
