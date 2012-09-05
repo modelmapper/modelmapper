@@ -19,7 +19,8 @@ import java.util.ArrayList;
 
 /**
  * LIFO Stack semantics around an ArrayList for random access support. Indexed access via
- * {@link #get(int)} and iteration via {@link #iterator()} is in reverse order (FIFO).
+ * {@link #get(int)} and iteration via {@link #iterator()} is in reverse order (FIFO). Not
+ * threadsafe.
  * 
  * @author Jonathan Halterman
  */
