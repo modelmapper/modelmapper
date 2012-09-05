@@ -4,7 +4,7 @@ import org.modelmapper.internal.MatchingStrategyTestSupport;
 import org.testng.annotations.Test;
 
 /**
- * Tests the {@link StandardMatchingStrategy} against various source and destination hierarchy
+ * Tests the {@link StrictMatchingStrategy} against various source and destination hierarchy
  * scenarios.
  * 
  * @author Jonathan Halterman
