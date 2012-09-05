@@ -59,8 +59,9 @@ public class NullBehavior extends AbstractTest {
 
   public void shouldMapModelWithNullItems() {
     D1 result = modelMapper.map(new S1(), D1.class);
-    assertNull(result.sub.items);
-    assertEquals(result.subSomething, 0);
+    assertNull(result.sub);
+    assertEquals(result.subSomething, 5); // Value not overriden since this is shaded by S1.sub
+                                          // being null
     assertNull(result.nullString);
     assertNull(result.longValue);
   }
