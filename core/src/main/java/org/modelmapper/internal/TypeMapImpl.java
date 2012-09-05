@@ -186,8 +186,8 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   @Override
   public String toString() {
-    return String.format("TypeMap[%s -> %s]", Types.toString(sourceType),
-        Types.toString(destinationType));
+    return String.format("TypeMap[%s -> %s]", sourceType.getSimpleName(),
+        destinationType.getSimpleName());
   }
 
   public void validate() {
