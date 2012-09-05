@@ -67,7 +67,7 @@ public class ProviderTest1 extends AbstractTest {
     source.prop.value = "abc";
     Dest dest = modelMapper.map(source, Dest.class);
 
-    // The provided value is overriden by the mapped value once mapping takes place
-    assertEquals(dest.prop.value, "abc");
+    // The provided value is used rather than the source value
+    assertEquals(dest.prop.value, value);
   }
 }
