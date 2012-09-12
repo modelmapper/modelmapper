@@ -58,15 +58,15 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   static boolean canAccessMember(Member member, AccessLevel accessLevel) {
     int mod = member.getModifiers();
     switch (accessLevel) {
-    default:
-    case PUBLIC:
-      return Modifier.isPublic(mod);
-    case PROTECTED:
-      return Modifier.isPublic(mod) || Modifier.isProtected(mod);
-    case PACKAGE_PRIVATE:
-      return Modifier.isPublic(mod) || Modifier.isProtected(mod) || !Modifier.isPrivate(mod);
-    case PRIVATE:
-      return true;
+      default:
+      case PUBLIC:
+        return Modifier.isPublic(mod);
+      case PROTECTED:
+        return Modifier.isPublic(mod) || Modifier.isProtected(mod);
+      case PACKAGE_PRIVATE:
+        return Modifier.isPublic(mod) || Modifier.isProtected(mod) || !Modifier.isPrivate(mod);
+      case PRIVATE:
+        return true;
     }
   }
 
@@ -83,8 +83,9 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
           && initRequest.propertyResolver.isValid(member)
           && initRequest.namingConvention.applies(member.getName(), initRequest.propertyType)) {
 
-        String name = initRequest.nameTransformer.transform(member.getName(), PropertyType.FIELD
-            .equals(initRequest.propertyType) ? NameableType.FIELD : NameableType.METHOD);
+        String name = initRequest.nameTransformer.transform(member.getName(),
+            PropertyType.FIELD.equals(initRequest.propertyType) ? NameableType.FIELD
+                : NameableType.METHOD);
         PI info = initRequest.propertyResolver.propertyInfoFor(initialType, member,
             initRequest.config, name);
         initRequest.propertyInfo.put(name, info);
@@ -148,11 +149,9 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
     return type.toString();
   }
 
-  Mutator mutatorForAccessor(String accessorMethodName) {
-    return getMutators()
-        .get(
-            configuration.getSourceNameTransformer().transform(accessorMethodName,
-                NameableType.METHOD));
+  Mutator mutatorForAccessorMethod(String accessorMethodName) {
+    return getMutators().get(
+        configuration.getSourceNameTransformer().transform(accessorMethodName, NameableType.METHOD));
   }
 
   private <M extends AccessibleObject & Member, PI extends PropertyInfo> void buildProperties(

@@ -15,8 +15,8 @@
  */
 package org.modelmapper.internal;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.modelmapper.config.Configuration;
 
@@ -26,7 +26,7 @@ import org.modelmapper.config.Configuration;
  * @author Jonathan Halterman
  */
 class TypeInfoRegistry {
-  private static final Map<TypeConfigurationPair, TypeInfoImpl<?>> cache = new HashMap<TypeConfigurationPair, TypeInfoImpl<?>>();
+  private static final Map<TypeConfigurationPair, TypeInfoImpl<?>> cache = new ConcurrentHashMap<TypeConfigurationPair, TypeInfoImpl<?>>();
 
   private static class TypeConfigurationPair {
     private final Class<?> type;
@@ -53,13 +53,19 @@ class TypeInfoRegistry {
     }
   }
 
-  static synchronized <T> TypeInfoImpl<T> typeInfoFor(Class<T> type, Configuration configuration) {
+  @SuppressWarnings("unchecked")
+  static <T> TypeInfoImpl<T> typeInfoFor(Class<T> type, Configuration configuration) {
     TypeConfigurationPair pair = new TypeConfigurationPair(type, configuration);
-    @SuppressWarnings("unchecked")
     TypeInfoImpl<T> typeInfo = (TypeInfoImpl<T>) cache.get(pair);
+
     if (typeInfo == null) {
-      typeInfo = new TypeInfoImpl<T>(type, configuration);
-      cache.put(pair, typeInfo);
+      synchronized (cache) {
+        typeInfo = (TypeInfoImpl<T>) cache.get(pair);
+        if (typeInfo == null) {
+          typeInfo = new TypeInfoImpl<T>(type, configuration);
+          cache.put(pair, typeInfo);
+        }
+      }
     }
 
     return typeInfo;

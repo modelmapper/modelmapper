@@ -216,33 +216,54 @@ public class MappingEngineImpl implements MappingEngine {
           context.shadePath(mapping.getPath());
       } else {
         Object intermediateDest = null;
+
+        // Obtain from existing destinations
         if (!context.intermediateDestinations.isEmpty()) {
           for (Object intermediateDestination : context.intermediateDestinations) {
             // Match intermediate destinations to mutator by type
             if (intermediateDestination.getClass().equals(mutator.getType())) {
               intermediateDest = intermediateDestination;
               context.destinationCache.put(mutator, intermediateDest);
+              mutator.setValue(destination, intermediateDest);
               break;
             }
           }
         }
 
-        if (intermediateDest == null)
-          intermediateDest = context.destinationCache.get(mutator);
+        // Obtain from cache
         if (intermediateDest == null) {
-          // Create intermediate destination via global provider
-          if (configuration.getProvider() != null)
-            intermediateDest = configuration.getProvider().get(
-                new ProvisionRequestImpl(context.parentSource(), mutator.getType()));
-          else
-            intermediateDest = instantiate(mutator.getType(), context.errors);
-          if (intermediateDest == null)
-            return;
+          intermediateDest = context.destinationCache.get(mutator);
 
-          context.destinationCache.put(mutator, intermediateDest);
+          if (intermediateDest != null) {
+            mutator.setValue(destination, intermediateDest);
+          } else {
+            // Obtain from accessor on provided destination
+            if (context.providedDestination) {
+              Accessor accessor = TypeInfoRegistry.typeInfoFor(destination.getClass(),
+                  configuration)
+                  .getAccessors()
+                  .get(mutator.getName());
+              if (accessor != null)
+                intermediateDest = accessor.getValue(destination);
+            }
+
+            // Obtain from new instance
+            if (intermediateDest == null) {
+              // Via global provider
+              if (configuration.getProvider() != null)
+                intermediateDest = configuration.getProvider().get(
+                    new ProvisionRequestImpl(context.parentSource(), mutator.getType()));
+              else
+                intermediateDest = instantiate(mutator.getType(), context.errors);
+              if (intermediateDest == null)
+                return;
+
+              context.destinationCache.put(mutator, intermediateDest);
+              mutator.setValue(destination, intermediateDest);
+            }
+          }
         }
 
-        mutator.setValue(destination, intermediateDest);
         destination = intermediateDest;
       }
     }

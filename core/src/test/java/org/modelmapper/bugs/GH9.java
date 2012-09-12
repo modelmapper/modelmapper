@@ -6,7 +6,13 @@ import static org.testng.Assert.assertTrue;
 import org.modelmapper.AbstractTest;
 import org.testng.annotations.Test;
 
-public class ModelMapperMergingTest extends AbstractTest {
+/**
+ * https://github.com/jhalterman/modelmapper/issues/9
+ * 
+ * Reported by andy-m.
+ */
+@Test
+public class GH9 extends AbstractTest {
   public static class TestItem {
     TestItemConfiguration testItemConfiguration;
   }
@@ -32,7 +38,6 @@ public class ModelMapperMergingTest extends AbstractTest {
     String someProperty;
   }
 
-  @Test
   public void testValuesInDestinationRemainUnchangedUnlessTheyArePresentInSource() {
     String expectedValue = "someValue";
     TestItemDTO source = new TestItemDTO();

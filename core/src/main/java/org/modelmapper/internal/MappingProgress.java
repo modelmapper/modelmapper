@@ -57,7 +57,7 @@ abstract class MappingProgress<T extends PropertyInfo> {
         argument = args.length == 1 ? args[0] : null;
       } else if (PropertyResolver.ACCESSORS.isValid(method)) {
         // Find mutator corresponding to accessor
-        Mutator mutator = TypeInfoRegistry.typeInfoFor(proxyType, config).mutatorForAccessor(
+        Mutator mutator = TypeInfoRegistry.typeInfoFor(proxyType, config).mutatorForAccessorMethod(
             method.getName());
         if (mutator != null)
           propertyInfo.add(mutator);

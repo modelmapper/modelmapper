@@ -40,11 +40,12 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   final Map<Object, Object> sourceToDestination;
   /** Tracks intermediate destination objects on the path to the destination */
   final List<Object> intermediateDestinations;
-
   final Errors errors;
-  private final MappingContextImpl<?, ?> parent;
+  @SuppressWarnings("unused") private final MappingContextImpl<?, ?> parent;
   private D destination;
   private final Class<D> destinationType;
+  /** Whether requested mapping is to a provided destination object */
+  final boolean providedDestination;
   private Mapping mapping;
   private final MappingEngine mappingEngine;
   private final S source;
@@ -65,6 +66,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
+    providedDestination = destination != null;
     this.mappingEngine = mappingEngine;
     errors = new Errors();
     destinationCache = new HashMap<Mutator, Object>();
@@ -85,6 +87,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
+    this.providedDestination = context.providedDestination;
     this.typeMap = null;
     this.parentTypeMap = context.typeMap;
     this.mapping = mapping;
