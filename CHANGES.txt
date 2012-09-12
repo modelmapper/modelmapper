@@ -1,6 +1,11 @@
-0.4.1
+0.5.0 (9/12/2012)
 
+- Fixed GH #2 - Add support for circular references
+- Fixed GH #9 - Overriding intemediate objects in provided destinations
 - Fixed conversion of char[] to String
+- Fixed GC #20 - Improved hashCode in TypeInfoRegistry
+- Completed GC #21 - Implement strict matching strategy
+- Fixed GC #22 - PropertyMap doesn't work when token matches exist
 
 0.4.0 (7/22/2012)
 
