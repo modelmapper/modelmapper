@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
  * @author Andy Moody
  */
 @Test
-public class GH10 extends AbstractTest {
+public class GH11 extends AbstractTest {
   public static class TestContainer {
     TestContainer2 someMembers;
   }
