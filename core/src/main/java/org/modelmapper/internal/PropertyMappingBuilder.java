@@ -110,12 +110,13 @@ class PropertyMappingBuilder<S, D> {
 
         if (mapping != null) {
           typeMap.addMapping(mapping);
-          
+
           // If the mapping is potentially circular, add intermediate mappings
           if (Iterables.isIterable(mapping.getLastDestinationProperty().getType())) {
             for (PropertyInfo sourceAccessor : mapping.sourceAccessors) {
               PropertyMappingImpl intermediateMapping = intermediateMappings.get(sourceAccessor);
-              if (intermediateMapping != null)
+              if (intermediateMapping != null
+                  && !intermediateMapping.getPath().equals(mapping.getPath()))
                 typeMap.addMapping(intermediateMapping);
             }
           }
