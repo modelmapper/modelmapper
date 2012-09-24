@@ -27,9 +27,9 @@ public class EnumConverter extends AbstractTest {
             return Dest.Two;
           case C:
             return Dest.Three;
+          default:
+            return null;
         }
-
-        return null;
       }
     });
 
