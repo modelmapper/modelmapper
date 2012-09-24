@@ -1,3 +1,8 @@
+0.5.1
+
+- Fixed scenario where a circular mapping can overrides an existing mapping
+- Fixed GH #11 - Improper shading
+
 0.5.0 (9/12/2012)
 
 - Fixed GH #2 - Add support for circular references
