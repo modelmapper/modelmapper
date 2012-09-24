@@ -1,4 +1,4 @@
-0.5.1
+0.5.1 (9/26/2012)
 
 - Fixed scenario where a circular mapping can overrides an existing mapping
 - Fixed GH #11 - Improper shading
