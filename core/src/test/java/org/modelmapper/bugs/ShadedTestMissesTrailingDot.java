@@ -66,6 +66,6 @@ public class ShadedTestMissesTrailingDot extends AbstractTest {
 
 		Destination result = modelMapper.map(source, Destination.class);
 
-		assertEquals(expectedNameXValue, result.getItemX());
+		assertEquals(result.getItemX(), expectedNameXValue);
 	}
 }
