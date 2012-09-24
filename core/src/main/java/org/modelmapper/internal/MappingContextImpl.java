@@ -183,7 +183,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    */
   boolean isShaded(String subpath) {
     for (String shadedPath : shadedPaths)
-      if (subpath.startsWith(shadedPath))
+      if (subpath.startsWith(shadedPath + "."))
         return true;
     return false;
   }
