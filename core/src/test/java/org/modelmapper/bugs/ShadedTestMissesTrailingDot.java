@@ -16,21 +16,10 @@ import org.testng.annotations.Test;
  */
 @Test
 public class ShadedTestMissesTrailingDot extends AbstractTest {
-	public static class SubItem {
-		private String value;
-
-		public String getValue() {
-			return value;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-	}
 
 	public static class Source {
 		private String item;
-		private SubItem itemX;
+		private String itemX;
 		
 		public String getItem() {
 			return item;
@@ -40,18 +29,18 @@ public class ShadedTestMissesTrailingDot extends AbstractTest {
 			this.item = item;
 		}
 		
-		public SubItem getItemX() {
+		public String getItemX() {
 			return itemX;
 		}
 		
-		public void setItemX(SubItem itemX) {
+		public void setItemX(String itemX) {
 			this.itemX = itemX;
 		}
 	}
 
 	public static class Destination {
 		private String item;
-		private SubItem itemX;
+		private String itemX;
 		
 		public String getItem() {
 			return item;
@@ -61,11 +50,11 @@ public class ShadedTestMissesTrailingDot extends AbstractTest {
 			this.item = item;
 		}
 		
-		public SubItem getItemX() {
+		public String getItemX() {
 			return itemX;
 		}
 		
-		public void setItemX(SubItem itemX) {
+		public void setItemX(String itemX) {
 			this.itemX = itemX;
 		}
 	}
@@ -73,12 +62,10 @@ public class ShadedTestMissesTrailingDot extends AbstractTest {
 	public void test() {
 		String expectedNameXValue = "someValue";
 		Source source = new Source();
-		SubItem subItemX = new SubItem();
-		subItemX.setValue(expectedNameXValue);
-		source.setItemX(subItemX);
+		source.setItemX(expectedNameXValue);
 
 		Destination result = modelMapper.map(source, Destination.class);
 
-		assertEquals(expectedNameXValue, result.getItemX().getValue());
+		assertEquals(expectedNameXValue, result.getItemX());
 	}
 }
