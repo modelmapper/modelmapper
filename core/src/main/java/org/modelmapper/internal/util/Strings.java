@@ -26,14 +26,14 @@ public final class Strings {
   private Strings() {
   }
 
+  /**
+   * Returns the joined {@code properties} with a <code>.</code> delimiter, including a trailing
+   * delimiter.
+   */
   public static String join(List<? extends PropertyInfo> properties) {
     StringBuilder sb = new StringBuilder();
-    String delim = "";
-    for (PropertyInfo info : properties) {
-      sb.append(delim).append(info.getName());
-      delim = ".";
-    }
-
+    for (PropertyInfo info : properties)
+      sb.append(info.getName()).append(".");
     return sb.toString();
   }
 

@@ -2,39 +2,33 @@ package org.modelmapper.bugs;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.modelmapper.AbstractTest;
 import org.testng.annotations.Test;
 
 /**
- * @author Andy Moody
+ * https://github.com/jhalterman/modelmapper/pull/11
+ * 
+ * @author by Kay Schubert.
  */
 @Test
 public class GH11 extends AbstractTest {
-  public static class TestContainer {
-    TestContainer2 someMembers;
+  public static class Source {
+    String item;
+    String itemX;
   }
 
-  public static class TestContainer2 {
-    List<String> someMembers;
+  public static class Destination {
+    String item;
+    String itemX;
   }
 
-  public static class TestContainerDTO {
-    TestContainer2DTO someMembers;
-  }
+  public void test() {
+    String expectedNameXValue = "someValue";
+    Source source = new Source();
+    source.itemX = expectedNameXValue;
 
-  public static class TestContainer2DTO {
-    List<String> someMembers;
-  }
+    Destination result = modelMapper.map(source, Destination.class);
 
-  public void testMapping() {
-    TestContainer source = new TestContainer();
-    source.someMembers = new TestContainer2();
-    source.someMembers.someMembers = Arrays.asList("some String", "some String 2");
-
-    TestContainerDTO dest = modelMapper.map(source, TestContainerDTO.class);
-    assertEquals(dest.someMembers.someMembers, source.someMembers.someMembers);
+    assertEquals(result.itemX, expectedNameXValue);
   }
 }
