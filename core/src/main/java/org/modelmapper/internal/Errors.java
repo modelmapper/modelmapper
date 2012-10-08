@@ -316,6 +316,10 @@ public final class Errors {
   Errors invocationAgainstFinalClassOrMethod() {
     return addMessage("Cannot map to final type.");
   }
+  
+  Errors mappingForEnum() {
+    return addMessage("Cannot create mapping for enum.");
+  }
 
   Errors missingDestination() {
     return addMessage("A mapping is missing a required destination method.");
