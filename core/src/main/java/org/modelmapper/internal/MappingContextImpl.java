@@ -169,7 +169,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
         destinationType.getSimpleName());
   }
 
-  public TypeMap<S, D> typeMap() {
+  public TypeMap<S, D> getTypeMap() {
     return typeMap;
   }
 

@@ -145,7 +145,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
     if (condition == null)
-      condition = (Condition<Object, Object>) context.typeMap().getPropertyCondition();
+      condition = (Condition<Object, Object>) context.getTypeMap().getPropertyCondition();
     if (condition == null && mapping.isSkipped())
       return;
 
@@ -163,7 +163,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     Converter<Object, Object> converter = (Converter<Object, Object>) mapping.getConverter();
     if (converter == null)
-      converter = (Converter<Object, Object>) context.typeMap().getPropertyConverter();
+      converter = (Converter<Object, Object>) context.getTypeMap().getPropertyConverter();
     if (converter != null)
       context.shadePath(mappingImpl.getPath());
     else if (mapping instanceof SourceMapping)
@@ -351,8 +351,8 @@ public class MappingEngineImpl implements MappingEngine {
       if (provider == null && context.parentTypeMap() != null)
         provider = (Provider<D>) context.parentTypeMap().getPropertyProvider();
     }
-    if (provider == null && context.typeMap() != null)
-      provider = context.typeMap().getProvider();
+    if (provider == null && context.getTypeMap() != null)
+      provider = context.getTypeMap().getProvider();
     if (provider == null && configuration.getProvider() != null)
       provider = (Provider<D>) configuration.getProvider();
     if (provider == null)
