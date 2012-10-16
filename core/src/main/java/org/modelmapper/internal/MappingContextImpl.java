@@ -17,6 +17,7 @@ package org.modelmapper.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     errors = new Errors();
     destinationCache = new HashMap<Mutator, Object>();
     shadedPaths = new ArrayList<String>();
-    sourceToDestination = new HashMap<Object, Object>();
+    sourceToDestination = new IdentityHashMap<Object, Object>();
     intermediateDestinations = new ArrayList<Object>();
   }
 
