@@ -150,7 +150,7 @@ class PropertyMappingBuilder<S, D> {
     // Match and merge with pre-existing TypeMaps
     TypeMap<?, ?> propertyTypeMap = typeMapStore.get(sourceTypeInfo.getType(),
         destinationMutator.getType());
-    if (propertyTypeMap != null) {
+    if (propertyTypeMap != null && matchingStrategy.matches(propertyNameInfo)) {
       mergeMappings(propertyTypeMap);
       return;
     }
