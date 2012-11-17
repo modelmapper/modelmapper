@@ -23,10 +23,11 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class EnumConverter implements ConditionalConverter<Enum<?>, Enum<?>> {
+class EnumConverter implements ConditionalConverter<Object, Enum<?>> {
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public Enum<?> convert(MappingContext<Enum<?>, Enum<?>> context) {
-    String name = context.getSource().name();
+  public Enum<?> convert(MappingContext<Object, Enum<?>> context) {
+    String name = context.getSource().getClass() == String.class ? (String) context.getSource()
+        : ((Enum<?>) context.getSource()).name();
 
     if (name != null)
       try {
@@ -38,6 +39,7 @@ class EnumConverter implements ConditionalConverter<Enum<?>, Enum<?>> {
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    return sourceType.isEnum() && destinationType.isEnum() ? MatchResult.FULL : MatchResult.NONE;
+    return (sourceType.isEnum() || sourceType == String.class) && destinationType.isEnum() ? MatchResult.FULL
+        : MatchResult.NONE;
   }
 }

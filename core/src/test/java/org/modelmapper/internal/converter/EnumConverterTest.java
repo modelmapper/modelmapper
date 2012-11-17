@@ -25,6 +25,10 @@ public class EnumConverterTest extends AbstractConverterTest {
     a, B, c
   }
 
+  static class DTO {
+    String dest;
+  }
+
   public void testConvert() {
     assertEquals(convert(Source.a), Dest.a);
     assertNull(convert(Source.b));
@@ -33,9 +37,13 @@ public class EnumConverterTest extends AbstractConverterTest {
 
   public void testMatches() {
     assertEquals(converter.match(Source.class, Dest.class), MatchResult.FULL);
-    
+
     // Negative
     assertEquals(converter.match(Source.class, Map.class), MatchResult.NONE);
     assertEquals(converter.match(Map.class, Dest.class), MatchResult.NONE);
+  }
+
+  public void shouldConvertFromStringToEnum() {
+    assertEquals(convert("a"), Dest.a);
   }
 }
