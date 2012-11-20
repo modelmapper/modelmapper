@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.modelmapper.Converter;
 import org.modelmapper.TypeMap;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.converter.ConverterStore;
@@ -147,14 +148,6 @@ class PropertyMappingBuilder<S, D> {
    * running the {@code matchingStrategy} against all accessors for the {@code sourceTypeInfo}.
    */
   private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
-    // Match and merge with pre-existing TypeMaps
-    TypeMap<?, ?> propertyTypeMap = typeMapStore.get(sourceTypeInfo.getType(),
-        destinationMutator.getType());
-    if (propertyTypeMap != null && matchingStrategy.matches(propertyNameInfo)) {
-      mergeMappings(propertyTypeMap);
-      return;
-    }
-
     sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
@@ -167,22 +160,38 @@ class PropertyMappingBuilder<S, D> {
               propertyNameInfo.destinationProperties, true));
         } else {
           PropertyMappingImpl mapping = null;
-          for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
-            MatchResult matchResult = converter.match(accessor.getType(),
-                destinationMutator.getType());
+          TypeMap<?, ?> propertyTypeMap = typeMapStore.get(accessor.getType(),
+              destinationMutator.getType());
 
-            if (!MatchResult.NONE.equals(matchResult)) {
-              mapping = new PropertyMappingImpl(propertyNameInfo.sourceProperties,
-                  propertyNameInfo.destinationProperties, false);
+          // Create mapping(s) from existing TypeMap
+          if (propertyTypeMap != null) {
+            Converter<?, ?> propertyConverter = propertyTypeMap.getConverter();
+            if (propertyConverter == null)
+              mergeMappings(propertyTypeMap);
+            else
+              mappings.add(new PropertyMappingImpl(propertyNameInfo.sourceProperties,
+                  propertyNameInfo.destinationProperties, propertyConverter));
 
-              if (MatchResult.FULL.equals(matchResult)) {
-                mappings.add(mapping);
-                if (matchingStrategy.isExact())
-                  return;
-              } else
-                partiallyMatchedMappings.add(mapping);
+            if (matchingStrategy.isExact())
+              return;
+          } else {
+            for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
+              MatchResult matchResult = converter.match(accessor.getType(),
+                  destinationMutator.getType());
 
-              break;
+              if (!MatchResult.NONE.equals(matchResult)) {
+                mapping = new PropertyMappingImpl(propertyNameInfo.sourceProperties,
+                    propertyNameInfo.destinationProperties, false);
+
+                if (MatchResult.FULL.equals(matchResult)) {
+                  mappings.add(mapping);
+                  if (matchingStrategy.isExact())
+                    return;
+                } else
+                  partiallyMatchedMappings.add(mapping);
+
+                break;
+              }
             }
           }
 

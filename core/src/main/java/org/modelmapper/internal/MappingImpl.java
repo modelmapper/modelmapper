@@ -35,7 +35,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   private final String path;
   private boolean skip;
   private Condition<?, ?> condition;
-  private Converter<?, ?> converter;
+  protected Converter<?, ?> converter;
   private Provider<?> provider;
 
   /**
