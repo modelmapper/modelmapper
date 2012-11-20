@@ -16,65 +16,25 @@
  */
 package org.modelmapper.internal.converter;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
-
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
-import org.modelmapper.MappingException;
-import org.modelmapper.spi.ConditionalConverter.MatchResult;
-import org.testng.annotations.DataProvider;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.testng.annotations.Test;
 
-/**
- * Adapted from the BeanUtils test suite.
- */
 @Test
-public class DateConverterTest extends AbstractConverterTest {
+public class DateConverterTest extends AbstractDateConverterTest {
   public DateConverterTest() {
     super(new DateConverter());
   }
 
-  @DataProvider(name = "typesProvider")
-  public Object[][] provideTypes() {
-    return new Object[][] { { Date.class }, { Calendar.class }, { java.sql.Date.class },
-        { Time.class }, { Timestamp.class } };
-  }
-
-  @Test(dataProvider = "typesProvider")
-  public void shouldConvertDate1(Class<?> type) {
-    long now = System.currentTimeMillis();
-    Object[] date = { new Date(now), new java.util.GregorianCalendar(), new java.sql.Date(now),
-        new java.sql.Time(now), new java.sql.Timestamp(now) };
-    ((GregorianCalendar) date[1]).setTime(new Date(now));
-
-    for (int i = 0; i < date.length; i++) {
-      Object val = convert(date[i], type);
-      assertNotNull(val);
-      assertTrue(type.isInstance(val));
-      assertEquals(now, getTimeInMillis(val));
-    }
-  }
-
-  @Test(dataProvider = "typesProvider")
-  public void shouldConvertDate2(Class<?> type) {
-    String testString = "2006-10-29";
-    Calendar calendar = toCalendar(testString, "yyyy-MM-dd");
-    Object expected = toType(calendar, type);
-
-    assertValid(toDate(calendar), type, expected);
-    assertValid(calendar, type, expected);
-    assertValid(toSqlDate(calendar), type, expected);
-    assertValid(toTime(calendar), type, expected);
-    assertValid(toTimestamp(calendar), type, expected);
+  @Override
+  public Object[][] destinationTypes() {
+    return new Object[][] { { Date.class }, { java.sql.Date.class }, { Time.class },
+        { Timestamp.class } };
   }
 
   public void shouldConvertStringToSqlDate() {
@@ -103,14 +63,6 @@ public class DateConverterTest extends AbstractConverterTest {
     assertInvalid("15:36:01", Timestamp.class);
   }
 
-  public void shouldConvertToSqlDate() {
-    String testString = "2006-05-16";
-    java.sql.Date expected = toSqlDate(toCalendar(testString, "yyyy-MM-dd"));
-
-    assertValid(testString, java.sql.Date.class, expected);
-    assertInvalid("01/01/2006", java.sql.Date.class);
-  }
-
   @Test(dataProvider = "typesProvider")
   public void shouldThrowOnInvalidSourceString(Class<?> type) {
     assertInvalid(null, type);
@@ -122,82 +74,10 @@ public class DateConverterTest extends AbstractConverterTest {
     assertInvalid(new Integer(2), type);
   }
 
-  @Test(expectedExceptions = MappingException.class)
-  public void shouldThrowOnInvalidType() {
-    convert(new Date(), Character.class);
-  }
-
-  @Test(expectedExceptions = NullPointerException.class)
-  public void shouldThrowOnNull() {
-    convert(null);
-  }
-
   public void testMatches() {
-    Class<?>[] sourceTypes = { Date.class, Calendar.class, java.sql.Date.class, Time.class,
-        Timestamp.class, Long.class, Long.TYPE, String.class };
-    Class<?>[] destinationTypes = { Date.class, Calendar.class, java.sql.Date.class, Time.class,
-        Timestamp.class };
-
-    for (Class<?> sourceType : sourceTypes)
-      for (Class<?> destinationType : destinationTypes)
-        assertEquals(converter.match(sourceType, destinationType), MatchResult.FULL);
-
-    // Negative
-    assertEquals(converter.match(Object[].class, Date.class), MatchResult.NONE);
-    assertEquals(converter.match(Number.class, Date.class), MatchResult.NONE);
+    assertMatches(new Class<?>[] { Date.class, Calendar.class, XMLGregorianCalendar.class,
+        java.sql.Date.class, Time.class, Timestamp.class, Long.class, Long.TYPE, String.class },
+        new Class<?>[] { Date.class, java.sql.Date.class, Time.class, Timestamp.class });
   }
 
-  private long getTimeInMillis(Object date) {
-    if (date instanceof Timestamp)
-      return ((Timestamp) date).getTime();
-    if (date instanceof Calendar)
-      return ((Calendar) date).getTime().getTime();
-    else
-      return ((Date) date).getTime();
-  }
-
-  private Calendar toCalendar(String value, String pattern) {
-    try {
-      DateFormat format = new SimpleDateFormat(pattern);
-      format.setLenient(false);
-      format.parse(value);
-      return format.getCalendar();
-    } catch (Exception e) {
-      fail(e.toString());
-    }
-
-    return null;
-  }
-
-  private Date toDate(Calendar calendar) {
-    return calendar.getTime();
-  }
-
-  private java.sql.Date toSqlDate(Calendar value) {
-    return new java.sql.Date(getTimeInMillis(value));
-  }
-
-  private Time toTime(Calendar value) {
-    return new Time(getTimeInMillis(value));
-  }
-
-  private Timestamp toTimestamp(Calendar calendar) {
-    return new Timestamp(getTimeInMillis(calendar));
-  }
-
-  private Object toType(Calendar calendar, Class<?> destinationType) {
-    if (destinationType == Date.class)
-      return toDate(calendar);
-    if (destinationType == Calendar.class)
-      return calendar;
-    if (destinationType == java.sql.Date.class)
-      return toSqlDate(calendar);
-    if (destinationType == Time.class)
-      return toTime(calendar);
-    if (destinationType == Timestamp.class)
-      return toTimestamp(calendar);
-
-    fail();
-    return null;
-  }
 }

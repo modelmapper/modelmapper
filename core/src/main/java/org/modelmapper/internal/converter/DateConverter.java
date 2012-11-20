@@ -20,6 +20,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.modelmapper.internal.Errors;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
@@ -28,9 +30,9 @@ import org.modelmapper.spi.MappingContext;
  * Converts:
  * 
  * <ul>
- * <li>Date</li>
- * <li>Calendar</li>
- * <li>java.sql.Timestamp</li>
+ * <li>Date (and subclasses)</li>
+ * <li>Calendar (and subclasses)</li>
+ * <li>XMLGregorianCalendar</li>
  * <li>Long</li>
  * <li>String</li>
  * </ul>
@@ -39,7 +41,6 @@ import org.modelmapper.spi.MappingContext;
  * 
  * <ul>
  * <li>java.util.Date</li>
- * <li>java.util.Calendar</li>
  * <li>java.sql.Date</li>
  * <li>java.sql.Time</li>
  * <li>java.sql.Timestamp</li>
@@ -47,32 +48,32 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class DateConverter implements ConditionalConverter<Object, Object> {
-  public Object convert(MappingContext<Object, Object> context) {
+class DateConverter implements ConditionalConverter<Object, Date> {
+  public Date convert(MappingContext<Object, Date> context) {
     Object source = context.getSource();
     Class<?> destinationType = context.getDestinationType();
 
-    if (source instanceof Timestamp)
-      return dateFor(((Timestamp) source).getTime(), destinationType);
     if (source instanceof Date)
       return dateFor(((Date) source).getTime(), destinationType);
     if (source instanceof Calendar)
-      return dateFor(((Calendar) source).getTime().getTime(), destinationType);
+      return dateFor(((Calendar) source).getTimeInMillis(), destinationType);
+    if (source instanceof XMLGregorianCalendar)
+      return dateFor(((XMLGregorianCalendar) source).toGregorianCalendar().getTimeInMillis(),
+          destinationType);
     if (source instanceof Long)
       return dateFor(((Long) source).longValue(), destinationType);
-    return dateFor(source.toString(), destinationType);
+    return dateFor(source.toString(), context.getDestinationType());
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    boolean validDestination = Date.class.isAssignableFrom(destinationType)
-        || Calendar.class.isAssignableFrom(destinationType);
-    return validDestination
+    return Date.class.isAssignableFrom(destinationType)
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
-            || sourceType == Long.class || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.FULL
+            || sourceType == XMLGregorianCalendar.class || sourceType == Long.class
+            || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.FULL
         : MatchResult.NONE;
   }
 
-  Object dateFor(long source, Class<?> destinationType) {
+  Date dateFor(long source, Class<?> destinationType) {
     if (destinationType.equals(Date.class))
       return new Date(source);
     if (destinationType.equals(java.sql.Date.class))
@@ -81,12 +82,6 @@ class DateConverter implements ConditionalConverter<Object, Object> {
       return new Time(source);
     if (destinationType.equals(Timestamp.class))
       return new Timestamp(source);
-    if (destinationType.equals(Calendar.class)) {
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(new Date(source));
-      calendar.setLenient(false);
-      return calendar;
-    }
 
     throw new Errors().errorMapping(source, destinationType).toMappingException();
   }

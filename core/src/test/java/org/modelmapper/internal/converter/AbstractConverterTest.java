@@ -1,6 +1,5 @@
 package org.modelmapper.internal.converter;
 
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 import org.modelmapper.Fixtures;
@@ -44,8 +43,8 @@ public abstract class AbstractConverterTest {
    */
   @SuppressWarnings("unchecked")
   protected Object convert(Object source) {
-    return converter.convert(new MappingContextImpl<Object, Object>(source, (Class<Object>) source
-        .getClass(), null, destinationType, engine));
+    return converter.convert(new MappingContextImpl<Object, Object>(source,
+        (Class<Object>) source.getClass(), null, destinationType, engine));
   }
 
   /**
@@ -54,8 +53,8 @@ public abstract class AbstractConverterTest {
    */
   @SuppressWarnings("unchecked")
   protected Object convert(Object source, Class<?> destinationType) {
-    return converter.convert(new MappingContextImpl<Object, Object>(source, (Class<Object>) source
-        .getClass(), null, (Class<Object>) destinationType, engine));
+    return converter.convert(new MappingContextImpl<Object, Object>(source,
+        (Class<Object>) source.getClass(), null, (Class<Object>) destinationType, engine));
   }
 
   protected void assertInvalid(Object source, Class<?> destinationType) {
@@ -63,18 +62,6 @@ public abstract class AbstractConverterTest {
       convert(source, destinationType);
       fail();
     } catch (Exception expected) {
-    }
-  }
-
-  protected void assertValid(Object source, Class<?> destinationType, Object expected) {
-    try {
-      Object result = convert(source, destinationType);
-      Class<?> resultType = result == null ? null : result.getClass();
-      Class<?> expectType = expected == null ? null : expected.getClass();
-      assertEquals(expectType, resultType);
-      assertEquals(expected, result);
-    } catch (Exception e) {
-      fail(e.toString());
     }
   }
 }
