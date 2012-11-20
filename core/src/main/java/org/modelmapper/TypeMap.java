@@ -144,7 +144,8 @@ public interface TypeMap<S, D> {
 
   /**
    * Sets the {@code converter} to be used for any conversion requests for the TypeMap's source to
-   * destination type.
+   * destination type. A converter will take precedence over any mappings that have been added to
+   * the TypeMap.
    * 
    * @throws IllegalArgumentException if {@code converter} is null
    */
