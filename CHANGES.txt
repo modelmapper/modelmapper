@@ -1,4 +1,9 @@
-0.5.2
+0.5.3
+
+- Added support for XMLGregorianCalendar conversion
+- Fixed issue when merging from a TypeMap with a Converter
+
+0.5.2 (10/18/2012)
 
 - Fixed GH #19 - Merged mappings should respect MatchingStrategy
 - Fixed GH #20 - Enum conversion should support String->Enum
