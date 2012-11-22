@@ -1,6 +1,7 @@
-0.5.3
+0.5.3 (8/22/2012)
 
-- Added support for XMLGregorianCalendar conversion
+- Fixed GH #22 - Destination properties being cached by mutator
+- Fixed GH #21 - Added support for XMLGregorianCalendar conversion
 - Fixed issue when merging from a TypeMap with a Converter
 
 0.5.2 (10/18/2012)
