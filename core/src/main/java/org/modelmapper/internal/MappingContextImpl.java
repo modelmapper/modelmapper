@@ -36,7 +36,8 @@ import org.modelmapper.spi.MappingEngine;
  * @author Jonathan Halterman
  */
 public class MappingContextImpl<S, D> implements MappingContext<S, D>, ProvisionRequest<D> {
-  final Map<Mutator, Object> destinationCache;
+  /** Caches previously mapped destination objects by path. */
+  final Map<String, Object> destinationCache;
   /** Tracks destination objects for each source. Used for circular mapping. */
   final Map<Object, Object> sourceToDestination;
   /** Tracks intermediate destination objects on the path to the destination */
@@ -70,7 +71,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     providedDestination = destination != null;
     this.mappingEngine = mappingEngine;
     errors = new Errors();
-    destinationCache = new HashMap<Mutator, Object>();
+    destinationCache = new HashMap<String, Object>();
     shadedPaths = new ArrayList<String>();
     sourceToDestination = new IdentityHashMap<Object, Object>();
     intermediateDestinations = new ArrayList<Object>();
@@ -95,7 +96,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     parentSource = context.parentSource;
     mappingEngine = context.mappingEngine;
     errors = context.errors;
-    destinationCache = inheritValues ? context.destinationCache : new HashMap<Mutator, Object>();
+    destinationCache = inheritValues ? context.destinationCache : new HashMap<String, Object>();
     shadedPaths = inheritValues ? context.shadedPaths : new ArrayList<String>();
     sourceToDestination = context.sourceToDestination;
     intermediateDestinations = new ArrayList<Object>();

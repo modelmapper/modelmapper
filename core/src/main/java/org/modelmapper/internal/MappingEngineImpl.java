@@ -202,13 +202,16 @@ public class MappingEngineImpl implements MappingEngine {
       MappingImpl mapping) {
     Object destination = context.getDestination();
     List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
+    StringBuilder destPathBuilder = new StringBuilder();
 
     for (int i = 0; i < mutatorChain.size(); i++) {
       Mutator mutator = mutatorChain.get(i);
+      destPathBuilder.append(mutator.getName()).append('.');
+      String destPath = destPathBuilder.toString();
 
       // Handle last mutator in chain
       if (i == mutatorChain.size() - 1) {
-        context.destinationCache.put(mutator, destinationValue);
+        context.destinationCache.put(destPath, destinationValue);
         mutator.setValue(destination,
             destinationValue == null ? Primitives.defaultValue(mutator.getType())
                 : destinationValue);
@@ -223,7 +226,7 @@ public class MappingEngineImpl implements MappingEngine {
             // Match intermediate destinations to mutator by type
             if (intermediateDestination.getClass().equals(mutator.getType())) {
               intermediateDest = intermediateDestination;
-              context.destinationCache.put(mutator, intermediateDest);
+              context.destinationCache.put(destPath, intermediateDest);
               mutator.setValue(destination, intermediateDest);
               break;
             }
@@ -232,7 +235,7 @@ public class MappingEngineImpl implements MappingEngine {
 
         // Obtain from cache
         if (intermediateDest == null) {
-          intermediateDest = context.destinationCache.get(mutator);
+          intermediateDest = context.destinationCache.get(destPath);
 
           if (intermediateDest != null) {
             mutator.setValue(destination, intermediateDest);
@@ -258,7 +261,7 @@ public class MappingEngineImpl implements MappingEngine {
               if (intermediateDest == null)
                 return;
 
-              context.destinationCache.put(mutator, intermediateDest);
+              context.destinationCache.put(destPath, intermediateDest);
               mutator.setValue(destination, intermediateDest);
             }
           }

@@ -33,7 +33,7 @@ public final class Strings {
   public static String join(List<? extends PropertyInfo> properties) {
     StringBuilder sb = new StringBuilder();
     for (PropertyInfo info : properties)
-      sb.append(info.getName()).append(".");
+      sb.append(info.getName()).append('.');
     return sb.toString();
   }
 
