@@ -23,7 +23,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.dozer.MappingException;
 import org.modelmapper.internal.Errors;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
@@ -55,7 +54,9 @@ class CalendarConverter implements ConditionalConverter<Object, Object> {
       try {
         dataTypeFactory = DatatypeFactory.newInstance();
       } catch (DatatypeConfigurationException e) {
-        throw new MappingException(e);
+        throw new Errors().addError(
+            "Failed to create DataTypeFactory required for XMLGregorianCalendar conversion", e)
+            .toMappingException();
       }
     }
 
