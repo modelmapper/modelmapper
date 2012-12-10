@@ -43,19 +43,6 @@ public final class Types {
   }
 
   /**
-   * Gets the method for the given parameters.
-   * 
-   * @throws RuntimeException on error
-   */
-  public static Method methodFor(Class<?> type, String name, Class<?>... parameterTypes) {
-    try {
-      return type.getDeclaredMethod(name, parameterTypes);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
    * Returns the proxied type, if any, else returns the given {@code type}.
    */
   @SuppressWarnings("unchecked")
@@ -77,6 +64,26 @@ public final class Types {
     }
 
     return (Class<T>) type;
+  }
+
+  /**
+   * Returns true if the {@code type} is instantiable.
+   */
+  public static boolean isInstantiable(Class<?> type) {
+    return !type.isEnum() && !Primitives.isPrimitiveWrapper(type);
+  }
+
+  /**
+   * Gets the method for the given parameters.
+   * 
+   * @throws RuntimeException on error
+   */
+  public static Method methodFor(Class<?> type, String name, Class<?>... parameterTypes) {
+    try {
+      return type.getDeclaredMethod(name, parameterTypes);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
