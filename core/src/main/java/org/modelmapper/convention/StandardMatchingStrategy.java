@@ -17,7 +17,9 @@ package org.modelmapper.convention;
 
 import java.util.List;
 
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.MatchingStrategy;
+import org.modelmapper.spi.PropertyInfo;
 
 /**
  * See {@link MatchingStrategies#STANDARD}.
@@ -31,12 +33,14 @@ final class StandardMatchingStrategy implements MatchingStrategy {
 
   static class Matcher {
     private final PropertyNameInfo propertyNameInfo;
+    private final List<PropertyInfo> sourceProperties;
     private final List<String[]> sourceTokens;
     private final boolean[] sourceMatches;
 
     Matcher(PropertyNameInfo propertyNameInfo) {
       this.propertyNameInfo = propertyNameInfo;
-      this.sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+      sourceProperties = propertyNameInfo.getSourceProperties();
+      sourceTokens = propertyNameInfo.getSourcePropertyTokens();
       sourceMatches = new boolean[sourceTokens.size()];
     }
 
@@ -61,9 +65,25 @@ final class StandardMatchingStrategy implements MatchingStrategy {
 
     boolean matchSourcePropertyName(String destination) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
+        // Attempt to match full source property name
+        if (sourceProperties.get(sourceIndex).getName().equalsIgnoreCase(destination)) {
+          sourceMatches[sourceIndex] = true;
+          return true;
+        }
+
         String[] tokens = sourceTokens.get(sourceIndex);
+
+        // Attempt to match individual source tokens
         for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+          // Attempt to match an individual token
           if (tokens[tokenIndex].equalsIgnoreCase(destination)) {
+            sourceMatches[sourceIndex] = true;
+            return true;
+          }
+
+          // Attempt to match combined source tokens
+          if (tokenIndex != 0 && tokenIndex < tokens.length - 1
+              && Strings.contentEqualsIgnoreCase(tokenIndex + 1, tokens, destination)) {
             sourceMatches[sourceIndex] = true;
             return true;
           }

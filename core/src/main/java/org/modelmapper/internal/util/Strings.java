@@ -47,4 +47,34 @@ public final class Strings {
 
     return sb.toString();
   }
+
+  /**
+   * Compares the characters from the first {@code comparisonSize} elements from {@code a}, against
+   * all of the characters in {@code b} to see if they are equal when ignoring case.
+   */
+  public static boolean contentEqualsIgnoreCase(int comparisonSize, CharSequence[] a, CharSequence b) {
+    int n = 0;
+    for (int i = 0; i < comparisonSize; i++)
+      n += a[i].length();
+
+    if (n == b.length()) {
+      for (int i = 0, aIndex = 0, aCharIndex = 0; i < n; i++) {
+        char c1 = a[aIndex].charAt(aCharIndex);
+        char c2 = b.charAt(i);
+        if (Character.toUpperCase(c1) != Character.toUpperCase(c2)
+            || Character.toLowerCase(c1) != Character.toLowerCase(c2))
+          return false;
+
+        if (aCharIndex == a[aIndex].length() - 1) {
+          aIndex++;
+          aCharIndex = 0;
+        } else
+          aCharIndex++;
+      }
+
+      return true;
+    }
+
+    return false;
+  }
 }

@@ -25,13 +25,24 @@ public class StandardMatchingStrategyTest extends InexactMatchingStrategyTest {
 
   /**
    * <pre>
-   * a/b/c <> ac
-   * a/b/c <> a/c
+   * a/b/c <> aC
+   * a/b/c <> a/C
    * </pre>
    */
   public void shouldNotMatchMissingDestinationToken() {
     match("a", "b", "c").to("aC").assertNoMatch();
     match("a", "b", "c").to("a", "c").assertNoMatch();
+  }
+
+  /**
+   * <pre>
+   * abc -> a/B/C
+   * aa/bb/cc -> aabb
+   * </pre>
+   */
+  public void shouldMatchCombinedTokens() {
+    match("abc").to("aBC").assertMatch();
+  //  match("aaBbCc").to("aabb").assertMatch();
   }
 
   /**
