@@ -1,32 +1,18 @@
 <?xml version="1.0"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.modelmapper</groupId>
-	<artifactId>modelmapper-examples</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
-	<name>ModelMapper Examples</name>
-	<dependencies>
-		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>0.3.2</version>
-		</dependency>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.modelmapper</groupId>
+  <artifactId>modelmapper-examples</artifactId>
+  <version>0.5.4-SNAPSHOT</version>
+  <name>ModelMapper Examples</name>
+  
+  <dependencies>
     <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
-      <version>6.1.1</version>
+      <groupId>org.modelmapper</groupId>
+      <artifactId>modelmapper</artifactId>
+      <version>0.5.3</version>
     </dependency>
-		<dependency>
-			<groupId>net.sf.dozer</groupId>
-			<artifactId>dozer</artifactId>
-			<version>5.3.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-jdk14</artifactId>
-			<version>1.5.8</version>
-		</dependency>
-	</dependencies>
+  </dependencies>
 </project>
