@@ -2,8 +2,14 @@ package org.modelmapper.flattening.example1;
 
 public class Order {
   private Customer customer;
-  private Address shippingAddress;
   private Address billingAddress;
+  private Address shippingAddress;
+
+  public Order(Customer customer, Address billingAddress, Address shippingAddress) {
+    this.customer = customer;
+    this.billingAddress = billingAddress;
+    this.shippingAddress = shippingAddress;
+  }
 
   public Customer getCustomer() {
     return customer;

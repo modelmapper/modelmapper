@@ -14,5 +14,10 @@
       <artifactId>modelmapper</artifactId>
       <version>0.5.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.5.2</version>
+    </dependency>
   </dependencies>
 </project>

@@ -1,9 +1,10 @@
 package org.modelmapper.flattening.example2;
 
+import static org.testng.Assert.assertEquals;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
-import org.modelmapper.internal.util.Assert;
 
 public class FlatteningExample2 {
   public static void main(String... args) throws Exception {
@@ -24,13 +25,15 @@ public class FlatteningExample2 {
 
     modelMapper.addMappings(personMap);
     PersonDTO dto = modelMapper.map(person, PersonDTO.class);
-    Assert.isTrue(dto.getStreet().equals(person.getAddress().getStreet()));
-    Assert.isTrue(dto.getCity().equals(person.getAddress().getCity()));
+
+    assertEquals(dto.getStreet(), person.getAddress().getStreet());
+    assertEquals(dto.getCity(), person.getAddress().getCity());
 
     // Option 2
     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
     dto = modelMapper.map(person, PersonDTO.class);
-    Assert.isTrue(dto.getStreet().equals(person.getAddress().getStreet()));
-    Assert.isTrue(dto.getCity().equals(person.getAddress().getCity()));
+
+    assertEquals(dto.getStreet(), person.getAddress().getStreet());
+    assertEquals(dto.getCity(), person.getAddress().getCity());
   }
 }

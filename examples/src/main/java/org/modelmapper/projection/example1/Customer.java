@@ -1,11 +1,7 @@
-package org.modelmapper.flattening.example1;
+package org.modelmapper.projection.example1;
 
 public class Customer {
   private String name;
-
-  public Customer(String name) {
-    this.name = name;
-  }
 
   public String getName() {
     return name;
