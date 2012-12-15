@@ -172,9 +172,8 @@ public class MappingEngineImpl implements MappingEngine {
     // Create destination for property context prior to mapping/conversion
     createDestinationViaProvider(propertyContext);
 
-    Object destinationValue = converter != null ? convert(propertyContext, converter)
-        : source != null ? map(propertyContext) : null;
-    setDestinationValue(context, destinationValue, mappingImpl);
+    // Set mapped/converted destination value
+    setDestinationValue(context, propertyContext, mappingImpl, converter);
   }
 
   @SuppressWarnings("unchecked")
@@ -197,9 +196,16 @@ public class MappingEngineImpl implements MappingEngine {
     return source;
   }
 
+  /**
+   * Sets a mapped or converted destination value in the last mapped mutator for the given
+   * {@code mapping}. The final destination value is resolved by walking the {@code mapping}'s
+   * mutator chain and obtaining each destination value in the chain either from the cache, from a
+   * corresponding accessor, from a provider, or by instantiation, in that order.
+   */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void setDestinationValue(MappingContextImpl<?, ?> context, Object destinationValue,
-      MappingImpl mapping) {
+  private void setDestinationValue(MappingContextImpl<?, ?> context,
+      MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping,
+      Converter<Object, Object> converter) {
     Object destination = context.getDestination();
     List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
     StringBuilder destPathBuilder = new StringBuilder();
@@ -211,6 +217,25 @@ public class MappingEngineImpl implements MappingEngine {
 
       // Handle last mutator in chain
       if (i == mutatorChain.size() - 1) {
+        // Final destination value
+        Object destinationValue = null;
+
+        if (converter != null) {
+          // Obtain from accessor on provided destination
+          if (context.providedDestination) {
+            Accessor accessor = TypeInfoRegistry.typeInfoFor(destination.getClass(), configuration)
+                .getAccessors()
+                .get(mutator.getName());
+            if (accessor != null) {
+              Object intermediateDest = accessor.getValue(destination);
+              propertyContext.setDestination(intermediateDest);
+            }
+          }
+
+          destinationValue = convert(propertyContext, converter);
+        } else if (propertyContext.getSource() != null)
+          destinationValue = map(propertyContext);
+
         context.destinationCache.put(destPath, destinationValue);
         mutator.setValue(destination,
             destinationValue == null ? Primitives.defaultValue(mutator.getType())
