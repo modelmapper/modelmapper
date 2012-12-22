@@ -43,6 +43,16 @@ public final class Types {
   }
 
   /**
+   * Returns default arguments for the {@code types}.
+   */
+  public static Object[] defaultArgumentsFor(Class<?>[] types) {
+    Object[] args = new Object[types.length];
+    for (int i = 0; i < types.length; i++)
+      args[i] = Primitives.defaultValue(types[i]);
+    return args;
+  }
+
+  /**
    * Returns the proxied type, if any, else returns the given {@code type}.
    */
   @SuppressWarnings("unchecked")

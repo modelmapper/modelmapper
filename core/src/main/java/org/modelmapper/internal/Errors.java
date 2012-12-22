@@ -278,13 +278,15 @@ public final class Errors {
   }
 
   Errors errorEnhancingClass(Class<?> type, Throwable t) {
-    return addMessage(t, "Failed to generate proxy class for %s", type);
+    return addMessage(t,
+        "Failed to generate proxy class for %s. Ensure that %s has a non-private constructor.",
+        type, type);
   }
 
   Errors errorInstantiatingProxy(Class<?> type, Throwable t) {
     return addMessage(
         t,
-        "Failed to instantiate proxied instance of %s. Ensure that %s has a non-private no-argument constructor.",
+        "Failed to instantiate proxied instance of %s. Ensure that %s has a non-private constructor.",
         type, type);
   }
 
@@ -296,9 +298,8 @@ public final class Errors {
   }
 
   public Errors invalidProvidedDestinationInstance(Object destination, Class<?> requiredType) {
-    return addMessage(
-    "The provided destination instance %s is not of the required type %s.", destination,
-        requiredType);
+    return addMessage("The provided destination instance %s is not of the required type %s.",
+        destination, requiredType);
   }
 
   Errors invalidDestinationMethod(Method method) {
@@ -316,7 +317,7 @@ public final class Errors {
   Errors invocationAgainstFinalClassOrMethod() {
     return addMessage("Cannot map to final type.");
   }
-  
+
   Errors mappingForEnum() {
     return addMessage("Cannot create mapping for enum.");
   }
