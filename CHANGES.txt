@@ -1,4 +1,11 @@
-0.5.3 (8/22/2012)
+0.5.4 (12/22/2012)
+
+- Fixed GH #18 - Updated manifest.mf to contain OSGI bundle information for shaded packages
+- Fixed GH #26 - MM attempts to instantiate primitive wrapper when used in destination Converter
+- Fixed GH #27 - Destinations values are not set in MappingContext
+- Fixed GH #30 - Cannot proxy types without a default constructor
+
+0.5.3 (10/22/2012)
 
 - Fixed GH #22 - Destination properties being cached by mutator
 - Fixed GH #21 - Added support for XMLGregorianCalendar conversion
