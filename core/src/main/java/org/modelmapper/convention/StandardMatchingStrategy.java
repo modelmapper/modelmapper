@@ -17,9 +17,7 @@ package org.modelmapper.convention;
 
 import java.util.List;
 
-import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.MatchingStrategy;
-import org.modelmapper.spi.PropertyInfo;
 
 /**
  * See {@link MatchingStrategies#STANDARD}.
@@ -33,13 +31,11 @@ final class StandardMatchingStrategy implements MatchingStrategy {
 
   static class Matcher {
     private final PropertyNameInfo propertyNameInfo;
-    private final List<PropertyInfo> sourceProperties;
     private final List<String[]> sourceTokens;
     private final boolean[] sourceMatches;
 
     Matcher(PropertyNameInfo propertyNameInfo) {
       this.propertyNameInfo = propertyNameInfo;
-      sourceProperties = propertyNameInfo.getSourceProperties();
       sourceTokens = propertyNameInfo.getSourcePropertyTokens();
       sourceMatches = new boolean[sourceTokens.size()];
     }
@@ -49,13 +45,20 @@ final class StandardMatchingStrategy implements MatchingStrategy {
       for (int destIndex = 0; destIndex < destTokens.size(); destIndex++) {
         String[] tokens = destTokens.get(destIndex);
 
-        for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++)
-          if (!matchSourcePropertyName(tokens[destTokenIndex])
-              && !matchSourcePropertyType(tokens[destTokenIndex])
-              && !matchSourceClass(tokens[destTokenIndex]))
-            return false;
+        for (int destTokenIndex = 0; destTokenIndex < tokens.length;) {
+          int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
+          if (matchedTokens == 0)
+            if (!matchSourcePropertyType(tokens[destTokenIndex])
+                && !matchSourceClass(tokens[destTokenIndex]))
+              return false;
+            else
+              destTokenIndex += 1;
+          else
+            destTokenIndex += matchedTokens;
+        }
       }
 
+      // Ensure that each source property has at least one token matched
       for (int i = 0; i < sourceMatches.length; i++)
         if (!sourceMatches[i] && !matchedPreviously(i))
           return false;
@@ -63,34 +66,21 @@ final class StandardMatchingStrategy implements MatchingStrategy {
       return true;
     }
 
-    boolean matchSourcePropertyName(String destination) {
+    /**
+     * Returns the number of {@code destTokens} that were matched to a source token starting at
+     * {@code destStartIndex}.
+     */
+    int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-        // Attempt to match full source property name
-        if (sourceProperties.get(sourceIndex).getName().equalsIgnoreCase(destination)) {
+        String[] srcTokens = sourceTokens.get(sourceIndex);
+        int result = matchTokens(srcTokens, destTokens, destStartIndex);
+        if (result > 0) {
           sourceMatches[sourceIndex] = true;
-          return true;
-        }
-
-        String[] tokens = sourceTokens.get(sourceIndex);
-
-        // Attempt to match individual source tokens
-        for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
-          // Attempt to match an individual token
-          if (tokens[tokenIndex].equalsIgnoreCase(destination)) {
-            sourceMatches[sourceIndex] = true;
-            return true;
-          }
-
-          // Attempt to match combined source tokens
-          if (tokenIndex != 0 && tokenIndex < tokens.length - 1
-              && Strings.contentEqualsIgnoreCase(tokenIndex + 1, tokens, destination)) {
-            sourceMatches[sourceIndex] = true;
-            return true;
-          }
+          return result;
         }
       }
 
-      return false;
+      return 0;
     }
 
     boolean matchSourcePropertyType(String destination) {
@@ -133,6 +123,50 @@ final class StandardMatchingStrategy implements MatchingStrategy {
 
       return false;
     }
+  }
+
+  /**
+   * Returns the number of {@code dst} elements that were matched to a source starting at
+   * {@code dstStartIndex}. {@code src} and {@code dst} elements can be matched in combination.
+   */
+  static int matchTokens(String[] src, String[] dst, int dstStartIndex) {
+    for (int srcStartIndex = 0; srcStartIndex < src.length; srcStartIndex++) {
+      String srcStr = src[srcStartIndex];
+      String dstStr = dst[dstStartIndex];
+
+      for (int srcIndex = srcStartIndex, dstIndex = dstStartIndex, srcCharIndex = 0, dstCharIndex = 0;;) {
+        char c1 = srcStr.charAt(srcCharIndex);
+        char c2 = dstStr.charAt(dstCharIndex);
+
+        if (Character.toUpperCase(c1) != Character.toUpperCase(c2)
+            || Character.toLowerCase(c1) != Character.toLowerCase(c2))
+          break;
+
+        if (dstCharIndex == dstStr.length() - 1) {
+          // Token match
+          if (srcCharIndex == srcStr.length() - 1)
+            return (dstIndex - dstStartIndex) + 1;
+          // Done with dest tokens
+          if (dstIndex == dst.length - 1)
+            return 0;
+
+          dstStr = dst[++dstIndex];
+          dstCharIndex = 0;
+        } else
+          dstCharIndex++;
+
+        if (srcCharIndex == srcStr.length() - 1) {
+          // Done with source tokens
+          if (srcIndex == src.length - 1)
+            return 0;
+          srcStr = src[++srcIndex];
+          srcCharIndex = 0;
+        } else
+          srcCharIndex++;
+      }
+    }
+
+    return 0;
   }
 
   public boolean isExact() {

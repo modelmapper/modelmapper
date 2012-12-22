@@ -28,9 +28,4 @@ public class StrictMatchingStrategyTest extends MatchingStrategyTestSupport {
     match("order", "cust", "addr", "value").to("order", "cust", "value").assertNoMatch();
     match("order", "cust", "addr", "value").to("order", "cust", "addr", "value").assertMatch();
   }
-
-  public void shouldMatchExactTokensOfAnyCase() {
-    match("address", "thestreetname").to("address", "theStreetName").assertMatch();
-    match("address", "theStreetName").to("address", "thestreetname").assertMatch();
-  }
 }

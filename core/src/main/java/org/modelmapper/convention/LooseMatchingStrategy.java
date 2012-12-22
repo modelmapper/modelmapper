@@ -20,7 +20,7 @@ import java.util.List;
 import org.modelmapper.spi.MatchingStrategy;
 
 /**
- * See {@link MatchingStrategies#Loose}.
+ * See {@link MatchingStrategies#LOOSE}.
  * 
  * @author Jonathan Halterman
  */
