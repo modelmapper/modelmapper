@@ -1,3 +1,7 @@
+0.5.5
+
+- FIxed GH #23 - Support for combined token matching
+
 0.5.4 (12/22/2012)
 
 - Fixed GH #18 - Updated manifest.mf to contain OSGI bundle information for shaded packages
