@@ -29,14 +29,11 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     return new Matcher(propertyNameInfo).match();
   }
 
-  static class Matcher {
-    private final PropertyNameInfo propertyNameInfo;
-    private final List<String[]> sourceTokens;
+  static class Matcher extends InexactMatcher {
     private final boolean[] sourceMatches;
 
     Matcher(PropertyNameInfo propertyNameInfo) {
-      this.propertyNameInfo = propertyNameInfo;
-      this.sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+      super(propertyNameInfo);
       sourceMatches = new boolean[sourceTokens.size()];
     }
 
@@ -45,13 +42,20 @@ final class StandardMatchingStrategy implements MatchingStrategy {
       for (int destIndex = 0; destIndex < destTokens.size(); destIndex++) {
         String[] tokens = destTokens.get(destIndex);
 
-        for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++)
-          if (!matchSourcePropertyName(tokens[destTokenIndex])
-              && !matchSourcePropertyType(tokens[destTokenIndex])
-              && !matchSourceClass(tokens[destTokenIndex]))
-            return false;
+        for (int destTokenIndex = 0; destTokenIndex < tokens.length;) {
+          int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
+          if (matchedTokens == 0)
+            if (matchSourcePropertyType(tokens[destTokenIndex])
+                || matchSourceClass(tokens[destTokenIndex]))
+              destTokenIndex += 1;
+            else
+              return false;
+          else
+            destTokenIndex += matchedTokens;
+        }
       }
 
+      // Ensure that each source property has at least one token matched
       for (int i = 0; i < sourceMatches.length; i++)
         if (!sourceMatches[i] && !matchedPreviously(i))
           return false;
@@ -59,37 +63,21 @@ final class StandardMatchingStrategy implements MatchingStrategy {
       return true;
     }
 
-    boolean matchSourcePropertyName(String destination) {
+    /**
+     * Returns the number of {@code destTokens} that were matched to a source token starting at
+     * {@code destStartIndex}.
+     */
+    int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-        String[] tokens = sourceTokens.get(sourceIndex);
-        for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
-          if (tokens[tokenIndex].equalsIgnoreCase(destination)) {
-            sourceMatches[sourceIndex] = true;
-            return true;
-          }
+        String[] srcTokens = sourceTokens.get(sourceIndex);
+        int matched = matchTokens(srcTokens, destTokens, destStartIndex);
+        if (matched > 0) {
+          sourceMatches[sourceIndex] = true;
+          return matched;
         }
       }
 
-      return false;
-    }
-
-    boolean matchSourcePropertyType(String destination) {
-      for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-        String[] tokens = propertyNameInfo.getSourcePropertyTypeTokens().get(sourceIndex);
-        for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
-          if (tokens[tokenIndex].equalsIgnoreCase(destination))
-            return true;
-      }
-
-      return false;
-    }
-
-    boolean matchSourceClass(String destination) {
-      String[] tokens = propertyNameInfo.getSourceClassTokens();
-      for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
-        if (tokens[tokenIndex].equalsIgnoreCase(destination))
-          return true;
-      return false;
+      return 0;
     }
 
     /**

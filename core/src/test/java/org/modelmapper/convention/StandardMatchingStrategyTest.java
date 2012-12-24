@@ -25,8 +25,8 @@ public class StandardMatchingStrategyTest extends InexactMatchingStrategyTest {
 
   /**
    * <pre>
-   * a/b/c <> ac
-   * a/b/c <> a/c
+   * a/b/c <> aC
+   * a/b/c <> a/C
    * </pre>
    */
   public void shouldNotMatchMissingDestinationToken() {

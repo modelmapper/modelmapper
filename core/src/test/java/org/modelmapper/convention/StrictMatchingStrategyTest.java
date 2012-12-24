@@ -25,7 +25,6 @@ public class StrictMatchingStrategyTest extends MatchingStrategyTestSupport {
     match("address").$("street").to("addressStreet").assertNoMatch();
     match("address", "street").to("address", "street").assertMatch();
     match("address", "streetName").to("address", "streetName").assertMatch();
-    match("address", "streetName").to("address", "streetName").assertMatch();
     match("order", "cust", "addr", "value").to("order", "cust", "value").assertNoMatch();
     match("order", "cust", "addr", "value").to("order", "cust", "addr", "value").assertMatch();
   }

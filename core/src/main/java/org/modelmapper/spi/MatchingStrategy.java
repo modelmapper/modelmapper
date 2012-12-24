@@ -30,6 +30,11 @@ public interface MatchingStrategy {
    */
   public interface PropertyNameInfo {
     /**
+     * Returns the destination properties.
+     */
+    List<PropertyInfo> getDestinationProperties();
+
+    /**
      * Returns transformed name tokens for the destination property.
      */
     List<String[]> getDestinationPropertyTokens();
@@ -40,10 +45,15 @@ public interface MatchingStrategy {
     String[] getSourceClassTokens();
 
     /**
+     * Returns the source properties.
+     */
+    List<PropertyInfo> getSourceProperties();
+    
+    /**
      * Returns transformed name tokens for the source property.
      */
     List<String[]> getSourcePropertyTokens();
-
+    
     /**
      * Returns transformed name tokens for each source property type.
      */

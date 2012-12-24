@@ -47,6 +47,7 @@ public class MatchingStrategies {
    * <li>Tokens can be matched in <i>any</i> order</li>
    * <li>All destination property name tokens must be matched</li>
    * <li>All source property names must have at least one token matched</li>
+   * <li>Tokens can be combined and matched in order</li>
    * </ul>
    */
   public static final MatchingStrategy STANDARD = new StandardMatchingStrategy();
