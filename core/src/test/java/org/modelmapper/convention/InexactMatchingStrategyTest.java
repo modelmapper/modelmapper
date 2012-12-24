@@ -71,7 +71,8 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
     match(String.class, "artistName").to("artist", "name").assertMatch();
     match(String.class, "customerAddressStreet").to("customer", "address", "street").assertMatch();
     match(Address.class, "customerAddress").$(String.class, "street")
-        .to("customer", "address", "street").assertMatch();
+        .to("customer", "address", "street")
+        .assertMatch();
   }
 
   /**
@@ -85,10 +86,14 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
   public void shouldMatchGreaterSourceHierarchy() {
     match(Artist.class, "artist").$(String.class, "name").to("artistName").assertMatch();
     match(Address.class, "homeAddress").$(String.class, "street").to("homeStreet").assertMatch();
-    match(Customer.class, "customer").$(Address.class, "address").$(String.class, "street")
-        .to("customerAddressStreet").assertMatch();
-    match(Customer.class, "customer").$(Address.class, "address").$(String.class, "street")
-        .to("customerAddress", "street").assertMatch();
+    match(Customer.class, "customer").$(Address.class, "address")
+        .$(String.class, "street")
+        .to("customerAddressStreet")
+        .assertMatch();
+    match(Customer.class, "customer").$(Address.class, "address")
+        .$(String.class, "street")
+        .to("customerAddress", "street")
+        .assertMatch();
   }
 
   /**
@@ -102,10 +107,14 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
   public void shouldMatchInverted() {
     match(String.class, "addressStreet").to("streetAddress").assertMatch();
     match(Address.class, "address").$(String.class, "street").to("streetAddress").assertMatch();
-    match(Customer.class, "customer").$(Name.class, "name").$(String.class, "first")
-        .to("customerFirstName").assertMatch();
-    match(Customer.class, "customer").$(Name.class, "name").$(String.class, "first")
-        .to("customer", "firstName").assertMatch();
+    match(Customer.class, "customer").$(Name.class, "name")
+        .$(String.class, "first")
+        .to("customerFirstName")
+        .assertMatch();
+    match(Customer.class, "customer").$(Name.class, "name")
+        .$(String.class, "first")
+        .to("customer", "firstName")
+        .assertMatch();
   }
 
   /**
@@ -119,7 +128,8 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
   public void shouldMatchInvertedClass() {
     match(Address.class, "home").$(String.class, "street").to("homeAddressStreet");
     match(Address.class, "home").$(String.class, "street").to("homeStreetAddress");
-    match(Address.class, "home").$(String.class, "street").to("homeAddress", "street")
+    match(Address.class, "home").$(String.class, "street")
+        .to("homeAddress", "street")
         .assertMatch();
   }
 
@@ -149,8 +159,10 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
     match(Address.class, "address").$(String.class, "address").to("address").assertMatch();
     match(Object.class, "address").$(String.class, "address").to("address").assertMatch();
     match(Address.class, "address").$(String.class, "address").to("addressAddress").assertMatch();
-    match(Address.class, "address").$(Object.class, "address").$(String.class, "foo")
-        .to("addressFoo").assertMatch();
+    match(Address.class, "address").$(Object.class, "address")
+        .$(String.class, "foo")
+        .to("addressFoo")
+        .assertMatch();
   }
 
   /**
@@ -178,5 +190,20 @@ public class InexactMatchingStrategyTest extends MatchingStrategyTestSupport {
    */
   public void shouldNotMatchClassAlone() {
     match(String.class, "value").to("address").assertNoMatch();
+  }
+
+  /**
+   * <pre>
+   * abc -> a/B/C
+   * aa/bb/cc -> aabb
+   * street/address -> streetaddress
+   * streetaddress -> street/address
+   * </pre>
+   */
+  public void shouldMatchCombinedTokens() {
+    match("aabbcc").to("aaBbCc").assertMatch();
+    match("ooAaBbCc").to("aabb").assertMatch();
+    match("streetAddress").to("streetaddress").assertMatch();
+    match("streetaddress").to("streetAddress").assertMatch();
   }
 }

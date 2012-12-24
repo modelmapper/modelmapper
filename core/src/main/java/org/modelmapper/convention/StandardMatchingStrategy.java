@@ -29,14 +29,11 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     return new Matcher(propertyNameInfo).match();
   }
 
-  static class Matcher {
-    private final PropertyNameInfo propertyNameInfo;
-    private final List<String[]> sourceTokens;
+  static class Matcher extends InexactMatcher {
     private final boolean[] sourceMatches;
 
     Matcher(PropertyNameInfo propertyNameInfo) {
-      this.propertyNameInfo = propertyNameInfo;
-      sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+      super(propertyNameInfo);
       sourceMatches = new boolean[sourceTokens.size()];
     }
 
@@ -48,11 +45,11 @@ final class StandardMatchingStrategy implements MatchingStrategy {
         for (int destTokenIndex = 0; destTokenIndex < tokens.length;) {
           int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
           if (matchedTokens == 0)
-            if (!matchSourcePropertyType(tokens[destTokenIndex])
-                && !matchSourceClass(tokens[destTokenIndex]))
-              return false;
-            else
+            if (matchSourcePropertyType(tokens[destTokenIndex])
+                || matchSourceClass(tokens[destTokenIndex]))
               destTokenIndex += 1;
+            else
+              return false;
           else
             destTokenIndex += matchedTokens;
         }
@@ -73,33 +70,14 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
         String[] srcTokens = sourceTokens.get(sourceIndex);
-        int result = matchTokens(srcTokens, destTokens, destStartIndex);
-        if (result > 0) {
+        int matched = matchTokens(srcTokens, destTokens, destStartIndex);
+        if (matched > 0) {
           sourceMatches[sourceIndex] = true;
-          return result;
+          return matched;
         }
       }
 
       return 0;
-    }
-
-    boolean matchSourcePropertyType(String destination) {
-      for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-        String[] tokens = propertyNameInfo.getSourcePropertyTypeTokens().get(sourceIndex);
-        for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
-          if (tokens[tokenIndex].equalsIgnoreCase(destination))
-            return true;
-      }
-
-      return false;
-    }
-
-    boolean matchSourceClass(String destination) {
-      String[] tokens = propertyNameInfo.getSourceClassTokens();
-      for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
-        if (tokens[tokenIndex].equalsIgnoreCase(destination))
-          return true;
-      return false;
     }
 
     /**
@@ -123,50 +101,6 @@ final class StandardMatchingStrategy implements MatchingStrategy {
 
       return false;
     }
-  }
-
-  /**
-   * Returns the number of {@code dst} elements that were matched to a source starting at
-   * {@code dstStartIndex}. {@code src} and {@code dst} elements can be matched in combination.
-   */
-  static int matchTokens(String[] src, String[] dst, int dstStartIndex) {
-    for (int srcStartIndex = 0; srcStartIndex < src.length; srcStartIndex++) {
-      String srcStr = src[srcStartIndex];
-      String dstStr = dst[dstStartIndex];
-
-      for (int srcIndex = srcStartIndex, dstIndex = dstStartIndex, srcCharIndex = 0, dstCharIndex = 0;;) {
-        char c1 = srcStr.charAt(srcCharIndex);
-        char c2 = dstStr.charAt(dstCharIndex);
-
-        if (Character.toUpperCase(c1) != Character.toUpperCase(c2)
-            || Character.toLowerCase(c1) != Character.toLowerCase(c2))
-          break;
-
-        if (dstCharIndex == dstStr.length() - 1) {
-          // Token match
-          if (srcCharIndex == srcStr.length() - 1)
-            return (dstIndex - dstStartIndex) + 1;
-          // Done with dest tokens
-          if (dstIndex == dst.length - 1)
-            return 0;
-
-          dstStr = dst[++dstIndex];
-          dstCharIndex = 0;
-        } else
-          dstCharIndex++;
-
-        if (srcCharIndex == srcStr.length() - 1) {
-          // Done with source tokens
-          if (srcIndex == src.length - 1)
-            return 0;
-          srcStr = src[++srcIndex];
-          srcCharIndex = 0;
-        } else
-          srcCharIndex++;
-      }
-    }
-
-    return 0;
   }
 
   public boolean isExact() {

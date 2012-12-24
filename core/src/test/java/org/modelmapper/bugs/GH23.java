@@ -3,6 +3,7 @@ package org.modelmapper.bugs;
 import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.AbstractTest;
+import org.modelmapper.convention.MatchingStrategies;
 import org.testng.annotations.Test;
 
 /**
@@ -23,7 +24,16 @@ public class GH23 extends AbstractTest {
     Integer samplefield1;
   }
 
-  public void test() {
+  public void testWithStandardMatchingStartegy() {
+    mapAndAssert();
+  }
+
+  public void testWithLooseMatchingStrategy() {
+    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+    mapAndAssert();
+  }
+
+  private void mapAndAssert() {
     Source source = new Source();
     source.sampleField1 = Integer.valueOf(5);
     source.samplefield1 = Integer.valueOf(8);

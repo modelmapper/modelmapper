@@ -30,60 +30,53 @@ final class LooseMatchingStrategy implements MatchingStrategy {
   }
 
   /**
-   * Since this strategy only requires matching the last token, property and token iteration is done
-   * in reverse.
+   * Since this strategy only requires matching the last source and destination properties, property
+   * iteration is done in reverse.
    */
-  static class Matcher {
-    private final PropertyNameInfo propertyNameInfo;
-    private final List<String[]> sourceTokens;
+  static class Matcher extends InexactMatcher {
     boolean lastSourceMatched;
+    boolean lastDestinationMatched;
 
     Matcher(PropertyNameInfo propertyNameInfo) {
-      this.propertyNameInfo = propertyNameInfo;
-      sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+      super(propertyNameInfo);
     }
 
     boolean match() {
       List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+
+      // Match the last destination property first
       for (int destIndex = destTokens.size() - 1; destIndex >= 0 && !lastSourceMatched; destIndex--) {
         String[] tokens = destTokens.get(destIndex);
 
-        for (int destTokenIndex = tokens.length - 1; destTokenIndex >= 0; destTokenIndex--)
-          if (!matchSource(tokens[destTokenIndex]))
-            return false;
+        for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++) {
+          int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
+          if (destIndex == destTokens.size() - 1
+              && (matchedTokens > 0 || matchSourcePropertyType(tokens[destTokenIndex]) || matchSourceClass(tokens[destTokenIndex])))
+            lastDestinationMatched = true;
+          if (matchedTokens > 1)
+            destTokenIndex += (matchedTokens - 1);
+        }
       }
 
-      return lastSourceMatched;
+      return lastSourceMatched && lastDestinationMatched;
     }
 
-    boolean matchSource(String destination) {
+    /**
+     * Returns the number of {@code destTokens} that were matched to a source token starting at
+     * {@code destStartIndex}.
+     */
+    int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
       for (int sourceIndex = sourceTokens.size() - 1; sourceIndex >= 0; sourceIndex--) {
-        String[] tokens = sourceTokens.get(sourceIndex);
-        for (int tokenIndex = tokens.length - 1; tokenIndex >= 0; tokenIndex--) {
-          if (tokens[tokenIndex].equalsIgnoreCase(destination)) {
-            if (sourceIndex == sourceTokens.size() - 1)
-              lastSourceMatched = true;
-            return true;
-          }
-        }
-
-        tokens = propertyNameInfo.getSourcePropertyTypeTokens().get(sourceIndex);
-        for (int tokenIndex = tokens.length - 1; tokenIndex >= 0; tokenIndex--) {
-          if (tokens[tokenIndex].equalsIgnoreCase(destination)) {
-            return true;
-          }
-        }
-
-        if (sourceIndex == 0) {
-          tokens = propertyNameInfo.getSourceClassTokens();
-          for (int tokenIndex = tokens.length - 1; tokenIndex >= 0; tokenIndex--) {
-            if (tokens[tokenIndex].equalsIgnoreCase(destination))
-              return true;
-          }
+        String[] srcTokens = sourceTokens.get(sourceIndex);
+        int matched = matchTokens(srcTokens, destTokens, destStartIndex);
+        if (matched > 0) {
+          if (sourceIndex == sourceTokens.size() - 1)
+            lastSourceMatched = true;
+          return matched;
         }
       }
 
-      return false;
+      return 0;
     }
   }
 

@@ -34,6 +34,12 @@ public class LooseMatchingStrategyTest extends InexactMatchingStrategyTest {
     match(Address.class, "address").$(String.class, "city").to("address", "city").assertMatch();
   }
 
+  public void shouldMatchLastTokens() {
+    match("a", "x", "c").to("c", "y", "a").assertMatch();
+    match("d", "a", "b").to("b", "d").assertMatch();
+    match("a", "b", "c", "d").to("d", "b").assertMatch();
+  }
+
   /**
    * <pre>
    * Address address/String city <> address
