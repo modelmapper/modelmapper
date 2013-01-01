@@ -83,4 +83,9 @@ final class LooseMatchingStrategy implements MatchingStrategy {
   public boolean isExact() {
     return false;
   }
+
+  @Override
+  public String toString() {
+    return "Loose";
+  }
 }
