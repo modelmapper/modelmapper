@@ -32,11 +32,15 @@ public class NameTokenizers {
   public static final NameTokenizer CAMEL_CASE = new CamelCaseNameTokenizer();
 
   private static class CamelCaseNameTokenizer implements NameTokenizer {
-    private static final Pattern camelCase = Pattern
-        .compile("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
+    private static final Pattern camelCase = Pattern.compile("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
 
     public String[] tokenize(String name, NameableType nameableType) {
       return camelCase.split(name);
+    }
+
+    @Override
+    public String toString() {
+      return "Camel Case";
     }
   }
 }

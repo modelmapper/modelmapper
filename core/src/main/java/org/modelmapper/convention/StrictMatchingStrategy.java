@@ -49,4 +49,9 @@ final class StrictMatchingStrategy implements MatchingStrategy {
 
     return true;
   }
+
+  @Override
+  public String toString() {
+    return "Strict";
+  }
 }

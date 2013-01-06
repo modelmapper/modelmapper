@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 
 /**
  * @author Jonathan Halterman
+ * @see {@link org.modelmapper.bugs.GH6} for additional null behavior tests
  */
 @Test(groups = "functional")
 public class NullBehavior extends AbstractTest {

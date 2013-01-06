@@ -243,28 +243,25 @@ public class MappingEngineImpl implements MappingEngine {
         if (destinationValue == null)
           context.shadePath(mapping.getPath());
       } else {
-        Object intermediateDest = null;
+        // Obtain from cache
+        Object intermediateDest = context.destinationCache.get(destPath);
 
-        // Obtain from existing destinations
-        if (!context.intermediateDestinations.isEmpty()) {
-          for (Object intermediateDestination : context.intermediateDestinations) {
-            // Match intermediate destinations to mutator by type
-            if (intermediateDestination.getClass().equals(mutator.getType())) {
-              intermediateDest = intermediateDestination;
-              context.destinationCache.put(destPath, intermediateDest);
-              mutator.setValue(destination, intermediateDest);
-              break;
+        if (intermediateDest != null) {
+          mutator.setValue(destination, intermediateDest);
+        } else {
+          // Obtain from circular destinations
+          if (!context.intermediateDestinations.isEmpty()) {
+            for (Object intermediateDestination : context.intermediateDestinations) {
+              // Match intermediate destinations to mutator by type
+              if (intermediateDestination.getClass().equals(mutator.getType())) {
+                intermediateDest = intermediateDestination;
+                mutator.setValue(destination, intermediateDest);
+                break;
+              }
             }
           }
-        }
 
-        // Obtain from cache
-        if (intermediateDest == null) {
-          intermediateDest = context.destinationCache.get(destPath);
-
-          if (intermediateDest != null) {
-            mutator.setValue(destination, intermediateDest);
-          } else {
+          if (intermediateDest == null) {
             // Obtain from accessor on provided destination
             if (context.providedDestination) {
               Accessor accessor = TypeInfoRegistry.typeInfoFor(destination.getClass(),
@@ -277,19 +274,23 @@ public class MappingEngineImpl implements MappingEngine {
 
             // Obtain from new instance
             if (intermediateDest == null) {
-              // Via global provider
-              if (configuration.getProvider() != null)
-                intermediateDest = configuration.getProvider().get(
-                    new ProvisionRequestImpl(context.parentSource(), mutator.getType()));
+              if (propertyContext.getSource() == null)
+                return;
+
+              Provider<?> globalProvider = configuration.getProvider();
+              if (globalProvider != null)
+                intermediateDest = globalProvider.get(new ProvisionRequestImpl(
+                    context.parentSource(), mutator.getType()));
               else
                 intermediateDest = instantiate(mutator.getType(), context.errors);
               if (intermediateDest == null)
                 return;
 
-              context.destinationCache.put(destPath, intermediateDest);
               mutator.setValue(destination, intermediateDest);
             }
           }
+
+          context.destinationCache.put(destPath, intermediateDest);
         }
 
         destination = intermediateDest;

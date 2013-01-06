@@ -41,6 +41,11 @@ public class NameTransformers {
 
       return name;
     }
+
+    @Override
+    public String toString() {
+      return "Javabeans Accessor";
+    }
   };
 
   /**
@@ -52,6 +57,11 @@ public class NameTransformers {
       if (NameableType.METHOD.equals(nameableType) && name.startsWith("set"))
         return Introspector.decapitalize(name.substring(3));
       return name;
+    }
+
+    @Override
+    public String toString() {
+      return "Javabeans Mutator";
     }
   };
 }

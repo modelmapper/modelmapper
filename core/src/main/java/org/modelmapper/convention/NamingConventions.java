@@ -29,8 +29,13 @@ public class NamingConventions {
    */
   public static final NamingConvention JAVABEANS_ACCESSOR = new NamingConvention() {
     public boolean applies(String propertyName, PropertyType propertyType) {
-      return (PropertyType.FIELD.equals(propertyType) || propertyName.startsWith("get") || propertyName
-          .startsWith("is"));
+      return PropertyType.FIELD.equals(propertyType) || propertyName.startsWith("get")
+          || propertyName.startsWith("is");
+    }
+
+    @Override
+    public String toString() {
+      return "Javabeans Accessor";
     }
   };
 
@@ -39,7 +44,12 @@ public class NamingConventions {
    */
   public static final NamingConvention JAVABEANS_MUTATOR = new NamingConvention() {
     public boolean applies(String propertyName, PropertyType propertyType) {
-      return (PropertyType.FIELD.equals(propertyType) || propertyName.startsWith("set"));
+      return PropertyType.FIELD.equals(propertyType) || propertyName.startsWith("set");
+    }
+
+    @Override
+    public String toString() {
+      return "Javabeans Mutator";
     }
   };
 
@@ -51,6 +61,11 @@ public class NamingConventions {
   public static final NamingConvention NONE = new NamingConvention() {
     public boolean applies(String propertyName, PropertyType propertyType) {
       return true;
+    }
+
+    @Override
+    public String toString() {
+      return "None";
     }
   };
 }

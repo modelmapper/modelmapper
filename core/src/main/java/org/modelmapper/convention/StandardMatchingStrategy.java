@@ -106,4 +106,9 @@ final class StandardMatchingStrategy implements MatchingStrategy {
   public boolean isExact() {
     return false;
   }
+
+  @Override
+  public String toString() {
+    return "Standard";
+  }
 }
