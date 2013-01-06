@@ -42,6 +42,6 @@ public class ShadedNestedMapping extends AbstractTest {
 
     modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
     DestOne dest = modelMapper.map(a, DestOne.class);
-    assertNull(dest.two.three.value);
+    assertNull(dest.two);
   }
 }

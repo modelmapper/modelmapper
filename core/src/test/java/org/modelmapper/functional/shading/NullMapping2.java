@@ -64,10 +64,7 @@ public class NullMapping2 extends AbstractTest {
     ContainerDTO dto = modelMapper.map(c, ContainerDTO.class);
     for (int i = 0; i < dto.items.size(); i++)
       if (i == 2) {
-        // TODO this line should pass since the source message is null
-        // assertNull(dto.items.get(i).message);
-        assertNull(dto.items.get(i).message.value1);
-        assertNull(dto.items.get(i).message.value2);
+        assertNull(dto.items.get(i).message);
       } else {
         assertNotNull(dto.items.get(i).message.value1);
         assertNotNull(dto.items.get(i).message.value2);
