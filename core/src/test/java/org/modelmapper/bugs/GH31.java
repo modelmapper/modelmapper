@@ -45,4 +45,19 @@ public class GH31 extends AbstractTest {
     assertEquals(dest.product.label, source.product.label);
     assertEquals(dest.product.catalog, dest);
   }
+
+  public void test2() {
+    ProductOne source = new ProductOne();
+    source.label = "catalog1";
+    source.catalog = new CatalogOne();
+    source.catalog.label = "product1";
+    source.catalog.product = source;
+
+    ProductTwo dest = modelMapper.map(source, ProductTwo.class);
+
+    assertTrue(dest.catalog instanceof CatalogTwo);
+    assertEquals(dest.label, source.label);
+    assertEquals(dest.catalog.label, source.catalog.label);
+    assertEquals(dest.catalog.product, dest);
+  }
 }
