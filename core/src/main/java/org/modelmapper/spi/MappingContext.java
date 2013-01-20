@@ -16,6 +16,7 @@
 package org.modelmapper.spi;
 
 import org.modelmapper.TypeMap;
+import org.modelmapper.TypeToken;
 
 /**
  * Maintains context during the mapping of a source object of type {@code S} to a destination object
@@ -47,6 +48,11 @@ public interface MappingContext<S, D> {
    * Returns the destination type being mapped to.
    */
   Class<D> getDestinationType();
+
+  /**
+   * Returns the TypeToken for the destination type being mapped to.
+   */
+  TypeToken<D> getDestinationTypeToken();
 
   /**
    * Returns the mapping associated with the mapping request else {@code null} if the request did

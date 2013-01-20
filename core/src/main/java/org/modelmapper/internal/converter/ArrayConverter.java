@@ -16,9 +16,11 @@
 package org.modelmapper.internal.converter;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.util.Collection;
 
 import org.modelmapper.internal.util.Iterables;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -39,6 +41,9 @@ class ArrayConverter extends IterableConverter<Object, Object> {
 
   @Override
   protected Class<?> getElementType(MappingContext<Object, Object> context) {
+    if (context.getDestinationTypeToken().getType() instanceof GenericArrayType)
+      return Types.rawTypeFor((GenericArrayType) context.getDestinationTypeToken().getType())
+          .getComponentType();
     return context.getDestinationType().getComponentType();
   }
 
