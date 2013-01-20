@@ -15,8 +15,9 @@
  */
 package org.modelmapper.spi;
 
+import java.lang.reflect.Type;
+
 import org.modelmapper.TypeMap;
-import org.modelmapper.TypeToken;
 
 /**
  * Maintains context during the mapping of a source object of type {@code S} to a destination object
@@ -50,9 +51,9 @@ public interface MappingContext<S, D> {
   Class<D> getDestinationType();
 
   /**
-   * Returns the TypeToken for the destination type being mapped to.
+   * Returns the generic destination type.
    */
-  TypeToken<D> getDestinationTypeToken();
+  Type getGenericDestinationType();
 
   /**
    * Returns the mapping associated with the mapping request else {@code null} if the request did

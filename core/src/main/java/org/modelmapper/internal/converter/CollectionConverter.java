@@ -61,8 +61,8 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
       Class<?> elementType = TypeResolver.resolveArgument(destInfo.getGenericType(),
           destInfo.getInitialType());
       return elementType == Unknown.class ? Object.class : elementType;
-    } else if (context.getDestinationTypeToken().getType() instanceof ParameterizedType)
-      return Types.rawTypeFor(((ParameterizedType) context.getDestinationTypeToken().getType()).getActualTypeArguments()[0]);
+    } else if (context.getGenericDestinationType() instanceof ParameterizedType)
+      return Types.rawTypeFor(((ParameterizedType) context.getGenericDestinationType()).getActualTypeArguments()[0]);
 
     return Object.class;
   }

@@ -60,9 +60,10 @@ public class MappingEngineImpl implements MappingEngine {
   /**
    * Initial entry point.
    */
-  public <S, D> D map(S source, Class<S> sourceType, D destination, TypeToken<D> destinationType) {
+  public <S, D> D map(S source, Class<S> sourceType, D destination,
+      TypeToken<D> destinationTypeToken) {
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationType, this);
+        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(), this);
     D result = null;
 
     try {
@@ -72,7 +73,7 @@ public class MappingEngineImpl implements MappingEngine {
     } catch (ErrorsException e) {
       throw context.errors.toMappingException();
     } catch (Throwable t) {
-      context.errors.errorMapping(sourceType, destinationType.getType(), t);
+      context.errors.errorMapping(sourceType, destinationTypeToken.getType(), t);
     }
 
     context.errors.throwMappingExceptionIfErrorsExist();
@@ -320,8 +321,8 @@ public class MappingEngineImpl implements MappingEngine {
     }
 
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
-    return new MappingContextImpl(context, source, sourceType, null, TypeToken.of(destinationType),
-        mapping, !cyclic);
+    return new MappingContextImpl(context, source, sourceType, null, destinationType, mapping,
+        !cyclic);
   }
 
   /**

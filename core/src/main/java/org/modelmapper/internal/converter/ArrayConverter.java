@@ -41,8 +41,8 @@ class ArrayConverter extends IterableConverter<Object, Object> {
 
   @Override
   protected Class<?> getElementType(MappingContext<Object, Object> context) {
-    if (context.getDestinationTypeToken().getType() instanceof GenericArrayType)
-      return Types.rawTypeFor((GenericArrayType) context.getDestinationTypeToken().getType())
+    if (context.getGenericDestinationType() instanceof GenericArrayType)
+      return Types.rawTypeFor((GenericArrayType) context.getGenericDestinationType())
           .getComponentType();
     return context.getDestinationType().getComponentType();
   }

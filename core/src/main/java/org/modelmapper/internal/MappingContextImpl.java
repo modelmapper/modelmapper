@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -23,7 +24,6 @@ import java.util.Map;
 
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
-import org.modelmapper.TypeToken;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -46,7 +46,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   final Errors errors;
   @SuppressWarnings("unused") private final MappingContextImpl<?, ?> parent;
   private D destination;
-  private final TypeToken<D> destinationType;
+  private final Class<D> destinationType;
+  private final Type genericDestinationType;
   /** Whether requested mapping is to a provided destination object */
   final boolean providedDestination;
   private Mapping mapping;
@@ -62,13 +63,15 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   /**
    * Create initial MappingContext.
    */
-  public MappingContextImpl(S source, Class<S> sourceType, D destination,
-      TypeToken<D> destinationType, MappingEngine mappingEngine) {
+  public MappingContextImpl(S source, Class<S> sourceType, D destination, Class<D> destinationType,
+      Type genericDestinationType, MappingEngine mappingEngine) {
     parent = null;
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
+    this.genericDestinationType = genericDestinationType == null ? destinationType
+        : genericDestinationType;
     providedDestination = destination != null;
     this.mappingEngine = mappingEngine;
     errors = new Errors();
@@ -84,12 +87,13 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, TypeToken<D> destinationType, Mapping mapping, boolean inheritValues) {
+      D destination, Class<D> destinationType, Mapping mapping, boolean inheritValues) {
     this.parent = context;
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
+    this.genericDestinationType = destinationType;
     this.providedDestination = context.providedDestination;
     this.typeMap = null;
     this.parentTypeMap = context.typeMap;
@@ -108,7 +112,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
-        TypeToken.<CD>of(destinationType), mapping, false);
+        destinationType, mapping, false);
   }
 
   @Override
@@ -133,11 +137,11 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   public Class<D> getDestinationType() {
-    return destinationType.getRawType();
+    return destinationType;
   }
 
-  public TypeToken<D> getDestinationTypeToken() {
-    return destinationType;
+  public Type getGenericDestinationType() {
+    return genericDestinationType;
   }
 
   public Mapping getMapping() {
@@ -149,7 +153,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   public Class<D> getRequestedType() {
-    return destinationType.getRawType();
+    return destinationType;
   }
 
   public S getSource() {
@@ -177,7 +181,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   @Override
   public String toString() {
     return String.format("MappingContext[%s -> %s]", source.getClass().getSimpleName(),
-        destinationType.getRawType().getSimpleName());
+        destinationType.getSimpleName());
   }
 
   @SuppressWarnings("unchecked")

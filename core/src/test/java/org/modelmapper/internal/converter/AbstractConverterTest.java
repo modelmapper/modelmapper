@@ -4,7 +4,6 @@ import static org.testng.Assert.fail;
 
 import org.modelmapper.Fixtures;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.modelmapper.internal.InheritingConfiguration;
 import org.modelmapper.internal.MappingContextImpl;
 import org.modelmapper.internal.MappingEngineImpl;
@@ -45,8 +44,7 @@ public abstract class AbstractConverterTest {
   @SuppressWarnings("unchecked")
   protected Object convert(Object source) {
     return converter.convert(new MappingContextImpl<Object, Object>(source,
-        (Class<Object>) source.getClass(), null, destinationType == null ? null
-            : TypeToken.of(destinationType), engine));
+        (Class<Object>) source.getClass(), null, destinationType, null, engine));
   }
 
   /**
@@ -56,7 +54,7 @@ public abstract class AbstractConverterTest {
   @SuppressWarnings("unchecked")
   protected Object convert(Object source, Class<?> destinationType) {
     return converter.convert(new MappingContextImpl<Object, Object>(source,
-        (Class<Object>) source.getClass(), null, TypeToken.of(destinationType), engine));
+        (Class<Object>) source.getClass(), null, (Class<Object>) destinationType, null, engine));
   }
 
   protected void assertInvalid(Object source, Class<?> destinationType) {

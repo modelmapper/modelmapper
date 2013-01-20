@@ -96,7 +96,7 @@ public class TypeToken<T> {
   }
 
   /**
-   * Returns the represented type {@code T}.
+   * Returns the generic type {@code T}.
    */
   public final Type getType() {
     return type;
