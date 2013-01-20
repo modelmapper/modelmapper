@@ -26,6 +26,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
+import org.modelmapper.TypeToken;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
@@ -130,7 +131,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public D map(S source) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, null,
-        destinationType, engine);
+        TypeToken.<D>of(destinationType), engine);
     D result = null;
 
     try {
@@ -146,7 +147,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public void map(S source, D destination) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationType, engine);
+        destination, TypeToken.<D>of(destinationType), engine);
 
     try {
       engine.typeMap(context, this);

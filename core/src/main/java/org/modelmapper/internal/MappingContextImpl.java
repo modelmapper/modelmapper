@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
+import org.modelmapper.TypeToken;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -45,7 +46,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   final Errors errors;
   @SuppressWarnings("unused") private final MappingContextImpl<?, ?> parent;
   private D destination;
-  private final Class<D> destinationType;
+  private final TypeToken<D> destinationType;
   /** Whether requested mapping is to a provided destination object */
   final boolean providedDestination;
   private Mapping mapping;
@@ -61,8 +62,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   /**
    * Create initial MappingContext.
    */
-  public MappingContextImpl(S source, Class<S> sourceType, D destination, Class<D> destinationType,
-      MappingEngine mappingEngine) {
+  public MappingContextImpl(S source, Class<S> sourceType, D destination,
+      TypeToken<D> destinationType, MappingEngine mappingEngine) {
     parent = null;
     this.source = source;
     this.sourceType = sourceType;
@@ -83,7 +84,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, Class<D> destinationType, Mapping mapping, boolean inheritValues) {
+      D destination, TypeToken<D> destinationType, Mapping mapping, boolean inheritValues) {
     this.parent = context;
     this.source = source;
     this.sourceType = sourceType;
@@ -107,7 +108,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
-        destinationType, mapping, false);
+        TypeToken.<CD>of(destinationType), mapping, false);
   }
 
   @Override
@@ -132,6 +133,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   public Class<D> getDestinationType() {
+    return destinationType.getRawType();
+  }
+
+  public TypeToken<D> getDestinationTypeToken() {
     return destinationType;
   }
 
@@ -144,7 +149,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   public Class<D> getRequestedType() {
-    return destinationType;
+    return destinationType.getRawType();
   }
 
   public S getSource() {
@@ -153,6 +158,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   public Class<S> getSourceType() {
     return sourceType;
+  }
+
+  public TypeMap<S, D> getTypeMap() {
+    return typeMap;
   }
 
   @Override
@@ -168,11 +177,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   @Override
   public String toString() {
     return String.format("MappingContext[%s -> %s]", source.getClass().getSimpleName(),
-        destinationType.getSimpleName());
-  }
-
-  public TypeMap<S, D> getTypeMap() {
-    return typeMap;
+        destinationType.getRawType().getSimpleName());
   }
 
   @SuppressWarnings("unchecked")

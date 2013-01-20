@@ -27,9 +27,9 @@ public final class Assert {
       throw new IllegalArgumentException();
   }
 
-  public static void isNull(Object object, String message) {
+  public static void isNull(Object object, String message, Object... args) {
     if (object != null)
-      throw new IllegalArgumentException(message);
+      throw new IllegalArgumentException(String.format(message, args));
   }
 
   public static void isTrue(boolean expression) {
@@ -37,9 +37,9 @@ public final class Assert {
       throw new IllegalArgumentException();
   }
 
-  public static void isTrue(boolean expression, String errorMessage) {
+  public static void isTrue(boolean expression, String errorMessage, Object... args) {
     if (!expression)
-      throw new IllegalArgumentException(errorMessage);
+      throw new IllegalArgumentException(String.format(errorMessage, args));
   }
 
   public static <T> T notNull(T reference) {
@@ -59,8 +59,8 @@ public final class Assert {
       throw new IllegalStateException();
   }
 
-  public static void state(boolean expression, String message) {
+  public static void state(boolean expression, String errorMessage, Object... args) {
     if (!expression)
-      throw new IllegalStateException(message);
+      throw new IllegalStateException(String.format(errorMessage, args));
   }
 }

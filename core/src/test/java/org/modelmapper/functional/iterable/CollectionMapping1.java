@@ -2,12 +2,12 @@ package org.modelmapper.functional.iterable;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.modelmapper.AbstractTest;
+import org.modelmapper.TypeToken;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -15,59 +15,50 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "functional")
 public class CollectionMapping1 extends AbstractTest {
-  static class SList {
-    List<Integer> name;
+  private List<Source> sources;
+
+  public static class Source {
+    String value;
+
+    Source() {
+    }
+
+    Source(String value) {
+      this.value = value;
+    }
   }
 
-  static class DArray {
-    String[] name;
+  public static class Dest {
+    Integer value;
   }
 
-  static class DList {
-    List<String> name;
+  @BeforeMethod
+  protected void setup() {
+    sources = new ArrayList<Source>();
+    for (int i = 0; i < 5; i++)
+      sources.add(new Source("" + i));
   }
 
-  static class DCollection {
-    Collection<String> name;
+  public void shouldMapToArray() {
+    Dest[] dests = modelMapper.map(sources, Dest[].class);
+
+    for (int i = 0; i < 5; i++)
+      assertEquals(dests[i].value.toString(), sources.get(i).value);
   }
 
-  static class DSet {
-    Set<String> name;
+  public void shouldMapToTypeTokenizedArray() {
+    Dest[] dests = modelMapper.map(sources, new TypeToken<Dest[]>() {
+    }.getType());
+
+    for (int i = 0; i < 5; i++)
+      assertEquals(dests[i].value.toString(), sources.get(i).value);
   }
 
-  public void shouldMapListToArray() {
-    DList list = new DList();
-    list.name = Arrays.asList("a", "b", "c");
-    DArray d = modelMapper.map(list, DArray.class);
+  public void shouldMapTypeTokenizedCollection() {
+    List<Dest> dests = modelMapper.map(sources, new TypeToken<List<Dest>>() {
+    }.getType());
 
-    modelMapper.validate();
-    assertEquals(Arrays.asList(d.name), list.name);
-  }
-
-  public void shouldMapArrayToList() {
-    DArray array = new DArray();
-    array.name = new String[] { "a", "b", "c" };
-    DList d = modelMapper.map(array, DList.class);
-
-    modelMapper.validate();
-    assertEquals(d.name, Arrays.asList(array.name));
-  }
-
-  public void shouldMapListToList() {
-    DList list = new DList();
-    list.name = Arrays.asList("a", "b", "c");
-    DList d = modelMapper.map(list, DList.class);
-
-    modelMapper.validate();
-    assertEquals(d.name, list.name);
-  }
-
-  public void shouldMapListToListOfDifferentTypes() {
-    SList list = new SList();
-    list.name = Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3));
-    DList d = modelMapper.map(list, DList.class);
-
-    modelMapper.validate();
-    assertEquals(d.name, Arrays.asList("1", "2", "3"));
+    for (int i = 0; i < 5; i++)
+      assertEquals(dests.get(i).value.toString(), sources.get(i).value);
   }
 }

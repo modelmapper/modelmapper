@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.converter;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.Set;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.internal.util.TypeResolver.Unknown;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyInfo;
@@ -35,7 +37,7 @@ import org.modelmapper.spi.PropertyMapping;
  */
 class CollectionConverter extends IterableConverter<Object, Collection<Object>> {
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    return Collection.class.isAssignableFrom(destinationType) && Iterables.isIterable(sourceType) ? MatchResult.FULL
+    return Iterables.isIterable(sourceType) && Collection.class.isAssignableFrom(destinationType) ? MatchResult.FULL
         : MatchResult.NONE;
   }
 
@@ -59,7 +61,8 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
       Class<?> elementType = TypeResolver.resolveArgument(destInfo.getGenericType(),
           destInfo.getInitialType());
       return elementType == Unknown.class ? Object.class : elementType;
-    }
+    } else if (context.getDestinationTypeToken().getType() instanceof ParameterizedType)
+      return Types.rawTypeFor(((ParameterizedType) context.getDestinationTypeToken().getType()).getActualTypeArguments()[0]);
 
     return Object.class;
   }

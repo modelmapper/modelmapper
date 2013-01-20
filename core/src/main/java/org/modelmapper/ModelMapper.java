@@ -15,6 +15,7 @@
  */
 package org.modelmapper;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 import org.modelmapper.config.Configuration;
@@ -35,6 +36,7 @@ import org.modelmapper.internal.util.Types;
  * createTypeMap}.</li>
  * <li>To add mappings for specific properties call {@link #addMappings(PropertyMap) addMappings}
  * supplying a {@link PropertyMap}.</li>
+ * <li>To configure ModelMapper call {@link #getConfiguration getConfiguration}.
  * </ul>
  * 
  * @author Jonathan Halterman
@@ -180,10 +182,7 @@ public class ModelMapper {
    * @throws MappingException if a runtime error occurs while mapping
    */
   public <D> D map(Object source, Class<D> destinationType) {
-    Assert.notNull(source, "source");
-    Assert.notNull(destinationType, "destinationType");
-    return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), null,
-        destinationType);
+    return map(source, (Type) destinationType);
   }
 
   /**
@@ -201,7 +200,35 @@ public class ModelMapper {
     Assert.notNull(source, "source");
     Assert.notNull(destination, "destination");
     engine.<Object, Object>map(source, Types.<Object>deProxy(source.getClass()), destination,
-        Types.<Object>deProxy(destination.getClass()));
+        TypeToken.of(Types.<Object>deProxy(destination.getClass())));
+  }
+
+  /**
+   * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
+   * to the corresponding TypeMap. If no TypeMap exists for {@code source.getClass()} and
+   * {@code destinationType} then one is created.
+   * 
+   * <p>
+   * To map a parameterized type, subclass {@link TypeToken} and obtain its Type:
+   * 
+   * <pre>
+   * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
+   * List&lt;String&gt; strings = modelMapper.map(source, listType);
+   * </pre>
+   * 
+   * @param <D> destination type
+   * @param source object to map from
+   * @param destinationType type to map to
+   * @return fully mapped instance of {@code destinationType}
+   * @throws IllegalArgumentException if {@code source} or {@code destinationType} are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create the TypeMap
+   * @throws MappingException if a runtime error occurs while mapping
+   */
+  public <D> D map(Object source, Type destinationType) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), null,
+        TypeToken.<D>of(destinationType));
   }
 
   /**
