@@ -19,7 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.modelmapper.Condition;
@@ -51,7 +50,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
   private final SourceProgress sourceProgress;
   private final DestinationProgress destinationProgress;
   private MappingOptions options = new MappingOptions();
-  boolean destinationRequested;
+  private boolean destinationRequested;
 
   static {
     PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure",
@@ -76,38 +75,38 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
   }
 
   public D skip() {
-    saveLastMapping();
+    checkLastMapping();
     options.skip = true;
     return getDestination();
   }
 
   public D map() {
-    saveLastMapping();
+    checkLastMapping();
     return getDestination();
   }
 
   public D map(Object source) {
-    saveLastMapping();
+    checkLastMapping();
     options.mapFromSource = source == this.source;
     return getDestination();
   }
 
   public ConditionExpression<S, D> using(Converter<?, ?> converter) {
-    saveLastMapping();
+    checkLastMapping();
     Assert.state(options.converter == null, "using() can only be called once per mapping.");
     options.converter = converter;
     return this;
   }
 
   public ConditionExpression<S, D> when(Condition<?, ?> condition) {
-    saveLastMapping();
+    checkLastMapping();
     Assert.state(options.condition == null, "when() can only be called once per mapping.");
     options.condition = condition;
     return this;
   }
 
   public ConditionExpression<S, D> withProvider(Provider<?> provider) {
-    saveLastMapping();
+    checkLastMapping();
     Assert.state(options.provider == null, "withProvider() can only be called once per mapping.");
     options.provider = provider;
     return this;
@@ -121,7 +120,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
   Collection<MappingImpl> build(PropertyMap<S, D> propertyMap) {
     try {
       PROPERTY_MAP_CONFIGURE.invoke(propertyMap, this);
-      saveLastMapping();
+      checkLastMapping();
     } catch (IllegalAccessException e) {
       errors.errorAccessingConfigure(e);
     } catch (InvocationTargetException e) {
@@ -175,27 +174,24 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     return source;
   }
 
-  private void saveLastMapping() {
-    if (!destinationRequested) {
-      return;
-    }
-
-    if (destinationProgress.propertyInfo.isEmpty())
+  private void checkLastMapping() {
+    if (destinationRequested && destinationProgress.propertyInfo.isEmpty())
       errors.missingDestination();
+  }
 
+  void saveMapping() {
     try {
       if (!destinationProgress.propertyInfo.isEmpty()) {
         MappingImpl mapping = null;
-        List<Accessor> sourcePropertyInfo = sourceProgress.propertyInfo();
 
         if (options.mapFromSource)
           mapping = new SourceMappingImpl(sourceType, destinationProgress.propertyInfo, options);
-        else if (sourcePropertyInfo.isEmpty())
+        else if (sourceProgress.propertyInfo.isEmpty())
           mapping = new ConstantMappingImpl(destinationProgress.argument,
               destinationProgress.propertyInfo, options);
         else
-          mapping = new PropertyMappingImpl(sourcePropertyInfo, destinationProgress.propertyInfo,
-              options);
+          mapping = new PropertyMappingImpl(sourceProgress.propertyInfo,
+              destinationProgress.propertyInfo, options);
 
         if (!propertyMappings.add(mapping))
           errors.duplicateMapping(mapping.getLastDestinationProperty());
