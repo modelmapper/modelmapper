@@ -35,6 +35,7 @@ abstract class MappingProgress<T extends PropertyInfo> {
   protected final MappingBuilderImpl<?, ?> builder;
   protected final Configuration config;
   protected final List<T> propertyInfo = new ArrayList<T>();
+  protected int inConstructor = 0;
 
   MappingProgress(MappingBuilderImpl<?, ?> builder) {
     this.builder = builder;
@@ -84,6 +85,8 @@ abstract class MappingProgress<T extends PropertyInfo> {
 
     @Override
     public void encountered(Class<?> proxyType, Method method, Object[] args) {
+      if (inConstructor > 0)
+        return;
       if (PropertyResolver.ACCESSORS.isValid(method)) {
         String propertyName = config.getSourceNameTransformer().transform(method.getName(),
             NameableType.METHOD);
@@ -103,6 +106,14 @@ abstract class MappingProgress<T extends PropertyInfo> {
 
   boolean contains(Object object) {
     return propertyInfo.contains(object);
+  }
+  
+  void enterConstructor() {
+    this.inConstructor++;
+  }
+
+  void leaveConstructor() {
+    this.inConstructor--;
   }
 
   abstract void encountered(Class<?> proxyType, Method method, Object[] args);;
