@@ -180,7 +180,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   @Override
   public String toString() {
-    return String.format("MappingContext[%s -> %s]", source.getClass().getSimpleName(),
+    return String.format("MappingContext[%s -> %s]", sourceType.getSimpleName(),
         destinationType.getSimpleName());
   }
 

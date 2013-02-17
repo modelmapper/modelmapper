@@ -68,7 +68,7 @@ public final class Types {
       return (Class<T>) type;
 
     // CGLib
-    if (type.getName().contains("$$EnhancerByCGLIB$$"))
+    if (type.getName().contains("$$EnhancerBy"))
       return (Class<T>) type.getSuperclass();
 
     // Javassist
