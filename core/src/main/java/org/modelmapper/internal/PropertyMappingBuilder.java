@@ -106,7 +106,7 @@ class PropertyMappingBuilder<S, D> {
         } else {
           mapping = disambiguateMappings();
           if (mapping == null && !configuration.isAmbiguityIgnored())
-            errors.ambiguousDestination(mutator, mappings);
+            errors.ambiguousDestination(mappings);
         }
 
         if (mapping != null) {
@@ -153,15 +153,16 @@ class PropertyMappingBuilder<S, D> {
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
       Accessor accessor = entry.getValue();
       propertyNameInfo.pushSource(entry.getKey(), entry.getValue());
+      boolean doneMatching = false;
 
       if (matchingStrategy.matches(propertyNameInfo)) {
         if (destinationTypes.contains(destinationMutator.getType())) {
           mappings.add(new PropertyMappingImpl(propertyNameInfo.getSourceProperties(),
               propertyNameInfo.getDestinationProperties(), true));
         } else {
-          PropertyMappingImpl mapping = null;
           TypeMap<?, ?> propertyTypeMap = typeMapStore.get(accessor.getType(),
               destinationMutator.getType());
+          PropertyMappingImpl mapping = null;
 
           // Create mapping(s) from existing TypeMap
           if (propertyTypeMap != null) {
@@ -185,8 +186,7 @@ class PropertyMappingBuilder<S, D> {
 
                 if (MatchResult.FULL.equals(matchResult)) {
                   mappings.add(mapping);
-                  if (matchingStrategy.isExact())
-                    return;
+                  doneMatching = matchingStrategy.isExact();
                 } else
                   partiallyMatchedMappings.add(mapping);
 
@@ -203,11 +203,15 @@ class PropertyMappingBuilder<S, D> {
         }
       }
 
-      if (isMatchable(accessor.getType()) && !sourceTypes.contains(accessor.getType()))
+      if (!doneMatching && isMatchable(accessor.getType())
+          && !sourceTypes.contains(accessor.getType()))
         matchSource(TypeInfoRegistry.typeInfoFor(accessor.getType(), configuration),
             destinationMutator);
 
       propertyNameInfo.popSource();
+
+      if (doneMatching)
+        break;
     }
 
     sourceTypes.remove(sourceTypeInfo.getType());

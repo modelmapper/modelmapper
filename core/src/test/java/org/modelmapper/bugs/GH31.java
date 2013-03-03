@@ -1,63 +1,87 @@
 package org.modelmapper.bugs;
 
+import static org.testng.Assert.assertEquals;
+
+import java.util.Date;
+
 import org.modelmapper.AbstractTest;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.convention.MatchingStrategies;
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
 
 /**
  * https://github.com/jhalterman/modelmapper/issues/31
  */
 @Test
 public class GH31 extends AbstractTest {
-  public abstract static class Catalog<T extends Product> {
-    T product;
-    String label;
+  public static class CompanyModel {
+    String name;
+    LocationModel location;
+    Date createdAt;
+
+    public Date getCreatedAt() {
+      return createdAt;
+    }
   }
 
-  public abstract static class Product<T extends Catalog> {
-    T catalog;
-    String label;
+  public static class LocationModel {
+    String address;
+    Date createdAt;
+
+    public Date getCreatedAt() {
+      return createdAt;
+    }
   }
 
-  public static class CatalogOne extends Catalog<ProductOne> {
+  public static class Company {
+    String name;
+    Location location;
+    Date createdAt;
+
+    public void setCreatedAt(Date createdAt) {
+      this.createdAt = createdAt;
+    }
   }
 
-  public static class ProductOne extends Product<CatalogOne> {
+  public static class Location {
+    String address;
+    Date createdAt;
+
+    public void setCreatedAt(Date createdAt) {
+      this.createdAt = createdAt;
+    }
   }
 
-  public static class CatalogTwo extends Catalog<ProductTwo> {
-  }
-
-  public static class ProductTwo extends Product<CatalogTwo> {
-  }
-
+  @SuppressWarnings("deprecation")
   public void test() {
-    CatalogOne source = new CatalogOne();
-    source.label = "catalog1";
-    source.product = new ProductOne();
-    source.product.label = "product1";
-    source.product.catalog = source;
+    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-    CatalogTwo dest = modelMapper.map(source, CatalogTwo.class);
+    modelMapper.addMappings(new PropertyMap<CompanyModel, Company>() {
+      @Override
+      protected void configure() {
+        map().setCreatedAt(source.getCreatedAt());
+      }
+    });
 
-    assertTrue(dest.product instanceof ProductTwo);
-    assertEquals(dest.label, source.label);
-    assertEquals(dest.product.label, source.product.label);
-    assertEquals(dest.product.catalog, dest);
-  }
+    modelMapper.addMappings(new PropertyMap<LocationModel, Location>() {
+      @Override
+      protected void configure() {
+        map().setCreatedAt(source.getCreatedAt());
+      }
+    });
 
-  public void test2() {
-    ProductOne source = new ProductOne();
-    source.label = "catalog1";
-    source.catalog = new CatalogOne();
-    source.catalog.label = "product1";
-    source.catalog.product = source;
+    Company company = new Company();
+    company.name = "Pepsi Co.";
+    company.createdAt = new Date(1999, 12, 12);
+    company.location = new Location();
+    company.location.address = "1234 Main St.";
+    company.location.createdAt = new Date(1955, 5, 5);
 
-    ProductTwo dest = modelMapper.map(source, ProductTwo.class);
+    CompanyModel model = modelMapper.map(company, CompanyModel.class);
 
-    assertTrue(dest.catalog instanceof CatalogTwo);
-    assertEquals(dest.label, source.label);
-    assertEquals(dest.catalog.label, source.catalog.label);
-    assertEquals(dest.catalog.product, dest);
+    assertEquals(company.name, model.name);
+    assertEquals(company.createdAt, model.createdAt);
+    assertEquals(company.location.address, model.location.address);
+    assertEquals(company.location.createdAt, model.location.createdAt);
   }
 }
