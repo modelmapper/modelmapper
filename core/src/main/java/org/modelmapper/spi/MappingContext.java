@@ -15,6 +15,8 @@
  */
 package org.modelmapper.spi;
 
+import java.lang.reflect.Type;
+
 import org.modelmapper.TypeMap;
 
 /**
@@ -47,6 +49,11 @@ public interface MappingContext<S, D> {
    * Returns the destination type being mapped to.
    */
   Class<D> getDestinationType();
+
+  /**
+   * Returns the generic destination type.
+   */
+  Type getGenericDestinationType();
 
   /**
    * Returns the mapping associated with the mapping request else {@code null} if the request did

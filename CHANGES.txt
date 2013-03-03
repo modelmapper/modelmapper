@@ -1,6 +1,9 @@
 0.5.5
 
-- FIxed GH #23 - Support for combined token matching
+- Added support for TypeTokens
+- Fixed GH #23 - Support for combined token matching
+- Fixed GH #32 - Mapping creates instances for null objects
+- Fixed GH #37 - Mappings being incorrectly created
 
 0.5.4 (12/22/2012)
 

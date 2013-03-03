@@ -25,6 +25,7 @@ import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
+import org.modelmapper.TypeToken;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
@@ -59,9 +60,10 @@ public class MappingEngineImpl implements MappingEngine {
   /**
    * Initial entry point.
    */
-  public <S, D> D map(S source, Class<S> sourceType, D destination, Class<D> destinationType) {
+  public <S, D> D map(S source, Class<S> sourceType, D destination,
+      TypeToken<D> destinationTypeToken) {
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationType, this);
+        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(), this);
     D result = null;
 
     try {
@@ -71,7 +73,7 @@ public class MappingEngineImpl implements MappingEngine {
     } catch (ErrorsException e) {
       throw context.errors.toMappingException();
     } catch (Throwable t) {
-      context.errors.errorMapping(sourceType, destinationType, t);
+      context.errors.errorMapping(sourceType, destinationTypeToken.getType(), t);
     }
 
     context.errors.throwMappingExceptionIfErrorsExist();

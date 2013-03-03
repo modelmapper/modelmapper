@@ -130,7 +130,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public D map(S source) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, null,
-        destinationType, engine);
+        destinationType, null, engine);
     D result = null;
 
     try {
@@ -146,7 +146,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public void map(S source, D destination) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationType, engine);
+        destination, destinationType, null, engine);
 
     try {
       engine.typeMap(context, this);

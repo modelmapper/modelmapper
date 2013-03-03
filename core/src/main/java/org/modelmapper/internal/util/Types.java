@@ -15,10 +15,16 @@
  */
 package org.modelmapper.internal.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 
 /**
  * Utilities for working with types.
@@ -62,7 +68,7 @@ public final class Types {
       return (Class<T>) type;
 
     // CGLib
-    if (type.getName().contains("$$EnhancerByCGLIB$$"))
+    if (type.getName().contains("$$EnhancerBy"))
       return (Class<T>) type.getSuperclass();
 
     // Javassist
@@ -97,10 +103,35 @@ public final class Types {
   }
 
   /**
+   * Returns the raw type for the {@code type}. If {@code type} is a TypeVariable or a WildcardType
+   * then the first upper bound is returned. is returned.
+   * 
+   * @throws IllegalArgumentException if {@code type} is not a Class, ParameterizedType,
+   *           GenericArrayType, TypeVariable or WildcardType.
+   */
+  public static Class<?> rawTypeFor(Type type) {
+    if (type instanceof Class<?>) {
+      return (Class<?>) type;
+    } else if (type instanceof ParameterizedType) {
+      return (Class<?>) ((ParameterizedType) type).getRawType();
+    } else if (type instanceof GenericArrayType) {
+      Type componentType = ((GenericArrayType) type).getGenericComponentType();
+      return Array.newInstance(rawTypeFor(componentType), 0).getClass();
+    } else if (type instanceof TypeVariable) {
+      return rawTypeFor(((TypeVariable<?>) type).getBounds()[0]);
+    } else if (type instanceof WildcardType) {
+      return rawTypeFor(((WildcardType) type).getUpperBounds()[0]);
+    } else {
+      String className = type == null ? "null" : type.getClass().getName();
+      throw new IllegalArgumentException("Could not determine raw type for " + className);
+    }
+  }
+
+  /**
    * Returns a simplified String representation of the {@code type}.
    */
-  public static String toString(Class<?> type) {
-    return type.getName();
+  public static String toString(Type type) {
+    return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
   }
 
   /**

@@ -3,10 +3,11 @@ package org.modelmapper.functional.iterable;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.PropertyMap;
 import org.testng.annotations.Test;
 
 /**
@@ -14,71 +15,59 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "functional")
 public class CollectionMapping2 extends AbstractTest {
-  static class SourceParent {
-    List<SourceChild> children;
-
-    List<SourceChild> getChildren() {
-      return children;
-    }
+  static class SList {
+    List<Integer> name;
   }
 
-  static class SourceChild {
-    String name;
-
-    SourceChild(String name) {
-      this.name = name;
-    }
+  static class DArray {
+    String[] name;
   }
 
-  static class DestParent1 {
-    List<DestChild> children;
-
-    void setChildrens(List<DestChild> children) {
-      this.children = children;
-    }
+  static class DList {
+    List<String> name;
   }
 
-  static class DestParent2 {
-    List<DestChild> kids;
-
-    void setKids(List<DestChild> kids) {
-      this.kids = kids;
-    }
+  static class DCollection {
+    Collection<String> name;
   }
 
-  static class DestChild {
-    String name;
-
-    DestChild() {
-    }
-
-    DestChild(String name) {
-      this.name = name;
-    }
+  static class DSet {
+    Set<String> name;
   }
 
-  public void shouldMap() {
-    SourceParent source = new SourceParent();
-    source.children = Arrays.asList(new SourceChild("abc"), new SourceChild("def"));
+  public void shouldMapListToArray() {
+    DList list = new DList();
+    list.name = Arrays.asList("a", "b", "c");
+    DArray d = modelMapper.map(list, DArray.class);
 
-    DestParent1 dest = modelMapper.map(source, DestParent1.class);
-
-    assertEquals(dest.children.get(0).name, "abc");
-    assertEquals(dest.children.get(1).name, "def");
+    modelMapper.validate();
+    assertEquals(Arrays.asList(d.name), list.name);
   }
 
-  public void shouldMapWithPropertyMap() {
-    SourceParent source = new SourceParent();
-    source.children = Arrays.asList(new SourceChild("abc"), new SourceChild("def"));
+  public void shouldMapArrayToList() {
+    DArray array = new DArray();
+    array.name = new String[] { "a", "b", "c" };
+    DList d = modelMapper.map(array, DList.class);
 
-    modelMapper.addMappings(new PropertyMap<SourceParent, DestParent2>() {
-      protected void configure() {
-        map(source.getChildren()).setKids(null);
-      }
-    });
+    modelMapper.validate();
+    assertEquals(d.name, Arrays.asList(array.name));
+  }
 
-    DestParent2 dest = modelMapper.map(source, DestParent2.class);
-    assertEquals(dest.kids.get(0).name, "abc");
-    assertEquals(dest.kids.get(1).name, "def");
+  public void shouldMapListToList() {
+    DList list = new DList();
+    list.name = Arrays.asList("a", "b", "c");
+    DList d = modelMapper.map(list, DList.class);
+
+    modelMapper.validate();
+    assertEquals(d.name, list.name);
+  }
+
+  public void shouldMapListToListOfDifferentTypes() {
+    SList list = new SList();
+    list.name = Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3));
+    DList d = modelMapper.map(list, DList.class);
+
+    modelMapper.validate();
+    assertEquals(d.name, Arrays.asList("1", "2", "3"));
   }
 }

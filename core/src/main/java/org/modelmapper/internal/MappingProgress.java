@@ -55,6 +55,9 @@ abstract class MappingProgress<T extends PropertyInfo> {
             NameableType.METHOD);
         propertyInfo.add(PropertyInfoRegistry.mutatorFor(proxyType, method, config, propertyName));
         argument = args.length == 1 ? args[0] : null;
+        if (argument != null && argument == builder.source)
+          builder.errors.missingSource();
+        builder.saveMapping();
       } else if (PropertyResolver.ACCESSORS.isValid(method)) {
         // Find mutator corresponding to accessor
         Mutator mutator = TypeInfoRegistry.typeInfoFor(proxyType, config).mutatorForAccessorMethod(
@@ -65,9 +68,6 @@ abstract class MappingProgress<T extends PropertyInfo> {
           builder.errors.missingMutatorForAccessor(method);
       } else
         builder.errors.invalidDestinationMethod(method);
-
-      if (argument != null && argument == builder.source)
-        builder.errors.missingSource();
     }
 
     @Override
@@ -78,9 +78,6 @@ abstract class MappingProgress<T extends PropertyInfo> {
   }
 
   static class SourceProgress extends MappingProgress<Accessor> {
-    /** Property info for the next mapping in the PropertyMapping. */
-    protected final List<Accessor> nextPropertyInfo = new ArrayList<Accessor>();
-
     SourceProgress(MappingBuilderImpl<?, ?> builder) {
       super(builder);
     }
@@ -92,28 +89,15 @@ abstract class MappingProgress<T extends PropertyInfo> {
             NameableType.METHOD);
         Accessor propInfo = PropertyInfoRegistry.accessorFor(proxyType, method, config,
             propertyName);
-        if (!builder.destinationRequested)
-          propertyInfo.add(propInfo);
-        else
-          nextPropertyInfo.add(propInfo);
+        propertyInfo.add(propInfo);
       } else
         builder.errors.invalidSourceMethod(method);
-    }
-
-    /** Returns the current property info, else the next property info if the current is empty. */
-    List<Accessor> propertyInfo() {
-      return propertyInfo.isEmpty() ? nextPropertyInfo : propertyInfo;
     }
 
     /** Moves the next property info to the current property info and clears the next property info. */
     @Override
     void reset() {
-      if (!propertyInfo.isEmpty()) {
-        propertyInfo.clear();
-        propertyInfo.addAll(nextPropertyInfo);
-      }
-
-      nextPropertyInfo.clear();
+      propertyInfo.clear();
     }
   }
 

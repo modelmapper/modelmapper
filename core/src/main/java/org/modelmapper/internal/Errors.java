@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -171,7 +172,7 @@ public final class Errors {
     return addMessage("Error mapping %s to %s", source, Types.toString(destinationType));
   }
 
-  public Errors errorMapping(Object source, Class<?> destinationType, Throwable t) {
+  public Errors errorMapping(Object source, Type destinationType, Throwable t) {
     return addMessage(t, "Error mapping %s to %s", source, Types.toString(destinationType));
   }
 
