@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
+import org.modelmapper.TypeToken;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -87,13 +88,15 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, Class<D> destinationType, Mapping mapping, boolean inheritValues) {
+      D destination, Class<D> destinationType, Type genericDestinationType, Mapping mapping,
+      boolean inheritValues) {
     this.parent = context;
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
     this.destinationType = destinationType;
-    this.genericDestinationType = destinationType;
+    this.genericDestinationType = genericDestinationType == null ? destinationType
+        : genericDestinationType;
     this.providedDestination = context.providedDestination;
     this.typeMap = null;
     this.parentTypeMap = context.typeMap;
@@ -108,11 +111,13 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
-  public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
+  public <CS, CD> MappingContext<CS, CD> create(CS source, Type destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
+    TypeToken<CD> destinationTypeToken = TypeToken.<CD>of(destinationType);
+
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
-        destinationType, mapping, false);
+        destinationTypeToken.getRawType(), destinationTypeToken.getType(), mapping, false);
   }
 
   @Override

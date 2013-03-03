@@ -37,7 +37,7 @@ public interface MappingContext<S, D> {
    * @return new child MappingContext
    * @throws IllegalArgumentException if {@code source} or {@code destinatinoType} are null
    */
-  <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType);
+  <CS, CD> MappingContext<CS, CD> create(CS source, Type destinationType);
 
   /**
    * Returns the destination object being mapped to or null if the destination has not yet been

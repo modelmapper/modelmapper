@@ -321,8 +321,8 @@ public class MappingEngineImpl implements MappingEngine {
     }
 
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
-    return new MappingContextImpl(context, source, sourceType, null, destinationType, mapping,
-        !cyclic);
+    return new MappingContextImpl(context, source, sourceType, null, destinationType, null,
+        mapping, !cyclic);
   }
 
   /**
