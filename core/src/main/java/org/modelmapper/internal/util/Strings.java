@@ -37,6 +37,22 @@ public final class Strings {
     return sb.toString();
   }
 
+  /**
+   * Returns a String containing the members of the {@code properties} joined on a <code>/</code>
+   * delimiter.
+   */
+  public static String joinMembers(List<? extends PropertyInfo> properties) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < properties.size(); i++) {
+      PropertyInfo info = properties.get(i);
+      if (i > 0)
+        builder.append("/");
+      builder.append(Types.toString(info.getMember()));
+    }
+
+    return builder.toString();
+  }
+
   public static String joinWithFirstType(List<? extends PropertyInfo> properties) {
     StringBuilder sb = new StringBuilder();
     String delim = "";

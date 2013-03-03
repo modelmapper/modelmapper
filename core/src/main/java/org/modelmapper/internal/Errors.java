@@ -30,6 +30,7 @@ import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
 import org.modelmapper.TypeMap;
 import org.modelmapper.ValidationException;
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ErrorMessage;
 import org.modelmapper.spi.PropertyInfo;
@@ -242,22 +243,14 @@ public final class Errors {
     return new MappingException(getMessages());
   }
 
-  Errors ambiguousDestination(Mutator destinationMutator, List<? extends PropertyMapping> mappings) {
+  Errors ambiguousDestination(List<? extends PropertyMapping> mappings) {
     List<String> sourcePropertyInfo = new ArrayList<String>();
-    for (PropertyMapping mapping : mappings) {
-      StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < mapping.getSourceProperties().size(); i++) {
-        PropertyInfo info = mapping.getSourceProperties().get(i);
-        if (i > 0)
-          builder.append("/");
-        builder.append(Types.toString(info.getMember()));
-      }
-      sourcePropertyInfo.add(builder.toString());
-    }
+    for (PropertyMapping mapping : mappings)
+      sourcePropertyInfo.add(Strings.joinMembers(mapping.getSourceProperties()));
 
     return addMessage(
         "The destination property %s matches multiple source property hierarchies:\n\n%s",
-        destinationMutator, sourcePropertyInfo);
+        Strings.joinMembers(mappings.get(0).getDestinationProperties()), sourcePropertyInfo);
   }
 
   Errors duplicateMapping(PropertyInfo destinationProperty) {
