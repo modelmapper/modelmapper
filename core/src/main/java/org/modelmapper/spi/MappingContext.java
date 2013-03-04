@@ -37,6 +37,19 @@ public interface MappingContext<S, D> {
    * @return new child MappingContext
    * @throws IllegalArgumentException if {@code source} or {@code destinatinoType} are null
    */
+  <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType);
+
+  /**
+   * Creates a new child MappingContext for the {@code source} and {@code destinationType} which
+   * inherits all other information from the this MappingContext.
+   * 
+   * @param <CS> child source type
+   * @param <CD> child destination type
+   * @param source to map from
+   * @param destinationType to map to
+   * @return new child MappingContext
+   * @throws IllegalArgumentException if {@code source} or {@code destinatinoType} are null
+   */
   <CS, CD> MappingContext<CS, CD> create(CS source, Type destinationType);
 
   /**

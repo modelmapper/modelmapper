@@ -128,8 +128,8 @@ public class GH40 extends AbstractTest {
         .setConverter(new Converter<SpecialInsuranceContainer, ConcreteSpecialInsuranceDTO>() {
           public ConcreteSpecialInsuranceDTO convert(
               MappingContext<SpecialInsuranceContainer, ConcreteSpecialInsuranceDTO> ctx) {
-            ctx.getDestination().id = ctx.getSource().special.id;
-            return ctx.getDestination();
+            return ctx.getMappingEngine().map(
+                ctx.create(ctx.getSource().special, ctx.getDestinationType()));
           }
         });
 
