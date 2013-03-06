@@ -86,7 +86,7 @@ public final class Types {
    * Returns true if the {@code type} is instantiable.
    */
   public static boolean isInstantiable(Class<?> type) {
-    return !type.isEnum() && !Primitives.isPrimitiveWrapper(type);
+    return !type.isEnum() && !type.isAssignableFrom(String.class) && !Primitives.isPrimitiveWrapper(type);
   }
 
   /**

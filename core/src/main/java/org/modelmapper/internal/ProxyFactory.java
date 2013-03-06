@@ -83,11 +83,13 @@ class ProxyFactory {
       Constructor<?> constructor = bestConstructorFor(enhanced);
       Enhancer.registerCallbacks(enhanced, new Callback[] {
           new MappingInterceptor(mappingProgress), NoOp.INSTANCE });
+      mappingProgress.enterConstructor();
       T result = type.cast(constructor.newInstance(Types.defaultArgumentsFor(constructor.getParameterTypes())));
       return result;
     } catch (Throwable t) {
       throw new Errors().errorInstantiatingProxy(type, t).toException();
     } finally {
+      mappingProgress.leaveConstructor();
       Enhancer.registerCallbacks(enhanced, null);
     }
   }
