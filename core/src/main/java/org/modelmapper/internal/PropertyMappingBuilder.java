@@ -172,9 +172,7 @@ class PropertyMappingBuilder<S, D> {
             else
               mappings.add(new PropertyMappingImpl(propertyNameInfo.getSourceProperties(),
                   propertyNameInfo.getDestinationProperties(), propertyConverter));
-
-            if (matchingStrategy.isExact())
-              return;
+            doneMatching = matchingStrategy.isExact();
           } else {
             for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
               MatchResult matchResult = converter.match(accessor.getType(),
