@@ -47,6 +47,8 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   /** Guarded by "mappings" */
   private final Map<String, MappingImpl> mappings = new TreeMap<String, MappingImpl>();
   private Converter<S, D> converter;
+  private Converter<S, D> preConverter;
+  private Converter<S, D> postConverter;
   private Condition<?, ?> condition;
   private Provider<D> provider;
   private Converter<?, ?> propertyConverter;
@@ -92,6 +94,14 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     synchronized (mappings) {
       return new ArrayList<Mapping>(mappings.values());
     }
+  }
+
+  public Converter<S, D> getPostConverter() {
+    return postConverter;
+  }
+
+  public Converter<S, D> getPreConverter() {
+    return preConverter;
   }
 
   public Condition<?, ?> getPropertyCondition() {
@@ -167,6 +177,16 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return this;
   }
 
+  public TypeMap<S, D> setPostConverter(Converter<S, D> converter) {
+    this.postConverter = Assert.notNull(converter, "converter");
+    return this;
+  }
+
+  public TypeMap<S, D> setPreConverter(Converter<S, D> converter) {
+    this.preConverter = Assert.notNull(converter, "converter");
+    return this;
+  }
+
   public TypeMap<S, D> setPropertyCondition(Condition<?, ?> condition) {
     propertyCondition = Assert.notNull(condition, "condition");
     return this;
@@ -194,7 +214,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   public void validate() {
-    if (converter != null)
+    if (converter != null || preConverter != null || postConverter != null)
       return;
 
     Errors errors = new Errors();

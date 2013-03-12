@@ -70,6 +70,22 @@ public interface TypeMap<S, D> {
   List<Mapping> getMappings();
 
   /**
+   * Returns the configured post-Converter for this TypeMap, else {@code null} if no post-Converter
+   * has been configured.
+   * 
+   * @see #setConverter(Converter)
+   */
+  Converter<S, D> getPostConverter();
+
+  /**
+   * Returns the configured pre-Converter for this TypeMap, else {@code null} if no pre-Converter
+   * has been configured.
+   * 
+   * @see #setConverter(Converter)
+   */
+  Converter<S, D> getPreConverter();
+
+  /**
    * Returns the Condition that must apply in properties in this TypeMap to be mapped, else
    * {@code null} if no condition has been configured.
    * 
@@ -150,6 +166,22 @@ public interface TypeMap<S, D> {
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setConverter(Converter<S, D> converter);
+
+  /**
+   * Sets the {@code converter} to be used for any conversion after default mapping between the
+   * source and destination types occurs.
+   * 
+   * @throws IllegalArgumentException if {@code converter} is null
+   */
+  TypeMap<S, D> setPostConverter(Converter<S, D> converter);
+
+  /**
+   * Sets the {@code converter} to be used for any conversion before default mapping between the
+   * source and destination types occurs.
+   * 
+   * @throws IllegalArgumentException if {@code converter} is null
+   */
+  TypeMap<S, D> setPreConverter(Converter<S, D> converter);
 
   /**
    * Sets the {@code condition} that must apply in order for properties in this TypeMap to be
