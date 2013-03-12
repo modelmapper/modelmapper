@@ -70,18 +70,18 @@ public interface TypeMap<S, D> {
   List<Mapping> getMappings();
 
   /**
-   * Returns the configured post-Converter for this TypeMap, else {@code null} if no post-Converter
-   * has been configured.
+   * Returns the converter to be used after mapping between the source and destination types, else
+   * {@code null} if no post-Converter has been configured.
    * 
-   * @see #setConverter(Converter)
+   * @see #setPostConverter(Converter)
    */
   Converter<S, D> getPostConverter();
 
   /**
-   * Returns the configured pre-Converter for this TypeMap, else {@code null} if no pre-Converter
-   * has been configured.
+   * Returns the converter to be used before mapping between the source and destination types, else
+   * {@code null} if no post-Converter has been configured.
    * 
-   * @see #setConverter(Converter)
+   * @see #setPreConverter(Converter)
    */
   Converter<S, D> getPreConverter();
 
@@ -160,7 +160,7 @@ public interface TypeMap<S, D> {
 
   /**
    * Sets the {@code converter} to be used for any conversion requests for the TypeMap's source to
-   * destination type. A converter will take precedence over any mappings that have been added to
+   * destination type. This converter will be used in place of any mappings that have been added to
    * the TypeMap.
    * 
    * @throws IllegalArgumentException if {@code converter} is null
@@ -168,16 +168,14 @@ public interface TypeMap<S, D> {
   TypeMap<S, D> setConverter(Converter<S, D> converter);
 
   /**
-   * Sets the {@code converter} to be used for any conversion after default mapping between the
-   * source and destination types occurs.
+   * Sets the {@code converter} to be used after mapping between the source and destination types.
    * 
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setPostConverter(Converter<S, D> converter);
 
   /**
-   * Sets the {@code converter} to be used for any conversion before default mapping between the
-   * source and destination types occurs.
+   * Sets the {@code converter} to be used before mapping between the source and destination types.
    * 
    * @throws IllegalArgumentException if {@code converter} is null
    */

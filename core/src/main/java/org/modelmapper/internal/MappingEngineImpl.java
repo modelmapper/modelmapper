@@ -129,12 +129,19 @@ public class MappingEngineImpl implements MappingEngine {
     Condition<S, D> condition = (Condition<S, D>) typeMap.getCondition();
     Converter<S, D> converter = typeMap.getConverter();
     if (condition == null || condition.applies(context)) {
+      if (converter != null)
+        return convert(context, converter);
+
+      converter = typeMap.getPreConverter();
+      if (converter != null)
+        convert(context, converter);
 
       for (Mapping mapping : typeMap.getMappings())
         propertyMap(mapping, context);
-      
+
+      converter = typeMap.getPostConverter();
       if (converter != null)
-        return convert(context, converter);
+        convert(context, converter);
     }
 
     return context.getDestination();
