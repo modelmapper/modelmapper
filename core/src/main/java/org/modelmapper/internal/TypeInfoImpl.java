@@ -73,10 +73,14 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   /**
    * Populates the {@code propertyInfo} with {@code propertyResolver} resolved property info for
    * properties that are accessible by the {@code accessLevel} and satisfy the
-   * {@code namingConvention}.
+   * {@code namingConvention}. Uses depth-first search so that child properties of the same name
+   * override parents.
    */
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> void buildProperties(
       Class<?> initialType, Class<?> type, InitRequest<M, PI> initRequest) {
+    Class<?> superType = type.getSuperclass();
+    if (superType != null && superType != Object.class)
+      buildProperties(initialType, superType, initRequest);
 
     for (M member : initRequest.propertyResolver.membersFor(type)) {
       if (canAccessMember(member, initRequest.accessLevel)
@@ -99,10 +103,6 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
           }
       }
     }
-
-    Class<?> superType = type.getSuperclass();
-    if (superType != null && superType != Object.class)
-      buildProperties(initialType, superType, initRequest);
   }
 
   @Override
