@@ -15,8 +15,7 @@
  */
 package org.modelmapper.convention;
 
-import java.beans.Introspector;
-
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NameableType;
 
@@ -26,6 +25,7 @@ import org.modelmapper.spi.NameableType;
  * @author Jonathan Halterman
  */
 public class NameTransformers {
+    
   /**
    * Transforms accessor names to their simple property name according to the JavaBeans convention.
    * Class and field names are unchanged.
@@ -34,9 +34,9 @@ public class NameTransformers {
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType)) {
         if (name.startsWith("get"))
-          return Introspector.decapitalize(name.substring(3));
+          return Strings.decapitalize(name.substring(3));
         else if (name.startsWith("is"))
-          return Introspector.decapitalize(name.substring(2));
+          return Strings.decapitalize(name.substring(2));
       }
 
       return name;
@@ -55,7 +55,7 @@ public class NameTransformers {
   public static final NameTransformer JAVABEANS_MUTATOR = new NameTransformer() {
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType) && name.startsWith("set"))
-        return Introspector.decapitalize(name.substring(3));
+        return Strings.decapitalize(name.substring(3));
       return name;
     }
 
