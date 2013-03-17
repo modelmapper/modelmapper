@@ -15,6 +15,7 @@
  */
 package org.modelmapper.convention;
 
+import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NameableType;
 
@@ -24,32 +25,6 @@ import org.modelmapper.spi.NameableType;
  * @author Jonathan Halterman
  */
 public class NameTransformers {
-	
-	/**
-	 * Utility method to take a string and convert it to normal Java variable
-	 * name capitalization.  This normally means converting the first
-	 * character from upper case to lower case, but in the (unusual) special
-	 * case when there is more than one character and both the first and
-	 * second characters are upper case, we leave it alone.
-	 * <p>
-	 * Thus "FooBah" becomes "fooBah" and "X" becomes "x", but "URL" stays
-	 * as "URL".
-	 *
-	 * @param  name The string to be decapitalized.
-	 * @return  The decapitalized version of the string.
-	 */
-	private static String decapitalize(String name) {
-	    if (name == null || name.length() == 0) {
-	        return name;
-	    }
-	    if (name.length() > 1 && Character.isUpperCase(name.charAt(1)) &&
-	                    Character.isUpperCase(name.charAt(0))){
-	        return name;
-	    }
-	    char chars[] = name.toCharArray();
-	    chars[0] = Character.toLowerCase(chars[0]);
-	    return new String(chars);
-	}
     
   /**
    * Transforms accessor names to their simple property name according to the JavaBeans convention.
@@ -59,9 +34,9 @@ public class NameTransformers {
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType)) {
         if (name.startsWith("get"))
-          return NameTransformers.decapitalize(name.substring(3));
+          return Strings.decapitalize(name.substring(3));
         else if (name.startsWith("is"))
-          return NameTransformers.decapitalize(name.substring(2));
+          return Strings.decapitalize(name.substring(2));
       }
 
       return name;
@@ -80,7 +55,7 @@ public class NameTransformers {
   public static final NameTransformer JAVABEANS_MUTATOR = new NameTransformer() {
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType) && name.startsWith("set"))
-        return NameTransformers.decapitalize(name.substring(3));
+        return Strings.decapitalize(name.substring(3));
       return name;
     }
 
