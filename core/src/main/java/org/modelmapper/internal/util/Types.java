@@ -21,10 +21,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Utilities for working with types.
@@ -34,6 +39,8 @@ import java.lang.reflect.WildcardType;
 public final class Types {
   private static Class<?> JAVASSIST_PROXY_FACTORY_CLASS;
   private static Method JAVASSIST_IS_PROXY_CLASS_METHOD;
+  private static Map<Class<?>, Object[]> defaultConstructionArgs;
+  private static Map<Class<?>, Class<?>[]> defaultConstructionParamTypes;
 
   static {
     try {
@@ -43,9 +50,45 @@ public final class Types {
           new Class<?>[] { Class.class });
     } catch (Exception ignore) {
     }
+
+    defaultConstructionArgs = new HashMap<Class<?>, Object[]>();
+    defaultConstructionArgs.put(BigInteger.class, new Object[] { "0" });
+    defaultConstructionParamTypes = new HashMap<Class<?>, Class<?>[]>();
+    defaultConstructionParamTypes.put(BigDecimal.class, new Class<?>[] { Integer.TYPE });
   }
 
-  private Types() {
+  /**
+   * Constructs the {@code type} via a non-private default constructor, a pre-defined constructor,
+   * or the constructor with the least non-primitive parameter types.
+   * 
+   * @param type to construct
+   * @param lookupType used to lookup pre-defined constructor parameter types and arguments for
+   *          types that are difficult to construct generically
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T construct(Class<?> type, Class<?> lookupType) throws Exception {
+    Constructor<?>[] constructors = type.getDeclaredConstructors();
+
+    for (Constructor<?> constructor : constructors)
+      if (!Modifier.isPrivate(constructor.getModifiers())
+          && constructor.getParameterTypes().length == 0)
+        return (T) constructor.newInstance();
+
+    Class<?>[] paramTypes = defaultConstructionParamTypes.get(lookupType);
+    Object[] args = defaultConstructionArgs.get(lookupType);
+    if (paramTypes != null || args != null) {
+      if (paramTypes == null)
+        paramTypes = typesFor(args);
+      else if (args == null)
+        args = defaultArgumentsFor(paramTypes);
+
+      Constructor<?> constructor = type.getDeclaredConstructor(paramTypes);
+      if (constructor != null)
+        return (T) constructor.newInstance(args);
+    }
+
+    Constructor<?> constructor = bestConstructorOf(constructors);
+    return (T) constructor.newInstance(defaultArgumentsFor(constructor.getParameterTypes()));
   }
 
   /**
@@ -128,13 +171,6 @@ public final class Types {
   }
 
   /**
-   * Returns a simplified String representation of the {@code type}.
-   */
-  public static String toString(Type type) {
-    return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
-  }
-
-  /**
    * Returns a simplified String representation of the {@code member}.
    */
   public static String toString(Member member) {
@@ -146,5 +182,41 @@ public final class Types {
       return member.getDeclaringClass().getName() + ".<init>()";
     }
     return null;
+  }
+
+  /**
+   * Returns a simplified String representation of the {@code type}.
+   */
+  public static String toString(Type type) {
+    return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
+  }
+
+  /**
+   * Returns the types for the {@code objects}.
+   */
+  public static Class<?>[] typesFor(Object[] objects) {
+    Class<?>[] types = new Class<?>[objects.length];
+    for (int i = 0; i < objects.length; i++)
+      types[i] = objects[i].getClass();
+    return types;
+  }
+
+  /** Returns the constructor with the least non-primitive parameter types. */
+  static Constructor<?> bestConstructorOf(Constructor<?>[] constructors) {
+    int minNonPrimitives = -1;
+    Constructor<?> bestConstructor = null;
+
+    for (Constructor<?> constructor : constructors) {
+      int nonPrimitiveCount = 0;
+      for (Class<?> paramType : constructor.getParameterTypes())
+        if (!paramType.isPrimitive())
+          nonPrimitiveCount++;
+      if (minNonPrimitives == -1 || nonPrimitiveCount < minNonPrimitives) {
+        minNonPrimitives = nonPrimitiveCount;
+        bestConstructor = constructor;
+      }
+    }
+
+    return bestConstructor;
   }
 }
