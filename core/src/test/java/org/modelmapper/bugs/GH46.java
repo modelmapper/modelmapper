@@ -1,5 +1,7 @@
 package org.modelmapper.bugs;
 
+import static org.testng.Assert.assertEquals;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -12,7 +14,7 @@ import org.testng.annotations.Test;
  */
 @Test
 public class GH46 {
-  static class Class1 {
+  static class Source {
     BigInteger i;
     BigDecimal bd;
 
@@ -33,7 +35,7 @@ public class GH46 {
     }
   }
 
-  static class Class2 {
+  static class Dest {
     BigInteger i2;
     BigDecimal bd2;
 
@@ -54,7 +56,7 @@ public class GH46 {
     }
   }
 
-  private PropertyMap<Class1, Class2> map = new PropertyMap<Class1, Class2>() {
+  private PropertyMap<Source, Dest> map = new PropertyMap<Source, Dest>() {
     protected void configure() {
       map(source.getBI()).setBI2(null);
       map(source.getBd()).setBd2(null);
@@ -66,11 +68,12 @@ public class GH46 {
     modelMapper = new ModelMapper();
     modelMapper.addMappings(map);
 
-    Class1 c1 = new Class1();
-    c1.setBI(BigInteger.valueOf(4));
-    c1.setBd(new BigDecimal("123.123"));
+    Source src = new Source();
+    src.setBI(BigInteger.valueOf(4));
+    src.setBd(new BigDecimal("123.123"));
 
-    Class2 c2 = new Class2();
-    modelMapper.map(c1, c2);
+    Dest dest = modelMapper.map(src, Dest.class);
+    assertEquals(dest.getBI2(), src.getBI());
+    assertEquals(dest.getBd2(), src.getBd());
   }
 }
