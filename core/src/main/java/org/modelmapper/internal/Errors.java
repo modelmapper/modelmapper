@@ -190,7 +190,7 @@ public final class Errors {
   }
 
   public Errors errorUnmappedProperties(TypeMap<?, ?> typeMap, List<PropertyInfo> unmappedProperties) {
-    return addMessage("Unmapped destination properties found in %s:\n\n%s", typeMap,
+    return addMessage("Unmapped properties found in %s:\n\n%s", typeMap,
         unmappedProperties);
   }
 
