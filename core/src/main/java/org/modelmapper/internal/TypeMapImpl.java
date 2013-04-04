@@ -125,16 +125,35 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   public List<PropertyInfo> getUnmappedProperties() {
-    TypeInfo<D> destinationInfo = TypeInfoRegistry.typeInfoFor(destinationType, configuration);
-    List<PropertyInfo> unmapped = new ArrayList<PropertyInfo>();
+    List<PropertyInfo> unmapped = getUnmappedDestinationProperties();
 
-    synchronized (mappings) {
-      for (Map.Entry<String, Mutator> entry : destinationInfo.getMutators().entrySet())
-        if (!mappedProperties.containsKey(entry.getKey()))
-          unmapped.add(entry.getValue());
+    if (MatchingStrategies.STRICT.equals(configuration.getMatchingStrategy())) {
+      unmapped.addAll(getUnmappedSourceProperties());
     }
 
     return unmapped;
+  }
+
+  private List<PropertyInfo> getUnmappedSourceProperties() {
+    TypeInfo<S> sourceInfo = TypeInfoRegistry.typeInfoFor(sourceType, configuration);
+    return getUnmappedProperties(sourceInfo);
+  }
+  
+  private List<PropertyInfo> getUnmappedDestinationProperties() {
+   TypeInfo<D> destinationInfo = TypeInfoRegistry.typeInfoFor(destinationType, configuration);
+   return getUnmappedProperties(destinationInfo);
+  }
+
+  private List<PropertyInfo> getUnmappedProperties(final TypeInfo typeInfo) {
+    final List<PropertyInfo> propertyInfos = new ArrayList<PropertyInfo>();
+    synchronized (mappings) {
+      for (Map.Entry<String, Mutator> entry : typeInfo.getMutators().entrySet()) {
+        if (!mappedProperties.containsKey(entry.getKey())) {
+          propertyInfos.add(entry.getValue());
+        }
+      }
+    }
+    return propertyInfos;
   }
 
   public D map(S source) {
