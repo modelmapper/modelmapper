@@ -242,15 +242,17 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
       return;
 
     Errors errors = new Errors();
-    final List<PropertyInfo> unmappedSourceProperties = getUnmappedSourceProperties();
-    if (!unmappedSourceProperties.isEmpty())
-      errors.errorUnmappedSourceProperties(this, unmappedSourceProperties);
+
+    final List<PropertyInfo> unmappedDestinationProperties = getUnmappedDestinationProperties();
+    if (!unmappedDestinationProperties.isEmpty()) {
+      errors.errorUnmappedDestinationProperties(this, unmappedDestinationProperties);
+    }
 
     if (MatchingStrategies.STRICT.equals(configuration.getMatchingStrategy())) {
-        final List<PropertyInfo> unmappedDestinationProperties = getUnmappedDestinationProperties();
-        if (!unmappedDestinationProperties.isEmpty()) {
-            errors.errorUnmappedDestinationProperties(this, unmappedDestinationProperties);
-        }
+      final List<PropertyInfo> unmappedSourceProperties = getUnmappedSourceProperties();
+      if (!unmappedSourceProperties.isEmpty()) {
+        errors.errorUnmappedSourceProperties(this, unmappedSourceProperties);
+      }
     }
       
     errors.throwValidationExceptionIfErrorsExist();
