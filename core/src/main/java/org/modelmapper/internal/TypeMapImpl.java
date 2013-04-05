@@ -27,6 +27,7 @@ import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.config.Configuration;
+import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -134,26 +135,30 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return unmapped;
   }
 
-  private List<PropertyInfo> getUnmappedSourceProperties() {
+  public List<PropertyInfo> getUnmappedSourceProperties() {
     TypeInfo<S> sourceInfo = TypeInfoRegistry.typeInfoFor(sourceType, configuration);
-    return getUnmappedProperties(sourceInfo);
+      final List<PropertyInfo> propertyInfos = new ArrayList<PropertyInfo>();
+      synchronized (mappings) {
+          for (final Map.Entry<String, Mutator> entry : sourceInfo.getMutators().entrySet()) {
+              if (!mappedProperties.containsKey(entry.getKey())) {
+                  propertyInfos.add(entry.getValue());
+              }
+          }
+      }
+      return propertyInfos;
   }
   
-  private List<PropertyInfo> getUnmappedDestinationProperties() {
+  public List<PropertyInfo> getUnmappedDestinationProperties() {
    TypeInfo<D> destinationInfo = TypeInfoRegistry.typeInfoFor(destinationType, configuration);
-   return getUnmappedProperties(destinationInfo);
-  }
-
-  private List<PropertyInfo> getUnmappedProperties(final TypeInfo typeInfo) {
-    final List<PropertyInfo> propertyInfos = new ArrayList<PropertyInfo>();
-    synchronized (mappings) {
-      for (Map.Entry<String, Mutator> entry : typeInfo.getMutators().entrySet()) {
-        if (!mappedProperties.containsKey(entry.getKey())) {
-          propertyInfos.add(entry.getValue());
-        }
+      final List<PropertyInfo> propertyInfos = new ArrayList<PropertyInfo>();
+      synchronized (mappings) {
+          for (final Map.Entry<String, Mutator> entry : destinationInfo.getMutators().entrySet()) {
+              if (!mappedProperties.containsKey(entry.getKey())) {
+                  propertyInfos.add(entry.getValue());
+              }
+          }
       }
-    }
-    return propertyInfos;
+      return propertyInfos;
   }
 
   public D map(S source) {
@@ -237,10 +242,17 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
       return;
 
     Errors errors = new Errors();
-    List<PropertyInfo> unmappedProperties = getUnmappedProperties();
-    if (!unmappedProperties.isEmpty())
-      errors.errorUnmappedProperties(this, unmappedProperties);
+    final List<PropertyInfo> unmappedSourceProperties = getUnmappedSourceProperties();
+    if (!unmappedSourceProperties.isEmpty())
+      errors.errorUnmappedSourceProperties(this, unmappedSourceProperties);
 
+    if (MatchingStrategies.STRICT.equals(configuration.getMatchingStrategy())) {
+        final List<PropertyInfo> unmappedDestinationProperties = getUnmappedDestinationProperties();
+        if (!unmappedDestinationProperties.isEmpty()) {
+            errors.errorUnmappedDestinationProperties(this, unmappedDestinationProperties);
+        }
+    }
+      
     errors.throwValidationExceptionIfErrorsExist();
   }
 
