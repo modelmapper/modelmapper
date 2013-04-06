@@ -65,4 +65,10 @@ public class MatchingStrategies {
    * </ul>
    */
   public static final MatchingStrategy STRICT = new StrictMatchingStrategy();
+    
+  /**
+   * A matching strategy that won't match automatically any properties. Only properties explicitly
+   * mapped will be copied to the destination.
+   */
+  public static final MatchingStrategy EXPLICIT = new ExplicitMatchingStrategy();
 }
