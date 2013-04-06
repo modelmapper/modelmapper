@@ -1,5 +1,6 @@
 package org.modelmapper.internal;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertTrue;
 
 import java.util.List;
@@ -37,10 +38,10 @@ public class ProxyFactoryTest {
     }
   }
 
-  @Test(enabled=false)
-  // would require a MappingProgress mock instead of null
+  @Test
   public void shouldProxyTypesWithNonDefaultConstructor() {
-    assertTrue(ProxyFactory.proxyFor(A1.class, null) instanceof A1);
-    assertTrue(ProxyFactory.proxyFor(A2.class, null) instanceof A2);
+    MappingProgress<?> progress = mock(MappingProgress.class);
+    assertTrue(ProxyFactory.proxyFor(A1.class, progress) instanceof A1);
+    assertTrue(ProxyFactory.proxyFor(A2.class, progress) instanceof A2);
   }
 }
