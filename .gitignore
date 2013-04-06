@@ -8,3 +8,5 @@ release.properties
 .settings/
 _site/
 user-manual/
+.idea
+*.iml
