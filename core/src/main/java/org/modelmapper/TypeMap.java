@@ -214,11 +214,12 @@ public interface TypeMap<S, D> {
   TypeMap<S, D> setProvider(Provider<D> provider);
 
   /**
-   * Validates that <b>every</b> top level destination property is mapped to one and only one source
-   * property, or that a {@code Converter} was {@link #setConverter(Converter) set}. If not, a
-   * ConfigurationException is thrown detailing any missing mappings.
+   * Validates the TypeMap against the {@code validators}. Any validation failures will result in a
+   * ValidationException being thrown. If no {@code validators} are provided then
+   * {@link Validators#DESTINATION_PROPERTIES_MAPPED} is used by default.
    * 
-   * @throws ValidationException if any TypeMaps contain unmapped properties
+   * @param validators to perform validation with
+   * @throws ValidationException if validation fails
    */
-  void validate();
+  void validate(Validator... validators);
 }
