@@ -15,6 +15,11 @@
  */
 package org.modelmapper;
 
+import org.modelmapper.internal.Errors;
+import org.modelmapper.spi.PropertyInfo;
+
+import java.util.List;
+
 /**
  * {@link Validator} implementations.
  * 
@@ -27,8 +32,13 @@ public class Validators {
   public static final Validator SOURCE_PROPERTIES_MAPPED = new Validator() {
     @SuppressWarnings("unused") private static final long serialVersionUID = 0;
 
-    public boolean isValid(TypeMap<?, ?> typeMap) {
-      return false;
+    public void isValid(TypeMap<?, ?> typeMap) {
+      final Errors error = new Errors();
+      final List<PropertyInfo> unmappedSourceProperties = typeMap.getUnmappedSourceProperties();
+      if (!unmappedSourceProperties.isEmpty()) {
+        error.errorUnmappedSourceProperties(typeMap, unmappedSourceProperties);
+      }
+      error.throwValidationExceptionIfErrorsExist();
     }
 
     @Override
@@ -44,8 +54,14 @@ public class Validators {
   public static final Validator DESTINATION_PROPERTIES_MAPPED = new Validator() {
     @SuppressWarnings("unused") private static final long serialVersionUID = 0;
 
-    public boolean isValid(TypeMap<?, ?> typeMap) {
-      return false;
+    public void isValid(TypeMap<?, ?> typeMap) {
+      final Errors error = new Errors();
+      final List<PropertyInfo> unmappedDestinationProperties = typeMap.getUnmappedDestinationProperties();
+      if (!unmappedDestinationProperties.isEmpty()) {
+        error.errorUnmappedDestinationProperties(typeMap, unmappedDestinationProperties);
+      }
+
+      error.throwValidationExceptionIfErrorsExist();
     }
 
     @Override
@@ -53,4 +69,6 @@ public class Validators {
       return "destinationPropertiesMapped()";
     }
   };
+
+  public static final Validator[] ALL = {SOURCE_PROPERTIES_MAPPED, DESTINATION_PROPERTIES_MAPPED};
 }

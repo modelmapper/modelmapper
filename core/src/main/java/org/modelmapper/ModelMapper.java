@@ -29,7 +29,7 @@ import org.modelmapper.internal.util.Types;
 /**
  * ModelMapper framework entry point. Performs object mapping and contains mapping related
  * configuration.
- * 
+ *
  * <ul>
  * <li>To perform object mapping call {@link #map(Object, Class) map}.</li>
  * <li>To configure the mapping of one type to another call {@link #createTypeMap(Class, Class)
@@ -38,7 +38,7 @@ import org.modelmapper.internal.util.Types;
  * supplying a {@link PropertyMap}.</li>
  * <li>To configure ModelMapper call {@link #getConfiguration getConfiguration}.
  * </ul>
- * 
+ *
  * @author Jonathan Halterman
  */
 public class ModelMapper {
@@ -57,7 +57,7 @@ public class ModelMapper {
    * Registers the {@code converter} to use when mapping instances of types {@code S} to {@code D}.
    * The {@code converter} will be set against TypeMap corresponding to the {@code converter}'s type
    * arguments {@code S} and {@code D}.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param converter to register
@@ -71,14 +71,14 @@ public class ModelMapper {
     Class<?>[] typeArguments = TypeResolver.resolveArguments(converter.getClass(), Converter.class);
     Assert.notNull("Must declare source type argument <S> and destination type argument <D> for converter");
     config.typeMapStore.<S, D>getOrCreate((Class<S>) typeArguments[0], (Class<D>) typeArguments[1],
-        null, converter, engine);
+      null, converter, engine);
   }
 
   /**
    * Adds mappings from the {@code propertyMap} into the TypeMap corresponding to source type
    * {@code S} and destination type {@code D}. Explicit mappings defined in the {@code propertyMap}
    * will override any implicit mappings for the same properties.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param propertyMap from which mappings should be loaded
@@ -90,13 +90,13 @@ public class ModelMapper {
   public <S, D> TypeMap<S, D> addMappings(PropertyMap<S, D> propertyMap) {
     Assert.notNull(propertyMap, "propertyMap");
     return config.typeMapStore.getOrCreate(propertyMap.sourceType, propertyMap.destinationType,
-        propertyMap, null, engine);
+      propertyMap, null, engine);
   }
 
   /**
    * Creates a TypeMap for the {@code sourceType} and {@code destinationType} using the
    * ModelMapper's configuration.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
@@ -114,7 +114,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code sourceType} and {@code destinationType} using the given
    * {@code configuration}.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
@@ -128,13 +128,13 @@ public class ModelMapper {
    * @see #getTypeMap(Class, Class)
    */
   public <S, D> TypeMap<S, D> createTypeMap(Class<S> sourceType, Class<D> destinationType,
-      Configuration configuration) {
+                                            Configuration configuration) {
     Assert.notNull(sourceType, "sourceType");
     Assert.notNull(destinationType, "destinationType");
     Assert.notNull(configuration, "configuration");
     synchronized (config.typeMapStore.lock()) {
       Assert.state(config.typeMapStore.get(sourceType, destinationType) == null,
-          String.format("A TypeMap already exists for %s and %s", sourceType, destinationType));
+        String.format("A TypeMap already exists for %s and %s", sourceType, destinationType));
       return config.typeMapStore.create(sourceType, destinationType, configuration, engine);
     }
   }
@@ -149,7 +149,7 @@ public class ModelMapper {
   /**
    * Returns the TypeMap for the {@code sourceType} and {@code destinationType}, else returns
    * {@code null} if none exists.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @throws IllegalArgumentException is {@code sourceType} or {@code destinationType} are null
@@ -172,7 +172,7 @@ public class ModelMapper {
    * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
    * to the corresponding TypeMap. If no TypeMap exists for {@code source.getClass()} and
    * {@code destinationType} then one is created.
-   * 
+   *
    * @param <D> destination type
    * @param source object to map from
    * @param destinationType type to map to
@@ -189,7 +189,7 @@ public class ModelMapper {
    * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
    * TypeMap. If no TypeMap exists for {@code source.getClass()} and {@code destination.getClass()}
    * then one is created.
-   * 
+   *
    * @param source object to map from
    * @param destination object to map to
    * @throws IllegalArgumentException if {@code source} or {@code destination} are null
@@ -200,22 +200,22 @@ public class ModelMapper {
     Assert.notNull(source, "source");
     Assert.notNull(destination, "destination");
     engine.<Object, Object>map(source, Types.<Object>deProxy(source.getClass()), destination,
-        TypeToken.of(Types.<Object>deProxy(destination.getClass())));
+      TypeToken.of(Types.<Object>deProxy(destination.getClass())));
   }
 
   /**
    * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
    * to the corresponding TypeMap. If no TypeMap exists for {@code source.getClass()} and
    * {@code destinationType} then one is created.
-   * 
+   *
    * <p>
    * To map a parameterized type, subclass {@link TypeToken} and obtain its Type:
-   * 
+   *
    * <pre>
    * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
    * List&lt;String&gt; strings = modelMapper.map(source, listType);
    * </pre>
-   * 
+   *
    * @param <D> destination type
    * @param source object to map from
    * @param destinationType type to map to
@@ -228,14 +228,14 @@ public class ModelMapper {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), null,
-        TypeToken.<D>of(destinationType));
+      TypeToken.<D>of(destinationType));
   }
 
   /**
    * Validates each configured TypeMap against the {@code validators}. Any validation failures will
    * result in a ValidationException being thrown. If no {@code validators} are provided then
    * {@link Validators#DESTINATION_PROPERTIES_MAPPED} is used by default.
-   * 
+   *
    * @param validators to perform validation with
    * @throws ValidationException if validation fails
    */
@@ -245,10 +245,12 @@ public class ModelMapper {
     Errors errors = new Errors();
 
     for (TypeMap<?, ?> typeMap : getTypeMaps()) {
-      try {
-        typeMap.validate(validators);
-      } catch (ValidationException e) {
-        errors.merge(e.getErrorMessages());
+      for (final Validator validator : validators) {
+        try {
+          validator.isValid(typeMap);
+        } catch (ValidationException e) {
+          errors.merge(e.getErrorMessages());
+        }
       }
     }
 

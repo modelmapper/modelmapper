@@ -26,5 +26,5 @@ public interface Validator {
    * 
    * @param typeMap to validate
    */
-  boolean isValid(TypeMap<?, ?> typeMap);
+  void isValid(TypeMap<?, ?> typeMap) throws ValidationException;
 }
