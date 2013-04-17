@@ -189,7 +189,12 @@ public final class Errors {
     return addMessage("Value '%s' is too small for %s", source, Types.toString(destinationType));
   }
 
-  public Errors errorUnmappedProperties(TypeMap<?, ?> typeMap, List<PropertyInfo> unmappedProperties) {
+  public Errors errorUnmappedSourceProperties(TypeMap<?, ?> typeMap, List<PropertyInfo> unmappedProperties) {
+    return addMessage("Unmapped source properties found in %s:\n\n%s", typeMap,
+        unmappedProperties);
+  }
+
+  public Errors errorUnmappedDestinationProperties(TypeMap<?, ?> typeMap, List<PropertyInfo> unmappedProperties) {
     return addMessage("Unmapped destination properties found in %s:\n\n%s", typeMap,
         unmappedProperties);
   }
