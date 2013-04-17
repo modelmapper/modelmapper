@@ -134,7 +134,7 @@ public class MappingEngineImpl implements MappingEngine {
 
       converter = typeMap.getPreConverter();
       if (converter != null)
-        convert(context, converter);
+        context.setDestination(convert(context, converter));
 
       for (Mapping mapping : typeMap.getMappings())
         propertyMap(mapping, context);
