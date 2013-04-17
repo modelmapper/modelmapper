@@ -164,14 +164,15 @@ class PropertyMappingBuilder<S, D> {
               destinationMutator.getType());
           PropertyMappingImpl mapping = null;
 
-          // Create mapping(s) from existing TypeMap
+          // Check to create mapping(s) from existing TypeMap
           if (propertyTypeMap != null) {
             Converter<?, ?> propertyConverter = propertyTypeMap.getConverter();
             if (propertyConverter == null)
               mergeMappings(propertyTypeMap);
             else
               mappings.add(new PropertyMappingImpl(propertyNameInfo.getSourceProperties(),
-                  propertyNameInfo.getDestinationProperties(), propertyConverter));
+                  propertyNameInfo.getDestinationProperties(), propertyTypeMap.getProvider(),
+                  propertyConverter));
             doneMatching = matchingStrategy.isExact();
           } else {
             for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
