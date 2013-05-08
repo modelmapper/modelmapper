@@ -245,12 +245,10 @@ public class ModelMapper {
     Errors errors = new Errors();
 
     for (TypeMap<?, ?> typeMap : getTypeMaps()) {
-      for (final Validator validator : validators) {
-        try {
-          validator.isValid(typeMap);
-        } catch (ValidationException e) {
-          errors.merge(e.getErrorMessages());
-        }
+      try {
+        typeMap.validate(validators);
+      } catch (ValidationException e) {
+        errors.merge(e.getErrorMessages());
       }
     }
 

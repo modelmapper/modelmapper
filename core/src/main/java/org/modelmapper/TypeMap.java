@@ -213,6 +213,16 @@ public interface TypeMap<S, D> {
    */
   TypeMap<S, D> setProvider(Provider<D> provider);
 
+  /**
+   * Validates the TypeMap against the {@code validators}. Any validation failures will result in a
+   * ValidationException being thrown. If no {@code validators} are provided then
+   * {@link Validators#DESTINATION_PROPERTIES_MAPPED} is used by default.
+   *
+   * @param validators to perform validation with
+   * @throws ValidationException if validation fails
+   */
+  void validate(Validator... validators);
+
   List<PropertyInfo> getUnmappedDestinationProperties();
   List<PropertyInfo> getUnmappedSourceProperties();
   }

@@ -238,6 +238,12 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
         destinationType.getSimpleName());
   }
 
+  public void validate(Validator... validators) {
+    for (final Validator validator : validators) {
+      validator.isValid(this);
+    }
+  }
+
   MappingImpl addMapping(MappingImpl mapping) {
     synchronized (mappings) {
       mappedProperties.put(mapping.getDestinationProperties().get(0).getName(),
