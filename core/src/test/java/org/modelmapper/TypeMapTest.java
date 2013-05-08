@@ -124,23 +124,4 @@ public class TypeMapTest extends AbstractTest {
     ConstantMapping surName = (ConstantMapping) mappings.get("setSurName");
     assertEquals(surName.getConstant(), "smith");
   }
-
-  public void shouldThrowOnValidateWhenDestinationMembersMissing() {
-    try {
-      modelMapper.createTypeMap(Person.class, PersonDTO.class).validate();
-    } catch (ValidationException e) {
-      Asserts.assertContains(e.getMessage(), "1) Unmapped destination properties");
-      return;
-    }
-  }
-
-  public void shouldValidateWhenAllDestinationMembersMapped() {
-    modelMapper.addMappings(new PropertyMap<Person, PersonDTO>() {
-      @Override
-      protected void configure() {
-        map().setSurName("smith");
-        map().setEmployerName("acme");
-      }
-    }).validate();
-  }
 }

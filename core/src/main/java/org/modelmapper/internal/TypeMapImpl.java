@@ -239,24 +239,9 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   public void validate(Validator... validators) {
-    if (converter != null || preConverter != null || postConverter != null)
-      return;
-
-    Errors errors = new Errors();
-
-    final List<PropertyInfo> unmappedDestinationProperties = getUnmappedDestinationProperties();
-    if (!unmappedDestinationProperties.isEmpty()) {
-      errors.errorUnmappedDestinationProperties(this, unmappedDestinationProperties);
+    for (final Validator validator : validators) {
+      validator.isValid(this);
     }
-
-    if (MatchingStrategies.STRICT.equals(configuration.getMatchingStrategy())) {
-      final List<PropertyInfo> unmappedSourceProperties = getUnmappedSourceProperties();
-      if (!unmappedSourceProperties.isEmpty()) {
-        errors.errorUnmappedSourceProperties(this, unmappedSourceProperties);
-      }
-    }
-
-    errors.throwValidationExceptionIfErrorsExist();
   }
 
   MappingImpl addMapping(MappingImpl mapping) {

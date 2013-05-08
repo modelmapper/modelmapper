@@ -119,7 +119,7 @@ public class ModelMapperTest extends AbstractTest {
   public void shouldThrowOnValidateWhenDestinationMembersMissing() {
     modelMapper.createTypeMap(Person.class, PersonDTO.class);
     try {
-      modelMapper.validate();
+      modelMapper.validate(Validators.DESTINATION_PROPERTIES_MAPPED);
     } catch (ValidationException e) {
       Asserts.assertContains(e.getMessage(), "1) Unmapped destination properties found");
       return;
@@ -129,25 +129,13 @@ public class ModelMapperTest extends AbstractTest {
   }
 
   public void shouldThrowOnValidateWhenSourceMembersMissing() {
-    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     modelMapper.createTypeMap(Person.class, PersonDTOSourceMemberMissing.class);
     try {
-      modelMapper.validate();
+      modelMapper.validate(Validators.SOURCE_PROPERTIES_MAPPED);
     } catch (ValidationException e) {
       Asserts.assertContains(e.getMessage(), "1) Unmapped source properties found");
       return;
     }
     fail("No validation error thrown...");
     }
-
-  public void shouldSucceedWhenSourceMembersMissingAndModeNotStrict() {
-    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
-    modelMapper.createTypeMap(Person.class, PersonDTOSourceMemberMissing.class);
-    try {
-      modelMapper.validate();
-    } catch (ValidationException e) {
-      fail("Validation of mapper failed", e);
-    }
-  }
-
 }
