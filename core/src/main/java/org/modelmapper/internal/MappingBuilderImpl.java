@@ -105,7 +105,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     return this;
   }
 
-  public ConditionExpression<S, D> withProvider(Provider<?> provider) {
+  public ConditionExpression<S, D> with(Provider<?> provider) {
     checkLastMapping();
     Assert.state(options.provider == null, "withProvider() can only be called once per mapping.");
     options.provider = provider;

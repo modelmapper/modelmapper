@@ -132,7 +132,7 @@ import org.modelmapper.internal.util.TypeResolver;
  * destination name instances when mapping the source type's {@code getName} method to the
  * destination type's {@code setName}.
  * 
- * <pre>    withProvider(nameProvider).map().setName(source.getName());</pre>
+ * <pre>    with(nameProvider).map().setName(source.getName());</pre>
  * 
  * @param <S> source type
  * @param <D> destination type
@@ -251,9 +251,9 @@ public abstract class PropertyMap<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final ConverterExpression<S, D> withProvider(Provider<?> provider) {
+  protected final ConverterExpression<S, D> with(Provider<?> provider) {
     checkBuilder();
-    return builder.withProvider(provider);
+    return builder.with(provider);
   }
 
   private void checkBuilder() {
