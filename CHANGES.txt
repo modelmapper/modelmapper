@@ -1,4 +1,4 @@
-0.5.6 (3/21/2012)
+0.5.6 (3/21/2013)
 
 - Fixed #46 - Property map difficult to construct types
 - Added #45 - Android compatibility
@@ -7,7 +7,7 @@
 - Fixed #31 - Multiple source properties hierarchy matching problem
 - FIxed #38 - Map mocked objects
 
-0.5.5 (2/14/2012)
+0.5.5 (2/14/2013)
 
 - Added support for TypeTokens
 - Fixed GH #23 - Support for combined token matching
