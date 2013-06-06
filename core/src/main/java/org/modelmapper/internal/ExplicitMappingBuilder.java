@@ -27,9 +27,8 @@ import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.builder.ConditionExpression;
-import org.modelmapper.config.Configuration;
-import org.modelmapper.internal.MappingProgress.DestinationProgress;
-import org.modelmapper.internal.MappingProgress.SourceProgress;
+import org.modelmapper.internal.ExplicitMappingProgress.DestinationProgress;
+import org.modelmapper.internal.ExplicitMappingProgress.SourceProgress;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 
@@ -38,11 +37,11 @@ import org.modelmapper.internal.util.Types;
  * 
  * @author Jonathan Halterman
  */
-public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
+public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private static Method PROPERTY_MAP_CONFIGURE;
   private final Class<S> sourceType;
   private final Class<D> destinationType;
-  final Configuration configuration;
+  final InheritingConfiguration configuration;
   volatile S source;
   private volatile D destination;
   final Errors errors = new Errors();
@@ -54,7 +53,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
 
   static {
     PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure",
-        MappingBuilderImpl.class);
+        ExplicitMappingBuilder.class);
     PROPERTY_MAP_CONFIGURE.setAccessible(true);
   }
 
@@ -66,7 +65,8 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     boolean mapFromSource;
   }
 
-  MappingBuilderImpl(Class<S> sourceType, Class<D> destinationType, Configuration configuration) {
+  ExplicitMappingBuilder(Class<S> sourceType, Class<D> destinationType,
+      InheritingConfiguration configuration) {
     this.sourceType = sourceType;
     this.destinationType = destinationType;
     this.configuration = configuration;
@@ -105,7 +105,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     return this;
   }
 
-  public ConditionExpression<S, D> withProvider(Provider<?> provider) {
+  public ConditionExpression<S, D> with(Provider<?> provider) {
     checkLastMapping();
     Assert.state(options.provider == null, "withProvider() can only be called once per mapping.");
     options.provider = provider;
@@ -142,7 +142,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
     destinationRequested = true;
 
     if (destination == null) {
-      synchronized (MappingBuilderImpl.class) {
+      synchronized (ExplicitMappingBuilder.class) {
         if (destination == null) {
           try {
             destination = ProxyFactory.<D>proxyFor(destinationType, destinationProgress);
@@ -159,7 +159,7 @@ public class MappingBuilderImpl<S, D> implements ConditionExpression<S, D> {
 
   public S getSource() {
     if (source == null) {
-      synchronized (MappingBuilderImpl.class) {
+      synchronized (ExplicitMappingBuilder.class) {
         if (source == null) {
           try {
             source = ProxyFactory.<S>proxyFor(sourceType, sourceProgress);

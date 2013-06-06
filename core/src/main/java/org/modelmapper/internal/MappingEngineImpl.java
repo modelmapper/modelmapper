@@ -26,7 +26,6 @@ import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
-import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Primitives;
@@ -47,7 +46,7 @@ import org.modelmapper.spi.SourceMapping;
 public class MappingEngineImpl implements MappingEngine {
   /** Cache of conditional converters */
   private final Map<TypePair<?, ?>, Converter<?, ?>> converterCache = new ConcurrentHashMap<TypePair<?, ?>, Converter<?, ?>>();
-  private final Configuration configuration;
+  private final InheritingConfiguration configuration;
   private final TypeMapStore typeMapStore;
   private final ConverterStore converterStore;
 
@@ -105,8 +104,8 @@ public class MappingEngineImpl implements MappingEngine {
         destination = convert(context, converter);
       } else {
         // Call getOrCreate in case TypeMap was created concurrently
-        typeMap = typeMapStore.getOrCreate(context.getSourceType(), context.getDestinationType(),
-            this);
+        typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(),
+            context.getDestinationType(), this);
         destination = typeMap(contextImpl, typeMap);
       }
     }
@@ -134,7 +133,7 @@ public class MappingEngineImpl implements MappingEngine {
 
       converter = typeMap.getPreConverter();
       if (converter != null)
-        convert(context, converter);
+        context.setDestination(convert(context, converter));
 
       for (Mapping mapping : typeMap.getMappings())
         propertyMap(mapping, context);
@@ -156,6 +155,8 @@ public class MappingEngineImpl implements MappingEngine {
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
     if (condition == null)
       condition = (Condition<Object, Object>) context.getTypeMap().getPropertyCondition();
+    if (condition == null)
+      condition = (Condition<Object, Object>) configuration.getPropertyCondition();
     if (condition == null && mapping.isSkipped())
       return;
 

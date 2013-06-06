@@ -26,7 +26,6 @@ import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
-import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -40,7 +39,7 @@ import org.modelmapper.spi.PropertyInfo;
 class TypeMapImpl<S, D> implements TypeMap<S, D> {
   private final Class<S> sourceType;
   private final Class<D> destinationType;
-  final Configuration configuration;
+  final InheritingConfiguration configuration;
   private final MappingEngineImpl engine;
   /** Guarded by "mappings" */
   private final Map<String, PropertyInfo> mappedProperties = new HashMap<String, PropertyInfo>();
@@ -55,7 +54,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   private Condition<?, ?> propertyCondition;
   private Provider<?> propertyProvider;
 
-  TypeMapImpl(Class<S> sourceType, Class<D> destinationType, Configuration configuration,
+  TypeMapImpl(Class<S> sourceType, Class<D> destinationType, InheritingConfiguration configuration,
       MappingEngineImpl engine) {
     this.sourceType = sourceType;
     this.destinationType = destinationType;
@@ -68,7 +67,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
       new Errors().mappingForEnum().throwConfigurationExceptionIfErrorsExist();
 
     synchronized (mappings) {
-      for (MappingImpl mapping : new MappingBuilderImpl<S, D>(sourceType, destinationType,
+      for (MappingImpl mapping : new ExplicitMappingBuilder<S, D>(sourceType, destinationType,
           configuration).build(propertyMap)) {
         MappingImpl existingMapping = addMapping(mapping);
         if (existingMapping != null && existingMapping.isExplicit())

@@ -54,7 +54,7 @@ public class Immutable extends AbstractTest {
 
   public void shouldMapToImmutableViaSecurityOverride() {
     modelMapper.getConfiguration()
-        .enableFieldMatching(true)
+        .setFieldMatchingEnabled(true)
         .setFieldAccessLevel(AccessLevel.PRIVATE);
 
     Source source = new Source();

@@ -111,7 +111,7 @@ public class GC10 {
   public void shouldSupportMultipleSourceMappings() {
     ModelMapper mapper = new ModelMapper();
     mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
-    mapper.getConfiguration().ignoreAmbiguity(true);
+    mapper.getConfiguration().setAmbiguityIgnored(true);
 
     mapper.addMappings(new PropertyMap<FromOuter, ToOuter>() {
       protected void configure() {

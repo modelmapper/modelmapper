@@ -36,5 +36,5 @@ public interface ProviderExpression<S, D> extends ConverterExpression<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  ConverterExpression<S, D> withProvider(Provider<?> provider);
+  ConverterExpression<S, D> with(Provider<?> provider);
 }

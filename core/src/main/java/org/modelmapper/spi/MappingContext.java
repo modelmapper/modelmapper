@@ -80,6 +80,12 @@ public interface MappingContext<S, D> {
   MappingEngine getMappingEngine();
 
   /**
+   * Returns the parent MappingContext from which the current MappingContext was created, else
+   * {@code null} if there is no parent context.
+   */
+  MappingContext<?, ?> getParent();
+
+  /**
    * Returns the source object being mapped from.
    **/
   S getSource();

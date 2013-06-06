@@ -15,7 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -73,32 +72,24 @@ class ProxyFactory {
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
-  static <T> T proxyFor(Class<T> type, MappingProgress<?> mappingProgress) throws ErrorsException {
+  static <T> T proxyFor(Class<T> type, ExplicitMappingProgress<?> mappingProgress)
+      throws ErrorsException {
     if (Modifier.isFinal(type.getModifiers()))
       return null;
 
     Class<?> enhanced = proxyClassFor(type);
 
     try {
-      Constructor<?> constructor = bestConstructorFor(enhanced);
       Enhancer.registerCallbacks(enhanced, new Callback[] {
-          new MappingInterceptor(mappingProgress), NoOp.INSTANCE });
-      T result = type.cast(constructor.newInstance(Types.defaultArgumentsFor(constructor.getParameterTypes())));
+          new ExplicitMappingInterceptor(mappingProgress), NoOp.INSTANCE });
+      mappingProgress.enterConstructor();
+      T result = Types.construct(enhanced, type);
       return result;
     } catch (Throwable t) {
       throw new Errors().errorInstantiatingProxy(type, t).toException();
     } finally {
+      mappingProgress.leaveConstructor();
       Enhancer.registerCallbacks(enhanced, null);
     }
-  }
-
-  /** Returns the non-private default constructor else the first declared constructor. */
-  static Constructor<?> bestConstructorFor(Class<?> type) {
-    Constructor<?>[] constructors = type.getDeclaredConstructors();
-    for (int i = 0; i < constructors.length; i++)
-      if (!Modifier.isPrivate(constructors[i].getModifiers())
-          && constructors[i].getParameterTypes().length == 0)
-        return constructors[i];
-    return constructors[0];
   }
 }

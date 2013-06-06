@@ -19,7 +19,7 @@ import org.modelmapper.builder.ConverterExpression;
 import org.modelmapper.builder.MapExpression;
 import org.modelmapper.builder.ProviderExpression;
 import org.modelmapper.config.Configuration.AccessLevel;
-import org.modelmapper.internal.MappingBuilderImpl;
+import org.modelmapper.internal.ExplicitMappingBuilder;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.TypeResolver;
 
@@ -132,7 +132,7 @@ import org.modelmapper.internal.util.TypeResolver;
  * destination name instances when mapping the source type's {@code getName} method to the
  * destination type's {@code setName}.
  * 
- * <pre>    withProvider(nameProvider).map().setName(source.getName());</pre>
+ * <pre>    with(nameProvider).map().setName(source.getName());</pre>
  * 
  * @param <S> source type
  * @param <D> destination type
@@ -150,7 +150,7 @@ public abstract class PropertyMap<S, D> {
   public S source;
   Class<D> destinationType;
   Class<S> sourceType;
-  private MappingBuilderImpl<S, D> builder;
+  private ExplicitMappingBuilder<S, D> builder;
 
   /**
    * Creates a new PropertyMap for the source and destination types {@code S} and {@code D}.
@@ -251,9 +251,9 @@ public abstract class PropertyMap<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final ConverterExpression<S, D> withProvider(Provider<?> provider) {
+  protected final ConverterExpression<S, D> with(Provider<?> provider) {
     checkBuilder();
-    return builder.withProvider(provider);
+    return builder.with(provider);
   }
 
   private void checkBuilder() {
@@ -262,7 +262,7 @@ public abstract class PropertyMap<S, D> {
   }
 
   @SuppressWarnings("unused")
-  private synchronized void configure(MappingBuilderImpl<S, D> builder) {
+  private synchronized void configure(ExplicitMappingBuilder<S, D> builder) {
     this.builder = builder;
     this.source = builder.getSource();
 

@@ -17,6 +17,7 @@ package org.modelmapper.internal;
 
 import java.util.List;
 
+import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
@@ -25,11 +26,13 @@ import org.modelmapper.convention.NameTransformers;
 import org.modelmapper.convention.NamingConventions;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Assert;
+import org.modelmapper.internal.valueaccess.ValueAccessStore;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NamingConvention;
+import org.modelmapper.spi.ValueReader;
 
 /**
  * Inheritable mapping configuration implementation.
@@ -40,6 +43,7 @@ public class InheritingConfiguration implements Configuration {
   private final Configuration parent;
   public final TypeMapStore typeMapStore;
   public final ConverterStore converterStore;
+  public final ValueAccessStore valueAccessStore;
   private NameTokenizer destinationNameTokenizer;
   private NameTransformer destinationNameTransformer;
   private NamingConvention destinationNamingConvention;
@@ -47,11 +51,12 @@ public class InheritingConfiguration implements Configuration {
   private MatchingStrategy matchingStrategy;
   private AccessLevel methodAccessLevel;
   private Provider<?> provider;
+  private Condition<?, ?> propertyCondition;
   private NameTokenizer sourceNameTokenizer;
   private NameTransformer sourceNameTransformer;
   private NamingConvention sourceNamingConvention;
-  Boolean enableFieldMatching;
-  Boolean ignoreAmbiguity;
+  private Boolean enableFieldMatching;
+  private Boolean ignoreAmbiguity;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -60,6 +65,7 @@ public class InheritingConfiguration implements Configuration {
     parent = null;
     typeMapStore = new TypeMapStore(this);
     converterStore = new ConverterStore();
+    valueAccessStore = new ValueAccessStore();
     sourceNameTokenizer = NameTokenizers.CAMEL_CASE;
     destinationNameTokenizer = NameTokenizers.CAMEL_CASE;
     sourceNamingConvention = NamingConventions.JAVABEANS_ACCESSOR;
@@ -80,6 +86,7 @@ public class InheritingConfiguration implements Configuration {
     // Stores are not inheritable
     typeMapStore = source.typeMapStore;
     converterStore = source.converterStore;
+    valueAccessStore = source.valueAccessStore;
 
     if (inherit) {
       this.parent = source;
@@ -96,6 +103,8 @@ public class InheritingConfiguration implements Configuration {
       methodAccessLevel = source.methodAccessLevel;
       enableFieldMatching = source.enableFieldMatching;
       ignoreAmbiguity = source.ignoreAmbiguity;
+      provider = source.provider;
+      propertyCondition = source.propertyCondition;
     }
   }
 
@@ -103,8 +112,8 @@ public class InheritingConfiguration implements Configuration {
     return new InheritingConfiguration(this, false);
   }
 
-  public Configuration enableFieldMatching(boolean enabled) {
-    enableFieldMatching = enabled;
+  public <T> Configuration addValueReader(ValueReader<T> valueReader) {
+    getValueReaders().add(valueReader);
     return this;
   }
 
@@ -163,6 +172,10 @@ public class InheritingConfiguration implements Configuration {
     return methodAccessLevel == null ? parent.getMethodAccessLevel() : methodAccessLevel;
   }
 
+  public Condition<?, ?> getPropertyCondition() {
+    return propertyCondition;
+  }
+
   public Provider<?> getProvider() {
     return provider;
   }
@@ -181,6 +194,10 @@ public class InheritingConfiguration implements Configuration {
         : sourceNamingConvention;
   }
 
+  public List<ValueReader<?>> getValueReaders() {
+    return valueAccessStore.getValueReaders();
+  }
+
   /**
    * Produces a hash code from the name transformers, access levels and field matching
    * configuration.
@@ -197,17 +214,17 @@ public class InheritingConfiguration implements Configuration {
     return result;
   }
 
-  public Configuration ignoreAmbiguity(boolean ignore) {
-    this.ignoreAmbiguity = ignore;
-    return this;
-  }
-
   public boolean isAmbiguityIgnored() {
     return ignoreAmbiguity == null ? parent.isAmbiguityIgnored() : ignoreAmbiguity;
   }
 
   public boolean isFieldMatchingEnabled() {
     return enableFieldMatching == null ? parent.isFieldMatchingEnabled() : enableFieldMatching;
+  }
+
+  public Configuration setAmbiguityIgnored(boolean ignore) {
+    this.ignoreAmbiguity = ignore;
+    return this;
   }
 
   public Configuration setDestinationNameTokenizer(NameTokenizer nameTokenizer) {
@@ -230,6 +247,11 @@ public class InheritingConfiguration implements Configuration {
     return this;
   }
 
+  public Configuration setFieldMatchingEnabled(boolean enabled) {
+    enableFieldMatching = enabled;
+    return this;
+  }
+
   public Configuration setMatchingStrategy(MatchingStrategy matchingStrategy) {
     this.matchingStrategy = Assert.notNull(matchingStrategy);
     return this;
@@ -237,6 +259,11 @@ public class InheritingConfiguration implements Configuration {
 
   public Configuration setMethodAccessLevel(AccessLevel accessLevel) {
     methodAccessLevel = Assert.notNull(accessLevel);
+    return this;
+  }
+
+  public Configuration setPropertyCondition(Condition<?, ?> condition) {
+    propertyCondition = Assert.notNull(condition);
     return this;
   }
 

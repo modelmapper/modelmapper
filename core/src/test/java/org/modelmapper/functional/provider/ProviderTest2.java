@@ -128,7 +128,7 @@ public class ProviderTest2 extends AbstractTest {
 
     modelMapper.addMappings(new PropertyMap<Source, Dest1>() {
       protected void configure() {
-        withProvider(new CustomProvider(destInner)).map().setValue(source.getValue());
+        with(new CustomProvider(destInner)).map().setValue(source.getValue());
       }
     });
 
@@ -146,7 +146,7 @@ public class ProviderTest2 extends AbstractTest {
 
     modelMapper.addMappings(new PropertyMap<Source, Dest2>() {
       protected void configure() {
-        withProvider(new CustomProvider(destInner)).map(source.getValue()).setValue(null);
+        with(new CustomProvider(destInner)).map(source.getValue()).setValue(null);
       }
     });
 

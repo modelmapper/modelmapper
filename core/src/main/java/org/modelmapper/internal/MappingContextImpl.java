@@ -45,7 +45,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   /** Tracks intermediate destination objects on the path to the destination */
   final List<Object> intermediateDestinations;
   final Errors errors;
-  @SuppressWarnings("unused") private final MappingContextImpl<?, ?> parent;
+  private final MappingContextImpl<?, ?> parent;
   private D destination;
   private final Class<D> destinationType;
   private final Type genericDestinationType;
@@ -57,7 +57,6 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   private final Class<S> sourceType;
   private Object parentSource;
   private TypeMap<S, D> typeMap;
-  private TypeMap<?, ?> parentTypeMap;
   /** Tracks destination hierarchy paths that were shaded by a condition */
   private final List<String> shadedPaths;
 
@@ -99,7 +98,6 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
         : genericDestinationType;
     this.providedDestination = context.providedDestination;
     this.typeMap = null;
-    this.parentTypeMap = context.typeMap;
     this.mapping = mapping;
     parentSource = context.parentSource;
     mappingEngine = context.mappingEngine;
@@ -166,6 +164,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return mappingEngine;
   }
 
+  public MappingContext<?, ?> getParent() {
+    return parent;
+  }
+
   public Class<D> getRequestedType() {
     return destinationType;
   }
@@ -218,7 +220,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   TypeMap<?, ?> parentTypeMap() {
-    return parentTypeMap;
+    return parent == null ? null : parent.typeMap;
   }
 
   void setDestination(D destination) {

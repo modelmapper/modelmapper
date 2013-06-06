@@ -26,8 +26,8 @@ import java.lang.reflect.Type;
  */
 public interface PropertyInfo {
   /**
-   * Returns the annotation on the property's member for the {@code annotationClass} or null if none
-   * exists.
+   * Returns the annotation on the property's member for the {@code annotationClass} or {@code null}
+   * if none exists.
    * 
    * @param <T> annotation type
    * @param annotationClass to get annotation for
@@ -38,6 +38,16 @@ public interface PropertyInfo {
    * Returns the generic type represented by the property. For fields this will be the field's
    * generic type. For accessor methods this will be the generic return type. For mutator methods
    * this will be the single parameter's generic type.
+   * <ul>
+   * <li>For properties of type {@link PropertyType#FIELD} this will be the field's
+   * {@link java.lang.reflect.Field#getGenericType() generic type}.
+   * <li>For accessors of type {@link PropertyType#METHOD} this will be the method's
+   * {@link java.lang.reflect.Method#getGenericReturnType() return type}.
+   * <li>For mutators of type {@link PropertyType#METHOD} this will be the single parameter's
+   * {@link java.lang.reflect.Method#getGenericParameterTypes() generic type}.
+   * <li>For properties of type {@link PropertyType#GENERIC} this will be the same as
+   * {@link #getType()}.
+   * </ul>
    */
   Type getGenericType();
 
@@ -49,7 +59,7 @@ public interface PropertyInfo {
   Class<?> getInitialType();
 
   /**
-   * Returns the encapsulated member.
+   * Returns the encapsulated member or {@code null} if none exists.
    */
   Member getMember();
 

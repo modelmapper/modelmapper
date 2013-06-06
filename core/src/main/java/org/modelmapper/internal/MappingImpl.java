@@ -21,7 +21,7 @@ import java.util.List;
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
-import org.modelmapper.internal.MappingBuilderImpl.MappingOptions;
+import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
@@ -35,8 +35,8 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   private final String path;
   private boolean skip;
   private Condition<?, ?> condition;
+  protected Provider<?> provider;
   protected Converter<?, ?> converter;
-  private Provider<?> provider;
 
   /**
    * Creates an implicit mapping.
@@ -55,8 +55,8 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     path = Strings.join(destinationMutators);
     this.skip = options.skip;
     this.condition = options.condition;
-    this.converter = options.converter;
     this.provider = options.provider;
+    this.converter = options.converter;
     explicit = true;
   }
 
@@ -71,8 +71,8 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     path = Strings.join(destinationMutators);
     skip = copy.skip;
     condition = copy.condition;
-    converter = copy.converter;
     provider = copy.provider;
+    converter = copy.converter;
     explicit = copy.explicit;
   }
 

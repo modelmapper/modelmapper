@@ -17,7 +17,7 @@ package org.modelmapper.internal;
 
 import java.util.List;
 
-import org.modelmapper.internal.MappingBuilderImpl.MappingOptions;
+import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceMapping;

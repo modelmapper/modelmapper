@@ -1,4 +1,23 @@
-0.5.5
+0.5.7
+
+- Added - Simpler mapper EDSL for dealing with providers
+- Fixed #8 - Introduced global property conditions
+- Fixed #54 - OSGI support
+- Fixed issue with Javabeans name transformers for get/set methods
+- Fixed issue with merged TypeMap Providers not being copied
+- Fixed #39 - Issue when mapping to a String
+
+0.5.6 (3/21/2013)
+
+- Fixed #46 - Property map difficult to construct types
+- Added #45 - Android compatibility
+- Added #42 - Support for pre and post mapping Converters
+- Added #40 - Enhance TypeTokens support
+- Fixed #31 - Multiple source properties hierarchy matching problem
+- FIxed #38 - Map mocked objects
+- Added #34 - Added support for TypeTokens
+
+0.5.5 (2/14/2013)
 
 - Added support for TypeTokens
 - Fixed GH #23 - Support for combined token matching

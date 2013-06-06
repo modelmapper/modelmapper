@@ -154,17 +154,17 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
 
     try {
       if (destinationType.equals(Byte.class))
-        return new Byte(source);
+        return Byte.valueOf(source);
       if (destinationType.equals(Short.class))
-        return new Short(source);
+        return Short.valueOf(source);
       if (destinationType.equals(Integer.class))
-        return new Integer(source);
+        return Integer.valueOf(source);
       if (destinationType.equals(Long.class))
-        return new Long(source);
+        return Long.valueOf(source);
       if (destinationType.equals(Float.class))
-        return new Float(source);
+        return Float.valueOf(source);
       if (destinationType.equals(Double.class))
-        return new Double(source);
+        return Double.valueOf(source);
       if (destinationType.equals(BigDecimal.class))
         return new BigDecimal(source);
       if (destinationType.equals(BigInteger.class))

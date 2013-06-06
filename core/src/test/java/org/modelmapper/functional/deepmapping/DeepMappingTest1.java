@@ -79,7 +79,7 @@ public class DeepMappingTest1 extends AbstractTest {
   }
 
   public void shouldThrowOnMissingMutatorForAccessor() {
-    modelMapper.getConfiguration().enableFieldMatching(false);
+    modelMapper.getConfiguration().setFieldMatchingEnabled(false);
     try {
       modelMapper.addMappings(new PropertyMap<A1, A2>() {
         protected void configure() {
