@@ -38,6 +38,11 @@
     <url>http://github.com/jhalterman/modelmapper/</url>
   </scm>
 
+  <issueManagement>
+    <system>GitHub</system>
+    <url>http://github.com/jhalterman/modelmapper/issues</url>
+  </issueManagement>
+
   <mailingLists>
     <mailingList>
       <name>ModelMapper List</name>
