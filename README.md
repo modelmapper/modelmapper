@@ -1,4 +1,4 @@
-# ModelMapper ![Build Status](https://api.travis-ci.org/jhalterman/modelmapper.png)
+# ModelMapper [![Build Status](https://travis-ci.org/jhalterman/modelmapper.png)](https://travis-ci.org/jhalterman/modelmapper)
 
 ModelMapper is an intelligent object mapping library that automatically maps objects to each other. It uses a convention based approach while providing a simple refactoring safe API for handling specific use cases.
 
