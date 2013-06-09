@@ -95,8 +95,8 @@ class PropertyMappingBuilder<S, D> {
         sourceTypes.clear();
       }
 
-      // Use partially matched mappings only if there is no fully matched mapping
-      if (mappings.isEmpty() && !partiallyMatchedMappings.isEmpty())
+      // Use partially matched mappings only if there is no fully matched mapping and the matching strategy allows it
+      if (mappings.isEmpty() && !matchingStrategy.isExact())
         mappings.addAll(partiallyMatchedMappings);
 
       if (!mappings.isEmpty()) {
