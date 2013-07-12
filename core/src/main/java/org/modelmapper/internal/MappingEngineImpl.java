@@ -156,6 +156,8 @@ public class MappingEngineImpl implements MappingEngine {
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
     if (condition == null)
       condition = (Condition<Object, Object>) context.getTypeMap().getPropertyCondition();
+    if (condition == null)
+      condition = (Condition<Object, Object>) configuration.getPropertyCondition();
     if (condition == null && mapping.isSkipped())
       return;
 

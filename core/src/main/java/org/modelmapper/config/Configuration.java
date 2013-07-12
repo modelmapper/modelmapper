@@ -17,6 +17,7 @@ package org.modelmapper.config;
 
 import java.util.List;
 
+import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MatchingStrategy;
@@ -112,7 +113,16 @@ public interface Configuration {
   AccessLevel getMethodAccessLevel();
 
   /**
-   * Returns the Provider used for provisioning destination object instances.
+   * Returns the Condition that must apply for a property in order for mapping to take place, else
+   * {@code null} if no condition has been configured.
+   * 
+   * @see #setPropertyCondition(Condition)
+   */
+  Condition<?, ?> getPropertyCondition();
+
+  /**
+   * Returns the Provider used for provisioning destination object instances, else {@code null} if
+   * no Provider has been configured.
    * 
    * @see #setProvider(Provider)
    */
@@ -214,6 +224,14 @@ public interface Configuration {
    * @see AccessLevel
    */
   Configuration setMethodAccessLevel(AccessLevel accessLevel);
+
+  /**
+   * Sets the {@code condition} that must apply for a property in order for mapping to take place.
+   * This is overridden by any property conditions defined in a TypeMap or PropertyMap.
+   * 
+   * @throws IllegalArgumentException if {@code condition} is null
+   */
+  Configuration setPropertyCondition(Condition<?, ?> condition);
 
   /**
    * Sets the {@code provider} to use for providing destination object instances.
