@@ -41,8 +41,8 @@ public interface TypeMap<S, D> {
   void addMappings(PropertyMap<S, D> propertyMap);
 
   /**
-   * Returns the Condition that must apply in order for mapping to take place, else {@code null} if
-   * no condition has been configured.
+   * Returns the Condition that must apply for the source and destination in order for mapping to
+   * take place, else {@code null} if no condition has been configured.
    * 
    * @see #setCondition(Condition)
    */
@@ -152,7 +152,8 @@ public interface TypeMap<S, D> {
   void map(S source, D destination);
 
   /**
-   * Sets the {@code condition} that must apply in order for mapping to take place.
+   * Sets the {@code condition} that must apply for the source and destination in order for mapping
+   * to take place.
    * 
    * @throws IllegalArgumentException if {@code condition} is null
    */
