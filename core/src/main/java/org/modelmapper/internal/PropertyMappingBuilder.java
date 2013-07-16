@@ -95,8 +95,8 @@ class PropertyMappingBuilder<S, D> {
         sourceTypes.clear();
       }
 
-      // Use partially matched mappings only if there is no fully matched mapping and the matching strategy allows it
-      if (mappings.isEmpty() && !matchingStrategy.isExact())
+      // Use partially matched mappings only if there is no fully matched mapping
+      if (mappings.isEmpty())
         mappings.addAll(partiallyMatchedMappings);
 
       if (!mappings.isEmpty()) {
@@ -186,10 +186,11 @@ class PropertyMappingBuilder<S, D> {
                 if (MatchResult.FULL.equals(matchResult)) {
                   mappings.add(mapping);
                   doneMatching = matchingStrategy.isExact();
-                } else
+                  break;
+                } else if (!configuration.isFullTypeMatchingRequired()) {
                   partiallyMatchedMappings.add(mapping);
-
-                break;
+                  break;
+                }
               }
             }
           }

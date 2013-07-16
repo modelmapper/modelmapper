@@ -4,7 +4,6 @@ import static org.testng.Assert.fail;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.ValidationException;
-import org.modelmapper.convention.MatchingStrategies;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -22,7 +21,7 @@ public class ImplicitUnknownTypeConversionTest {
 	@BeforeMethod
 	protected void initContext() {
 		strictModelMapper = new ModelMapper();
-		strictModelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		strictModelMapper.getConfiguration().setFullTypeMatchingRequired(true);
 		standardModelMapper = new ModelMapper();
 	}
 
