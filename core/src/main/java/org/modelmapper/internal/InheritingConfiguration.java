@@ -17,6 +17,7 @@ package org.modelmapper.internal;
 
 import java.util.List;
 
+import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
@@ -47,6 +48,7 @@ public class InheritingConfiguration implements Configuration {
   private MatchingStrategy matchingStrategy;
   private AccessLevel methodAccessLevel;
   private Provider<?> provider;
+  private Condition<?, ?> propertyCondition;
   private NameTokenizer sourceNameTokenizer;
   private NameTransformer sourceNameTransformer;
   private NamingConvention sourceNamingConvention;
@@ -96,6 +98,8 @@ public class InheritingConfiguration implements Configuration {
       methodAccessLevel = source.methodAccessLevel;
       enableFieldMatching = source.enableFieldMatching;
       ignoreAmbiguity = source.ignoreAmbiguity;
+      provider = source.provider;
+      propertyCondition = source.propertyCondition;
     }
   }
 
@@ -161,6 +165,10 @@ public class InheritingConfiguration implements Configuration {
 
   public AccessLevel getMethodAccessLevel() {
     return methodAccessLevel == null ? parent.getMethodAccessLevel() : methodAccessLevel;
+  }
+
+  public Condition<?, ?> getPropertyCondition() {
+    return propertyCondition;
   }
 
   public Provider<?> getProvider() {
@@ -237,6 +245,11 @@ public class InheritingConfiguration implements Configuration {
 
   public Configuration setMethodAccessLevel(AccessLevel accessLevel) {
     methodAccessLevel = Assert.notNull(accessLevel);
+    return this;
+  }
+
+  public Configuration setPropertyCondition(Condition<?, ?> condition) {
+    propertyCondition = Assert.notNull(condition);
     return this;
   }
 
