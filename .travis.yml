@@ -6,3 +6,8 @@ jdk:
 
 notifications:
   email: false
+
+# whitelist
+branches:
+  only:
+    - master
