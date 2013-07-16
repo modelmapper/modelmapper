@@ -16,6 +16,7 @@
 package org.modelmapper.spi;
 
 import org.modelmapper.Converter;
+import org.modelmapper.config.Configuration;
 
 /**
  * Conditionally converts matching source objects to instances of destination type {@code D}.
@@ -37,6 +38,15 @@ public interface ConditionalConverter<S, D> extends Converter<S, D> {
   /**
    * Determines whether the converter matches and supports conversion from {@code sourceType} to
    * {@code destinationType}.
+   * <p>
+   * In the case of a partial match, the converter is indicating that it does not recognise the
+   * source type but that it may still be capable performing the conversion implicitly by parsing the
+   * result of calling {@link Object#toString()} or by some other means which similarly does not
+   * require knowledge of the type at compile time.
+   * <p>
+   * Implicit conversion may result in conversions which are susceptible to unexpected failure when
+   * property types or formats change. Conversion of properties with partially matched types can be
+   * disabled via {@link Configuration#setFullTypeMatchingRequired(boolean)}.
    * 
    * @param sourceType to match
    * @param destinationType to match

@@ -54,6 +54,7 @@ public class InheritingConfiguration implements Configuration {
   private NamingConvention sourceNamingConvention;
   Boolean enableFieldMatching;
   Boolean ignoreAmbiguity;
+  private Boolean fullTypeMatchingRequired;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -73,6 +74,7 @@ public class InheritingConfiguration implements Configuration {
     methodAccessLevel = AccessLevel.PUBLIC;
     enableFieldMatching = Boolean.FALSE;
     ignoreAmbiguity = Boolean.FALSE;
+    fullTypeMatchingRequired = Boolean.FALSE;
   }
 
   /**
@@ -100,6 +102,7 @@ public class InheritingConfiguration implements Configuration {
       ignoreAmbiguity = source.ignoreAmbiguity;
       provider = source.provider;
       propertyCondition = source.propertyCondition;
+      fullTypeMatchingRequired = source.fullTypeMatchingRequired;
     }
   }
 
@@ -218,6 +221,10 @@ public class InheritingConfiguration implements Configuration {
     return enableFieldMatching == null ? parent.isFieldMatchingEnabled() : enableFieldMatching;
   }
 
+  public boolean isFullTypeMatchingRequired() {
+    return fullTypeMatchingRequired == null ? parent.isFullTypeMatchingRequired() : fullTypeMatchingRequired;
+  }
+
   public Configuration setDestinationNameTokenizer(NameTokenizer nameTokenizer) {
     destinationNameTokenizer = Assert.notNull(nameTokenizer);
     return this;
@@ -237,6 +244,11 @@ public class InheritingConfiguration implements Configuration {
     fieldAccessLevel = Assert.notNull(accessLevel);
     return this;
   }
+
+public Configuration setFullTypeMatchingRequired(boolean required) {
+    fullTypeMatchingRequired = required;
+    return this;
+}
 
   public Configuration setMatchingStrategy(MatchingStrategy matchingStrategy) {
     this.matchingStrategy = Assert.notNull(matchingStrategy);
