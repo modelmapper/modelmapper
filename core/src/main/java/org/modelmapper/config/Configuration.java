@@ -20,6 +20,7 @@ import java.util.List;
 import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameTransformer;
@@ -173,6 +174,17 @@ public interface Configuration {
    * @see #enableFieldMatching(boolean)
    */
   boolean isFieldMatchingEnabled();
+  
+  /**
+   * Returns {@code true} if {@link ConditionalConverter}s must define a
+   * {@link MatchResult#FULL full} match in order to be applied. Otherwise conditional converters
+   * may also be applied for a {@link MatchResult#PARTIAL partial} match.
+   * <p>
+   * Default is {@code false}.
+   * 
+   * @see #setFullTypeMatchingRequired(boolean)
+   */
+  boolean isFullTypeMatchingRequired();
 
   /**
    * Sets the tokenizer to be applied to destination property and class names during the matching
@@ -209,6 +221,16 @@ public interface Configuration {
    * @see #enableFieldMatching(boolean)
    */
   Configuration setFieldAccessLevel(AccessLevel accessLevel);
+
+  /**
+   * Set whether {@link ConditionalConverter}s must define a {@link MatchResult#FULL full} match
+   * in order to be applied. If {@code false}, conditional converters may also be applied for a
+   * {@link MatchResult#PARTIAL partial} match.
+   * 
+   * @param required whether full type matching is required for conditional converters.
+   * @see #isFullTypeMatchingRequired()
+   */
+  Configuration setFullTypeMatchingRequired(boolean required);
 
   /**
    * Sets the strategy used to match source properties to destination properties.
