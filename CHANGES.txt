@@ -1,11 +1,20 @@
-0.5.7
+0.6.0
 
+- Added ValueReaders to SPI
+- Added 3rd party integration for Jackson, Gson and jOOQ
 - Added - Simpler mapper EDSL for dealing with providers
 - Fixed #8 - Introduced global property conditions
-- Fixed #54 - OSGI support
+- Fixed #39 - Issue when mapping to a String
+- Fixed #49 - Allow implicit mapping to be skipped globally
+- Fixed #54 - Fixed OSGI support
+- Fixed #56 - Allow full type matching to be required
 - Fixed issue with Javabeans name transformers for get/set methods
 - Fixed issue with merged TypeMap Providers not being copied
-- Fixed #39 - Issue when mapping to a String
+
+API Changes:
+
+- Configuration.enableFieldMatching(boolean) is now setFieldMatchingEnabled(boolean)
+- Configuration.ignoreAmbiguity(boolean) is now setAmbiguityIgnored(boolean)
 
 0.5.6 (3/21/2013)
 
