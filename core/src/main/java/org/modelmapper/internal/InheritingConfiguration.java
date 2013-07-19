@@ -55,8 +55,9 @@ public class InheritingConfiguration implements Configuration {
   private NameTokenizer sourceNameTokenizer;
   private NameTransformer sourceNameTransformer;
   private NamingConvention sourceNamingConvention;
-  private Boolean enableFieldMatching;
-  private Boolean ignoreAmbiguity;
+  Boolean enableFieldMatching;
+  Boolean ignoreAmbiguity;
+  private Boolean fullTypeMatchingRequired;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -77,6 +78,7 @@ public class InheritingConfiguration implements Configuration {
     methodAccessLevel = AccessLevel.PUBLIC;
     enableFieldMatching = Boolean.FALSE;
     ignoreAmbiguity = Boolean.FALSE;
+    fullTypeMatchingRequired = Boolean.FALSE;
   }
 
   /**
@@ -105,16 +107,17 @@ public class InheritingConfiguration implements Configuration {
       ignoreAmbiguity = source.ignoreAmbiguity;
       provider = source.provider;
       propertyCondition = source.propertyCondition;
+      fullTypeMatchingRequired = source.fullTypeMatchingRequired;
     }
-  }
-
-  public Configuration copy() {
-    return new InheritingConfiguration(this, false);
   }
 
   public <T> Configuration addValueReader(ValueReader<T> valueReader) {
     getValueReaders().add(valueReader);
     return this;
+  }
+
+  public Configuration copy() {
+    return new InheritingConfiguration(this, false);
   }
 
   /**
@@ -222,6 +225,11 @@ public class InheritingConfiguration implements Configuration {
     return enableFieldMatching == null ? parent.isFieldMatchingEnabled() : enableFieldMatching;
   }
 
+  public boolean isFullTypeMatchingRequired() {
+    return fullTypeMatchingRequired == null ? parent.isFullTypeMatchingRequired()
+        : fullTypeMatchingRequired;
+  }
+
   public Configuration setAmbiguityIgnored(boolean ignore) {
     this.ignoreAmbiguity = ignore;
     return this;
@@ -249,6 +257,11 @@ public class InheritingConfiguration implements Configuration {
 
   public Configuration setFieldMatchingEnabled(boolean enabled) {
     enableFieldMatching = enabled;
+    return this;
+  }
+
+  public Configuration setFullTypeMatchingRequired(boolean required) {
+    fullTypeMatchingRequired = required;
     return this;
   }
 

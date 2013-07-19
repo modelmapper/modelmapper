@@ -20,6 +20,7 @@ import java.util.List;
 import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameTransformer;
@@ -65,9 +66,9 @@ public interface Configuration {
   Configuration copy();
 
   /**
-   * Gets a thread-safe, mutable, ordered list of internal and user-defined ConditionalConverters
-   * that are used to perform type conversion. This list may be modified to control which converters
-   * are used to perform type conversion along with the order in which converters are selected.
+   * Gets the ordered list of internal conditional converters that are used to perform type
+   * conversion. This list is mutable and may be modified to control which converters are used to
+   * perform type conversion along with the order in which converters are selected.
    * 
    * <p>
    * This method is part of the ModelMapper SPI.
@@ -184,9 +185,20 @@ public interface Configuration {
   boolean isFieldMatchingEnabled();
 
   /**
+   * Returns {@code true} if {@link ConditionalConverter}s must define a {@link MatchResult#FULL
+   * full} match in order to be applied. Otherwise conditional converters may also be applied for a
+   * {@link MatchResult#PARTIAL partial} match.
+   * <p>
+   * Default is {@code false}.
+   * 
+   * @see #setFullTypeMatchingRequired(boolean)
+   */
+  boolean isFullTypeMatchingRequired();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
-   * When true ambiguous destination properties are skipped during the matching process. When false
-   * a ConfigurationException is thrown when ambiguous properties are encountered.
+   * When true, ambiguous destination properties are skipped during the matching process. When
+   * false, a ConfigurationException is thrown when ambiguous properties are encountered.
    * 
    * @param ignore whether ambiguity is to be ignored
    * @see #isAmbiguityIgnored()
@@ -237,6 +249,16 @@ public interface Configuration {
    * @see #setFieldAccessLevel(AccessLevel)
    */
   Configuration setFieldMatchingEnabled(boolean enabled);
+
+  /**
+   * Set whether {@link ConditionalConverter}s must define a {@link MatchResult#FULL full} match in
+   * order to be applied. If {@code false}, conditional converters may also be applied for a
+   * {@link MatchResult#PARTIAL partial} match.
+   * 
+   * @param required whether full type matching is required for conditional converters.
+   * @see #isFullTypeMatchingRequired()
+   */
+  Configuration setFullTypeMatchingRequired(boolean required);
 
   /**
    * Sets the strategy used to match source properties to destination properties.

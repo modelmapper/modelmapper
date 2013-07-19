@@ -149,5 +149,4 @@ public final class ValueAccessStore {
   public List<ValueReader<?>> getValueReaders() {
     return valueReaders;
   }
-
 }
