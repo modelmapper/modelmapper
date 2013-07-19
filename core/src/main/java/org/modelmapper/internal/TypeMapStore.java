@@ -31,6 +31,7 @@ public final class TypeMapStore {
   private final Map<TypePair<?, ?>, TypeMap<?, ?>> typeMaps = new ConcurrentHashMap<TypePair<?, ?>, TypeMap<?, ?>>();
   private final Map<TypePair<?, ?>, TypeMap<?, ?>> immutableTypeMaps = Collections.unmodifiableMap(typeMaps);
   private final Object lock = new Object();
+  /** Default configuration */
   private final InheritingConfiguration config;
 
   TypeMapStore(InheritingConfiguration config) {
@@ -45,7 +46,8 @@ public final class TypeMapStore {
       String typeMapName, InheritingConfiguration configuration, MappingEngineImpl engine) {
     TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, configuration,
         engine);
-    new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore, config.converterStore).build();
+    if (configuration.isImplicitMappingEnabled())
+      new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore, config.converterStore).build();
     typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
     return typeMap;
   }
@@ -98,7 +100,7 @@ public final class TypeMapStore {
       typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, config, engine);
       if (propertyMap != null)
         typeMap.addMappings(propertyMap);
-      if (converter == null)
+      if (converter == null && config.isImplicitMappingEnabled())
         new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
             config.converterStore).build();
 

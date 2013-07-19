@@ -18,6 +18,7 @@ package org.modelmapper.config;
 import java.util.List;
 
 import org.modelmapper.Condition;
+import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
@@ -196,6 +197,16 @@ public interface Configuration {
   boolean isFullTypeMatchingRequired();
 
   /**
+   * Returns whether implicit mapping should be enabled. When {@code true} (default), ModelMapper
+   * will implicitly map source to destination properties based on configured conventions. When
+   * {@code false}, only explicit mappings defined in {@link PropertyMap property maps} will be
+   * used.
+   * 
+   * @see #setImplicitMappingEnabled(boolean)
+   */
+  boolean isImplicitMappingEnabled();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true, ambiguous destination properties are skipped during the matching process. When
    * false, a ConfigurationException is thrown when ambiguous properties are encountered.
@@ -259,6 +270,17 @@ public interface Configuration {
    * @see #isFullTypeMatchingRequired()
    */
   Configuration setFullTypeMatchingRequired(boolean required);
+
+  /**
+   * Sets whether implicit mapping should be enabled. When {@code true} (default), ModelMapper will
+   * implicitly map source to destination properties based on configured conventions. When
+   * {@code false}, only explicit mappings defined in {@link PropertyMap property maps} will be
+   * used.
+   * 
+   * @param enabled whether implicit matching is enabled
+   * @see #isImplicitMappingEnabled()
+   */
+  Configuration setImplicitMappingEnabled(boolean enabled);
 
   /**
    * Sets the strategy used to match source properties to destination properties.

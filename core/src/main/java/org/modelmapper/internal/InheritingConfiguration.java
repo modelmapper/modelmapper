@@ -55,9 +55,10 @@ public class InheritingConfiguration implements Configuration {
   private NameTokenizer sourceNameTokenizer;
   private NameTransformer sourceNameTransformer;
   private NamingConvention sourceNamingConvention;
-  Boolean enableFieldMatching;
-  Boolean ignoreAmbiguity;
+  private Boolean fieldMatchingEnabled;
+  private Boolean ambiguityIgnored;
   private Boolean fullTypeMatchingRequired;
+  private Boolean implicitMatchingEnabled;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -76,9 +77,10 @@ public class InheritingConfiguration implements Configuration {
     matchingStrategy = MatchingStrategies.STANDARD;
     fieldAccessLevel = AccessLevel.PUBLIC;
     methodAccessLevel = AccessLevel.PUBLIC;
-    enableFieldMatching = Boolean.FALSE;
-    ignoreAmbiguity = Boolean.FALSE;
+    fieldMatchingEnabled = Boolean.FALSE;
+    ambiguityIgnored = Boolean.FALSE;
     fullTypeMatchingRequired = Boolean.FALSE;
+    implicitMatchingEnabled = Boolean.TRUE;
   }
 
   /**
@@ -103,11 +105,12 @@ public class InheritingConfiguration implements Configuration {
       matchingStrategy = source.matchingStrategy;
       fieldAccessLevel = source.fieldAccessLevel;
       methodAccessLevel = source.methodAccessLevel;
-      enableFieldMatching = source.enableFieldMatching;
-      ignoreAmbiguity = source.ignoreAmbiguity;
+      fieldMatchingEnabled = source.fieldMatchingEnabled;
+      ambiguityIgnored = source.ambiguityIgnored;
       provider = source.provider;
       propertyCondition = source.propertyCondition;
       fullTypeMatchingRequired = source.fullTypeMatchingRequired;
+      implicitMatchingEnabled = source.implicitMatchingEnabled;
     }
   }
 
@@ -218,11 +221,11 @@ public class InheritingConfiguration implements Configuration {
   }
 
   public boolean isAmbiguityIgnored() {
-    return ignoreAmbiguity == null ? parent.isAmbiguityIgnored() : ignoreAmbiguity;
+    return ambiguityIgnored == null ? parent.isAmbiguityIgnored() : ambiguityIgnored;
   }
 
   public boolean isFieldMatchingEnabled() {
-    return enableFieldMatching == null ? parent.isFieldMatchingEnabled() : enableFieldMatching;
+    return fieldMatchingEnabled == null ? parent.isFieldMatchingEnabled() : fieldMatchingEnabled;
   }
 
   public boolean isFullTypeMatchingRequired() {
@@ -230,8 +233,13 @@ public class InheritingConfiguration implements Configuration {
         : fullTypeMatchingRequired;
   }
 
+  public boolean isImplicitMappingEnabled() {
+    return implicitMatchingEnabled == null ? parent.isImplicitMappingEnabled()
+        : implicitMatchingEnabled;
+  }
+
   public Configuration setAmbiguityIgnored(boolean ignore) {
-    this.ignoreAmbiguity = ignore;
+    this.ambiguityIgnored = ignore;
     return this;
   }
 
@@ -256,12 +264,17 @@ public class InheritingConfiguration implements Configuration {
   }
 
   public Configuration setFieldMatchingEnabled(boolean enabled) {
-    enableFieldMatching = enabled;
+    fieldMatchingEnabled = enabled;
     return this;
   }
 
   public Configuration setFullTypeMatchingRequired(boolean required) {
     fullTypeMatchingRequired = required;
+    return this;
+  }
+
+  public Configuration setImplicitMappingEnabled(boolean enabled) {
+    implicitMatchingEnabled = enabled;
     return this;
   }
 
