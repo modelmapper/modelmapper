@@ -44,4 +44,9 @@ public class RecordValueReader implements ValueReader<Record> {
 
     return null;
   }
+
+  @Override
+  public String toString() {
+    return "jOOQ";
+  }
 }
