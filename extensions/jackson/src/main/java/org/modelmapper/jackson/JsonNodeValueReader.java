@@ -68,4 +68,9 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
       return Lists.from(((ObjectNode) source).fieldNames());
     return null;
   }
+
+  @Override
+  public String toString() {
+    return "Jackson";
+  }
 }
