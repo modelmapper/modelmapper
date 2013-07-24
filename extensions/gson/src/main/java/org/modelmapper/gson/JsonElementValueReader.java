@@ -62,4 +62,9 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
       return Lists.from((Set) ((JsonObject) source).entrySet());
     return null;
   }
+
+  @Override
+  public String toString() {
+    return "Gson";
+  }
 }
