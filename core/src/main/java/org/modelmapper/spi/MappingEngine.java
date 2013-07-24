@@ -35,5 +35,5 @@ public interface MappingEngine {
    * Creates an instance of the destination type for the {@code context}, capturing any errors that
    * may occur during instantiation.
    */
-  <S, D> D createDestination(MappingContext<S, D> context);
+  <S, D, E extends D> D createDestination(MappingContext<S, D> context, Class<E> realImplementationClass);
 }

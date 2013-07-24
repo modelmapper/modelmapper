@@ -72,6 +72,6 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
     if (context.getDestinationType().isInterface())
       return new HashMap<Object, Object>();
 
-    return context.getMappingEngine().createDestination(context);
+    return context.getMappingEngine().createDestination(context, context.getTypeMap().getDestinationType());
   }
 }

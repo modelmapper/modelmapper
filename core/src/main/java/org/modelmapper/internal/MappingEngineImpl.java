@@ -119,7 +119,8 @@ public class MappingEngineImpl implements MappingEngine {
   <S, D> D typeMap(MappingContextImpl<S, D> context, TypeMap<S, D> typeMap) {
     context.setTypeMap(typeMap);
     if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
-      D destination = createDestination(context);
+      context.setDestination((D) typeMap.getDestinationType());
+      D destination = createDestination(context, typeMap.getDestinationType());
       if (destination == null)
         return null;
     }
@@ -406,13 +407,13 @@ public class MappingEngineImpl implements MappingEngine {
     return destination;
   }
 
-  public <S, D> D createDestination(MappingContext<S, D> context) {
+  public <S, D, E extends D> D createDestination(MappingContext<S, D> context, Class<E> realDestination) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     D destination = createDestinationViaProvider(contextImpl);
     if (destination != null)
       return destination;
 
-    destination = instantiate(context.getDestinationType(), contextImpl.errors);
+    destination = (D) instantiate(realDestination, contextImpl.errors);
     contextImpl.setDestination(destination);
     return destination;
   }

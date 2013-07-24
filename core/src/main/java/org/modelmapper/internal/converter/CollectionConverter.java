@@ -50,7 +50,7 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
       else
         return new ArrayList<Object>(length);
 
-    return context.getMappingEngine().createDestination(context);
+    return context.getMappingEngine().createDestination(context, context.getDestinationType());
   }
 
   @Override

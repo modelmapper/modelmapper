@@ -62,7 +62,13 @@ public final class TypeMapStore {
    */
   @SuppressWarnings("unchecked")
   public <S, D> TypeMap<S, D> get(Class<S> sourceType, Class<D> destinationType) {
-    return (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType));
+    TypeMap <S, D> map = (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType));
+    if (map == null)
+      for (TypeMap entry : typeMaps.values())
+        if (sourceType.equals(entry.getSourceType()) &&
+          destinationType.isAssignableFrom(entry.getDestinationType()))
+          return entry;
+    return map;
   }
 
   /**
