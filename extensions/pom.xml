@@ -17,6 +17,7 @@
   <modules>
     <module>spring</module>
     <module>guice</module>
+    <module>dagger</module>
     <module>jackson</module>
     <module>gson</module>
     <module>jooq</module>
