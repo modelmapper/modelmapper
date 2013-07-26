@@ -28,4 +28,12 @@ public class GH60 extends AbstractTest {
 
     assertEquals(modelMapper.map(initial, Map.class), initial);
   }
+
+  public void shouldMapMapsWithNullKeys() {
+    Map<String, String> initial = new HashMap<String, String>();
+    initial.put("foo", "bar");
+    initial.put(null, "foo");
+
+    assertEquals(modelMapper.map(initial, Map.class), initial);
+  }
 }
