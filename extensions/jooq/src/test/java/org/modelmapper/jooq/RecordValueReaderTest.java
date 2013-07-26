@@ -45,9 +45,9 @@ public class RecordValueReaderTest {
     ctx.execute("INSERT INTO orders values ('123 Main Street', 'SF')");
     Record record = ctx.fetch("select * from orders").get(0);
 
-    Order o = modelMapper.map(record, Order.class);
+    Order order = modelMapper.map(record, Order.class);
 
-    assertEquals(o.customer.address.street, "123 Main Street");
-    assertEquals(o.customer.address.city, "SF");
+    assertEquals(order.customer.address.street, "123 Main Street");
+    assertEquals(order.customer.address.city, "SF");
   }
 }

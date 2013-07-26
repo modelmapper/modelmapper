@@ -34,9 +34,9 @@ public class JsonNodeValueReaderTest {
         .addValueReader(new JsonNodeValueReader());
 
     JsonNode node = new ObjectMapper().readTree(json);
-    Order o = modelMapper.map(node, Order.class);
+    Order order = modelMapper.map(node, Order.class);
 
-    assertEquals(o.customer.address.street, "123 Main Street");
-    assertEquals(o.customer.address.city, "SF");
+    assertEquals(order.customer.address.street, "123 Main Street");
+    assertEquals(order.customer.address.city, "SF");
   }
 }
