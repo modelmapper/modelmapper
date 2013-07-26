@@ -39,6 +39,7 @@ import org.modelmapper.spi.PropertyInfo;
 class TypeMapImpl<S, D> implements TypeMap<S, D> {
   private final Class<S> sourceType;
   private final Class<D> destinationType;
+  private final String name;
   final InheritingConfiguration configuration;
   private final MappingEngineImpl engine;
   /** Guarded by "mappings" */
@@ -54,10 +55,11 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   private Condition<?, ?> propertyCondition;
   private Provider<?> propertyProvider;
 
-  TypeMapImpl(Class<S> sourceType, Class<D> destinationType, InheritingConfiguration configuration,
-      MappingEngineImpl engine) {
+  TypeMapImpl(Class<S> sourceType, Class<D> destinationType, String name,
+      InheritingConfiguration configuration, MappingEngineImpl engine) {
     this.sourceType = sourceType;
     this.destinationType = destinationType;
+    this.name = name;
     this.configuration = configuration;
     this.engine = engine;
   }
@@ -93,6 +95,10 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     synchronized (mappings) {
       return new ArrayList<Mapping>(mappings.values());
     }
+  }
+
+  public String getName() {
+    return name;
   }
 
   public Converter<S, D> getPostConverter() {
@@ -139,7 +145,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public D map(S source) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, null,
-        destinationType, null, engine);
+        destinationType, null, name, engine);
     D result = null;
 
     try {
@@ -155,7 +161,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public void map(S source, D destination) {
     Class<S> sourceType = Types.<S>deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationType, null, engine);
+        destination, destinationType, null, name, engine);
 
     try {
       engine.typeMap(context, this);
@@ -208,8 +214,14 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   @Override
   public String toString() {
-    return String.format("TypeMap[%s -> %s]", sourceType.getSimpleName(),
-        destinationType.getSimpleName());
+    StringBuilder b = new StringBuilder();
+    b.append("TypeMap[")
+        .append(sourceType.getSimpleName())
+        .append(" -> ")
+        .append(destinationType.getSimpleName());
+    if (name != null)
+      b.append(' ').append(name);
+    return b.append(']').toString();
   }
 
   public void validate() {

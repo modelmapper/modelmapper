@@ -100,4 +100,10 @@ public interface MappingContext<S, D> {
    * not originate from a TypeMap.
    */
   TypeMap<S, D> getTypeMap();
+
+  /**
+   * Returns the name of the TypeMap associated with the mapping request else {@code null} if the
+   * request did not originate from a named TypeMap.
+   */
+  String getTypeMapName();
 }

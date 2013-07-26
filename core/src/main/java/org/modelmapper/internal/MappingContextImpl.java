@@ -49,6 +49,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   private D destination;
   private final Class<D> destinationType;
   private final Type genericDestinationType;
+  private final String typeMapName;
   /** Whether requested mapping is to a provided destination object */
   final boolean providedDestination;
   private Mapping mapping;
@@ -64,7 +65,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * Create initial MappingContext.
    */
   public MappingContextImpl(S source, Class<S> sourceType, D destination, Class<D> destinationType,
-      Type genericDestinationType, MappingEngine mappingEngine) {
+      Type genericDestinationType, String typeMapName, MappingEngine mappingEngine) {
     parent = null;
     this.source = source;
     this.sourceType = sourceType;
@@ -72,6 +73,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     this.destinationType = destinationType;
     this.genericDestinationType = genericDestinationType == null ? destinationType
         : genericDestinationType;
+    this.typeMapName = typeMapName;
     providedDestination = destination != null;
     this.mappingEngine = mappingEngine;
     errors = new Errors();
@@ -82,7 +84,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   /**
-   * Create derived MappingContext. The mapping is no longer mapped to S and D in this scope.
+   * Create derived MappingContext.
    * 
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
@@ -98,6 +100,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
         : genericDestinationType;
     this.providedDestination = context.providedDestination;
     this.typeMap = null;
+    this.typeMapName = null;
     this.mapping = mapping;
     parentSource = context.parentSource;
     mappingEngine = context.mappingEngine;
@@ -182,6 +185,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   public TypeMap<S, D> getTypeMap() {
     return typeMap;
+  }
+
+  public String getTypeMapName() {
+    return typeMapName;
   }
 
   @Override

@@ -166,7 +166,7 @@ class ImplicitMappingBuilder<S, D> {
               propertyNameInfo.getDestinationProperties(), true));
         } else {
           TypeMap<?, ?> propertyTypeMap = typeMapStore.get(accessor.getType(),
-              destinationMutator.getType());
+              destinationMutator.getType(), null);
           PropertyMappingImpl mapping = null;
 
           // Check to create mapping(s) from existing TypeMap
@@ -211,8 +211,9 @@ class ImplicitMappingBuilder<S, D> {
       if (!doneMatching
           && isMatchable(accessor.getType())
           && (!sourceTypes.contains(accessor.getType()) || accessor instanceof ValueReaderPropertyInfo))
-        matchSource(TypeInfoRegistry.typeInfoFor(accessor, sourceTypeInfo.getType(),
-            configuration), destinationMutator);
+        matchSource(
+            TypeInfoRegistry.typeInfoFor(accessor, sourceTypeInfo.getType(), configuration),
+            destinationMutator);
 
       propertyNameInfo.popSource();
 

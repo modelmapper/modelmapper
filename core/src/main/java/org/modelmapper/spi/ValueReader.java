@@ -18,7 +18,7 @@ package org.modelmapper.spi;
 import java.util.Collection;
 
 /**
- * Reads values from a source.
+ * Reads values from a source. Allows for integration with 3rd party libraries.
  * 
  * @param <T> source type
  * @author Jonathan Halterman

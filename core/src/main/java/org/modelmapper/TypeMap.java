@@ -70,6 +70,11 @@ public interface TypeMap<S, D> {
   List<Mapping> getMappings();
 
   /**
+   * Returns the name of the TypeMap, else {@code null} if the TypeMap has no name.
+   */
+  String getName();
+
+  /**
    * Returns the converter to be used after mapping between the source and destination types, else
    * {@code null} if no post-Converter has been configured.
    * 
