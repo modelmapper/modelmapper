@@ -53,9 +53,13 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
 
     for (Entry<?, ?> entry : source.entrySet()) {
       MappingContext<?, ?> keyContext = context.create(entry.getKey(), keyElementType);
-      MappingContext<?, ?> valueContext = context.create(entry.getValue(), valueElementType);
       Object key = context.getMappingEngine().map(keyContext);
-      Object value = context.getMappingEngine().map(valueContext);
+      Object value = null;
+      if (entry.getValue() != null) {
+        MappingContext<?, ?> valueContext = context.create(entry.getValue(), valueElementType);
+        value = context.getMappingEngine().map(valueContext);
+      }
+
       destination.put(key, value);
     }
 
