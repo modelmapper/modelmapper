@@ -20,4 +20,16 @@ public class NameTokenizersTest {
         "Cc", "Dd" });
     assertEquals(NameTokenizers.CAMEL_CASE.tokenize("", null), new String[] { "" });
   }
+
+  public void testUnderscoreTokenizer() {
+    assertEquals(NameTokenizers.UNDERSCORE.tokenize("abc_Def_G", null), new String[] { "abc",
+        "Def", "G" });
+    assertEquals(NameTokenizers.UNDERSCORE.tokenize("Abc_Def", null), new String[] { "Abc", "Def" });
+    assertEquals(NameTokenizers.UNDERSCORE.tokenize("A_Bc_D_Ef_Gh", null), new String[] { "A",
+        "Bc", "D", "Ef", "Gh" });
+    assertEquals(NameTokenizers.UNDERSCORE.tokenize("a_BCD", null), new String[] { "a", "BCD" });
+    assertEquals(NameTokenizers.UNDERSCORE.tokenize("Aa_Bb_Cc_Dd", null), new String[] { "Aa",
+        "Bb", "Cc", "Dd" });
+    assertEquals(NameTokenizers.UNDERSCORE.tokenize("", null), new String[] { "" });
+  }
 }
