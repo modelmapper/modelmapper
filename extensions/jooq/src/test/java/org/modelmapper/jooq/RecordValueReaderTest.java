@@ -9,6 +9,7 @@ import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.NameTokenizers;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,6 +43,7 @@ public class RecordValueReaderTest {
     ModelMapper modelMapper = new ModelMapper();
     modelMapper.getConfiguration()
         .setFieldMatchingEnabled(true)
+        .setSourceNameTokenizer(NameTokenizers.UNDERSCORE)
         .addValueReader(new RecordValueReader());
 
     ctx.execute("INSERT INTO orders values (456, 789, '123 Main Street', 'SF')");

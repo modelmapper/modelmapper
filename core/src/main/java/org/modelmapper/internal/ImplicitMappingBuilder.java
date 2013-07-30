@@ -70,7 +70,7 @@ class ImplicitMappingBuilder<S, D> {
     this.typeMap = typeMap;
     this.typeConverterStore = converterStore;
     this.typeMapStore = typeMapStore;
-    this.configuration = typeMap.configuration;
+    this.configuration = typeMap.configuration;    
     sourceTypeInfo = TypeInfoRegistry.typeInfoFor(source, typeMap.getSourceType(), null,
         configuration);
     matchingStrategy = configuration.getMatchingStrategy();
@@ -303,7 +303,7 @@ class ImplicitMappingBuilder<S, D> {
           propertyNameInfo.getSourceProperties(), propertyNameInfo.getDestinationProperties()));
   }
 
-  boolean isMatchable(Class<?> type) {
+  static boolean isMatchable(Class<?> type) {
     return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
         && !Iterables.isIterable(type);
   }

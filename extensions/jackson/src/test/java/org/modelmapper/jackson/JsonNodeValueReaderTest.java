@@ -6,7 +6,7 @@ import static org.testng.Assert.assertNull;
 import java.util.Arrays;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.convention.NameTokenizers;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,17 +37,29 @@ public class JsonNodeValueReaderTest {
     ModelMapper modelMapper = new ModelMapper();
     modelMapper.getConfiguration()
         .setFieldMatchingEnabled(true)
-        .setMatchingStrategy(MatchingStrategies.LOOSE)
+        .setSourceNameTokenizer(NameTokenizers.UNDERSCORE)
         .addValueReader(valueReader);
 
-    String orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"streetAddress\":\"123 Main Street\", \"customerCity\":\"SF\"}}";
-    JsonNode node = new ObjectMapper().readTree(orderJson);
+    String orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":\"SF\"}}";
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode node = objectMapper.readTree(orderJson);
+
     Order order = modelMapper.map(node, Order.class);
 
     assertEquals(order.id, 456);
     assertEquals(order.customer.id, 789);
     assertEquals(order.customer.address.street, "123 Main Street");
     assertEquals(order.customer.address.city, "SF");
+
+    String flatOrderJson = "{\"id\":222, \"customer_id\":333, \"customer_street_address\":\"444 Main Street\", \"customer_address_city\":\"LA\"}";
+    node = objectMapper.readTree(flatOrderJson);
+
+    order = modelMapper.map(node, Order.class, "flat");
+
+    assertEquals(order.id, 222);
+    assertEquals(order.customer.id, 333);
+    assertEquals(order.customer.address.street, "444 Main Street");
+    assertEquals(order.customer.address.city, "LA");
   }
 
   public void shouldGetElements() throws Exception {
