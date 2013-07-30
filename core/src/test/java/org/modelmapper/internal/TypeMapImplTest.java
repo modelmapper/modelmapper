@@ -42,7 +42,7 @@ public class TypeMapImplTest {
   }
 
   public void shouldSortMappings() throws Exception {
-    TypeMapImpl<Object, Object> map = new TypeMapImpl<Object, Object>(null, null,
+    TypeMapImpl<Object, Object> map = new TypeMapImpl<Object, Object>(null, null, null,
         new InheritingConfiguration(), null);
     map.addMapping(mapping("a.x"));
     map.addMapping(mapping("a.b.x.e.f"));
@@ -61,7 +61,7 @@ public class TypeMapImplTest {
   public void shouldThrowWhenSourceTypeIsEnum() {
     try {
       TypeMapImpl<Color, String> map = new TypeMapImpl<Color, String>(Color.class, String.class,
-          new InheritingConfiguration(), null);
+          null, new InheritingConfiguration(), null);
       map.addMappings(new PropertyMap<Color, String>() {
         protected void configure() {
         }
@@ -77,7 +77,7 @@ public class TypeMapImplTest {
   public void shouldThrowWhenDestinationTypeIsEnum() {
     try {
       TypeMapImpl<String, Color> map = new TypeMapImpl<String, Color>(String.class, Color.class,
-          new InheritingConfiguration(), null);
+          null, new InheritingConfiguration(), null);
       map.addMappings(new PropertyMap<String, Color>() {
         protected void configure() {
         }

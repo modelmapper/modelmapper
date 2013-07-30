@@ -70,7 +70,7 @@ class ImplicitMappingBuilder<S, D> {
     this.typeMap = typeMap;
     this.typeConverterStore = converterStore;
     this.typeMapStore = typeMapStore;
-    this.configuration = typeMap.configuration;
+    this.configuration = typeMap.configuration;    
     sourceTypeInfo = TypeInfoRegistry.typeInfoFor(source, typeMap.getSourceType(), null,
         configuration);
     matchingStrategy = configuration.getMatchingStrategy();
@@ -166,7 +166,7 @@ class ImplicitMappingBuilder<S, D> {
               propertyNameInfo.getDestinationProperties(), true));
         } else {
           TypeMap<?, ?> propertyTypeMap = typeMapStore.get(accessor.getType(),
-              destinationMutator.getType());
+              destinationMutator.getType(), null);
           PropertyMappingImpl mapping = null;
 
           // Check to create mapping(s) from existing TypeMap
@@ -211,8 +211,9 @@ class ImplicitMappingBuilder<S, D> {
       if (!doneMatching
           && isMatchable(accessor.getType())
           && (!sourceTypes.contains(accessor.getType()) || accessor instanceof ValueReaderPropertyInfo))
-        matchSource(TypeInfoRegistry.typeInfoFor(accessor, sourceTypeInfo.getType(),
-            configuration), destinationMutator);
+        matchSource(
+            TypeInfoRegistry.typeInfoFor(accessor, sourceTypeInfo.getType(), configuration),
+            destinationMutator);
 
       propertyNameInfo.popSource();
 
@@ -302,7 +303,7 @@ class ImplicitMappingBuilder<S, D> {
           propertyNameInfo.getSourceProperties(), propertyNameInfo.getDestinationProperties()));
   }
 
-  boolean isMatchable(Class<?> type) {
+  static boolean isMatchable(Class<?> type) {
     return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
         && !Iterables.isIterable(type);
   }

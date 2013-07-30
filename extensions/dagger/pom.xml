@@ -23,12 +23,5 @@
       <version>${dagger.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.squareup.dagger</groupId>
-      <artifactId>dagger-compiler</artifactId>
-      <version>${dagger.version}</version>
-      <optional>true</optional>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 </project>

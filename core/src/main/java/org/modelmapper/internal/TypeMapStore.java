@@ -44,25 +44,21 @@ public final class TypeMapStore {
    */
   public <S, D> TypeMap<S, D> create(S source, Class<S> sourceType, Class<D> destinationType,
       String typeMapName, InheritingConfiguration configuration, MappingEngineImpl engine) {
-    TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, configuration,
-        engine);
-    if (configuration.isImplicitMappingEnabled())
-      new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore, config.converterStore).build();
-    typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
-    return typeMap;
+    synchronized (lock) {
+      TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName,
+          configuration, engine);
+      if (configuration.isImplicitMappingEnabled()
+          && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
+          && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+        new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
+            config.converterStore).build();
+      typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
+      return typeMap;
+    }
   }
 
   public Collection<TypeMap<?, ?>> get() {
     return immutableTypeMaps.values();
-  }
-
-  /**
-   * Returns a TypeMap for the {@code sourceType} and {@code destinationType}, else null if none
-   * exists.
-   */
-  @SuppressWarnings("unchecked")
-  public <S, D> TypeMap<S, D> get(Class<S> sourceType, Class<D> destinationType) {
-    return (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType));
   }
 
   /**
@@ -79,8 +75,9 @@ public final class TypeMapStore {
    * implicit mappings, else the {@code converter} is set against the TypeMap.
    */
   public <S, D> TypeMap<S, D> getOrCreate(S source, Class<S> sourceType, Class<D> destinationType,
-      MappingEngineImpl engine) {
-    return this.<S, D>getOrCreate(source, sourceType, destinationType, null, null, engine);
+      String typeMapName, MappingEngineImpl engine) {
+    return this.<S, D>getOrCreate(source, sourceType, destinationType, typeMapName, null, null,
+        engine);
   }
 
   /**
@@ -92,28 +89,29 @@ public final class TypeMapStore {
    */
   @SuppressWarnings("unchecked")
   public <S, D> TypeMap<S, D> getOrCreate(S source, Class<S> sourceType, Class<D> destinationType,
-      PropertyMap<S, D> propertyMap, Converter<S, D> converter, MappingEngineImpl engine) {
-    TypePair<S, D> typePair = TypePair.of(sourceType, destinationType);
-    TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
+      String typeMapName, PropertyMap<S, D> propertyMap, Converter<S, D> converter,
+      MappingEngineImpl engine) {
+    synchronized (lock) {
+      TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
+      TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
 
-    if (typeMap == null) {
-      typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, config, engine);
-      if (propertyMap != null)
+      if (typeMap == null) {
+        typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName, config, engine);
+        if (propertyMap != null)
+          typeMap.addMappings(propertyMap);
+        if (converter == null && config.isImplicitMappingEnabled()
+            && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
+            && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+          new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
+              config.converterStore).build();
+
+        typeMaps.put(typePair, typeMap);
+      } else if (propertyMap != null)
         typeMap.addMappings(propertyMap);
-      if (converter == null && config.isImplicitMappingEnabled())
-        new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
-            config.converterStore).build();
 
-      typeMaps.put(typePair, typeMap);
-    } else if (propertyMap != null)
-      typeMap.addMappings(propertyMap);
-
-    if (converter != null)
-      typeMap.setConverter(converter);
-    return typeMap;
-  }
-
-  public Object lock() {
-    return lock;
+      if (converter != null)
+        typeMap.setConverter(converter);
+      return typeMap;
+    }
   }
 }

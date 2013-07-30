@@ -31,6 +31,11 @@ public class NameTokenizers {
    */
   public static final NameTokenizer CAMEL_CASE = new CamelCaseNameTokenizer();
 
+  /**
+   * Tokenizes class and property names according to the underscore naming convention.
+   */
+  public static final NameTokenizer UNDERSCORE = new UnderscoreNameTokenizer();
+
   private static class CamelCaseNameTokenizer implements NameTokenizer {
     private static final Pattern camelCase = Pattern.compile("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
 
@@ -41,6 +46,19 @@ public class NameTokenizers {
     @Override
     public String toString() {
       return "Camel Case";
+    }
+  }
+
+  private static class UnderscoreNameTokenizer implements NameTokenizer {
+    private static final Pattern underscore = Pattern.compile("_");
+
+    public String[] tokenize(String name, NameableType nameableType) {
+      return underscore.split(name);
+    }
+
+    @Override
+    public String toString() {
+      return "Underscore";
     }
   }
 }

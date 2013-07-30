@@ -60,9 +60,10 @@ public class MappingEngineImpl implements MappingEngine {
    * Initial entry point.
    */
   public <S, D> D map(S source, Class<S> sourceType, D destination,
-      TypeToken<D> destinationTypeToken) {
+      TypeToken<D> destinationTypeToken, String typeMapName) {
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(), this);
+        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(),
+        typeMapName, this);
     D result = null;
 
     try {
@@ -95,7 +96,8 @@ public class MappingEngineImpl implements MappingEngine {
     }
 
     D destination = null;
-    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType());
+    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType(),
+        context.getTypeMapName());
     if (typeMap != null) {
       destination = typeMap(contextImpl, typeMap);
     } else {
@@ -105,7 +107,7 @@ public class MappingEngineImpl implements MappingEngine {
       } else {
         // Call getOrCreate in case TypeMap was created concurrently
         typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(),
-            context.getDestinationType(), this);
+            context.getDestinationType(), context.getTypeMapName(), this);
         destination = typeMap(contextImpl, typeMap);
       }
     }
@@ -354,7 +356,8 @@ public class MappingEngineImpl implements MappingEngine {
    */
   @SuppressWarnings("unchecked")
   private <S, D> Converter<S, D> converterFor(MappingContext<S, D> context) {
-    TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType());
+    TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType(),
+        context.getTypeMapName());
     Converter<S, D> converter = (Converter<S, D>) converterCache.get(typePair);
     if (converter == null) {
       converter = converterStore.getFirstSupported(context.getSourceType(),

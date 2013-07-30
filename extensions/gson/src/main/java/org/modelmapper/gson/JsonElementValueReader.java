@@ -40,20 +40,20 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
 
       if (propertyElement.isJsonObject())
         return propertyElement.getAsJsonObject();
+      if (propertyElement.isJsonArray())
+        return propertyElement.getAsJsonArray();
       if (propertyElement.isJsonPrimitive()) {
         JsonPrimitive jsonPrim = propertyElement.getAsJsonPrimitive();
         if (jsonPrim.isBoolean())
-          jsonPrim.getAsBoolean();
+          return jsonPrim.getAsBoolean();
         if (jsonPrim.isNumber())
-          jsonPrim.getAsNumber();
+          return jsonPrim.getAsNumber();
         if (jsonPrim.isString())
           return jsonPrim.getAsString();
       }
-      if (propertyElement.isJsonArray())
-        return propertyElement.getAsJsonArray();
-      return null;
-    } else
-      return null;
+    }
+
+    return null;
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })

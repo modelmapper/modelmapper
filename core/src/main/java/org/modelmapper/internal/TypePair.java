@@ -31,10 +31,6 @@ class TypePair<S, D> {
     hashCode = computeHashCode();
   }
 
-  static <T1, T2> TypePair<T1, T2> of(Class<T1> sourceType, Class<T2> destinationType) {
-    return new TypePair<T1, T2>(sourceType, destinationType, null);
-  }
-
   static <T1, T2> TypePair<T1, T2> of(Class<T1> sourceType, Class<T2> destinationType, String name) {
     return new TypePair<T1, T2>(sourceType, destinationType, name);
   }
