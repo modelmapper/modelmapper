@@ -74,11 +74,13 @@ final class PropertyInfoSetResolver<T> {
       valueReader = configuration.valueAccessStore.getFirstSupportedReader(type);
     if (valueReader == null)
       resolveProperties(type, true, configuration, accessors);
-    else
+    else {
+      NameTransformer nameTransformer = configuration.getSourceNameTransformer();
       for (String memberName : valueReader.memberNames(source))
-        accessors.put(memberName,
+        accessors.put(nameTransformer.transform(memberName, NameableType.GENERIC),
             new ValueReaderPropertyInfo(valueReader, valueReader.get(source, memberName),
                 memberName));
+    }
     return accessors;
   }
 
