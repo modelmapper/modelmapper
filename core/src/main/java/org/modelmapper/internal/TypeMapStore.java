@@ -44,12 +44,17 @@ public final class TypeMapStore {
    */
   public <S, D> TypeMap<S, D> create(S source, Class<S> sourceType, Class<D> destinationType,
       String typeMapName, InheritingConfiguration configuration, MappingEngineImpl engine) {
-    TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName,
-        configuration, engine);
-    if (configuration.isImplicitMappingEnabled())
-      new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore, config.converterStore).build();
-    typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
-    return typeMap;
+    synchronized (lock) {
+      TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName,
+          configuration, engine);
+      if (configuration.isImplicitMappingEnabled()
+          && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
+          && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+        new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
+            config.converterStore).build();
+      typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
+      return typeMap;
+    }
   }
 
   public Collection<TypeMap<?, ?>> get() {
@@ -86,27 +91,27 @@ public final class TypeMapStore {
   public <S, D> TypeMap<S, D> getOrCreate(S source, Class<S> sourceType, Class<D> destinationType,
       String typeMapName, PropertyMap<S, D> propertyMap, Converter<S, D> converter,
       MappingEngineImpl engine) {
-    TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
-    TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
+    synchronized (lock) {
+      TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
+      TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
 
-    if (typeMap == null) {
-      typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName, config, engine);
-      if (propertyMap != null)
+      if (typeMap == null) {
+        typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName, config, engine);
+        if (propertyMap != null)
+          typeMap.addMappings(propertyMap);
+        if (converter == null && config.isImplicitMappingEnabled()
+            && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
+            && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+          new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
+              config.converterStore).build();
+
+        typeMaps.put(typePair, typeMap);
+      } else if (propertyMap != null)
         typeMap.addMappings(propertyMap);
-      if (converter == null && config.isImplicitMappingEnabled())
-        new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
-            config.converterStore).build();
 
-      typeMaps.put(typePair, typeMap);
-    } else if (propertyMap != null)
-      typeMap.addMappings(propertyMap);
-
-    if (converter != null)
-      typeMap.setConverter(converter);
-    return typeMap;
-  }
-
-  public Object lock() {
-    return lock;
+      if (converter != null)
+        typeMap.setConverter(converter);
+      return typeMap;
+    }
   }
 }
