@@ -70,9 +70,8 @@ class ImplicitMappingBuilder<S, D> {
     this.typeMap = typeMap;
     this.typeConverterStore = converterStore;
     this.typeMapStore = typeMapStore;
-    this.configuration = typeMap.configuration;    
-    sourceTypeInfo = TypeInfoRegistry.typeInfoFor(source, typeMap.getSourceType(), null,
-        configuration);
+    this.configuration = typeMap.configuration;
+    sourceTypeInfo = TypeInfoRegistry.typeInfoFor(source, typeMap.getSourceType(), configuration);
     matchingStrategy = configuration.getMatchingStrategy();
     propertyNameInfo = new PropertyNameInfoImpl(typeMap.getSourceType(), configuration);
   }
@@ -211,9 +210,7 @@ class ImplicitMappingBuilder<S, D> {
       if (!doneMatching
           && isMatchable(accessor.getType())
           && (!sourceTypes.contains(accessor.getType()) || accessor instanceof ValueReaderPropertyInfo))
-        matchSource(
-            TypeInfoRegistry.typeInfoFor(accessor, sourceTypeInfo.getType(), configuration),
-            destinationMutator);
+        matchSource(TypeInfoRegistry.typeInfoFor(accessor, configuration), destinationMutator);
 
       propertyNameInfo.popSource();
 

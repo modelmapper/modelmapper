@@ -30,8 +30,8 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   private final T source;
   private final Class<T> type;
   private final InheritingConfiguration configuration;
-  private Map<String, Accessor> accessors;
-  private Map<String, Mutator> mutators;
+  private volatile Map<String, Accessor> accessors;
+  private volatile Map<String, Mutator> mutators;
 
   TypeInfoImpl(T source, Class<T> sourceType, InheritingConfiguration configuration) {
     this.source = source;
@@ -52,10 +52,13 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   /**
    * Lazily initializes and gets accessors.
    */
-
-  public synchronized Map<String, Accessor> getAccessors() {
+  public Map<String, Accessor> getAccessors() {
     if (accessors == null)
-      accessors = PropertyInfoSetResolver.resolveAccessors(source, type, configuration);
+      synchronized (this) {
+        if (accessors == null)
+          accessors = PropertyInfoSetResolver.resolveAccessors(source, type, configuration);
+      }
+
     return accessors;
   }
 
@@ -66,9 +69,13 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   /**
    * Lazily initializes and gets mutators.
    */
-  public synchronized Map<String, Mutator> getMutators() {
+  public Map<String, Mutator> getMutators() {
     if (mutators == null)
-      mutators = PropertyInfoSetResolver.resolveMutators(type, configuration);
+      synchronized (this) {
+        if (mutators == null)
+          mutators = PropertyInfoSetResolver.resolveMutators(type, configuration);
+      }
+
     return mutators;
   }
 
