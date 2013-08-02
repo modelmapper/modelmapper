@@ -134,6 +134,18 @@ import org.modelmapper.internal.util.TypeResolver;
  * 
  * <pre>    with(nameProvider).map().setName(source.getName());</pre>
  * 
+ * <h3 id=7>String based mappings</h3>
+ * <p>
+ * As an alternative to mapping properties via their setters and getters, you can also map
+ * properties using string references. While String based mappings are not refactoring-safe, they
+ * allow flexibility when dealing with models that do not have getters or setters.
+ * 
+ * <pre>    map().getCustomer().setName(this.<String>source("person.name"));</pre>
+ * 
+ * Or alternatively:
+ * 
+ * <pre>    map(source("person.name")).getCustomer().setName(null);</pre>
+ * 
  * @param <S> source type
  * @param <D> destination type
  * 
@@ -186,7 +198,7 @@ public abstract class PropertyMap<S, D> {
    *           {@link PropertyMap#configure()}.
    */
   protected final D map() {
-    checkBuilder();
+    assertBuilder();
     return builder.map();
   }
 
@@ -199,7 +211,7 @@ public abstract class PropertyMap<S, D> {
    *           {@link PropertyMap#configure()}.
    */
   protected final D map(Object source) {
-    checkBuilder();
+    assertBuilder();
     return builder.map(source);
   }
 
@@ -211,8 +223,20 @@ public abstract class PropertyMap<S, D> {
    *           {@link PropertyMap#configure()}.
    */
   protected final D skip() {
-    checkBuilder();
+    assertBuilder();
     return builder.skip();
+  }
+
+  /**
+   * Used for mapping a {@code sourcePropertyPath} to a destination. See the <a href="#7">EDSL
+   * examples</a>.
+   * 
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  protected <T> T source(String sourcePropertyPath) {
+    assertBuilder();
+    return builder.source(sourcePropertyPath);
   }
 
   /**
@@ -225,7 +249,7 @@ public abstract class PropertyMap<S, D> {
    *           {@link PropertyMap#configure()}.
    */
   protected final MapExpression<D> using(Converter<?, ?> converter) {
-    checkBuilder();
+    assertBuilder();
     return builder.using(converter);
   }
 
@@ -238,7 +262,7 @@ public abstract class PropertyMap<S, D> {
    *           {@link PropertyMap#configure()}.
    */
   protected final ProviderExpression<S, D> when(Condition<?, ?> condition) {
-    checkBuilder();
+    assertBuilder();
     return builder.when(condition);
   }
 
@@ -252,11 +276,11 @@ public abstract class PropertyMap<S, D> {
    *           {@link PropertyMap#configure()}.
    */
   protected final ConverterExpression<S, D> with(Provider<?> provider) {
-    checkBuilder();
+    assertBuilder();
     return builder.with(provider);
   }
 
-  private void checkBuilder() {
+  private void assertBuilder() {
     Assert.state(builder != null,
         "PropertyMap should not be used outside the context of PropertyMap.configure().");
   }

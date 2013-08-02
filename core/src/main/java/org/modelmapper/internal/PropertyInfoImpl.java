@@ -126,6 +126,13 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     final Object source;
 
     @SuppressWarnings("unchecked")
+    ValueReaderPropertyInfo(ValueReader<?> valueReader, Class<?> initialType, String name) {
+      super(initialType, null, PropertyType.GENERIC, name);
+      this.valueReader = (ValueReader<Object>) valueReader;
+      source = null;
+    }
+
+    @SuppressWarnings("unchecked")
     ValueReaderPropertyInfo(ValueReader<?> valueReader, Object source, String name) {
       super(source.getClass(), null, PropertyType.GENERIC, name);
       this.valueReader = (ValueReader<Object>) valueReader;
