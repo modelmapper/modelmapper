@@ -232,7 +232,7 @@ public class ModelMapper {
    * 
    * @param <S> source type
    * @param <D> destination type
-   * @param sourceType
+   * @param source
    * @param destinationType
    * @param typeMapName
    * @throws IllegalArgumentException if {@code source}, {@code destinationType} or
@@ -253,7 +253,7 @@ public class ModelMapper {
    * 
    * @param <S> source type
    * @param <D> destination type
-   * @param sourceType
+   * @param source
    * @param destinationType
    * @param typeMapName
    * @param configuration to apply to TypeMap
