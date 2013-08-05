@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")
-public class MapValueAccessTest extends AbstractTest {
+public class MapValueReaderTest extends AbstractTest {
   public static class Order {
     int id;
     Customer customer;
