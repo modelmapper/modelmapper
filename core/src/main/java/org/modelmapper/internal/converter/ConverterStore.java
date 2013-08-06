@@ -28,7 +28,8 @@ public final class ConverterStore {
   private static final ConditionalConverter<?, ?>[] DEFAULT_CONVERTERS = new ConditionalConverter<?, ?>[] {
       new StringConverter(), new EnumConverter(), new ArrayConverter(), new CollectionConverter(),
       new MapConverter(), new AssignableConverter(), new NumberConverter(), new BooleanConverter(),
-      new CharacterConverter(), new DateConverter(), new CalendarConverter() };
+      new CharacterConverter(), new DateConverter(), new CalendarConverter(),
+      new OptionalConverter() };
   private final List<ConditionalConverter<?, ?>> converters = new CopyOnWriteArrayList<ConditionalConverter<?, ?>>();
 
   public ConverterStore() {

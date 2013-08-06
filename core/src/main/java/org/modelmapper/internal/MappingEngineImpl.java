@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import com.google.common.base.Optional;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ import org.modelmapper.spi.SourceMapping;
 /**
  * MappingEngine implementation that caches ConditionalConverters by source and destination type
  * pairs.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class MappingEngineImpl implements MappingEngine {
@@ -246,7 +247,7 @@ public class MappingEngineImpl implements MappingEngine {
           }
 
           destinationValue = convert(propertyContext, converter);
-        } else if (propertyContext.getSource() != null)
+        } else if (propertyContext.getSource() != null || Optional.class.isAssignableFrom(propertyContext.getDestinationType()))
           destinationValue = map(propertyContext);
 
         context.destinationCache.put(destPath, destinationValue);

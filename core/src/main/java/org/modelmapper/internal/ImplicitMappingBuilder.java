@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,10 +39,10 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * Builds and populates implicit property mappings for a TypeMap.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
 class ImplicitMappingBuilder<S, D> {
@@ -226,7 +227,7 @@ class ImplicitMappingBuilder<S, D> {
    * closely match the destination. Match closeness is calculated as the total number of matched
    * source to destination tokens / the total number of source and destination tokens. Currently
    * this algorithm does not consider class name tokens.
-   * 
+   *
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
   PropertyMappingImpl disambiguateMappings() {
@@ -302,6 +303,6 @@ class ImplicitMappingBuilder<S, D> {
 
   static boolean isMatchable(Class<?> type) {
     return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
-        && !Iterables.isIterable(type);
+        && !Iterables.isIterable(type) && !Optional.class.isAssignableFrom(type);
   }
 }

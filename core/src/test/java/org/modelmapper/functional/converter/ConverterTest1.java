@@ -39,6 +39,19 @@ public class ConverterTest1 extends AbstractTest {
     assertEquals(dest.value, "test");
   }
 
+  public void shouldUseTypeMapPropertyConverterEvenIfSourceIsNull() {
+    modelMapper.createTypeMap(Source.class, Dest.class).setPropertyConverter(
+        new Converter<Object, Object>() {
+          public Object convert(MappingContext<Object, Object> context) {
+            return "test";
+          }
+        });
+
+    Source source = new Source();
+    Dest dest = modelMapper.map(source, Dest.class);
+    assertEquals(dest.value, "test");
+  }
+
   public void shouldUseTypeMapConverter() {
     modelMapper.createTypeMap(Source.class, Dest.class).setConverter(new Converter<Source, Dest>() {
       public Dest convert(MappingContext<Source, Dest> context) {

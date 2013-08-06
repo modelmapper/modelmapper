@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import com.google.common.base.Optional;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 /**
  * Utilities for working with types.
- * 
+ *
  * @author Jonathan Halterman
  */
 public final class Types {
@@ -60,7 +61,7 @@ public final class Types {
   /**
    * Constructs the {@code type} via a non-private default constructor, a pre-defined constructor,
    * or the constructor with the least non-primitive parameter types.
-   * 
+   *
    * @param type to construct
    * @param lookupType used to lookup pre-defined constructor parameter types and arguments for
    *          types that are difficult to construct generically
@@ -129,12 +130,12 @@ public final class Types {
    * Returns true if the {@code type} is instantiable.
    */
   public static boolean isInstantiable(Class<?> type) {
-    return !type.isEnum() && !type.isAssignableFrom(String.class) && !Primitives.isPrimitiveWrapper(type);
+    return !type.isEnum() && !type.isAssignableFrom(String.class) && !Primitives.isPrimitiveWrapper(type) && !Optional.class.isAssignableFrom(type);
   }
 
   /**
    * Gets the method for the given parameters.
-   * 
+   *
    * @throws RuntimeException on error
    */
   public static Method methodFor(Class<?> type, String name, Class<?>... parameterTypes) {
@@ -148,7 +149,7 @@ public final class Types {
   /**
    * Returns the raw type for the {@code type}. If {@code type} is a TypeVariable or a WildcardType
    * then the first upper bound is returned. is returned.
-   * 
+   *
    * @throws IllegalArgumentException if {@code type} is not a Class, ParameterizedType,
    *           GenericArrayType, TypeVariable or WildcardType.
    */
