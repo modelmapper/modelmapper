@@ -30,7 +30,7 @@ import org.modelmapper.spi.ValueReader;
  */
 public class RecordValueReader implements ValueReader<Record> {
   public Object get(Record source, String memberName) {
-    return source.getValue(memberName);
+    return source.getValue(memberName.toUpperCase());
   }
 
   public Collection<String> memberNames(Record source) {
