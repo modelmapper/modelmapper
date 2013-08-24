@@ -29,6 +29,7 @@ import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Strings;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.modelmapper.spi.Mapping;
@@ -302,6 +303,6 @@ class ImplicitMappingBuilder<S, D> {
 
   static boolean isMatchable(Class<?> type) {
     return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
-        && !Iterables.isIterable(type);
+        && !Iterables.isIterable(type) && !Types.isGroovyType(type);
   }
 }

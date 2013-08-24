@@ -137,6 +137,13 @@ public final class Types {
   }
 
   /**
+   * Returns whether the {@code type} is a Groovy type.
+   */
+  public static boolean isGroovyType(Class<?> type) {
+    return type.getName().startsWith("org.codehaus.groovy");
+  }
+
+  /**
    * Returns true if the {@code type} is instantiable.
    */
   public static boolean isInstantiable(Class<?> type) {
