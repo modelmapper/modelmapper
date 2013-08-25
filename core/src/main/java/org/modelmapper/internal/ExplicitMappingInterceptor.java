@@ -36,13 +36,8 @@ final class ExplicitMappingInterceptor implements MethodInterceptor {
 
   public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
       throws Throwable {
-    // Filter Groovy meta methods
-    if (method.getReturnType().getName().equals("groovy.lang.MetaClass")
-        && (method.getName().equals("getMetaClass") || method.getName().startsWith("$")))
-      return proxy.invokeSuper(obj, args);
-
     mappingProgress.encountered(Types.deProxy(obj.getClass()), method, args);
-
+    
     return method.getReturnType() == void.class ? null : ProxyFactory.proxyFor(
         method.getReturnType(), mappingProgress);
   }
