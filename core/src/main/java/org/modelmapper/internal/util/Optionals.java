@@ -23,41 +23,42 @@ import java.lang.reflect.Method;
  * @author Jörn Horstmann
  */
 public final class Optionals {
-    private static Class<?> OPTIONAL_CLASS;
-    private static Method FROM_NULLABLE_METHOD;
-    static {
-        try {
-            Class<?> optionalClass = Class.forName("com.google.common.base.Optional");
-            OPTIONAL_CLASS = optionalClass;
-            FROM_NULLABLE_METHOD = optionalClass.getDeclaredMethod("fromNullable", Object.class);
-        } catch (ClassNotFoundException ex) {
-            // Google guava not on classpath
-        } catch (NoSuchMethodException ex) {
-            throw new IllegalStateException(ex);
-        } catch (SecurityException ex) {
-            throw new IllegalStateException(ex);
-        }
-    }
 
-    private Optionals() {
+  private static Class<?> OPTIONAL_CLASS;
+  private static Method FROM_NULLABLE_METHOD;
 
+  static {
+    try {
+      Class<?> optionalClass = Class.forName("com.google.common.base.Optional");
+      OPTIONAL_CLASS = optionalClass;
+      FROM_NULLABLE_METHOD = optionalClass.getDeclaredMethod("fromNullable", Object.class);
+    } catch (ClassNotFoundException ex) {
+      // Google guava not on classpath
+    } catch (NoSuchMethodException ex) {
+      throw new IllegalStateException(ex);
+    } catch (SecurityException ex) {
+      throw new IllegalStateException(ex);
     }
+  }
 
-    public static boolean isOptional(Class<?> clazz) {
-        return OPTIONAL_CLASS != null && OPTIONAL_CLASS.isAssignableFrom(clazz);
-    }
+  private Optionals() {
+  }
 
-    public static Object fromNullable(Object obj) {
-        if (FROM_NULLABLE_METHOD == null) {
-            throw new IllegalStateException("Method Optional.fromNullable is not available");
-        }
-        try {
-            return FROM_NULLABLE_METHOD.invoke(null, obj);
-        } catch (IllegalAccessException ex) {
-            throw new IllegalStateException(ex);
-        } catch (InvocationTargetException ex) {
-            throw new IllegalStateException(ex);
-        }
+  public static boolean isOptional(Class<?> clazz) {
+    return OPTIONAL_CLASS != null && OPTIONAL_CLASS.isAssignableFrom(clazz);
+  }
+
+  public static Object fromNullable(Object obj) {
+    if (FROM_NULLABLE_METHOD == null) {
+      throw new IllegalStateException("Method Optional.fromNullable is not available");
     }
+    try {
+      return FROM_NULLABLE_METHOD.invoke(null, obj);
+    } catch (IllegalAccessException ex) {
+      throw new IllegalStateException(ex);
+    } catch (InvocationTargetException ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
 
 }
