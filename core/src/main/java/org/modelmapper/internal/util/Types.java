@@ -15,7 +15,6 @@
  */
 package org.modelmapper.internal.util;
 
-import com.google.common.base.Optional;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -130,7 +129,7 @@ public final class Types {
    * Returns true if the {@code type} is instantiable.
    */
   public static boolean isInstantiable(Class<?> type) {
-    return !type.isEnum() && !type.isAssignableFrom(String.class) && !Primitives.isPrimitiveWrapper(type) && !Optional.class.isAssignableFrom(type);
+    return !type.isEnum() && !type.isAssignableFrom(String.class) && !Primitives.isPrimitiveWrapper(type) && !Optionals.isOptional(type);
   }
 
   /**

@@ -15,7 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import com.google.common.base.Optional;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
+import org.modelmapper.internal.util.Optionals;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConstantMapping;
@@ -247,7 +247,7 @@ public class MappingEngineImpl implements MappingEngine {
           }
 
           destinationValue = convert(propertyContext, converter);
-        } else if (propertyContext.getSource() != null || Optional.class.isAssignableFrom(propertyContext.getDestinationType()))
+        } else if (propertyContext.getSource() != null || Optionals.isOptional(propertyContext.getDestinationType()))
           destinationValue = map(propertyContext);
 
         context.destinationCache.put(destPath, destinationValue);

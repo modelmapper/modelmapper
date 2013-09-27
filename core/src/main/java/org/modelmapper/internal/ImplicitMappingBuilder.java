@@ -15,7 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +27,7 @@ import org.modelmapper.TypeMap;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
+import org.modelmapper.internal.util.Optionals;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.ConditionalConverter;
@@ -303,6 +303,6 @@ class ImplicitMappingBuilder<S, D> {
 
   static boolean isMatchable(Class<?> type) {
     return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
-        && !Iterables.isIterable(type) && !Optional.class.isAssignableFrom(type);
+        && !Iterables.isIterable(type) && !Optionals.isOptional(type);
   }
 }
