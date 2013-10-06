@@ -24,8 +24,8 @@ public class RecordValueReaderTest {
   protected void beforeClass() throws Exception {
     Class.forName("org.h2.Driver");
     ctx = DSL.using(DriverManager.getConnection("jdbc:h2:mem:test"), SQLDialect.H2);
-    ctx.execute("CREATE TABLE orders (id int(11), customer_id int(11), customer_street_address varchar(25), customer_address_city varchar(25))");
-    ctx.execute("INSERT INTO orders values (456, 789, '123 Main Street', 'SF')");
+    ctx.execute("CREATE TABLE orders (id int(11), customer_id int(11), customer_street_address varchar(25), customer_address_city varchar(25), customer_address_zip varchar(10))");
+    ctx.execute("INSERT INTO orders values (456, 789, '123 Main Street', 'SF', null)");
   }
 
   public static class Order {
@@ -49,6 +49,7 @@ public class RecordValueReaderTest {
   public static class Address {
     public String street;
     public String city;
+    public String zip;
 
     public void setStreet(String street) {
       this.street = street;
@@ -73,6 +74,7 @@ public class RecordValueReaderTest {
     assertEquals(order.customer.id, 789);
     assertEquals(order.customer.address.street, "123 Main Street");
     assertEquals(order.customer.address.city, "SF");
+    assertEquals(order.customer.address.zip, null);
   }
 
   public void shouldMapWithExplicitMapping() throws Exception {
@@ -91,5 +93,6 @@ public class RecordValueReaderTest {
     assertEquals(order.customer.id, 789);
     assertEquals(order.customer.address.street, "123 Main Street");
     assertEquals(order.customer.address.city, "SF");
+    assertEquals(order.customer.address.zip, null);
   }
 }
