@@ -76,6 +76,7 @@ public class FieldRelocation {
 
   public static void main(String... args) {
     ModelMapper modelMapper = new ModelMapper();
+
     modelMapper.addConverter(new Converter<Car, AnotherCar>() {
       public AnotherCar convert(MappingContext<Car, AnotherCar> context) {
         Person person = (Person) context.getParent().getParent().getSource();
@@ -84,6 +85,15 @@ public class FieldRelocation {
         return context.getDestination();
       }
     });
+
+    // Alternatively, using a provider
+    // modelMapper.getConfiguration().setProvider(new Provider<AnotherCar>() {
+    // public AnotherCar get(org.modelmapper.Provider.ProvisionRequest<AnotherCar> request) {
+    // AnotherCar anotherCar = new AnotherCar();
+    // anotherCar.setPersonName(((Person) request.getSource()).getName());
+    // return anotherCar;
+    // }
+    // });
 
     modelMapper.addMappings(new PropertyMap<Person, AnotherPerson>() {
       @Override
