@@ -215,7 +215,7 @@ public class MappingEngineImpl implements MappingEngine {
    * mutator chain and obtaining each destination value in the chain either from the cache, from a
    * corresponding accessor, from a provider, or by instantiation, in that order.
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   private void setDestinationValue(MappingContextImpl<?, ?> context,
       MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping,
       Converter<Object, Object> converter) {
@@ -290,12 +290,8 @@ public class MappingEngineImpl implements MappingEngine {
               if (propertyContext.getSource() == null)
                 return;
 
-              Provider<?> globalProvider = configuration.getProvider();
-              if (globalProvider != null)
-                intermediateDest = globalProvider.get(new ProvisionRequestImpl(
-                    context.parentSource(), mutator.getType()));
-              else
-                intermediateDest = instantiate(mutator.getType(), context.errors);
+              intermediateDest = createDestinationViaGlobalProvider(context.parentSource(),
+                  mutator.getType(), context.errors);
               if (intermediateDest == null)
                 return;
 
@@ -381,6 +377,17 @@ public class MappingEngineImpl implements MappingEngine {
     }
   }
 
+  public <S, D> D createDestination(MappingContext<S, D> context) {
+    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
+    D destination = createDestinationViaProvider(contextImpl);
+    if (destination != null)
+      return destination;
+
+    destination = instantiate(context.getDestinationType(), contextImpl.errors);
+    contextImpl.setDestination(destination);
+    return destination;
+  }
+
   /**
    * Returns a destination object via a provider with the current Mapping's provider used first,
    * else the TypeMap's property provider, else the TypeMap's provider, else the configuration's
@@ -402,21 +409,28 @@ public class MappingEngineImpl implements MappingEngine {
       return null;
 
     D destination = provider.get(context);
-    if (destination != null
-        && !context.getDestinationType().isAssignableFrom(destination.getClass()))
-      context.errors.invalidProvidedDestinationInstance(destination, context.getDestinationType());
+    validateDestination(context.getDestinationType(), destination, context.errors);
     context.setDestination(destination);
     return destination;
   }
 
-  public <S, D> D createDestination(MappingContext<S, D> context) {
-    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
-    D destination = createDestinationViaProvider(contextImpl);
-    if (destination != null)
-      return destination;
+  @SuppressWarnings("unchecked")
+  private <S, D> D createDestinationViaGlobalProvider(S source, Class<D> requestedType,
+      Errors errors) {
+    D destination = null;
+    Provider<D> provider = (Provider<D>) configuration.getProvider();
+    if (provider != null) {
+      destination = provider.get(new ProvisionRequestImpl<D>(source, requestedType));
+      validateDestination(requestedType, destination, errors);
+    }
+    if (destination == null)
+      destination = instantiate(requestedType, errors);
 
-    destination = instantiate(context.getDestinationType(), contextImpl.errors);
-    contextImpl.setDestination(destination);
     return destination;
+  }
+
+  private void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
+    if (destination != null && !destinationType.isAssignableFrom(destination.getClass()))
+      errors.invalidProvidedDestinationInstance(destination, destinationType);
   }
 }
