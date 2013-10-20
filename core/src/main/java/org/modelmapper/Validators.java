@@ -15,42 +15,51 @@
  */
 package org.modelmapper;
 
+import org.modelmapper.internal.Errors;
+import org.modelmapper.spi.PropertyInfo;
+
+import java.util.List;
+
 /**
  * {@link Validator} implementations.
  * 
  * @author Jonathan Halterman
  */
-public class Validators {
+public enum Validators implements Validator {
+  
   /**
    * Validates that all top level source properties are mapped.
    */
-  public static final Validator SOURCE_PROPERTIES_MAPPED = new Validator() {
-    @SuppressWarnings("unused") private static final long serialVersionUID = 0;
-
-    public boolean isValid(TypeMap<?, ?> typeMap) {
-      return false;
+  SOURCE_PROPERTIES_MAPPED {
+    public void check(TypeMap<?, ?> typeMap, Errors errors) {
+      final List<PropertyInfo> unmappedSourceProperties = typeMap.getUnmappedSourceProperties();
+      if (!unmappedSourceProperties.isEmpty()) {
+        errors.errorUnmappedSourceProperties(typeMap, unmappedSourceProperties);
+      }
     }
-
-    @Override
-    public String toString() {
-      return "sourcePropertiesMapped()";
-    }
-  };
+  },
 
   /**
    * Validates that <b>all</b> top level destination properties are mapped, or that a
    * {@code Converter} was set for the TypeMap.
    */
-  public static final Validator DESTINATION_PROPERTIES_MAPPED = new Validator() {
-    @SuppressWarnings("unused") private static final long serialVersionUID = 0;
-
-    public boolean isValid(TypeMap<?, ?> typeMap) {
-      return false;
+  DESTINATION_PROPERTIES_MAPPED {
+    public void check(TypeMap<?, ?> typeMap, Errors errors) {
+      final List<PropertyInfo> unmappedDestinationProperties = typeMap.getUnmappedDestinationProperties();
+      if (!unmappedDestinationProperties.isEmpty()) {
+        errors.errorUnmappedDestinationProperties(typeMap, unmappedDestinationProperties);
+      }
     }
+  },
 
-    @Override
-    public String toString() {
-      return "destinationPropertiesMapped()";
+  /**
+   * Valides that <b>both</b>, <b>all</b> top level source and <b>all</b> top level destination properties
+   * are mapped.
+   */
+  ALL_PROPERTIES_MAPPED {
+    public void check(TypeMap<?, ?> typeMap, Errors errors) {
+      DESTINATION_PROPERTIES_MAPPED.check(typeMap, errors);
+      SOURCE_PROPERTIES_MAPPED.check(typeMap, errors);
     }
-  };
+  }
 }

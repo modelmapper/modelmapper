@@ -133,8 +133,29 @@ public interface TypeMap<S, D> {
    * 
    * <p>
    * This method is part of the ModelMapper SPI.
+   * 
+   * @deprecated use {@link #getUnmappedDestinationProperties()} instead
    */
+  @Deprecated
   List<PropertyInfo> getUnmappedProperties();
+
+  /**
+   * Returns a snapshot list of source properties that do not have mappings defined, else empty
+   * list if all source properties are mapped.
+   * 
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   */
+  List<PropertyInfo> getUnmappedSourceProperties();
+
+  /**
+   * Returns a snapshot list of destination properties that do not have mappings defined, else empty
+   * list if all destination properties are mapped.
+   * 
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   */
+  List<PropertyInfo> getUnmappedDestinationProperties();
 
   /**
    * Maps {@code source} to an instance of type {@code D}.
@@ -228,4 +249,5 @@ public interface TypeMap<S, D> {
    * @throws ValidationException if validation fails
    */
   void validate(Validator... validators);
+  
 }

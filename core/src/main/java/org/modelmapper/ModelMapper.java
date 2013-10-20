@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 import org.modelmapper.config.Configuration;
+import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.internal.Errors;
 import org.modelmapper.internal.InheritingConfiguration;
 import org.modelmapper.internal.MappingEngineImpl;
@@ -469,8 +470,12 @@ public class ModelMapper {
    * @throws ValidationException if validation fails
    */
   public void validate(Validator... validators) {
-    if (validators == null)
-      validators = new Validator[] { Validators.DESTINATION_PROPERTIES_MAPPED };
+    if (validators == null || validators.length == 0)
+      if (MatchingStrategies.STRICT.equals(config.getMatchingStrategy())) {
+        validators = new Validator[] { Validators.ALL_PROPERTIES_MAPPED }; 
+      } else {
+        validators = new Validator[] { Validators.DESTINATION_PROPERTIES_MAPPED };
+      }
     Errors errors = new Errors();
 
     for (TypeMap<?, ?> typeMap : getTypeMaps()) {

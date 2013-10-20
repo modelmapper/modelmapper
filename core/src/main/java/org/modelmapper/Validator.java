@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import org.modelmapper.internal.Errors;
+
 /**
  * Performs validation.
  * 
@@ -23,8 +25,9 @@ package org.modelmapper;
 public interface Validator {
   /**
    * Determines whether the {@code typeMap} is valid.
-   * 
+   *
    * @param typeMap to validate
+   * @param errors the error consumer
    */
-  boolean isValid(TypeMap<?, ?> typeMap);
+  void check(TypeMap<?, ?> typeMap, Errors errors);
 }
