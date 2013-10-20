@@ -17,12 +17,16 @@ package org.modelmapper.config;
 
 import java.util.List;
 
+import org.modelmapper.Condition;
+import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NamingConvention;
+import org.modelmapper.spi.ValueReader;
 
 /**
  * Configures conventions used during the matching process.
@@ -45,19 +49,22 @@ public interface Configuration {
   }
 
   /**
+   * Registers the {@code valueReader} to use when mapping from instances of types {@code T}.
+   * 
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   * 
+   * @param <T> source type
+   * @param valueReader to register
+   * @throws IllegalArgumentException if {@code valueReader} is null or if type argument {@code T}
+   *           is not declared for the {@code valueReader}
+   */
+  <T> Configuration addValueReader(ValueReader<T> valueReader);
+
+  /**
    * Returns a copy of the Configuration.
    */
   Configuration copy();
-
-  /**
-   * Sets whether field matching should be enabled. When true, mapping may take place between
-   * accessible fields. Default is {@code false}.
-   * 
-   * @param enabled whether field matching is enabled
-   * @see #isFieldMatchingEnabled()
-   * @see #setFieldAccessLevel(AccessLevel)
-   */
-  Configuration enableFieldMatching(boolean enabled);
 
   /**
    * Gets the ordered list of internal conditional converters that are used to perform type
@@ -112,7 +119,16 @@ public interface Configuration {
   AccessLevel getMethodAccessLevel();
 
   /**
-   * Returns the Provider used for provisioning destination object instances.
+   * Returns the Condition that must apply for a property in order for mapping to take place, else
+   * {@code null} if no condition has been configured.
+   * 
+   * @see #setPropertyCondition(Condition)
+   */
+  Condition<?, ?> getPropertyCondition();
+
+  /**
+   * Returns the Provider used for provisioning destination object instances, else {@code null} if
+   * no Provider has been configured.
    * 
    * @see #setProvider(Provider)
    */
@@ -140,29 +156,65 @@ public interface Configuration {
   NamingConvention getSourceNamingConvention();
 
   /**
-   * Sets whether destination properties that match more than one source property should be ignored.
-   * When true ambiguous destination properties are skipped during the matching process. When false
-   * a ConfigurationException is thrown when ambiguous properties are encountered.
+   * Gets a thread-safe, mutable, ordered list of internal and user-defined ValueReaders that are
+   * used to read source object values during mapping. This list is may be modified to control which
+   * ValueReaders are used to along with the order in which ValueReaders are selected for a source
+   * type.
    * 
-   * @param ignore whether ambiguity is to be ignored
-   * @see #isAmbiguityIgnored()
+   * <p>
+   * The returned List throws an IllegalArgumentException when attempting to add or set a
+   * ValueReader for which the type argument {@code T} has not been defined.
+   * 
+   * <p>
+   * This method is part of the ModelMapper SPI.
    */
-  Configuration ignoreAmbiguity(boolean ignore);
+  List<ValueReader<?>> getValueReaders();
 
   /**
    * Returns {@code true} if ambiguous properties are ignored or {@code false} if they will result
    * in an exception.
    * 
-   * @see #ignoreAmbiguity(boolean)
+   * @see #setAmbiguityIgnored(boolean)
    */
   boolean isAmbiguityIgnored();
 
   /**
    * Returns whether field matching is enabled.
    * 
-   * @see #enableFieldMatching(boolean)
+   * @see #setFieldMatchingEnabled(boolean)
    */
   boolean isFieldMatchingEnabled();
+
+  /**
+   * Returns {@code true} if {@link ConditionalConverter}s must define a {@link MatchResult#FULL
+   * full} match in order to be applied. Otherwise conditional converters may also be applied for a
+   * {@link MatchResult#PARTIAL partial} match.
+   * <p>
+   * Default is {@code false}.
+   * 
+   * @see #setFullTypeMatchingRequired(boolean)
+   */
+  boolean isFullTypeMatchingRequired();
+
+  /**
+   * Returns whether implicit mapping should be enabled. When {@code true} (default), ModelMapper
+   * will implicitly map source to destination properties based on configured conventions. When
+   * {@code false}, only explicit mappings defined in {@link PropertyMap property maps} will be
+   * used.
+   * 
+   * @see #setImplicitMappingEnabled(boolean)
+   */
+  boolean isImplicitMappingEnabled();
+
+  /**
+   * Sets whether destination properties that match more than one source property should be ignored.
+   * When true, ambiguous destination properties are skipped during the matching process. When
+   * false, a ConfigurationException is thrown when ambiguous properties are encountered.
+   * 
+   * @param ignore whether ambiguity is to be ignored
+   * @see #isAmbiguityIgnored()
+   */
+  Configuration setAmbiguityIgnored(boolean ignore);
 
   /**
    * Sets the tokenizer to be applied to destination property and class names during the matching
@@ -191,14 +243,44 @@ public interface Configuration {
    * Indicates that fields should be eligible for matching at the given {@code accessLevel}.
    * 
    * <p>
-   * <b>Note</b>: Field access is only used when {@link #enableFieldMatching(boolean) field
+   * <b>Note</b>: Field access is only used when {@link #setFieldMatchingEnabled(boolean) field
    * matching} is enabled.
    * 
    * @throws IllegalArgumentException if {@code accessLevel} is null
-   * @see AccessLevel
-   * @see #enableFieldMatching(boolean)
+   * @see #setFieldMatchingEnabled(boolean)
    */
   Configuration setFieldAccessLevel(AccessLevel accessLevel);
+
+  /**
+   * Sets whether field matching should be enabled. When true, mapping may take place between
+   * accessible fields. Default is {@code false}.
+   * 
+   * @param enabled whether field matching is enabled
+   * @see #isFieldMatchingEnabled()
+   * @see #setFieldAccessLevel(AccessLevel)
+   */
+  Configuration setFieldMatchingEnabled(boolean enabled);
+
+  /**
+   * Set whether {@link ConditionalConverter}s must define a {@link MatchResult#FULL full} match in
+   * order to be applied. If {@code false}, conditional converters may also be applied for a
+   * {@link MatchResult#PARTIAL partial} match.
+   * 
+   * @param required whether full type matching is required for conditional converters.
+   * @see #isFullTypeMatchingRequired()
+   */
+  Configuration setFullTypeMatchingRequired(boolean required);
+
+  /**
+   * Sets whether implicit mapping should be enabled. When {@code true} (default), ModelMapper will
+   * implicitly map source to destination properties based on configured conventions. When
+   * {@code false}, only explicit mappings defined in {@link PropertyMap property maps} will be
+   * used.
+   * 
+   * @param enabled whether implicit matching is enabled
+   * @see #isImplicitMappingEnabled()
+   */
+  Configuration setImplicitMappingEnabled(boolean enabled);
 
   /**
    * Sets the strategy used to match source properties to destination properties.
@@ -214,6 +296,14 @@ public interface Configuration {
    * @see AccessLevel
    */
   Configuration setMethodAccessLevel(AccessLevel accessLevel);
+
+  /**
+   * Sets the {@code condition} that must apply for a property in order for mapping to take place.
+   * This is overridden by any property conditions defined in a TypeMap or PropertyMap.
+   * 
+   * @throws IllegalArgumentException if {@code condition} is null
+   */
+  Configuration setPropertyCondition(Condition<?, ?> condition);
 
   /**
    * Sets the {@code provider} to use for providing destination object instances.

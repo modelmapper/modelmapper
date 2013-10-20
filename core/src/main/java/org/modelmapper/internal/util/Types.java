@@ -28,6 +28,8 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,8 +98,17 @@ public final class Types {
    */
   public static Object[] defaultArgumentsFor(Class<?>[] types) {
     Object[] args = new Object[types.length];
-    for (int i = 0; i < types.length; i++)
-      args[i] = Primitives.defaultValue(types[i]);
+    for (int i = 0; i < types.length; i++) {
+      Class<?> type = types[i];
+      args[i] = Primitives.defaultValue(type);
+      if (args[i] == null)
+        if (type.isArray())
+          args[i] = Array.newInstance(type.getComponentType(), 0);
+        else if (Collection.class.isAssignableFrom(type))
+          args[i] = Collections.emptyList();
+        else if (Map.class.isAssignableFrom(type))
+          args[i] = Collections.emptyMap();
+    }
     return args;
   }
 
@@ -126,10 +137,18 @@ public final class Types {
   }
 
   /**
+   * Returns whether the {@code type} is a Groovy type.
+   */
+  public static boolean isGroovyType(Class<?> type) {
+    return type.getName().startsWith("org.codehaus.groovy");
+  }
+
+  /**
    * Returns true if the {@code type} is instantiable.
    */
   public static boolean isInstantiable(Class<?> type) {
-    return !type.isEnum() && !type.isAssignableFrom(String.class) && !Primitives.isPrimitiveWrapper(type);
+    return !type.isEnum() && !type.isAssignableFrom(String.class)
+        && !Primitives.isPrimitiveWrapper(type);
   }
 
   /**

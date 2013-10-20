@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
 import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
+import org.modelmapper.spi.ValueReader;
 
 /**
  * Abstract PropertyInfo implementation that provides {@link #equals(Object)} and
@@ -37,14 +38,6 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   protected final Class<?> type;
   protected final String name;
   private final PropertyType propertyType;
-
-  private PropertyInfoImpl(Class<?> initialType, M member, PropertyType propertyType, String name) {
-    this.initialType = initialType;
-    this.member = member;
-    this.propertyType = propertyType;
-    this.type = TypeResolver.resolveClass(getGenericType(), initialType);
-    this.name = name;
-  }
 
   static abstract class AbstractMethodInfo extends PropertyInfoImpl<Method> {
     private AbstractMethodInfo(Class<?> initialType, Method method, String name) {
@@ -127,6 +120,48 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     }
   }
 
+  static class ValueReaderPropertyInfo extends PropertyInfoImpl<Member> implements Accessor {
+    private final ValueReader<Object> valueReader;
+    /** Provides access to structural information of members. */
+    final Object source;
+
+    @SuppressWarnings("unchecked")
+    ValueReaderPropertyInfo(ValueReader<?> valueReader, Class<?> initialType, String name) {
+      super(initialType, null, PropertyType.GENERIC, name);
+      this.valueReader = (ValueReader<Object>) valueReader;
+      source = null;
+    }
+
+    @SuppressWarnings("unchecked")
+    ValueReaderPropertyInfo(ValueReader<?> valueReader, Object source, String name) {
+      super(source.getClass(), null, PropertyType.GENERIC, name);
+      this.valueReader = (ValueReader<Object>) valueReader;
+      this.source = source;
+    }
+
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+      return null;
+    }
+
+    public Type getGenericType() {
+      return type;
+    }
+
+    public Object getValue(Object subject) {
+      return valueReader.get(subject, name);
+    }
+  }
+
+  private PropertyInfoImpl(Class<?> initialType, M member, PropertyType propertyType, String name) {
+    this.initialType = initialType;
+    this.member = member;
+    this.propertyType = propertyType;
+    Type genericType = getGenericType();
+    this.type = genericType == null ? initialType : TypeResolver.resolveClass(genericType,
+        initialType);
+    this.name = name;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -160,11 +195,11 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
 
   @Override
   public int hashCode() {
-    return member.getDeclaringClass().hashCode() * 31 + name.hashCode();
+    return (member == null ? 1 : member.getDeclaringClass().hashCode()) * 31 + name.hashCode();
   }
 
   @Override
   public String toString() {
-    return member.getDeclaringClass().getSimpleName() + "." + name;
+    return member == null ? name : member.getDeclaringClass().getSimpleName() + "." + name;
   }
 }

@@ -2,6 +2,7 @@ package org.modelmapper.internal;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.testng.annotations.Test;
@@ -16,9 +17,9 @@ public class InheritingConfigurationTest {
     InheritingConfiguration config2 = new InheritingConfiguration();
 
     assertEquals(config1.hashCode(), config2.hashCode());
-    config1.enableFieldMatching(true);
+    config1.setFieldMatchingEnabled(true);
     assertFalse(config1.hashCode() == config2.hashCode());
-    config2.enableFieldMatching(true);
+    config2.setFieldMatchingEnabled(true);
     assertEquals(config1.hashCode(), config2.hashCode());
     config2.setMethodAccessLevel(AccessLevel.PRIVATE);
     assertFalse(config1.hashCode() == config2.hashCode());
@@ -43,11 +44,24 @@ public class InheritingConfigurationTest {
     InheritingConfiguration config2 = new InheritingConfiguration();
 
     assertEquals(config1, config2);
-    config1.enableFieldMatching(true);
+    config1.setFieldMatchingEnabled(true);
     assertFalse(config1.equals(config2));
-    config2.enableFieldMatching(true);
+    config2.setFieldMatchingEnabled(true);
     assertEquals(config1, config2);
     config2.setMethodAccessLevel(AccessLevel.PRIVATE);
     assertFalse(config1.equals(config2));
   }
+  
+  public void testFullMatchingRequiredDefualtsToFalse() {
+	  InheritingConfiguration config = new InheritingConfiguration();
+	  assertFalse(config.isFullTypeMatchingRequired());
+  }
+  
+  public void testFullMatchingRequiredIsInherited() {
+	  InheritingConfiguration originConfig = new InheritingConfiguration();
+	  originConfig.setFullTypeMatchingRequired(true);
+	  InheritingConfiguration inheritingConfig = new InheritingConfiguration(originConfig, true);
+	  assertTrue(inheritingConfig.isFullTypeMatchingRequired());
+  }
+  
 }

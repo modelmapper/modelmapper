@@ -66,8 +66,19 @@ public class NullBehavior extends AbstractTest {
     assertNull(result.longValue);
   }
 
-  public void shouldSkipNulls() {
+  public void shouldSkipNullsPerTypeMap() {
     modelMapper.createTypeMap(S1.class, D1.class).setPropertyCondition(Conditions.isNotNull());
+
+    S1 source = new S1();
+    D1 d = modelMapper.map(source, D1.class);
+    assertEquals(d.longValue, Long.valueOf(4));
+    assertEquals(d.subSomething, 5);
+    assertNull(d.sub);
+    assertNull(d.nullString);
+  }
+
+  public void shouldSkipNullsGlobally() {
+    modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 
     S1 source = new S1();
     D1 d = modelMapper.map(source, D1.class);

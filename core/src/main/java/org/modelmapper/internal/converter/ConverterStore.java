@@ -25,14 +25,14 @@ import org.modelmapper.spi.ConditionalConverter.MatchResult;
  * @author Jonathan Halterman
  */
 public final class ConverterStore {
-  private final ConditionalConverter<?, ?>[] defaultConverters = new ConditionalConverter<?, ?>[] {
+  private static final ConditionalConverter<?, ?>[] DEFAULT_CONVERTERS = new ConditionalConverter<?, ?>[] {
       new StringConverter(), new EnumConverter(), new ArrayConverter(), new CollectionConverter(),
       new MapConverter(), new AssignableConverter(), new NumberConverter(), new BooleanConverter(),
       new CharacterConverter(), new DateConverter(), new CalendarConverter() };
   private final List<ConditionalConverter<?, ?>> converters = new CopyOnWriteArrayList<ConditionalConverter<?, ?>>();
 
   public ConverterStore() {
-    for (ConditionalConverter<?, ?> converter : defaultConverters)
+    for (ConditionalConverter<?, ?> converter : DEFAULT_CONVERTERS)
       converters.add(converter);
   }
 

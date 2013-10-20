@@ -27,16 +27,17 @@ import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.internal.util.Types;
 
 /**
- * ModelMapper framework entry point. Performs object mapping and contains mapping related
- * configuration.
+ * ModelMapper - Performs object mapping, maintains {@link Configuration} and stores {@link TypeMap
+ * TypeMaps}.
  * 
  * <ul>
- * <li>To perform object mapping call {@link #map(Object, Class) map}.</li>
- * <li>To configure the mapping of one type to another call {@link #createTypeMap(Class, Class)
+ * <li>To perform object mapping use {@link #map(Object, Class) map}.</li>
+ * <li>To configure the mapping of one type to another use {@link #createTypeMap(Class, Class)
  * createTypeMap}.</li>
- * <li>To add mappings for specific properties call {@link #addMappings(PropertyMap) addMappings}
+ * <li>To add mappings for specific properties use {@link #addMappings(PropertyMap) addMappings}
  * supplying a {@link PropertyMap}.</li>
- * <li>To configure ModelMapper call {@link #getConfiguration getConfiguration}.
+ * <li>To configure ModelMapper use {@link #getConfiguration}.
+ * <li>To validate mappings use {@link #validate}.
  * </ul>
  * 
  * @author Jonathan Halterman
@@ -55,8 +56,8 @@ public class ModelMapper {
 
   /**
    * Registers the {@code converter} to use when mapping instances of types {@code S} to {@code D}.
-   * The {@code converter} will be set against TypeMap corresponding to the {@code converter}'s type
-   * arguments {@code S} and {@code D}.
+   * The {@code converter} will be {@link TypeMap#setConverter(Converter) set} against TypeMap
+   * corresponding to the {@code converter}'s type arguments {@code S} and {@code D}.
    * 
    * @param <S> source type
    * @param <D> destination type
@@ -70,8 +71,8 @@ public class ModelMapper {
     Assert.notNull(converter, "converter");
     Class<?>[] typeArguments = TypeResolver.resolveArguments(converter.getClass(), Converter.class);
     Assert.notNull("Must declare source type argument <S> and destination type argument <D> for converter");
-    config.typeMapStore.<S, D>getOrCreate((Class<S>) typeArguments[0], (Class<D>) typeArguments[1],
-        null, converter, engine);
+    config.typeMapStore.<S, D>getOrCreate(null, (Class<S>) typeArguments[0],
+        (Class<D>) typeArguments[1], null, null, converter, engine);
   }
 
   /**
@@ -89,8 +90,8 @@ public class ModelMapper {
    */
   public <S, D> TypeMap<S, D> addMappings(PropertyMap<S, D> propertyMap) {
     Assert.notNull(propertyMap, "propertyMap");
-    return config.typeMapStore.getOrCreate(propertyMap.sourceType, propertyMap.destinationType,
-        propertyMap, null, engine);
+    return config.typeMapStore.getOrCreate(null, propertyMap.sourceType,
+        propertyMap.destinationType, null, propertyMap, null, engine);
   }
 
   /**
@@ -112,14 +113,14 @@ public class ModelMapper {
   }
 
   /**
-   * Creates a TypeMap for the {@code sourceType} and {@code destinationType} using the given
+   * Creates a TypeMap for the {@code sourceType} and {@code destinationType} using the
    * {@code configuration}.
    * 
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
    * @param destinationType
-   * @param configuration
+   * @param configuration to apply to TypeMap
    * @throws IllegalArgumentException if {@code sourceType}, {@code destinationType} or
    *           {@code configuration} are null
    * @throws IllegalStateException if a TypeMap already exists for {@code sourceType} and
@@ -132,11 +133,144 @@ public class ModelMapper {
     Assert.notNull(sourceType, "sourceType");
     Assert.notNull(destinationType, "destinationType");
     Assert.notNull(configuration, "configuration");
-    synchronized (config.typeMapStore.lock()) {
-      Assert.state(config.typeMapStore.get(sourceType, destinationType) == null,
-          String.format("A TypeMap already exists for %s and %s", sourceType, destinationType));
-      return config.typeMapStore.create(sourceType, destinationType, configuration, engine);
-    }
+    return this.<S, D>createTypeMapInternal(null, sourceType, destinationType, null, configuration);
+  }
+
+  /**
+   * Creates a TypeMap for the {@code sourceType} and {@code destinationType} identified by the
+   * {@code typeMapName} using the ModelMapper's configuration.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @param sourceType
+   * @param destinationType
+   * @param typeMapName
+   * @throws IllegalArgumentException if {@code sourceType}, {@code destinationType} or
+   *           {@code typeMapName} are null
+   * @throws IllegalStateException if a TypeMap already exists for {@code sourceType},
+   *           {@code destinationType} and {@code typeMapName}
+   * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
+   * @see #getTypeMap(Class, Class, String)
+   */
+  public <S, D> TypeMap<S, D> createTypeMap(Class<S> sourceType, Class<D> destinationType,
+      String typeMapName) {
+    return this.<S, D>createTypeMap(sourceType, destinationType, typeMapName, config);
+  }
+
+  /**
+   * Creates a TypeMap for the {@code sourceType} and {@code destinationType} identified by the
+   * {@code typeMapName} using the {@code configuration}.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @param sourceType
+   * @param destinationType
+   * @param typeMapName
+   * @param configuration to apply to TypeMap
+   * @throws IllegalArgumentException if {@code sourceType}, {@code destinationType},
+   *           {@code typeMapName} or {@code configuration} are null
+   * @throws IllegalStateException if a TypeMap already exists for {@code sourceType},
+   *           {@code destinationType} and {@code typeMapName}
+   * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
+   * @see #getTypeMap(Class, Class, String)
+   */
+  public <S, D> TypeMap<S, D> createTypeMap(Class<S> sourceType, Class<D> destinationType,
+      String typeMapName, Configuration configuration) {
+    Assert.notNull(sourceType, "sourceType");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    Assert.notNull(configuration, "configuration");
+    return createTypeMapInternal(null, sourceType, destinationType, typeMapName, configuration);
+  }
+
+  /**
+   * Creates a TypeMap for the {@code source}'s type and {@code destinationType} using the
+   * ModelMapper's configuration. Useful for creating TypeMaps for generic source data structures.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @param source
+   * @param destinationType
+   * @throws IllegalArgumentException if {@code source} or {@code destinationType} are null
+   * @throws IllegalStateException if a TypeMap already exists for {@code source}'s type and
+   *           {@code destinationType}
+   * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
+   * @see #getTypeMap(Class, Class)
+   */
+  public <S, D> TypeMap<S, D> createTypeMap(S source, Class<D> destinationType) {
+    return this.<S, D>createTypeMap(source, destinationType, config);
+  }
+
+  /**
+   * Creates a TypeMap for the {@code source}'s type and {@code destinationType} using the
+   * {@code configuration}. Useful for creating TypeMaps for generic source data structures.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @param source
+   * @param destinationType
+   * @param configuration to apply to TypeMap
+   * @throws IllegalArgumentException if {@code source}, {@code destinationType} or
+   *           {@code configuration} are null
+   * @throws IllegalStateException if a TypeMap already exists for {@code source}'s type and
+   *           {@code destinationType}
+   * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
+   * @see #getTypeMap(Class, Class)
+   */
+  public <S, D> TypeMap<S, D> createTypeMap(S source, Class<D> destinationType,
+      Configuration configuration) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(configuration, "configuration");
+    return this.<S, D>createTypeMapInternal(source, null, destinationType, null, configuration);
+  }
+
+  /**
+   * Creates a TypeMap for the {@code source}'s type and {@code destinationType} identified by the
+   * {@code typeMapName} using the ModelMapper's configuration. Useful for creating TypeMaps for
+   * generic source data structures.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @param source
+   * @param destinationType
+   * @param typeMapName
+   * @throws IllegalArgumentException if {@code source}, {@code destinationType} or
+   *           {@code typeMapName} are null
+   * @throws IllegalStateException if a TypeMap already exists for {@code source}'s type,
+   *           {@code destinationType} and {@code typeMapName}
+   * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
+   * @see #getTypeMap(Class, Class, String)
+   */
+  public <S, D> TypeMap<S, D> createTypeMap(S source, Class<D> destinationType, String typeMapName) {
+    return this.<S, D>createTypeMap(source, destinationType, typeMapName, config);
+  }
+
+  /**
+   * Creates a TypeMap for the {@code source}'s type and {@code destinationType} identified by the
+   * {@code typeMapName} using the {@code configuration}. Useful for creating TypeMaps for generic
+   * source data structures.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @param source
+   * @param destinationType
+   * @param typeMapName
+   * @param configuration to apply to TypeMap
+   * @throws IllegalArgumentException if {@code source}, {@code destinationType},
+   *           {@code typeMapName} or {@code configuration} are null
+   * @throws IllegalStateException if a TypeMap already exists for {@code source}'s type,
+   *           {@code destinationType} and {@code typeMapName}
+   * @throws ConfigurationException if the ModelMapper cannot create the TypeMap
+   * @see #getTypeMap(Class, Class, String)
+   */
+  public <S, D> TypeMap<S, D> createTypeMap(S source, Class<D> destinationType, String typeMapName,
+      Configuration configuration) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    Assert.notNull(configuration, "configuration");
+    return createTypeMapInternal(source, null, destinationType, typeMapName, configuration);
   }
 
   /**
@@ -158,7 +292,25 @@ public class ModelMapper {
   public <S, D> TypeMap<S, D> getTypeMap(Class<S> sourceType, Class<D> destinationType) {
     Assert.notNull(sourceType, "sourceType");
     Assert.notNull(destinationType, "destinationType");
-    return config.typeMapStore.<S, D>get(sourceType, destinationType);
+    return config.typeMapStore.<S, D>get(sourceType, destinationType, null);
+  }
+
+  /**
+   * Returns the TypeMap for the {@code sourceType}, {@code destinationType} and {@code typeMapName}
+   * , else returns {@code null} if none exists.
+   * 
+   * @param <S> source type
+   * @param <D> destination type
+   * @throws IllegalArgumentException is {@code sourceType}, {@code destinationType} or
+   *           {@code typeMapName} are null
+   * @see #createTypeMap(Class, Class, String)
+   */
+  public <S, D> TypeMap<S, D> getTypeMap(Class<S> sourceType, Class<D> destinationType,
+      String typeMapName) {
+    Assert.notNull(sourceType, "sourceType");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    return config.typeMapStore.<S, D>get(sourceType, destinationType, typeMapName);
   }
 
   /**
@@ -178,11 +330,37 @@ public class ModelMapper {
    * @param destinationType type to map to
    * @return fully mapped instance of {@code destinationType}
    * @throws IllegalArgumentException if {@code source} or {@code destinationType} are null
-   * @throws ConfigurationException if the ModelMapper cannot find or create the TypeMap
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
    * @throws MappingException if a runtime error occurs while mapping
    */
   public <D> D map(Object source, Class<D> destinationType) {
-    return map(source, (Type) destinationType);
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    return mapInternal(source, null, destinationType, null);
+  }
+
+  /**
+   * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
+   * to the corresponding TypeMap for the {@code typeMapName}. If no TypeMap exists for the
+   * {@code source.getClass()}, {@code destinationType} and {@code typeMapName} then one is created.
+   * 
+   * @param <D> destination type
+   * @param source object to map from
+   * @param destinationType type to map to
+   * @param typeMapName name of existing TypeMap to use mappings from
+   * @return fully mapped instance of {@code destinationType}
+   * @throws IllegalArgumentException if {@code source}, {@code destinationType} or
+   *           {@code typeMapName} are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
+   * @throws MappingException if a runtime error occurs while mapping
+   */
+  public <D> D map(Object source, Class<D> destinationType, String typeMapName) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    return mapInternal(source, null, destinationType, typeMapName);
   }
 
   /**
@@ -193,14 +371,35 @@ public class ModelMapper {
    * @param source object to map from
    * @param destination object to map to
    * @throws IllegalArgumentException if {@code source} or {@code destination} are null
-   * @throws ConfigurationException if the ModelMapper cannot find or create the TypeMap
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
    * @throws MappingException if an error occurs while mapping
    */
   public void map(Object source, Object destination) {
     Assert.notNull(source, "source");
     Assert.notNull(destination, "destination");
-    engine.<Object, Object>map(source, Types.<Object>deProxy(source.getClass()), destination,
-        TypeToken.of(Types.<Object>deProxy(destination.getClass())));
+    mapInternal(source, destination, null, null);
+  }
+
+  /**
+   * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
+   * TypeMap for the {@code typeMapName}. If no TypeMap exists for the {@code source.getClass()},
+   * {@code destination.getClass()} and {@code typeMapName} then one is created.
+   * 
+   * @param source object to map from
+   * @param destination object to map to
+   * @param typeMapName name of existing TypeMap to use mappings from
+   * @throws IllegalArgumentException if {@code source}, {@code destination} or {@code typeMapName}
+   *           are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
+   * @throws MappingException if an error occurs while mapping
+   */
+  public void map(Object source, Object destination, String typeMapName) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destination, "destination");
+    Assert.notNull(typeMapName, "typeMapName");
+    mapInternal(source, destination, null, typeMapName);
   }
 
   /**
@@ -209,7 +408,7 @@ public class ModelMapper {
    * {@code destinationType} then one is created.
    * 
    * <p>
-   * To map a parameterized type, subclass {@link TypeToken} and obtain its Type:
+   * To map a parameterized destination type, subclass {@link TypeToken} and obtain its Type:
    * 
    * <pre>
    * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
@@ -227,8 +426,38 @@ public class ModelMapper {
   public <D> D map(Object source, Type destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
-    return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), null,
-        TypeToken.<D>of(destinationType));
+    return mapInternal(source, null, destinationType, null);
+  }
+
+  /**
+   * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
+   * to the corresponding TypeMap for the {@code typeMapName}. If no TypeMap exists for the
+   * {@code source.getClass()}, {@code destination.getClass()} and {@code typeMapName} then one is
+   * created.
+   * 
+   * <p>
+   * To map a parameterized destination type, subclass {@link TypeToken} and obtain its Type:
+   * 
+   * <pre>
+   * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
+   * List&lt;String&gt; strings = modelMapper.map(source, listType, "string-list");
+   * </pre>
+   * 
+   * @param <D> destination type
+   * @param source object to map from
+   * @param destinationType type to map to
+   * @param typeMapName name of existing TypeMap to use mappings from
+   * @return fully mapped instance of {@code destinationType}
+   * @throws IllegalArgumentException if {@code source}, {@code destinationType} or
+   *           {@code typeMapName} are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create the TypeMap
+   * @throws MappingException if a runtime error occurs while mapping
+   */
+  public <D> D map(Object source, Type destinationType, String typeMapName) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    return mapInternal(source, null, destinationType, typeMapName);
   }
 
   /**
@@ -253,5 +482,22 @@ public class ModelMapper {
     }
 
     errors.throwValidationExceptionIfErrorsExist();
+  }
+
+  private <S, D> TypeMap<S, D> createTypeMapInternal(S source, Class<S> sourceType,
+      Class<D> destinationType, String typeMapName, Configuration configuration) {
+    if (source != null)
+      sourceType = Types.<S>deProxy(source.getClass());
+    Assert.state(config.typeMapStore.get(sourceType, destinationType, typeMapName) == null,
+        String.format("A TypeMap already exists for %s and %s", sourceType, destinationType));
+    return config.typeMapStore.create(source, sourceType, destinationType, typeMapName,
+        (InheritingConfiguration) configuration, engine);
+  }
+
+  private <D> D mapInternal(Object source, D destination, Type destinationType, String typeMapName) {
+    if (destination != null)
+      destinationType = Types.<D>deProxy(destination.getClass());
+    return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), destination,
+        TypeToken.<D>of(destinationType), typeMapName);
   }
 }

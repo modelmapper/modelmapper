@@ -23,16 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
-import org.modelmapper.config.Configuration;
 
 /**
  * @author Jonathan Halterman
  */
 public final class TypeMapStore {
   private final Map<TypePair<?, ?>, TypeMap<?, ?>> typeMaps = new ConcurrentHashMap<TypePair<?, ?>, TypeMap<?, ?>>();
-  private final Map<TypePair<?, ?>, TypeMap<?, ?>> immutableTypeMaps = Collections
-      .unmodifiableMap(typeMaps);
+  private final Map<TypePair<?, ?>, TypeMap<?, ?>> immutableTypeMaps = Collections.unmodifiableMap(typeMaps);
   private final Object lock = new Object();
+  /** Default configuration */
   private final InheritingConfiguration config;
 
   TypeMapStore(InheritingConfiguration config) {
@@ -40,16 +39,22 @@ public final class TypeMapStore {
   }
 
   /**
-   * Gets or creates a TypeMap. If {@code converter} is null, the TypeMap is configured with
-   * implicit mappings, else the {@code converter} is set against the TypeMap.
+   * Creates a TypeMap. If {@code converter} is null, the TypeMap is configured with implicit
+   * mappings, else the {@code converter} is set against the TypeMap.
    */
-  public <S, D> TypeMap<S, D> create(Class<S> sourceType, Class<D> destinationType,
-      Configuration configuration, MappingEngineImpl engine) {
-    TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, configuration,
-        engine);
-    new PropertyMappingBuilder<S, D>(typeMap, config.typeMapStore, config.converterStore).build();
-    typeMaps.put(TypePair.of(sourceType, destinationType), typeMap);
-    return typeMap;
+  public <S, D> TypeMap<S, D> create(S source, Class<S> sourceType, Class<D> destinationType,
+      String typeMapName, InheritingConfiguration configuration, MappingEngineImpl engine) {
+    synchronized (lock) {
+      TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName,
+          configuration, engine);
+      if (configuration.isImplicitMappingEnabled()
+          && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
+          && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+        new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
+            config.converterStore).build();
+      typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
+      return typeMap;
+    }
   }
 
   public Collection<TypeMap<?, ?>> get() {
@@ -57,21 +62,22 @@ public final class TypeMapStore {
   }
 
   /**
-   * Returns a TypeMap for the {@code sourceType} and {@code destinationType}, else null if none
-   * exists.
+   * Returns a TypeMap for the {@code sourceType}, {@code destinationType} and {@code typeMapName},
+   * else null if none exists.
    */
   @SuppressWarnings("unchecked")
-  public <S, D> TypeMap<S, D> get(Class<S> sourceType, Class<D> destinationType) {
-    return (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType));
+  public <S, D> TypeMap<S, D> get(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
+    return (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType, typeMapName));
   }
 
   /**
    * Gets or creates a TypeMap. If {@code converter} is null, the TypeMap is configured with
    * implicit mappings, else the {@code converter} is set against the TypeMap.
    */
-  public <S, D> TypeMap<S, D> getOrCreate(Class<S> sourceType, Class<D> destinationType,
-      MappingEngineImpl engine) {
-    return this.<S, D>getOrCreate(sourceType, destinationType, null, null, engine);
+  public <S, D> TypeMap<S, D> getOrCreate(S source, Class<S> sourceType, Class<D> destinationType,
+      String typeMapName, MappingEngineImpl engine) {
+    return this.<S, D>getOrCreate(source, sourceType, destinationType, typeMapName, null, null,
+        engine);
   }
 
   /**
@@ -82,29 +88,30 @@ public final class TypeMapStore {
    * @param converter to set (nullable)
    */
   @SuppressWarnings("unchecked")
-  public <S, D> TypeMap<S, D> getOrCreate(Class<S> sourceType, Class<D> destinationType,
-      PropertyMap<S, D> propertyMap, Converter<S, D> converter, MappingEngineImpl engine) {
-    TypePair<S, D> typePair = TypePair.of(sourceType, destinationType);
-    TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
+  public <S, D> TypeMap<S, D> getOrCreate(S source, Class<S> sourceType, Class<D> destinationType,
+      String typeMapName, PropertyMap<S, D> propertyMap, Converter<S, D> converter,
+      MappingEngineImpl engine) {
+    synchronized (lock) {
+      TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
+      TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
 
-    if (typeMap == null) {
-      typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, config, engine);
-      if (propertyMap != null)
+      if (typeMap == null) {
+        typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName, config, engine);
+        if (propertyMap != null)
+          typeMap.addMappings(propertyMap);
+        if (converter == null && config.isImplicitMappingEnabled()
+            && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
+            && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+          new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
+              config.converterStore).build();
+
+        typeMaps.put(typePair, typeMap);
+      } else if (propertyMap != null)
         typeMap.addMappings(propertyMap);
-      if (converter == null)
-        new PropertyMappingBuilder<S, D>(typeMap, config.typeMapStore, config.converterStore)
-            .build();
 
-      typeMaps.put(typePair, typeMap);
-    } else if (propertyMap != null)
-      typeMap.addMappings(propertyMap);
-
-    if (converter != null)
-      typeMap.setConverter(converter);
-    return typeMap;
-  }
-
-  public Object lock() {
-    return lock;
+      if (converter != null)
+        typeMap.setConverter(converter);
+      return typeMap;
+    }
   }
 }

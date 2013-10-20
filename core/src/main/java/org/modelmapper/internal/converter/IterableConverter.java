@@ -40,8 +40,12 @@ abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
     int index = 0;
     for (Iterator<Object> iterator = getSourceIterator(source); iterator.hasNext(); index++) {
       Object sourceElement = iterator.next();
-      MappingContext<?, ?> elementContext = context.create(sourceElement, elementType);
-      Object element = context.getMappingEngine().map(elementContext);
+      Object element = null;
+      if (sourceElement != null) {
+        MappingContext<?, ?> elementContext = context.create(sourceElement, elementType);
+        element = context.getMappingEngine().map(elementContext);
+      }
+
       setElement(destination, element, index);
     }
 
@@ -69,8 +73,8 @@ abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
    */
   @SuppressWarnings("unchecked")
   protected Iterator<Object> getSourceIterator(S source) {
-    return source.getClass().isArray() ? new ArrayIterator(source) : ((Iterable<Object>) source)
-        .iterator();
+    return source.getClass().isArray() ? new ArrayIterator(source)
+        : ((Iterable<Object>) source).iterator();
   }
 
   /**

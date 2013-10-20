@@ -21,5 +21,10 @@ package org.modelmapper.spi;
  * @author Jonathan Halterman
  */
 public enum PropertyType {
-  FIELD, METHOD;
+  /** A property that represents a {@link java.lang.reflect.Field} */
+  FIELD,
+  /** A property that represents a {@link java.lang.reflect.Method} */
+  METHOD,
+  /** A property obtained from a {@link org.modelmapper.spi.ValueReader} */
+  GENERIC;
 }

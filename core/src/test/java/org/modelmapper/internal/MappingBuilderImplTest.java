@@ -13,7 +13,6 @@ import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.Mappings;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.spi.ConstantMapping;
 import org.modelmapper.spi.MappingContext;
@@ -26,9 +25,9 @@ import org.testng.annotations.Test;
  */
 @Test
 public class MappingBuilderImplTest {
-  Configuration configuration;
-  MappingBuilderImpl<Person, PersonDTO> builder;
-  MappingBuilderImpl<Object, Object> objectObjectBuilder;
+  InheritingConfiguration configuration;
+  ExplicitMappingBuilder<Person, PersonDTO> builder;
+  ExplicitMappingBuilder<Object, Object> objectObjectBuilder;
 
   private static Converter<String, String> UPPERCASE_CONVERTER = new Converter<String, String>() {
     public String convert(MappingContext<String, String> context) {
@@ -140,23 +139,23 @@ public class MappingBuilderImplTest {
 
   @BeforeMethod
   public void init() {
-    configuration = new InheritingConfiguration().enableFieldMatching(true)
+    configuration = (InheritingConfiguration) new InheritingConfiguration().setFieldMatchingEnabled(
+        true)
         .setFieldAccessLevel(AccessLevel.PACKAGE_PRIVATE)
         .setMethodAccessLevel(AccessLevel.PACKAGE_PRIVATE);
-    builder = new MappingBuilderImpl<Person, PersonDTO>(Person.class, PersonDTO.class,
+    builder = new ExplicitMappingBuilder<Person, PersonDTO>(Person.class, PersonDTO.class,
         configuration);
-    objectObjectBuilder = new MappingBuilderImpl<Object, Object>(Object.class, Object.class,
+    objectObjectBuilder = new ExplicitMappingBuilder<Object, Object>(Object.class, Object.class,
         configuration);
   }
 
   public void shouldBuildConditionalSkippedMappings() {
-    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder
-        .build(new PropertyMap<Person, PersonDTO>() {
-          protected void configure() {
-            when(CONDITION).skip().setEmployerName(null);
-            when(CONDITION).map().setSurName("smith");
-          }
-        }));
+    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder.build(new PropertyMap<Person, PersonDTO>() {
+      protected void configure() {
+        when(CONDITION).skip().setEmployerName(null);
+        when(CONDITION).map().setSurName("smith");
+      }
+    }));
 
     ConstantMapping employer = (ConstantMapping) mappings.get("setEmployerName");
     assertEquals(employer.getCondition(), CONDITION);
@@ -170,12 +169,11 @@ public class MappingBuilderImplTest {
   }
 
   public void shouldBuildConditionalMappingsWithConverter() {
-    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder
-        .build(new PropertyMap<Person, PersonDTO>() {
-          protected void configure() {
-            when(CONDITION).using(UPPERCASE_CONVERTER).map().setEmployerName("joe");
-          }
-        }));
+    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder.build(new PropertyMap<Person, PersonDTO>() {
+      protected void configure() {
+        when(CONDITION).using(UPPERCASE_CONVERTER).map().setEmployerName("joe");
+      }
+    }));
 
     ConstantMapping employer = (ConstantMapping) mappings.get("setEmployerName");
     assertEquals(employer.getCondition(), CONDITION);
@@ -184,35 +182,32 @@ public class MappingBuilderImplTest {
   }
 
   public void shouldBuildDeepMappings() {
-    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder
-        .build(new PropertyMap<Person, PersonDTO>() {
-          protected void configure() {
-            map().getAddress().setStreet(source.getAddress().getStreetName());
-          }
-        }));
+    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder.build(new PropertyMap<Person, PersonDTO>() {
+      protected void configure() {
+        map().getAddress().setStreet(source.getAddress().getStreetName());
+      }
+    }));
 
     assertEquals(mappings.size(), 1);
   }
 
   public void shouldBuildSkippedMappings() {
-    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder
-        .build(new PropertyMap<Person, PersonDTO>() {
-          protected void configure() {
-            skip().setEmployerName(null);
-          }
-        }));
+    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder.build(new PropertyMap<Person, PersonDTO>() {
+      protected void configure() {
+        skip().setEmployerName(null);
+      }
+    }));
 
     assertTrue(mappings.get("setEmployerName").isSkipped());
   }
 
   public void shouldBuildMappings() {
-    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder
-        .build(new PropertyMap<Person, PersonDTO>() {
-          protected void configure() {
-            map().setEmployerName(source.getEmployer());
-            map().setSurName("jones");
-          }
-        }));
+    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder.build(new PropertyMap<Person, PersonDTO>() {
+      protected void configure() {
+        map().setEmployerName(source.getEmployer());
+        map().setSurName("jones");
+      }
+    }));
 
     PropertyMapping employer = (PropertyMapping) mappings.get("setEmployerName");
     ConstantMapping surName = (ConstantMapping) mappings.get("setSurName");
@@ -223,12 +218,11 @@ public class MappingBuilderImplTest {
   }
 
   public void shouldBuildMappingsWithConverter() {
-    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder
-        .build(new PropertyMap<Person, PersonDTO>() {
-          protected void configure() {
-            using(UPPERCASE_CONVERTER).map().setEmployerName("joe");
-          }
-        }));
+    Map<String, MappingImpl> mappings = Mappings.groupByLastMemberName(builder.build(new PropertyMap<Person, PersonDTO>() {
+      protected void configure() {
+        using(UPPERCASE_CONVERTER).map().setEmployerName("joe");
+      }
+    }));
 
     ConstantMapping employer = (ConstantMapping) mappings.get("setEmployerName");
     assertEquals(employer.getConverter(), UPPERCASE_CONVERTER);
@@ -286,7 +280,7 @@ public class MappingBuilderImplTest {
 
   public void shouldThrowWhenDestinationTypeIsFinal() {
     try {
-      MappingBuilderImpl<Object, String> builder = new MappingBuilderImpl<Object, String>(
+      ExplicitMappingBuilder<Object, String> builder = new ExplicitMappingBuilder<Object, String>(
           Object.class, String.class, configuration);
       builder.build(new PropertyMap<Object, String>() {
         protected void configure() {
@@ -397,7 +391,7 @@ public class MappingBuilderImplTest {
 
   public void shouldThrowWhenSourceTypeIsFinal() {
     try {
-      MappingBuilderImpl<String, Object> builder = new MappingBuilderImpl<String, Object>(
+      ExplicitMappingBuilder<String, Object> builder = new ExplicitMappingBuilder<String, Object>(
           String.class, Object.class, configuration);
       builder.build(new PropertyMap<String, Object>() {
         protected void configure() {

@@ -90,6 +90,7 @@ public final class Errors {
 
   /** Returns the formatted message for an exception with the specified messages. */
   public static String format(String heading, Collection<ErrorMessage> errorMessages) {
+    @SuppressWarnings("resource")
     Formatter fmt = new Formatter().format(heading).format(":%n%n");
     int index = 1;
     boolean displayCauses = getOnlyCause(errorMessages) == null;
@@ -169,6 +170,13 @@ public final class Errors {
     return addMessage(t, "Failed to get value from %s", member);
   }
 
+  public Errors errorInstantiatingDestination(Class<?> type, Throwable t) {
+    return addMessage(
+        t,
+        "Failed to instantiate instance of destination %s. Ensure that %s has a non-private no-argument constructor.",
+        type, type);
+  }
+
   public Errors errorMapping(Object source, Class<?> destinationType) {
     return addMessage("Error mapping %s to %s", source, Types.toString(destinationType));
   }
@@ -212,6 +220,11 @@ public final class Errors {
 
   public boolean hasErrors() {
     return errors != null;
+  }
+
+  public Errors invalidProvidedDestinationInstance(Object destination, Class<?> requiredType) {
+    return addMessage("The provided destination instance %s is not of the required type %s.",
+        destination, requiredType);
   }
 
   public Errors merge(Collection<ErrorMessage> errorMessages) {
@@ -289,16 +302,14 @@ public final class Errors {
         type, type);
   }
 
-  public Errors errorInstantiatingDestination(Class<?> type, Throwable t) {
-    return addMessage(
-        t,
-        "Failed to instantiate instance of destination %s. Ensure that %s has a non-private no-argument constructor.",
-        type, type);
+  Errors errorInvalidSourcePath(String sourcePath, Class<?> unresolveableType,
+      String unresolveableProperty) {
+    return addMessage("The source path %s is invalid: %s.%s cannot be resolved.", sourcePath,
+        unresolveableType, unresolveableProperty);
   }
 
-  public Errors invalidProvidedDestinationInstance(Object destination, Class<?> requiredType) {
-    return addMessage("The provided destination instance %s is not of the required type %s.",
-        destination, requiredType);
+  Errors errorNullArgument(String parameter) {
+    return addMessage("The %s cannot be null", parameter);
   }
 
   Errors invalidDestinationMethod(Method method) {

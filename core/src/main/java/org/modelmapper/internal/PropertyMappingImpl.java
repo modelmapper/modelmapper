@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.Converter;
-import org.modelmapper.internal.MappingBuilderImpl.MappingOptions;
+import org.modelmapper.Provider;
+import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyMapping;
@@ -45,8 +46,10 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
    * Creates an implicit merged PropertyMapping to a converter.
    */
   PropertyMappingImpl(List<? extends PropertyInfo> sourceAccessors,
-      List<? extends PropertyInfo> destinationMutators, Converter<?, ?> converter) {
+      List<? extends PropertyInfo> destinationMutators, Provider<?> provider,
+      Converter<?, ?> converter) {
     super(destinationMutators);
+    this.provider = provider;
     this.converter = converter;
     this.sourceAccessors = new ArrayList<PropertyInfo>(sourceAccessors);
   }

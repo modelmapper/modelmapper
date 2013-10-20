@@ -44,8 +44,9 @@ class ProxyFactory {
   private static final CallbackFilter METHOD_FILTER = new CallbackFilter() {
     public int accept(Method method) {
       return method.isBridge()
-          || (method.getName().equals("finalize") && method.getParameterTypes().length == 0) ? 1
-          : 0;
+          || (method.getName().equals("finalize") && method.getParameterTypes().length == 0)
+          || (method.getReturnType().getName().equals("groovy.lang.MetaClass") && (method.getName()
+              .equals("getMetaClass") || method.getName().startsWith("$"))) ? 1 : 0;
     }
   };
 
@@ -72,7 +73,8 @@ class ProxyFactory {
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
-  static <T> T proxyFor(Class<T> type, MappingProgress<?> mappingProgress) throws ErrorsException {
+  static <T> T proxyFor(Class<T> type, ExplicitMappingProgress<?> mappingProgress)
+      throws ErrorsException {
     if (Modifier.isFinal(type.getModifiers()))
       return null;
 
@@ -80,7 +82,7 @@ class ProxyFactory {
 
     try {
       Enhancer.registerCallbacks(enhanced, new Callback[] {
-          new MappingInterceptor(mappingProgress), NoOp.INSTANCE });
+          new ExplicitMappingInterceptor(mappingProgress), NoOp.INSTANCE });
       mappingProgress.enterConstructor();
       T result = Types.construct(enhanced, type);
       return result;

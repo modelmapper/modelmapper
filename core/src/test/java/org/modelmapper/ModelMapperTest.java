@@ -78,7 +78,9 @@ public class ModelMapperTest extends AbstractTest {
     TypeMap<Person, PersonDTO> typeMap = modelMapper.createTypeMap(
         Person.class,
         PersonDTO.class,
-        modelMapper.getConfiguration().copy().enableFieldMatching(false)
+        modelMapper.getConfiguration()
+            .copy()
+            .setFieldMatchingEnabled(false)
             .setMethodAccessLevel(AccessLevel.PUBLIC));
     assertTrue(typeMap.getMappings().isEmpty());
   }
@@ -92,13 +94,12 @@ public class ModelMapperTest extends AbstractTest {
   }
 
   public void shouldLoadWhenMemberMapIsValid() {
-    TypeMap<Person, PersonDTO> personMap = modelMapper
-        .addMappings(new PropertyMap<Person, PersonDTO>() {
-          @Override
-          protected void configure() {
-            map().setSurName("smith");
-          }
-        });
+    TypeMap<Person, PersonDTO> personMap = modelMapper.addMappings(new PropertyMap<Person, PersonDTO>() {
+      @Override
+      protected void configure() {
+        map().setSurName("smith");
+      }
+    });
 
     Map<String, Mapping> mappings = Mappings.groupByLastMemberName(personMap.getMappings());
     assertNotNull(mappings.get("setSurName"));

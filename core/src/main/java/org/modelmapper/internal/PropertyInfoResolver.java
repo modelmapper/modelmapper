@@ -24,15 +24,15 @@ import org.modelmapper.config.Configuration;
 import org.modelmapper.spi.PropertyInfo;
 
 /**
- * Resolves properties.
+ * Resolves PropertyInfo for individual members.
  * 
  * @param <M> property type
  * @param <PI> property info type
  * 
  * @author Jonathan Halterman
  */
-interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
-  PropertyResolver<Field, Mutator> FIELDS = new DefaultPropertyResolver<Field, Mutator>() {
+interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
+  PropertyInfoResolver<Field, Mutator> FIELDS = new DefaultPropertyResolver<Field, Mutator>() {
     public Mutator propertyInfoFor(Class<?> initialType, Field field, Configuration configuration,
         String name) {
       return PropertyInfoRegistry.fieldPropertyFor(initialType, field, configuration, name);
@@ -43,7 +43,7 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
     }
   };
 
-  PropertyResolver<Method, Accessor> ACCESSORS = new DefaultPropertyResolver<Method, Accessor>() {
+  PropertyInfoResolver<Method, Accessor> ACCESSORS = new DefaultPropertyResolver<Method, Accessor>() {
     @Override
     public boolean isValid(Method method) {
       return super.isValid(method) && method.getParameterTypes().length == 0
@@ -60,7 +60,7 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
     }
   };
 
-  PropertyResolver<Method, Mutator> MUTATORS = new DefaultPropertyResolver<Method, Mutator>() {
+  PropertyInfoResolver<Method, Mutator> MUTATORS = new DefaultPropertyResolver<Method, Mutator>() {
     @Override
     public boolean isValid(Method method) {
       return super.isValid(method) && method.getParameterTypes().length == 1
@@ -78,7 +78,7 @@ interface PropertyResolver<M extends Member, PI extends PropertyInfo> {
   };
 
   static abstract class DefaultPropertyResolver<M extends Member, PI extends PropertyInfo>
-      implements PropertyResolver<M, PI> {
+      implements PropertyInfoResolver<M, PI> {
     public boolean isValid(M member) {
       return !Modifier.isStatic(member.getModifiers());
     }

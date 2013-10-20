@@ -21,16 +21,18 @@ package org.modelmapper.internal;
 class TypePair<S, D> {
   private final Class<S> sourceType;
   private final Class<D> destinationType;
+  private final String name;
   private final int hashCode;
 
-  private TypePair(Class<S> sourceType, Class<D> destinationType) {
+  private TypePair(Class<S> sourceType, Class<D> destinationType, String name) {
     this.sourceType = sourceType;
     this.destinationType = destinationType;
+    this.name = name;
     hashCode = computeHashCode();
   }
 
-  static <T1, T2> TypePair<T1, T2> of(Class<T1> sourceType, Class<T2> destinationType) {
-    return new TypePair<T1, T2>(sourceType, destinationType);
+  static <T1, T2> TypePair<T1, T2> of(Class<T1> sourceType, Class<T2> destinationType, String name) {
+    return new TypePair<T1, T2>(sourceType, destinationType, name);
   }
 
   @Override
@@ -39,9 +41,14 @@ class TypePair<S, D> {
       return true;
     if (!(other instanceof TypePair<?, ?>))
       return false;
-    TypePair<?, ?> otherKey = (TypePair<?, ?>) other;
-    return sourceType.equals(otherKey.sourceType)
-        && destinationType.equals(otherKey.destinationType);
+    TypePair<?, ?> otherPair = (TypePair<?, ?>) other;
+    if (name == null) {
+      if (otherPair.name != null)
+        return false;
+    } else if (!name.equals(otherPair.name))
+      return false;
+    return sourceType.equals(otherPair.sourceType)
+        && destinationType.equals(otherPair.destinationType);
   }
 
   @Override
@@ -51,11 +58,10 @@ class TypePair<S, D> {
 
   @Override
   public String toString() {
-    return sourceType.getName() + " to " + destinationType.getName();
-  }
-
-  private int computeHashCode() {
-    return sourceType.hashCode() * 31 + destinationType.hashCode();
+    String str = sourceType.getName() + " to " + destinationType.getName();
+    if (name != null)
+      str += " as " + name;
+    return str;
   }
 
   Class<D> getDestinationType() {
@@ -64,5 +70,14 @@ class TypePair<S, D> {
 
   Class<S> getSourceType() {
     return sourceType;
+  }
+
+  private int computeHashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + sourceType.hashCode();
+    result = prime * result + destinationType.hashCode();
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    return result;
   }
 }

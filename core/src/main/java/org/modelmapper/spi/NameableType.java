@@ -21,13 +21,25 @@ package org.modelmapper.spi;
  * @author Jonathan Halterman
  */
 public enum NameableType {
-  CLASS, METHOD, FIELD;
+  /** A property that represents a {@link java.lang.Class} */
+  CLASS,
+  /** A property that represents a {@link java.lang.reflect.Method} */
+  METHOD,
+  /** A property that represents a {@link java.lang.reflect.Field} */
+  FIELD,
+  /** A nameable type obtained from a {@link org.modelmapper.spi.ValueReader} */
+  GENERIC;
 
   /**
    * Returns a NameableType for the corresponding {@code propertyType}, else {@link #CLASS}.
    */
   public static NameableType forPropertyType(PropertyType propertyType) {
-    return PropertyType.FIELD.equals(propertyType) ? FIELD
-        : PropertyType.METHOD.equals(propertyType) ? METHOD : CLASS;
+    if (PropertyType.FIELD.equals(propertyType))
+      return FIELD;
+    if (PropertyType.METHOD.equals(propertyType))
+      return METHOD;
+    if (PropertyType.GENERIC.equals(propertyType))
+      return GENERIC;
+    return CLASS;
   }
 }

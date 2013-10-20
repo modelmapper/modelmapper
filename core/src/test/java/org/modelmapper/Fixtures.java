@@ -25,7 +25,7 @@ public final class Fixtures {
     public <S, D> TypeMap<S, D> addMappings(PropertyMap<S, D> propertyMap) {
       throw new IllegalStateException(ERROR_MSG);
     }
-    
+
     private Configuration getConfig() {
       return super.getConfiguration();
     }
@@ -37,7 +37,8 @@ public final class Fixtures {
    */
   public static ImmutableModelMapper createImmutableModelMapper() {
     ImmutableModelMapper modelMapper = new ImmutableModelMapper();
-    modelMapper.getConfig().enableFieldMatching(true)
+    modelMapper.getConfig()
+        .setFieldMatchingEnabled(true)
         .setFieldAccessLevel(AccessLevel.PACKAGE_PRIVATE)
         .setMethodAccessLevel(AccessLevel.PACKAGE_PRIVATE);
     return modelMapper;
@@ -59,7 +60,8 @@ public final class Fixtures {
    */
   public static ModelMapper createModelMapper() {
     ModelMapper modelMapper = new ModelMapper();
-    modelMapper.getConfiguration().enableFieldMatching(true)
+    modelMapper.getConfiguration()
+        .setFieldMatchingEnabled(true)
         .setFieldAccessLevel(AccessLevel.PACKAGE_PRIVATE)
         .setMethodAccessLevel(AccessLevel.PACKAGE_PRIVATE);
 

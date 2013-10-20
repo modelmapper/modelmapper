@@ -23,14 +23,14 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 /**
- * Intercepts invocations against mappable types that occur during mapping creation.
+ * Intercepts invocations against mappable types that occur during explicit mapping creation.
  * 
  * @author Jonathan Halterman
  */
-final class MappingInterceptor implements MethodInterceptor {
-  private final MappingProgress<?> mappingProgress;
+final class ExplicitMappingInterceptor implements MethodInterceptor {
+  private final ExplicitMappingProgress<?> mappingProgress;
 
-  MappingInterceptor(MappingProgress<?> mappingProgress) {
+  ExplicitMappingInterceptor(ExplicitMappingProgress<?> mappingProgress) {
     this.mappingProgress = mappingProgress;
   }
 

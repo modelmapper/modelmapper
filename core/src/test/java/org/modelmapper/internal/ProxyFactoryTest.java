@@ -40,7 +40,7 @@ public class ProxyFactoryTest {
 
   @Test
   public void shouldProxyTypesWithNonDefaultConstructor() {
-    MappingProgress<?> progress = mock(MappingProgress.class);
+    ExplicitMappingProgress<?> progress = mock(ExplicitMappingProgress.class);
     assertTrue(ProxyFactory.proxyFor(A1.class, progress) instanceof A1);
     assertTrue(ProxyFactory.proxyFor(A2.class, progress) instanceof A2);
   }

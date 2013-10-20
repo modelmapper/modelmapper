@@ -26,7 +26,6 @@ import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
-import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Primitives;
@@ -47,7 +46,7 @@ import org.modelmapper.spi.SourceMapping;
 public class MappingEngineImpl implements MappingEngine {
   /** Cache of conditional converters */
   private final Map<TypePair<?, ?>, Converter<?, ?>> converterCache = new ConcurrentHashMap<TypePair<?, ?>, Converter<?, ?>>();
-  private final Configuration configuration;
+  private final InheritingConfiguration configuration;
   private final TypeMapStore typeMapStore;
   private final ConverterStore converterStore;
 
@@ -61,9 +60,10 @@ public class MappingEngineImpl implements MappingEngine {
    * Initial entry point.
    */
   public <S, D> D map(S source, Class<S> sourceType, D destination,
-      TypeToken<D> destinationTypeToken) {
+      TypeToken<D> destinationTypeToken, String typeMapName) {
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
-        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(), this);
+        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(),
+        typeMapName, this);
     D result = null;
 
     try {
@@ -96,7 +96,8 @@ public class MappingEngineImpl implements MappingEngine {
     }
 
     D destination = null;
-    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType());
+    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType(),
+        context.getTypeMapName());
     if (typeMap != null) {
       destination = typeMap(contextImpl, typeMap);
     } else {
@@ -105,8 +106,8 @@ public class MappingEngineImpl implements MappingEngine {
         destination = convert(context, converter);
       } else {
         // Call getOrCreate in case TypeMap was created concurrently
-        typeMap = typeMapStore.getOrCreate(context.getSourceType(), context.getDestinationType(),
-            this);
+        typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(),
+            context.getDestinationType(), context.getTypeMapName(), this);
         destination = typeMap(contextImpl, typeMap);
       }
     }
@@ -134,7 +135,7 @@ public class MappingEngineImpl implements MappingEngine {
 
       converter = typeMap.getPreConverter();
       if (converter != null)
-        convert(context, converter);
+        context.setDestination(convert(context, converter));
 
       for (Mapping mapping : typeMap.getMappings())
         propertyMap(mapping, context);
@@ -156,6 +157,8 @@ public class MappingEngineImpl implements MappingEngine {
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
     if (condition == null)
       condition = (Condition<Object, Object>) context.getTypeMap().getPropertyCondition();
+    if (condition == null)
+      condition = (Condition<Object, Object>) configuration.getPropertyCondition();
     if (condition == null && mapping.isSkipped())
       return;
 
@@ -212,7 +215,7 @@ public class MappingEngineImpl implements MappingEngine {
    * mutator chain and obtaining each destination value in the chain either from the cache, from a
    * corresponding accessor, from a provider, or by instantiation, in that order.
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   private void setDestinationValue(MappingContextImpl<?, ?> context,
       MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping,
       Converter<Object, Object> converter) {
@@ -287,12 +290,8 @@ public class MappingEngineImpl implements MappingEngine {
               if (propertyContext.getSource() == null)
                 return;
 
-              Provider<?> globalProvider = configuration.getProvider();
-              if (globalProvider != null)
-                intermediateDest = globalProvider.get(new ProvisionRequestImpl(
-                    context.parentSource(), mutator.getType()));
-              else
-                intermediateDest = instantiate(mutator.getType(), context.errors);
+              intermediateDest = createDestinationViaGlobalProvider(context.parentSource(),
+                  mutator.getType(), context.errors);
               if (intermediateDest == null)
                 return;
 
@@ -353,7 +352,8 @@ public class MappingEngineImpl implements MappingEngine {
    */
   @SuppressWarnings("unchecked")
   private <S, D> Converter<S, D> converterFor(MappingContext<S, D> context) {
-    TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType());
+    TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType(),
+        context.getTypeMapName());
     Converter<S, D> converter = (Converter<S, D>) converterCache.get(typePair);
     if (converter == null) {
       converter = converterStore.getFirstSupported(context.getSourceType(),
@@ -377,6 +377,17 @@ public class MappingEngineImpl implements MappingEngine {
     }
   }
 
+  public <S, D> D createDestination(MappingContext<S, D> context) {
+    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
+    D destination = createDestinationViaProvider(contextImpl);
+    if (destination != null)
+      return destination;
+
+    destination = instantiate(context.getDestinationType(), contextImpl.errors);
+    contextImpl.setDestination(destination);
+    return destination;
+  }
+
   /**
    * Returns a destination object via a provider with the current Mapping's provider used first,
    * else the TypeMap's property provider, else the TypeMap's provider, else the configuration's
@@ -398,21 +409,28 @@ public class MappingEngineImpl implements MappingEngine {
       return null;
 
     D destination = provider.get(context);
-    if (destination != null
-        && !context.getDestinationType().isAssignableFrom(destination.getClass()))
-      context.errors.invalidProvidedDestinationInstance(destination, context.getDestinationType());
+    validateDestination(context.getDestinationType(), destination, context.errors);
     context.setDestination(destination);
     return destination;
   }
 
-  public <S, D> D createDestination(MappingContext<S, D> context) {
-    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
-    D destination = createDestinationViaProvider(contextImpl);
-    if (destination != null)
-      return destination;
+  @SuppressWarnings("unchecked")
+  private <S, D> D createDestinationViaGlobalProvider(S source, Class<D> requestedType,
+      Errors errors) {
+    D destination = null;
+    Provider<D> provider = (Provider<D>) configuration.getProvider();
+    if (provider != null) {
+      destination = provider.get(new ProvisionRequestImpl<D>(source, requestedType));
+      validateDestination(requestedType, destination, errors);
+    }
+    if (destination == null)
+      destination = instantiate(requestedType, errors);
 
-    destination = instantiate(context.getDestinationType(), contextImpl.errors);
-    contextImpl.setDestination(destination);
     return destination;
+  }
+
+  private void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
+    if (destination != null && !destinationType.isAssignableFrom(destination.getClass()))
+      errors.invalidProvidedDestinationInstance(destination, destinationType);
   }
 }

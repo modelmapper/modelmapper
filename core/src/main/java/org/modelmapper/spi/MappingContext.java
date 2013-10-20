@@ -80,6 +80,12 @@ public interface MappingContext<S, D> {
   MappingEngine getMappingEngine();
 
   /**
+   * Returns the parent MappingContext from which the current MappingContext was created, else
+   * {@code null} if there is no parent context.
+   */
+  MappingContext<?, ?> getParent();
+
+  /**
    * Returns the source object being mapped from.
    **/
   S getSource();
@@ -94,4 +100,10 @@ public interface MappingContext<S, D> {
    * not originate from a TypeMap.
    */
   TypeMap<S, D> getTypeMap();
+
+  /**
+   * Returns the name of the TypeMap associated with the mapping request else {@code null} if the
+   * request did not originate from a named TypeMap.
+   */
+  String getTypeMapName();
 }
