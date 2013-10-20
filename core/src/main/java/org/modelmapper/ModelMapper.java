@@ -471,11 +471,7 @@ public class ModelMapper {
    */
   public void validate(Validator... validators) {
     if (validators == null || validators.length == 0)
-      if (MatchingStrategies.STRICT.equals(config.getMatchingStrategy())) {
-        validators = new Validator[] { Validators.ALL_PROPERTIES_MAPPED }; 
-      } else {
-        validators = new Validator[] { Validators.DESTINATION_PROPERTIES_MAPPED };
-      }
+      validators = new Validator[] { Validators.DESTINATION_PROPERTIES_MAPPED };
     Errors errors = new Errors();
 
     for (TypeMap<?, ?> typeMap : getTypeMaps()) {

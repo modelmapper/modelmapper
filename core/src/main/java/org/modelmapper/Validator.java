@@ -27,7 +27,7 @@ public interface Validator {
    * Determines whether the {@code typeMap} is valid.
    *
    * @param typeMap to validate
-   * @param errors the error consumer
+   * 
    */
-  void check(TypeMap<?, ?> typeMap, Errors errors);
+  void validate(TypeMap<?, ?> typeMap);
 }

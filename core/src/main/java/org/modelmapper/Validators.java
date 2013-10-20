@@ -31,10 +31,13 @@ public enum Validators implements Validator {
    * Validates that all top level source properties are mapped.
    */
   SOURCE_PROPERTIES_MAPPED {
-    public void check(TypeMap<?, ?> typeMap, Errors errors) {
-      final List<PropertyInfo> unmappedSourceProperties = typeMap.getUnmappedSourceProperties();
-      if (!unmappedSourceProperties.isEmpty()) {
-        errors.errorUnmappedSourceProperties(typeMap, unmappedSourceProperties);
+    public void validate(TypeMap<?, ?> typeMap) {
+      final List<PropertyInfo> properties = typeMap.getUnmappedSourceProperties();
+
+      if (!properties.isEmpty()) {
+        final Errors errors = new Errors();
+        errors.errorUnmappedSourceProperties(typeMap, properties);
+        errors.throwValidationExceptionIfErrorsExist();
       }
     }
   },
@@ -44,10 +47,13 @@ public enum Validators implements Validator {
    * {@code Converter} was set for the TypeMap.
    */
   DESTINATION_PROPERTIES_MAPPED {
-    public void check(TypeMap<?, ?> typeMap, Errors errors) {
-      final List<PropertyInfo> unmappedDestinationProperties = typeMap.getUnmappedDestinationProperties();
-      if (!unmappedDestinationProperties.isEmpty()) {
-        errors.errorUnmappedDestinationProperties(typeMap, unmappedDestinationProperties);
+    public void validate(TypeMap<?, ?> typeMap) {
+      final List<PropertyInfo> properties = typeMap.getUnmappedDestinationProperties();
+      
+      if (!properties.isEmpty()) {
+        final Errors errors = new Errors();
+        errors.errorUnmappedDestinationProperties(typeMap, properties);
+        errors.throwValidationExceptionIfErrorsExist();
       }
     }
   },
@@ -57,9 +63,22 @@ public enum Validators implements Validator {
    * are mapped.
    */
   ALL_PROPERTIES_MAPPED {
-    public void check(TypeMap<?, ?> typeMap, Errors errors) {
-      DESTINATION_PROPERTIES_MAPPED.check(typeMap, errors);
-      SOURCE_PROPERTIES_MAPPED.check(typeMap, errors);
+    public void validate(TypeMap<?, ?> typeMap) {
+      final Errors errors = new Errors();
+      
+      try {
+        SOURCE_PROPERTIES_MAPPED.validate(typeMap);
+      } catch (ValidationException e) {
+        errors.merge(e.getErrorMessages());
+      }
+      
+      try {
+        DESTINATION_PROPERTIES_MAPPED.validate(typeMap);
+      } catch (ValidationException e) {
+        errors.merge(e.getErrorMessages());
+      }
+     
+      errors.throwValidationExceptionIfErrorsExist();
     }
   }
 }

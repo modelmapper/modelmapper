@@ -142,7 +142,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns a snapshot list of source properties that do not have mappings defined, else empty
    * list if all source properties are mapped.
-   * 
+   *
    * <p>
    * This method is part of the ModelMapper SPI.
    */

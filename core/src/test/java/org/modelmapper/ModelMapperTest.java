@@ -128,12 +128,17 @@ public class ModelMapperTest extends AbstractTest {
 
     fail();
   }
+  
+  public void shouldValidateWhenAllSourceMembersMapped() {
+    modelMapper.createTypeMap(PersonDTOSourceMemberMissing.class, Person.class);
+
+    modelMapper.validate(Validators.SOURCE_PROPERTIES_MAPPED);
+  }
 
   public void shouldThrowOnValidateWhenSourceMembersMissing() {
-    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     modelMapper.createTypeMap(Person.class, PersonDTOSourceMemberMissing.class);
     try {
-      modelMapper.validate();
+      modelMapper.validate(Validators.SOURCE_PROPERTIES_MAPPED);
     } catch (ValidationException e) {
       Asserts.assertContains(e.getMessage(), "1) Unmapped source properties found");
       return;
@@ -142,7 +147,6 @@ public class ModelMapperTest extends AbstractTest {
     }
 
   public void shouldSucceedWhenSourceMembersMissingAndModeNotStrict() {
-    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STANDARD);
     modelMapper.createTypeMap(Person.class, PersonDTOSourceMemberMissing.class);
     try {
       modelMapper.validate();
