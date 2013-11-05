@@ -1,3 +1,9 @@
+0.6.2 (11/5/2013)
+
+- Added support for mapping Groovy properties
+- Improved jOOQ support
+- Fixed #74 - Null intermdiate values possible when instance requested via global provider
+
 0.6.0 (8/2/2013)
 
 - Added ValueReaders to SPI
