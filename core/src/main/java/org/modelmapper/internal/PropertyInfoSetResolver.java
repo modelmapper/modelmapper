@@ -132,7 +132,7 @@ final class PropertyInfoSetResolver<T> {
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> void resolveProperties(
       Class<?> initialType, Class<?> type, ResolveRequest<M, PI> resolveRequest) {
     Class<?> superType = type.getSuperclass();
-    if (superType != null && superType != Object.class)
+    if (superType != null && superType != Object.class && superType != Enum.class)
       resolveProperties(initialType, superType, resolveRequest);
 
     for (M member : resolveRequest.propertyResolver.membersFor(type)) {
