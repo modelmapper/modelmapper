@@ -111,6 +111,14 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     intermediateDestinations = new ArrayList<Object>();
   }
 
+  public <CS, CD> MappingContext<CS, CD> create(CS source, CD destination) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destination, "destination");
+
+    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()),
+        destination, Types.<CD>deProxy(destination.getClass()), null, mapping, false);
+  }
+
   /** Creates a child MappingContext for an element of a destination collection. */
   public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
     Assert.notNull(source, "source");
@@ -118,15 +126,6 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
         destinationType, null, mapping, false);
-  }
-  
-  /** Creates a child MappingContext for an element of a destination collection. */
-  public <CS, CD> MappingContext<CS, CD> create(CS source,CD destination) {
-    Assert.notNull(source, "source");
-    Assert.notNull(destinationType, "destinationType");
-
-    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), destination,
-        Types.<CD>deProxy(destination.getClass()), null, mapping, false);
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
