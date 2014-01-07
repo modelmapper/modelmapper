@@ -241,6 +241,12 @@ public final class TypeResolver {
       TypeVariable<?>[] typeVariables = ((Class<?>) type.getRawType()).getTypeParameters();
       Type[] typeArguments = type.getActualTypeArguments();
 
+      if(type.getOwnerType() != null) {
+        Type owner = type.getOwnerType();
+        if(owner instanceof ParameterizedType)
+          buildTypeVariableMap((ParameterizedType) owner, typeVariableMap);
+      }
+      
       for (int i = 0; i < typeArguments.length; i++) {
         TypeVariable<?> variable = typeVariables[i];
         Type typeArgument = typeArguments[i];
