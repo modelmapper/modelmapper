@@ -19,6 +19,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.modelmapper.config.Configuration;
 import org.modelmapper.spi.PropertyInfo;
@@ -56,7 +59,7 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
     }
 
     public Method[] membersFor(Class<?> type) {
-      return type.getDeclaredMethods();
+    	return getFilteredDeclaredMethods(type);
     }
   };
 
@@ -73,16 +76,25 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
     }
 
     public Method[] membersFor(Class<?> type) {
-      return type.getDeclaredMethods();
+    	return getFilteredDeclaredMethods(type);
     }
   };
 
-  static abstract class DefaultPropertyResolver<M extends Member, PI extends PropertyInfo>
-      implements PropertyInfoResolver<M, PI> {
-    public boolean isValid(M member) {
-      return !Modifier.isStatic(member.getModifiers());
-    }
-  }
+	static abstract class DefaultPropertyResolver<M extends Member, PI extends PropertyInfo>
+			implements PropertyInfoResolver<M, PI> {
+		public boolean isValid(M member) {
+			return !Modifier.isStatic(member.getModifiers());
+		}
+		
+		protected Method[] getFilteredDeclaredMethods(Class<?> type) {
+			List<Method> declaredMethods  = new ArrayList<Method>(Arrays.asList(type.getDeclaredMethods()));
+			if(Enum.class.isAssignableFrom(type)){
+				declaredMethods.removeAll(Arrays.asList(Enum.class.getDeclaredMethods()));	
+			}
+			return declaredMethods.toArray(new Method[declaredMethods.size()]);
+		}
+
+	}
 
   boolean isValid(M member);
 
