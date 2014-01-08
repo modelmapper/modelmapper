@@ -63,8 +63,10 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
   PropertyInfoResolver<Method, Mutator> MUTATORS = new DefaultPropertyResolver<Method, Mutator>() {
     @Override
     public boolean isValid(Method method) {
-      return super.isValid(method) && method.getParameterTypes().length == 1
-          && method.getReturnType().equals(void.class);
+      return super.isValid(method)
+          && method.getParameterTypes().length == 1
+          && (method.getReturnType().equals(void.class) || method.getReturnType().equals(
+              method.getDeclaringClass()));
     }
 
     public Mutator propertyInfoFor(Class<?> initialType, Method method,
