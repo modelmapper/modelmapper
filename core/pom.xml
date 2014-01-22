@@ -11,11 +11,15 @@
   <artifactId>modelmapper</artifactId>
   <name>ModelMapper</name>
 
+  <properties>
+    <cglib.version>2.2.2</cglib.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
-      <version>2.2.2</version>
+      <version>${cglib.version}</version>
     </dependency>
     <dependency>
       <groupId>asm</groupId>
@@ -146,13 +150,43 @@
               org.modelmapper.internal.**
             </Private-Package>
             <Import-Package>
-              *
+              !net.sf.cglib.*,*
             </Import-Package>
             <Include-Resource>
               {maven-resources},
               {maven-dependencies}
             </Include-Resource>
           </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.2</version>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!--
+            the maven-bundle-plugin discards the shaded packages from Export-Package,
+            so we have to add them like this.
+          -->
+          <file>${project.build.outputDirectory}/META-INF/MANIFEST.MF</file>
+          <regex>false</regex>
+          <replacements>
+            <replacement>
+              <token>Export-Package: org.modelmapper</token>
+              <value>Export-Package: org.modelmapper.internal.cglib.proxy;version=${cglib.version},
+ org.modelmapper.internal.cglib.core;version=${cglib.version},
+ org.modelmapper
+              </value>
+            </replacement>
+          </replacements>
         </configuration>
       </plugin>
     </plugins>
