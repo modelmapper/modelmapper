@@ -20,10 +20,13 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts to {@link Character} instances.
- * 
+ *
  * @author Jonathan Halterman
  */
 class CharacterConverter implements ConditionalConverter<Object, Character> {
+
+  private static final long serialVersionUID = -4781264174518200391L;
+
   public Character convert(MappingContext<Object, Character> context) {
     return new Character(context.getSource().toString().charAt(0));
   }

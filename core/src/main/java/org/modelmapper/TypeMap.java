@@ -15,6 +15,7 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.spi.Mapping;
@@ -22,17 +23,17 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * Encapsulates mapping configuration for a source and destination type pair.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
-public interface TypeMap<S, D> {
+public interface TypeMap<S, D> extends Serializable {
   /**
    * Loads mappings from the {@code propertyMap} into the TypeMap. Mappings defined in the
    * {@code propertyMap} will override any implicit mappings for the same properties.
-   * 
+   *
    * @param propertyMap from which mappings should be loaded
    * @throws IllegalArgumentException if {@code propertyMap} is null
    * @throws ConfigurationException if a configuration error occurs while adding mappings for the
@@ -43,7 +44,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the Condition that must apply for the source and destination in order for mapping to
    * take place, else {@code null} if no condition has been configured.
-   * 
+   *
    * @see #setCondition(Condition)
    */
   Condition<?, ?> getCondition();
@@ -51,7 +52,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the Converter configured for this TypeMap, else {@code null} if no Converter has been
    * configured.
-   * 
+   *
    * @see #setConverter(Converter)
    */
   Converter<S, D> getConverter();
@@ -63,7 +64,7 @@ public interface TypeMap<S, D> {
 
   /**
    * Returns a snapshot of the TypeMap's mappings.
-   * 
+   *
    * <p>
    * This method is part of the ModelMapper SPI.
    */
@@ -77,7 +78,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the converter to be used after mapping between the source and destination types, else
    * {@code null} if no post-Converter has been configured.
-   * 
+   *
    * @see #setPostConverter(Converter)
    */
   Converter<S, D> getPostConverter();
@@ -85,7 +86,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the converter to be used before mapping between the source and destination types, else
    * {@code null} if no post-Converter has been configured.
-   * 
+   *
    * @see #setPreConverter(Converter)
    */
   Converter<S, D> getPreConverter();
@@ -93,7 +94,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the Condition that must apply in properties in this TypeMap to be mapped, else
    * {@code null} if no condition has been configured.
-   * 
+   *
    * @see #setCondition(Condition)
    */
   Condition<?, ?> getPropertyCondition();
@@ -101,7 +102,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the Converter used for converting properties in the TypeMap, else {@code null} if no
    * Converter has been configured.
-   * 
+   *
    * @see #setPropertyConverter(Converter)
    */
   Converter<?, ?> getPropertyConverter();
@@ -109,7 +110,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the Provider configured for this TypeMap, else {@code null} if no Provider has been
    * configured.
-   * 
+   *
    * @see #setPropertyProvider(Provider)
    */
   Provider<?> getPropertyProvider();
@@ -117,7 +118,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns the Provider configured for this TypeMap, else {@code null} if no Provider has been
    * configured.
-   * 
+   *
    * @see #setProvider(Provider)
    */
   Provider<D> getProvider();
@@ -130,7 +131,7 @@ public interface TypeMap<S, D> {
   /**
    * Returns a snapshot list of destination properties that do not have mappings defined, else empty
    * list if all destination properties are mapped.
-   * 
+   *
    * <p>
    * This method is part of the ModelMapper SPI.
    */
@@ -138,7 +139,7 @@ public interface TypeMap<S, D> {
 
   /**
    * Maps {@code source} to an instance of type {@code D}.
-   * 
+   *
    * @param source object to map from
    * @return fully mapped instance of type {@code D}
    * @throws IllegalArgumentException if {@code source} is null
@@ -148,7 +149,7 @@ public interface TypeMap<S, D> {
 
   /**
    * Maps {@code source} to {@code destination}.
-   * 
+   *
    * @param source object to map from
    * @param destination object to map to
    * @throws IllegalArgumentException if {@code source} or {@code destination} are null
@@ -159,7 +160,7 @@ public interface TypeMap<S, D> {
   /**
    * Sets the {@code condition} that must apply for the source and destination in order for mapping
    * to take place.
-   * 
+   *
    * @throws IllegalArgumentException if {@code condition} is null
    */
   TypeMap<S, D> setCondition(Condition<?, ?> condition);
@@ -168,21 +169,21 @@ public interface TypeMap<S, D> {
    * Sets the {@code converter} to be used for any conversion requests for the TypeMap's source to
    * destination type. This converter will be used in place of any mappings that have been added to
    * the TypeMap.
-   * 
+   *
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setConverter(Converter<S, D> converter);
 
   /**
    * Sets the {@code converter} to be used after mapping between the source and destination types.
-   * 
+   *
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setPostConverter(Converter<S, D> converter);
 
   /**
    * Sets the {@code converter} to be used before mapping between the source and destination types.
-   * 
+   *
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setPreConverter(Converter<S, D> converter);
@@ -190,7 +191,7 @@ public interface TypeMap<S, D> {
   /**
    * Sets the {@code condition} that must apply in order for properties in this TypeMap to be
    * mapped. This is overridden by any conditions defined in a PropertyMap.
-   * 
+   *
    * @throws IllegalArgumentException if {@code condition} is null
    */
   TypeMap<S, D> setPropertyCondition(Condition<?, ?> condition);
@@ -198,7 +199,7 @@ public interface TypeMap<S, D> {
   /**
    * Sets the {@code converter} to be used for converting properties in the TypeMap. This is
    * overridden by any converters defined in a PropertyMap.
-   * 
+   *
    * @throws IllegalArgumentException if {@code converter} is null
    */
   TypeMap<S, D> setPropertyConverter(Converter<?, ?> converter);
@@ -206,7 +207,7 @@ public interface TypeMap<S, D> {
   /**
    * Sets the {@code provider} to be used for providing instances of properties during mapping. This
    * is overriden by any providers defined in a PropertyMap.
-   * 
+   *
    * @throws IllegalArgumentException if {@code provider} is null
    */
   TypeMap<S, D> setPropertyProvider(Provider<?> provider);
@@ -214,7 +215,7 @@ public interface TypeMap<S, D> {
   /**
    * Sets the {@code provider} to be used for providing instances of destination type {@code D}
    * during mapping.
-   * 
+   *
    * @throws IllegalArgumentException if {@code provider} is null
    */
   TypeMap<S, D> setProvider(Provider<D> provider);
@@ -223,7 +224,7 @@ public interface TypeMap<S, D> {
    * Validates that <b>every</b> top level destination property is mapped to one and only one source
    * property, or that a {@code Converter} was {@link #setConverter(Converter) set}. If not, a
    * ConfigurationException is thrown detailing any missing mappings.
-   * 
+   *
    * @throws ValidationException if any TypeMaps contain unmapped properties
    */
   void validate();

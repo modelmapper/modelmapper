@@ -30,6 +30,9 @@ import org.modelmapper.spi.PropertyInfo;
  * @author Jonathan Halterman
  */
 abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
+
+  private static final long serialVersionUID = -5741348769281213344L;
+
   protected final List<PropertyInfo> destinationMutators;
   private final boolean explicit;
   private final String path;

@@ -22,10 +22,13 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Handles reading from java.util.Map instances.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class MapValueReader implements ValueReader<Map<String, Object>> {
+
+  private static final long serialVersionUID = -7872933137247691511L;
+
   public Object get(Map<String, Object> source, String memberName) {
     if (!source.containsKey(memberName))
       throw new IllegalArgumentException();

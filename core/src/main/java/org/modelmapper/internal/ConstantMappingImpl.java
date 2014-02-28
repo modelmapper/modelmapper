@@ -26,6 +26,9 @@ import org.modelmapper.spi.PropertyInfo;
  * @author Jonathan Halterman
  */
 class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
+
+  private static final long serialVersionUID = 9191722736421179881L;
+
   private final Object constant;
 
   /**

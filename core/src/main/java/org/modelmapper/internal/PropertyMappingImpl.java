@@ -29,6 +29,9 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
+
+  private static final long serialVersionUID = -4439189178874547406L;
+
   protected final List<PropertyInfo> sourceAccessors;
   protected boolean cyclic;
 

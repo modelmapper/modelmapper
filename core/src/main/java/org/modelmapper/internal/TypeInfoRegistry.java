@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,10 +24,13 @@ import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 
 /**
  * Statically stores and retrieves TypeInfo instances by type, parent type, and configuration.
- * 
+ *
  * @author Jonathan Halterman
  */
-class TypeInfoRegistry {
+class TypeInfoRegistry implements Serializable {
+
+  private static final long serialVersionUID = -8677530967847066970L;
+
   private static final Map<TypeInfoKey, TypeInfoImpl<?>> cache = new ConcurrentHashMap<TypeInfoKey, TypeInfoImpl<?>>();
 
   private static class TypeInfoKey {

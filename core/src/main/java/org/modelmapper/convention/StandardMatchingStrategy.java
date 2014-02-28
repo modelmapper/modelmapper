@@ -21,15 +21,21 @@ import org.modelmapper.spi.MatchingStrategy;
 
 /**
  * See {@link MatchingStrategies#STANDARD}.
- * 
+ *
  * @author Jonathan Halterman
  */
 final class StandardMatchingStrategy implements MatchingStrategy {
+
+
+  private static final long serialVersionUID = -782537586228707293L;
+
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     return new Matcher(propertyNameInfo).match();
   }
 
   static class Matcher extends InexactMatcher {
+
+    private static final long serialVersionUID = 5120519086233032427L;
     private final boolean[] sourceMatches;
 
     Matcher(PropertyNameInfo propertyNameInfo) {
@@ -83,7 +89,7 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     /**
      * Checks to see whether an unmatched source property contains any tokens that were matched by a
      * previous property in the source hierarchy.
-     * 
+     *
      * @param index of unmatched source property
      */
     boolean matchedPreviously(int index) {

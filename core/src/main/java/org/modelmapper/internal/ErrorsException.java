@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+
 /**
  * @author Jonathan Halterman
  */

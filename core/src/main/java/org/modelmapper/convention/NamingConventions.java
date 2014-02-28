@@ -15,19 +15,26 @@
  */
 package org.modelmapper.convention;
 
-import org.modelmapper.spi.PropertyType;
+import java.io.Serializable;
+
 import org.modelmapper.spi.NamingConvention;
+import org.modelmapper.spi.PropertyType;
 
 /**
  * {@link NamingConvention} implementations.
- * 
+ *
  * @author Jonathan Halterman
  */
-public class NamingConventions {
+public class NamingConventions implements Serializable {
+
+  private static final long serialVersionUID = -7897769851554533809L;
+
   /**
    * JavaBeans naming convention for accessors.
    */
   public static final NamingConvention JAVABEANS_ACCESSOR = new NamingConvention() {
+    private static final long serialVersionUID = 8994605108402590857L;
+
     public boolean applies(String propertyName, PropertyType propertyType) {
       return PropertyType.FIELD.equals(propertyType)
           || (propertyName.startsWith("get") && propertyName.length() > 3)
@@ -44,6 +51,8 @@ public class NamingConventions {
    * JavaBeans naming convention for mutators.
    */
   public static final NamingConvention JAVABEANS_MUTATOR = new NamingConvention() {
+    private static final long serialVersionUID = 6257778024446031313L;
+
     public boolean applies(String propertyName, PropertyType propertyType) {
       return PropertyType.FIELD.equals(propertyType)
           || (propertyName.startsWith("set") && propertyName.length() > 3);
@@ -61,6 +70,8 @@ public class NamingConventions {
    * all properties to be eligible for matching.
    */
   public static final NamingConvention NONE = new NamingConvention() {
+    private static final long serialVersionUID = -7478932792253147767L;
+
     public boolean applies(String propertyName, PropertyType propertyType) {
       return true;
     }

@@ -27,7 +27,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts:
- * 
+ *
  * <ul>
  * <li>Number</li>
  * <li>Boolean</li>
@@ -36,9 +36,9 @@ import org.modelmapper.spi.MappingContext;
  * <li>String</li>
  * <li>Object</li>
  * </ul>
- * 
+ *
  * instances to instances of:
- * 
+ *
  * <ul>
  * <li>Byte</li>
  * <li>Short</li>
@@ -49,10 +49,13 @@ import org.modelmapper.spi.MappingContext;
  * <li>BigDecimal</li>
  * <li>BigInteger</li>
  * </ul>
- * 
+ *
  * @author Jonathan Halterman
  */
 class NumberConverter implements ConditionalConverter<Object, Number> {
+
+  private static final long serialVersionUID = 6953311964584593885L;
+
   public Number convert(MappingContext<Object, Number> context) {
     Object source = context.getSource();
     Class<?> destinationType = Primitives.wrapperFor(context.getDestinationType());

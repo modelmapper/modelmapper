@@ -55,6 +55,8 @@ public class DisambiguationTest4 extends AbstractTest {
 
   public void shouldOverrideAmbiguityWithExplicitMapping() {
     Dest d = modelMapper.addMappings(new PropertyMap<Source, Dest>() {
+      private static final long serialVersionUID = 1L;
+
       protected void configure() {
         map().setValue(source.getValue2());
       }
@@ -62,4 +64,5 @@ public class DisambiguationTest4 extends AbstractTest {
 
     assertEquals(d.value, "def");
   }
+
 }

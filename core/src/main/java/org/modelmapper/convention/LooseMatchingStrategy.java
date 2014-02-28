@@ -21,71 +21,77 @@ import org.modelmapper.spi.MatchingStrategy;
 
 /**
  * See {@link MatchingStrategies#LOOSE}.
- * 
+ *
  * @author Jonathan Halterman
  */
 final class LooseMatchingStrategy implements MatchingStrategy {
-  public boolean matches(PropertyNameInfo propertyNameInfo) {
-    return new Matcher(propertyNameInfo).match();
-  }
 
-  /**
-   * Since this strategy only requires matching the last source and destination properties, property
-   * iteration is done in reverse.
-   */
-  static class Matcher extends InexactMatcher {
-    boolean lastSourceMatched;
-    boolean lastDestinationMatched;
+    private static final long serialVersionUID = 7881329295054777247L;
 
-    Matcher(PropertyNameInfo propertyNameInfo) {
-      super(propertyNameInfo);
-    }
-
-    boolean match() {
-      List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
-
-      // Match the last destination property first
-      for (int destIndex = destTokens.size() - 1; destIndex >= 0 && !lastSourceMatched; destIndex--) {
-        String[] tokens = destTokens.get(destIndex);
-
-        for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++) {
-          int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
-          if (destIndex == destTokens.size() - 1
-              && (matchedTokens > 0 || matchSourcePropertyType(tokens[destTokenIndex]) || matchSourceClass(tokens[destTokenIndex])))
-            lastDestinationMatched = true;
-          if (matchedTokens > 1)
-            destTokenIndex += (matchedTokens - 1);
-        }
-      }
-
-      return lastSourceMatched && lastDestinationMatched;
+    public boolean matches(PropertyNameInfo propertyNameInfo) {
+        return new Matcher(propertyNameInfo).match();
     }
 
     /**
-     * Returns the number of {@code destTokens} that were matched to a source token starting at
-     * {@code destStartIndex}.
+     * Since this strategy only requires matching the last source and
+     * destination properties, property iteration is done in reverse.
      */
-    int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
-      for (int sourceIndex = sourceTokens.size() - 1; sourceIndex >= 0; sourceIndex--) {
-        String[] srcTokens = sourceTokens.get(sourceIndex);
-        int matched = matchTokens(srcTokens, destTokens, destStartIndex);
-        if (matched > 0) {
-          if (sourceIndex == sourceTokens.size() - 1)
-            lastSourceMatched = true;
-          return matched;
+    static class Matcher extends InexactMatcher {
+
+        private static final long serialVersionUID = -7301855486349146038L;
+
+        boolean lastSourceMatched;
+        boolean lastDestinationMatched;
+
+        Matcher(PropertyNameInfo propertyNameInfo) {
+            super(propertyNameInfo);
         }
-      }
 
-      return 0;
+        boolean match() {
+            List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+
+            // Match the last destination property first
+            for (int destIndex = destTokens.size() - 1; destIndex >= 0 && !lastSourceMatched; destIndex--) {
+                String[] tokens = destTokens.get(destIndex);
+
+                for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++) {
+                    int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
+                    if (destIndex == destTokens.size() - 1
+                            && (matchedTokens > 0 || matchSourcePropertyType(tokens[destTokenIndex]) || matchSourceClass(tokens[destTokenIndex])))
+                        lastDestinationMatched = true;
+                    if (matchedTokens > 1)
+                        destTokenIndex += (matchedTokens - 1);
+                }
+            }
+
+            return lastSourceMatched && lastDestinationMatched;
+        }
+
+        /**
+         * Returns the number of {@code destTokens} that were matched to a
+         * source token starting at {@code destStartIndex}.
+         */
+        int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
+            for (int sourceIndex = sourceTokens.size() - 1; sourceIndex >= 0; sourceIndex--) {
+                String[] srcTokens = sourceTokens.get(sourceIndex);
+                int matched = matchTokens(srcTokens, destTokens, destStartIndex);
+                if (matched > 0) {
+                    if (sourceIndex == sourceTokens.size() - 1)
+                        lastSourceMatched = true;
+                    return matched;
+                }
+            }
+
+            return 0;
+        }
     }
-  }
 
-  public boolean isExact() {
-    return false;
-  }
+    public boolean isExact() {
+        return false;
+    }
 
-  @Override
-  public String toString() {
-    return "Loose";
-  }
+    @Override
+    public String toString() {
+        return "Loose";
+    }
 }

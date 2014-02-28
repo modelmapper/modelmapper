@@ -16,7 +16,6 @@
 package org.modelmapper.internal;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,12 +36,15 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Builds explicit property mappings.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
+
+  private static final long serialVersionUID = 5036086926810938576L;
+
   private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
-  private static Method PROPERTY_MAP_CONFIGURE;
+  private static SerializableMethod PROPERTY_MAP_CONFIGURE;
   private final Class<S> sourceType;
   private final Class<D> destinationType;
   final InheritingConfiguration configuration;
@@ -56,9 +58,9 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private boolean destinationRequested;
 
   static {
-    PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure",
-        ExplicitMappingBuilder.class);
-    PROPERTY_MAP_CONFIGURE.setAccessible(true);
+    PROPERTY_MAP_CONFIGURE = new SerializableMethod(Types.methodFor(PropertyMap.class, "configure",
+        ExplicitMappingBuilder.class));
+    PROPERTY_MAP_CONFIGURE.getMethod().setAccessible(true);
   }
 
   static class MappingOptions {
@@ -153,12 +155,12 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
 
   /**
    * Builds and returns all property mappings defined in the {@code propertyMap}.
-   * 
+   *
    * @return map of destination property names to mappings
    */
   Collection<MappingImpl> build(PropertyMap<S, D> propertyMap) {
     try {
-      PROPERTY_MAP_CONFIGURE.invoke(propertyMap, this);
+      PROPERTY_MAP_CONFIGURE.getMethod().invoke(propertyMap, this);
       assertLastMapping();
     } catch (IllegalAccessException e) {
       errors.errorAccessingConfigure(e);

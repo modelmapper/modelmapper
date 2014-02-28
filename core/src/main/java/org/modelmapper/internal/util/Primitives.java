@@ -15,15 +15,19 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Utility methods for working with primitives.
- * 
+ *
  * @author Jonathan Halterman
  */
-public final class Primitives {
+public final class Primitives implements Serializable {
+
+  private static final long serialVersionUID = 8429155359978835282L;
+
   private static Map<Class<?>, Class<?>> primitiveToWrapper;
   private static Map<Class<?>, Class<?>> wrapperToPrimitive;
   private static Map<Class<?>, Object> defaultValue;

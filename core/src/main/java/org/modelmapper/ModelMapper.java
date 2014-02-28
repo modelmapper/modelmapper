@@ -15,6 +15,7 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -29,7 +30,7 @@ import org.modelmapper.internal.util.Types;
 /**
  * ModelMapper - Performs object mapping, maintains {@link Configuration} and stores {@link TypeMap
  * TypeMaps}.
- * 
+ *
  * <ul>
  * <li>To perform object mapping use {@link #map(Object, Class) map}.</li>
  * <li>To configure the mapping of one type to another use {@link #createTypeMap(Class, Class)
@@ -39,10 +40,13 @@ import org.modelmapper.internal.util.Types;
  * <li>To configure ModelMapper use {@link #getConfiguration}.
  * <li>To validate mappings use {@link #validate}.
  * </ul>
- * 
+ *
  * @author Jonathan Halterman
  */
-public class ModelMapper {
+public class ModelMapper implements Serializable {
+
+  private static final long serialVersionUID = 6808737926901075093L;
+
   private final InheritingConfiguration config;
   private final MappingEngineImpl engine;
 
@@ -58,7 +62,7 @@ public class ModelMapper {
    * Registers the {@code converter} to use when mapping instances of types {@code S} to {@code D}.
    * The {@code converter} will be {@link TypeMap#setConverter(Converter) set} against TypeMap
    * corresponding to the {@code converter}'s type arguments {@code S} and {@code D}.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param converter to register
@@ -79,7 +83,7 @@ public class ModelMapper {
    * Adds mappings from the {@code propertyMap} into the TypeMap corresponding to source type
    * {@code S} and destination type {@code D}. Explicit mappings defined in the {@code propertyMap}
    * will override any implicit mappings for the same properties.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param propertyMap from which mappings should be loaded
@@ -97,7 +101,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code sourceType} and {@code destinationType} using the
    * ModelMapper's configuration.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
@@ -115,7 +119,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code sourceType} and {@code destinationType} using the
    * {@code configuration}.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
@@ -139,7 +143,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code sourceType} and {@code destinationType} identified by the
    * {@code typeMapName} using the ModelMapper's configuration.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
@@ -160,7 +164,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code sourceType} and {@code destinationType} identified by the
    * {@code typeMapName} using the {@code configuration}.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param sourceType
@@ -186,7 +190,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code source}'s type and {@code destinationType} using the
    * ModelMapper's configuration. Useful for creating TypeMaps for generic source data structures.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param source
@@ -204,7 +208,7 @@ public class ModelMapper {
   /**
    * Creates a TypeMap for the {@code source}'s type and {@code destinationType} using the
    * {@code configuration}. Useful for creating TypeMaps for generic source data structures.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param source
@@ -229,7 +233,7 @@ public class ModelMapper {
    * Creates a TypeMap for the {@code source}'s type and {@code destinationType} identified by the
    * {@code typeMapName} using the ModelMapper's configuration. Useful for creating TypeMaps for
    * generic source data structures.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param source
@@ -250,7 +254,7 @@ public class ModelMapper {
    * Creates a TypeMap for the {@code source}'s type and {@code destinationType} identified by the
    * {@code typeMapName} using the {@code configuration}. Useful for creating TypeMaps for generic
    * source data structures.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @param source
@@ -283,7 +287,7 @@ public class ModelMapper {
   /**
    * Returns the TypeMap for the {@code sourceType} and {@code destinationType}, else returns
    * {@code null} if none exists.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @throws IllegalArgumentException is {@code sourceType} or {@code destinationType} are null
@@ -298,7 +302,7 @@ public class ModelMapper {
   /**
    * Returns the TypeMap for the {@code sourceType}, {@code destinationType} and {@code typeMapName}
    * , else returns {@code null} if none exists.
-   * 
+   *
    * @param <S> source type
    * @param <D> destination type
    * @throws IllegalArgumentException is {@code sourceType}, {@code destinationType} or
@@ -324,7 +328,7 @@ public class ModelMapper {
    * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
    * to the corresponding TypeMap. If no TypeMap exists for {@code source.getClass()} and
    * {@code destinationType} then one is created.
-   * 
+   *
    * @param <D> destination type
    * @param source object to map from
    * @param destinationType type to map to
@@ -344,7 +348,7 @@ public class ModelMapper {
    * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
    * to the corresponding TypeMap for the {@code typeMapName}. If no TypeMap exists for the
    * {@code source.getClass()}, {@code destinationType} and {@code typeMapName} then one is created.
-   * 
+   *
    * @param <D> destination type
    * @param source object to map from
    * @param destinationType type to map to
@@ -367,7 +371,7 @@ public class ModelMapper {
    * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
    * TypeMap. If no TypeMap exists for {@code source.getClass()} and {@code destination.getClass()}
    * then one is created.
-   * 
+   *
    * @param source object to map from
    * @param destination object to map to
    * @throws IllegalArgumentException if {@code source} or {@code destination} are null
@@ -385,7 +389,7 @@ public class ModelMapper {
    * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
    * TypeMap for the {@code typeMapName}. If no TypeMap exists for the {@code source.getClass()},
    * {@code destination.getClass()} and {@code typeMapName} then one is created.
-   * 
+   *
    * @param source object to map from
    * @param destination object to map to
    * @param typeMapName name of existing TypeMap to use mappings from
@@ -406,15 +410,15 @@ public class ModelMapper {
    * Maps {@code source} to an instance of {@code destinationType}. Mapping is performed according
    * to the corresponding TypeMap. If no TypeMap exists for {@code source.getClass()} and
    * {@code destinationType} then one is created.
-   * 
+   *
    * <p>
    * To map a parameterized destination type, subclass {@link TypeToken} and obtain its Type:
-   * 
+   *
    * <pre>
    * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
    * List&lt;String&gt; strings = modelMapper.map(source, listType);
    * </pre>
-   * 
+   *
    * @param <D> destination type
    * @param source object to map from
    * @param destinationType type to map to
@@ -434,15 +438,15 @@ public class ModelMapper {
    * to the corresponding TypeMap for the {@code typeMapName}. If no TypeMap exists for the
    * {@code source.getClass()}, {@code destination.getClass()} and {@code typeMapName} then one is
    * created.
-   * 
+   *
    * <p>
    * To map a parameterized destination type, subclass {@link TypeToken} and obtain its Type:
-   * 
+   *
    * <pre>
    * Type listType = new TypeToken&lt;List&lt;String&gt;&gt;() {}.getType();
    * List&lt;String&gt; strings = modelMapper.map(source, listType, "string-list");
    * </pre>
-   * 
+   *
    * @param <D> destination type
    * @param source object to map from
    * @param destinationType type to map to
@@ -465,7 +469,7 @@ public class ModelMapper {
    * mapped to one and only one source property, or that a {@code Converter} was
    * {@link TypeMap#setConverter(Converter) set} for the TypeMap. If not, a ConfigurationException
    * is thrown detailing any missing mappings.
-   * 
+   *
    * @throws ValidationException if any TypeMaps contain unmapped properties
    */
   public void validate() {

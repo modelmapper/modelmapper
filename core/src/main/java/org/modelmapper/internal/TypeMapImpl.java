@@ -33,10 +33,13 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * TypeMap implementation.
- * 
+ *
  * @author Jonathan Halterman
  */
 class TypeMapImpl<S, D> implements TypeMap<S, D> {
+
+  private static final long serialVersionUID = -244484384582386623L;
+
   private final Class<S> sourceType;
   private final Class<D> destinationType;
   private final String name;

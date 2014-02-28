@@ -29,28 +29,38 @@ import org.modelmapper.spi.ValueReader;
 /**
  * Abstract PropertyInfo implementation that provides {@link #equals(Object)} and
  * {@link #hashCode()} operations based on the property name.
- * 
+ *
  * @author Jonathan Halterman
  */
 abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
+
+  private static final long serialVersionUID = -265367109429463747L;
+
   protected final Class<?> initialType;
   protected final M member;
   protected final Class<?> type;
   protected final String name;
   private final PropertyType propertyType;
 
-  static abstract class AbstractMethodInfo extends PropertyInfoImpl<Method> {
+  static abstract class AbstractMethodInfo extends PropertyInfoImpl<SerializableMethod> {
+
+    private static final long serialVersionUID = -512658272160869514L;
+
     private AbstractMethodInfo(Class<?> initialType, Method method, String name) {
-      super(initialType, method, PropertyType.METHOD, name);
-      method.setAccessible(true);
+      super(initialType, new SerializableMethod(method), PropertyType.METHOD, name);
+      member.getMethod().setAccessible(true);
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-      return member.getAnnotation(annotationClass);
+      return getAnnotation(annotationClass);
     }
+
   }
 
   static class FieldPropertyInfo extends PropertyInfoImpl<Field> implements Accessor, Mutator {
+
+    private static final long serialVersionUID = -1659913961226380199L;
+
     FieldPropertyInfo(Class<?> initialType, Field field, String name) {
       super(initialType, field, PropertyType.FIELD, name);
       field.setAccessible(true);
@@ -82,45 +92,54 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   }
 
   static class MethodAccessor extends AbstractMethodInfo implements Accessor {
+
+    private static final long serialVersionUID = -5250769027457956726L;
+
     MethodAccessor(Class<?> initialType, Method method, String name) {
       super(initialType, method, name);
     }
 
     public Type getGenericType() {
-      return member.getGenericReturnType();
+      return member.getMethod().getGenericReturnType();
     }
 
     public Object getValue(Object subject) {
       try {
-        return member.invoke(subject);
+        return member.getMethod().invoke(subject);
       } catch (IllegalAccessException e) {
         new Errors().errorAccessingProperty(this).throwMappingExceptionIfErrorsExist();
         return null;
       } catch (Exception e) {
-        throw new Errors().errorGettingValue(member, e).toMappingException();
+        throw new Errors().errorGettingValue(member.getMethod(), e).toMappingException();
       }
     }
   }
 
   static class MethodMutator extends AbstractMethodInfo implements Mutator {
+
+    private static final long serialVersionUID = 5112352796934312254L;
+
     MethodMutator(Class<?> initialType, Method method, String name) {
       super(initialType, method, name);
     }
 
     public Type getGenericType() {
-      return member.getGenericParameterTypes()[0];
+      return member.getMethod().getGenericParameterTypes()[0];
     }
 
     public void setValue(Object subject, Object value) {
       try {
-        member.invoke(subject, value);
+        member.getMethod().invoke(subject, value);
       } catch (Exception e) {
-        throw new Errors().errorSettingValue(member, value, e).toMappingException();
+        throw new Errors().errorSettingValue(member.getMethod(), value, e).toMappingException();
       }
     }
   }
 
   static class ValueReaderPropertyInfo extends PropertyInfoImpl<Member> implements Accessor {
+
+    private static final long serialVersionUID = -2342639245991182527L;
+
     private final ValueReader<Object> valueReader;
     /** Provides access to structural information of members. */
     final Object source;
@@ -202,4 +221,5 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   public String toString() {
     return member == null ? name : member.getDeclaringClass().getSimpleName() + "." + name;
   }
+
 }

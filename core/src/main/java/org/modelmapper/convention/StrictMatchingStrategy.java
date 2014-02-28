@@ -21,10 +21,13 @@ import org.modelmapper.spi.MatchingStrategy;
 
 /**
  * See {@link MatchingStrategies#STRICT}.
- * 
+ *
  * @author Jonathan Halterman
  */
 final class StrictMatchingStrategy implements MatchingStrategy {
+
+  private static final long serialVersionUID = 6297664299962855036L;
+
   public boolean isExact() {
     return true;
   }

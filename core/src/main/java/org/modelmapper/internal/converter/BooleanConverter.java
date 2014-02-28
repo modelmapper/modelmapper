@@ -21,10 +21,13 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts to {@link Boolean} instances.
- * 
+ *
  * @author Jonathan Halterman
  */
 class BooleanConverter implements ConditionalConverter<Object, Boolean> {
+
+  private static final long serialVersionUID = 6389901628423203235L;
+
   private static final String[] TRUE_STRINGS = { "true", "yes", "y", "on", "1" };
   private static final String[] FALSE_STRINGSS = { "false", "no", "n", "off", "0" };
 

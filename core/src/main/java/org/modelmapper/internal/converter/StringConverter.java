@@ -20,10 +20,13 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts to {@link String} instances.
- * 
+ *
  * @author Jonathan Halterman
  */
 class StringConverter implements ConditionalConverter<Object, String> {
+
+  private static final long serialVersionUID = -781902128780625755L;
+
   public String convert(MappingContext<Object, String> context) {
     Class<?> sourceType = context.getSourceType();
     return sourceType.isArray() && sourceType.getComponentType() == Character.TYPE

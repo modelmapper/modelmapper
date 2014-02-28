@@ -15,16 +15,19 @@
  */
 package org.modelmapper.convention;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.spi.MatchingStrategy.PropertyNameInfo;
 
 /**
  * Performs inexact matching of property tokens.
- * 
+ *
  * @author Jonathan Halterman
  */
-class InexactMatcher {
+class InexactMatcher implements Serializable {
+
+  private static final long serialVersionUID = -2093660122468782837L;
   protected final PropertyNameInfo propertyNameInfo;
   protected final List<String[]> sourceTokens;
 

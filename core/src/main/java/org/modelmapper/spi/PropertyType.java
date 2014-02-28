@@ -15,9 +15,10 @@
  */
 package org.modelmapper.spi;
 
+
 /**
  * Property type.
- * 
+ *
  * @author Jonathan Halterman
  */
 public enum PropertyType {

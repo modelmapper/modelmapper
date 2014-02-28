@@ -19,13 +19,16 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converter support class. Allows for simpler Converter implementations.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
 public abstract class AbstractConverter<S, D> implements Converter<S, D> {
+
+  private static final long serialVersionUID = 1277599441331571147L;
+
   /**
    * Delegates conversion to {@link #convert(Object)}.
    */

@@ -15,19 +15,21 @@
  */
 package org.modelmapper.builder;
 
+import java.io.Serializable;
+
 import org.modelmapper.PropertyMap;
 
 /**
  * Expresses mapping.
- * 
+ *
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
-public interface MapExpression<D> {
+public interface MapExpression<D> extends Serializable {
   /**
    * Defines a mapping to a destination. See the EDSL examples at {@link PropertyMap}.
-   * 
+   *
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
@@ -36,7 +38,7 @@ public interface MapExpression<D> {
   /**
    * Defines a mapping from the {@code source} to a destination. See the EDSL examples at
    * {@link PropertyMap}.
-   * 
+   *
    * @param source to map from
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.

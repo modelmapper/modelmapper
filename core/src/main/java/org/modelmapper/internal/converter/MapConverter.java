@@ -29,10 +29,13 @@ import org.modelmapper.spi.PropertyMapping;
 
 /**
  * Converts {@link Map} instances to each other.
- * 
+ *
  * @author Jonathan Halterman
  */
 class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object>> {
+
+  private static final long serialVersionUID = -4112160001348777282L;
+
   public Map<Object, Object> convert(MappingContext<Map<?, ?>, Map<Object, Object>> context) {
     Map<?, ?> source = context.getSource();
     Map<Object, Object> destination = context.getDestination() == null ? createDestination(context)

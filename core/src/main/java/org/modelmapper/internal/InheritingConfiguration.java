@@ -36,10 +36,12 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Inheritable mapping configuration implementation.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class InheritingConfiguration implements Configuration {
+  private static final long serialVersionUID = -6342519900197236615L;
+
   private final Configuration parent;
   public final TypeMapStore typeMapStore;
   public final ConverterStore converterStore;
@@ -312,4 +314,5 @@ public class InheritingConfiguration implements Configuration {
     sourceNamingConvention = Assert.notNull(namingConvention);
     return this;
   }
+
 }

@@ -26,6 +26,9 @@ import org.modelmapper.spi.SourceMapping;
  * @author Jonathan Halterman
  */
 class SourceMappingImpl extends MappingImpl implements SourceMapping {
+
+  private static final long serialVersionUID = 3740688058972292609L;
+
   private final Class<?> sourceType;
 
   /**

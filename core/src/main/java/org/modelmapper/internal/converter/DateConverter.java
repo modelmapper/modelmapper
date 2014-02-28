@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +29,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts:
- * 
+ *
  * <ul>
  * <li>Date (and subclasses)</li>
  * <li>Calendar (and subclasses)</li>
@@ -36,19 +37,22 @@ import org.modelmapper.spi.MappingContext;
  * <li>Long</li>
  * <li>String</li>
  * </ul>
- * 
+ *
  * instances to destination instances of:
- * 
+ *
  * <ul>
  * <li>java.util.Date</li>
  * <li>java.sql.Date</li>
  * <li>java.sql.Time</li>
  * <li>java.sql.Timestamp</li>
  * </ul>
- * 
+ *
  * @author Jonathan Halterman
  */
 class DateConverter implements ConditionalConverter<Object, Date> {
+
+  private static final long serialVersionUID = -1692284492442294737L;
+
   public Date convert(MappingContext<Object, Date> context) {
     Object source = context.getSource();
     Class<?> destinationType = context.getDestinationType();

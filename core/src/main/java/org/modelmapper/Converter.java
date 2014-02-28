@@ -15,21 +15,23 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
+
 import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts instances of source type {@code S} to instances of destination type {@code D}.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
-public abstract interface Converter<S, D> {
+public abstract interface Converter<S, D> extends Serializable {
   /**
    * Converts the {@link MappingContext#getSource()} to an instance of
    * {@link MappingContext#getDestinationType()}.
-   * 
+   *
    * @param context of current mapping process
    * @throws MappingException if an error occurs while converting
    */

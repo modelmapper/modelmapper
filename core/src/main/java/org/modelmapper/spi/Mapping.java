@@ -15,6 +15,7 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.Condition;
@@ -23,20 +24,20 @@ import org.modelmapper.Provider;
 
 /**
  * Mapping to a destination property hierarchy.
- * 
+ *
  * @author Jonathan Halterman
  */
-public interface Mapping {
+public interface Mapping extends Serializable {
   /**
    * Gets the condition that to be satisfied before this mapping can be used to perform a mapping.
-   * 
+   *
    * @return condition, else null if none was configured
    */
   Condition<?, ?> getCondition();
 
   /**
    * Gets the Converter to be used when performing a mapping.
-   * 
+   *
    * @return converter, else null if none was configured
    */
   Converter<?, ?> getConverter();
@@ -53,7 +54,7 @@ public interface Mapping {
 
   /**
    * Gets the Provider to use for providing instances of the first destination type.
-   * 
+   *
    * @return converter, else null if none was configured
    */
   Provider<?> getProvider();

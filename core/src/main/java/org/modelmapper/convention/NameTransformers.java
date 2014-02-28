@@ -15,21 +15,28 @@
  */
 package org.modelmapper.convention;
 
+import java.io.Serializable;
+
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NameableType;
 
 /**
  * {@link NameTransformer} implementations.
- * 
+ *
  * @author Jonathan Halterman
  */
-public class NameTransformers {
+public class NameTransformers implements Serializable {
+
+  private static final long serialVersionUID = -6254940631728717493L;
+
   /**
    * Transforms accessor names to their simple property name according to the JavaBeans convention.
    * Class and field names are unchanged.
    */
   public static final NameTransformer JAVABEANS_ACCESSOR = new NameTransformer() {
+    private static final long serialVersionUID = 6253271035420275874L;
+
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType)) {
         if (name.startsWith("get") && name.length() > 3)
@@ -52,6 +59,8 @@ public class NameTransformers {
    * Class and field names are unchanged.
    */
   public static final NameTransformer JAVABEANS_MUTATOR = new NameTransformer() {
+    private static final long serialVersionUID = -1737862139571048813L;
+
     public String transform(String name, NameableType nameableType) {
       if (NameableType.METHOD.equals(nameableType) && name.startsWith("set") && name.length() > 3)
         return Strings.decapitalize(name.substring(3));

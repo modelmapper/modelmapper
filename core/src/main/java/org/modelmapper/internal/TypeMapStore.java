@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -27,10 +28,13 @@ import org.modelmapper.TypeMap;
 /**
  * @author Jonathan Halterman
  */
-public final class TypeMapStore {
-  private final Map<TypePair<?, ?>, TypeMap<?, ?>> typeMaps = new ConcurrentHashMap<TypePair<?, ?>, TypeMap<?, ?>>();
-  private final Map<TypePair<?, ?>, TypeMap<?, ?>> immutableTypeMaps = Collections.unmodifiableMap(typeMaps);
-  private final Object lock = new Object();
+public final class TypeMapStore implements Serializable {
+
+  private static final long serialVersionUID = 1850889742083147101L;
+
+  private Map<TypePair<?, ?>, TypeMap<?, ?>> typeMaps = new ConcurrentHashMap<TypePair<?, ?>, TypeMap<?, ?>>();
+  private Map<TypePair<?, ?>, TypeMap<?, ?>> immutableTypeMaps = Collections.unmodifiableMap(typeMaps);
+  private final SerializableObject lock = new SerializableObject();
   /** Default configuration */
   private final InheritingConfiguration config;
 
@@ -83,7 +87,7 @@ public final class TypeMapStore {
   /**
    * Gets or creates a TypeMap. If {@code converter} is null, the TypeMap is configured with
    * implicit mappings, else the {@code converter} is set against the TypeMap.
-   * 
+   *
    * @param propertyMap to add mappings for (nullable)
    * @param converter to set (nullable)
    */
@@ -114,4 +118,5 @@ public final class TypeMapStore {
       return typeMap;
     }
   }
+
 }

@@ -22,6 +22,9 @@ import org.modelmapper.Provider.ProvisionRequest;
  * @author Jonathan Halterman
  */
 class ProvisionRequestImpl<T extends Object> implements ProvisionRequest<T> {
+
+  private static final long serialVersionUID = 8668480606912604766L;
+
   private final Object source;
   private final Class<T> requestedType;
 

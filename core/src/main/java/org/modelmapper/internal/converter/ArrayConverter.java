@@ -25,10 +25,13 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts {@link Collection} and array instances to array instances.
- * 
+ *
  * @author Jonathan Halterman
  */
 class ArrayConverter extends IterableConverter<Object, Object> {
+
+  private static final long serialVersionUID = 4583534922269152627L;
+
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Iterables.isIterable(sourceType) && destinationType.isArray() ? MatchResult.FULL
         : MatchResult.NONE;

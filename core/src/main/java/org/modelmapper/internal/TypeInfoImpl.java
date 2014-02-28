@@ -22,10 +22,13 @@ import org.modelmapper.spi.NameableType;
 
 /**
  * A TypeInfo implementation that lazily reflects members.
- * 
+ *
  * @author Jonathan Halterman
  */
 class TypeInfoImpl<T> implements TypeInfo<T> {
+
+  private static final long serialVersionUID = 1831935265059461025L;
+
   /** Source object from which memberNames are read. */
   private final T source;
   private final Class<T> type;

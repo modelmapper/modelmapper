@@ -15,16 +15,17 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * LIFO Stack semantics around an ArrayList for random access support. Indexed access via
  * {@link #get(int)} and iteration via {@link #iterator()} is in reverse order (FIFO). Not
  * threadsafe.
- * 
+ *
  * @author Jonathan Halterman
  */
-public class Stack<T> extends ArrayList<T> {
+public class Stack<T> extends ArrayList<T> implements Serializable {
   private static final long serialVersionUID = 0L;
 
   /**

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,12 +34,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.modelmapper.internal.SerializableMethod;
+
 /**
  * Utilities for working with types.
- * 
+ *
  * @author Jonathan Halterman
  */
-public final class Types {
+public final class Types implements Serializable {
+
+  private static final long serialVersionUID = -8717624124573642983L;
+
   private static Class<?> JAVASSIST_PROXY_FACTORY_CLASS;
   private static Method JAVASSIST_IS_PROXY_CLASS_METHOD;
   private static Map<Class<?>, Object[]> defaultConstructionArgs;
@@ -62,7 +68,7 @@ public final class Types {
   /**
    * Constructs the {@code type} via a non-private default constructor, a pre-defined constructor,
    * or the constructor with the least non-primitive parameter types.
-   * 
+   *
    * @param type to construct
    * @param lookupType used to lookup pre-defined constructor parameter types and arguments for
    *          types that are difficult to construct generically
@@ -153,7 +159,7 @@ public final class Types {
 
   /**
    * Gets the method for the given parameters.
-   * 
+   *
    * @throws RuntimeException on error
    */
   public static Method methodFor(Class<?> type, String name, Class<?>... parameterTypes) {
@@ -167,7 +173,7 @@ public final class Types {
   /**
    * Returns the raw type for the {@code type}. If {@code type} is a TypeVariable or a WildcardType
    * then the first upper bound is returned. is returned.
-   * 
+   *
    * @throws IllegalArgumentException if {@code type} is not a Class, ParameterizedType,
    *           GenericArrayType, TypeVariable or WildcardType.
    */
@@ -193,7 +199,7 @@ public final class Types {
    * Returns a simplified String representation of the {@code member}.
    */
   public static String toString(Member member) {
-    if (member instanceof Method) {
+    if (member instanceof Method || member instanceof SerializableMethod) {
       return member.getDeclaringClass().getName() + "." + member.getName() + "()";
     } else if (member instanceof Field) {
       return member.getDeclaringClass().getName() + "." + member.getName();

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,13 +40,16 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * Builds and populates implicit property mappings for a TypeMap.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
-class ImplicitMappingBuilder<S, D> {
+class ImplicitMappingBuilder<S, D> implements Serializable {
+
+  private static final long serialVersionUID = 4038354411821447748L;
+
   private final TypeMapImpl<S, D> typeMap;
   private final TypeInfo<S> sourceTypeInfo;
   private final TypeMapStore typeMapStore;
@@ -227,7 +231,7 @@ class ImplicitMappingBuilder<S, D> {
    * closely match the destination. Match closeness is calculated as the total number of matched
    * source to destination tokens / the total number of source and destination tokens. Currently
    * this algorithm does not consider class name tokens.
-   * 
+   *
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
   PropertyMappingImpl disambiguateMappings() {

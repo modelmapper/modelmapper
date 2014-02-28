@@ -15,10 +15,15 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
+
 /**
  * @author Jonathan Halterman
  */
-class TypePair<S, D> {
+class TypePair<S, D> implements Serializable {
+
+  private static final long serialVersionUID = 954888646204189911L;
+
   private final Class<S> sourceType;
   private final Class<D> destinationType;
   private final String name;
@@ -75,8 +80,8 @@ class TypePair<S, D> {
   private int computeHashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + sourceType.hashCode();
-    result = prime * result + destinationType.hashCode();
+    result = prime * result + sourceType.toString().hashCode();
+    result = prime * result + destinationType.toString().hashCode();
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     return result;
   }

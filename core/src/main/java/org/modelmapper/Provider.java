@@ -15,18 +15,20 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
+
 /**
  * Provides instances of type {@code T}.
- * 
+ *
  * @param <T> type to provide
- * 
+ *
  * @author Jonathan Halterman
  */
-public interface Provider<T> {
+public interface Provider<T> extends Serializable {
   /**
    * Contains provision request information.
    */
-  public interface ProvisionRequest<T> {
+  public interface ProvisionRequest<T> extends Serializable {
     /**
      * Returns the type being requested.
      */
@@ -39,7 +41,7 @@ public interface Provider<T> {
   /**
    * Returns an instance of the requested type {@code T} else {@code null} if the requested type
    * cannot be provided. If {@code null} is returned ModelMapper will construct the requested type.
-   * 
+   *
    * @param request information
    * @throws MappingException if an error occurs while providing the requested type
    */

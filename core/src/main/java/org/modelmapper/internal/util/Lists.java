@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +25,10 @@ import java.util.Set;
 /**
  * @author Jonathan Halterman
  */
-public final class Lists {
+public final class Lists implements Serializable {
+
+  private static final long serialVersionUID = 3245308324601567506L;
+
   private Lists() {
   }
 

@@ -17,12 +17,15 @@ package org.modelmapper;
 
 /**
  * Provider support class. Allows for simpler Provider implementations.
- * 
+ *
  * @param <T> type to provide
- * 
+ *
  * @author Jonathan Halterman
  */
 public abstract class AbstractProvider<T> implements Provider<T> {
+
+  private static final long serialVersionUID = 7834406209578944622L;
+
   /**
    * Delegates provisioning to {@link #get()}.
    */
