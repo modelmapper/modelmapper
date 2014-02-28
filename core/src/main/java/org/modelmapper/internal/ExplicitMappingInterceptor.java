@@ -24,8 +24,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 /**
- * Intercepts invocations against mappable types that occur during explicit
- * mapping creation.
+ * Intercepts invocations against mappable types that occur during explicit mapping creation.
  *
  * @author Jonathan Halterman
  */

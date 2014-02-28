@@ -12,6 +12,11 @@ import java.util.List;
 
 import org.modelmapper.internal.util.Types;
 
+/**
+ *
+ * @author Ruben Romero
+ *
+ */
 public class SerializableMethod implements Member, Serializable {
 
   private static final long serialVersionUID = -2893086935392387994L;
