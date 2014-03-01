@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Identifies source to destination property matches by comparing source and destination type, property
  * and property type names.
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface MatchingStrategy extends Serializable {
@@ -66,7 +66,7 @@ public interface MatchingStrategy extends Serializable {
    * ambiguous with any other source and destination properties in the object graph. If false,
    * ModelMapper will search the object graph for duplicate matches for each destination property
    * hierarchy.
-   *
+   * 
    * @return true if the matching strategy determines exact matches else false
    */
   boolean isExact();
@@ -74,7 +74,7 @@ public interface MatchingStrategy extends Serializable {
   /**
    * Determines whether the data contained in the {@code propertyNameInfo} represents a source to
    * destination match.
-   *
+   * 
    * @param propertyNameInfo to match against
    * @return true if the {@code propertyNameInfo} represents a match else false
    */

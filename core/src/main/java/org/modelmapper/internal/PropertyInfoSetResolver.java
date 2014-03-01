@@ -34,7 +34,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Resolves sets of PropertyInfo for a type's accessors or mutators.
- *
+ * 
  * @author Jonathan Halterman
  */
 final class PropertyInfoSetResolver<T> implements Serializable {

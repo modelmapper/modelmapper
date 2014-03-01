@@ -25,7 +25,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts {@link Collection} and array instances to array instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 class ArrayConverter extends IterableConverter<Object, Object> {

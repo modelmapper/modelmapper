@@ -34,7 +34,7 @@ import org.modelmapper.spi.MappingEngine;
 /**
  * MappingContext implementation that caches destination values for an object graph by their
  * corresponding Mutator.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class MappingContextImpl<S, D> implements MappingContext<S, D>, ProvisionRequest<D> {
@@ -88,7 +88,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   /**
    * Create derived MappingContext.
-   *
+   * 
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,

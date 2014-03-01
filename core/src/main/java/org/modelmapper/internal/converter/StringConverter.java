@@ -20,7 +20,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts to {@link String} instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 class StringConverter implements ConditionalConverter<Object, String> {

@@ -20,7 +20,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts {@link Enum} instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 class EnumConverter implements ConditionalConverter<Object, Enum<?>> {

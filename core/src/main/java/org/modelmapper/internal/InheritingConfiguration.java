@@ -36,7 +36,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Inheritable mapping configuration implementation.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class InheritingConfiguration implements Configuration {
@@ -314,5 +314,4 @@ public class InheritingConfiguration implements Configuration {
     sourceNamingConvention = Assert.notNull(namingConvention);
     return this;
   }
-
 }

@@ -33,7 +33,7 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * TypeMap implementation.
- *
+ * 
  * @author Jonathan Halterman
  */
 class TypeMapImpl<S, D> implements TypeMap<S, D> {

@@ -32,7 +32,7 @@ import org.modelmapper.spi.PropertyMapping;
 
 /**
  * Converts {@link Collection} and array instances to {@link Collection} instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 class CollectionConverter extends IterableConverter<Object, Collection<Object>> {

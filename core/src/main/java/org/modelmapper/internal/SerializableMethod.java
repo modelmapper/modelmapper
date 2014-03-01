@@ -13,9 +13,7 @@ import java.util.List;
 import org.modelmapper.internal.util.Types;
 
 /**
- *
  * @author Ruben Romero
- *
  */
 public class SerializableMethod implements Member, Serializable {
 

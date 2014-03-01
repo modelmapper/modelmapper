@@ -29,21 +29,21 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts:
- *
+ * 
  * <ul>
  * <li>Date (and subclasses)</li>
  * <li>Calendar (and subclasses)</li>
  * <li>XMLGregorianCalendar</li>
  * <li>Long</li>
  * </ul>
- *
+ * 
  * instances to destination instances of:
- *
+ * 
  * <ul>
  * <li>java.util.Calendar</li>
  * <li>javax.xml.datatype.XMLGregorianCalendar</li>
  * </ul>
- *
+ * 
  * @author Jonathan Halterman
  */
 class CalendarConverter implements ConditionalConverter<Object, Object> {

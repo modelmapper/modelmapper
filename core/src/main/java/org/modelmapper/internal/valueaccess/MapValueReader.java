@@ -22,7 +22,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Handles reading from java.util.Map instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class MapValueReader implements ValueReader<Map<String, Object>> {

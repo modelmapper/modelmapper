@@ -21,7 +21,7 @@ import org.modelmapper.spi.MatchingStrategy;
 
 /**
  * See {@link MatchingStrategies#STRICT}.
- *
+ * 
  * @author Jonathan Halterman
  */
 final class StrictMatchingStrategy implements MatchingStrategy {

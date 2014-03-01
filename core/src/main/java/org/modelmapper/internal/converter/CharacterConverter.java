@@ -20,7 +20,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts to {@link Character} instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 class CharacterConverter implements ConditionalConverter<Object, Character> {

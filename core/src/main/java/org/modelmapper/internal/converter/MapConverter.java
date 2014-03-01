@@ -29,7 +29,7 @@ import org.modelmapper.spi.PropertyMapping;
 
 /**
  * Converts {@link Map} instances to each other.
- *
+ * 
  * @author Jonathan Halterman
  */
 class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object>> {

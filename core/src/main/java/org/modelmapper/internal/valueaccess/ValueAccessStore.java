@@ -28,7 +28,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Store for ValueReaders and ValueWriters.
- *
+ * 
  * @author Jonathan Halterman
  */
 public final class ValueAccessStore implements Serializable {

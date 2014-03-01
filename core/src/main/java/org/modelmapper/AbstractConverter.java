@@ -19,10 +19,10 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converter support class. Allows for simpler Converter implementations.
- *
+ * 
  * @param <S> source type
  * @param <D> destination type
- *
+ * 
  * @author Jonathan Halterman
  */
 public abstract class AbstractConverter<S, D> implements Converter<S, D> {

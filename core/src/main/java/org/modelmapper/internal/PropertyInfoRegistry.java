@@ -31,7 +31,7 @@ import org.modelmapper.spi.PropertyInfo;
  * Statically stores and retrieves MemberInfo by member and configuration. This registry is designed
  * to return a distinct PropertyInfo instance for each initial type, member and configuration object
  * set.
- *
+ * 
  * @author Jonathan Halterman
  */
 class PropertyInfoRegistry implements Serializable {

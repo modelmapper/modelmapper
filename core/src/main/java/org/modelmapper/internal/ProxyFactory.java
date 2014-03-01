@@ -31,7 +31,7 @@ import org.modelmapper.internal.util.Types;
 
 /**
  * Produces proxied instances of mappable types that participate in mapping creation.
- *
+ * 
  * @author Jonathan Halterman
  */
 class ProxyFactory implements Serializable {

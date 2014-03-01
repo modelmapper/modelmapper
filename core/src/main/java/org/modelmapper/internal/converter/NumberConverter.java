@@ -27,7 +27,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts:
- *
+ * 
  * <ul>
  * <li>Number</li>
  * <li>Boolean</li>
@@ -36,9 +36,9 @@ import org.modelmapper.spi.MappingContext;
  * <li>String</li>
  * <li>Object</li>
  * </ul>
- *
+ * 
  * instances to instances of:
- *
+ * 
  * <ul>
  * <li>Byte</li>
  * <li>Short</li>
@@ -49,7 +49,7 @@ import org.modelmapper.spi.MappingContext;
  * <li>BigDecimal</li>
  * <li>BigInteger</li>
  * </ul>
- *
+ * 
  * @author Jonathan Halterman
  */
 class NumberConverter implements ConditionalConverter<Object, Number> {

@@ -21,7 +21,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts to {@link Boolean} instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 class BooleanConverter implements ConditionalConverter<Object, Boolean> {

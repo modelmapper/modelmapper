@@ -40,7 +40,7 @@ import org.modelmapper.spi.SourceMapping;
 /**
  * MappingEngine implementation that caches ConditionalConverters by source and destination type
  * pairs.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class MappingEngineImpl implements MappingEngine {

@@ -26,7 +26,7 @@ import org.modelmapper.spi.MappingContext;
 /**
  * Support class for converting Iterable and psuedo-Iterable (array) instances. Implementors must
  * support source and destination types that are Iterable or array instances.
- *
+ * 
  * @author Jonathan Halterman
  */
 abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
@@ -63,7 +63,7 @@ abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
 
   /**
    * Gets the contained element type for the {@code type} and nullable {@code genericType}.
-   *
+   * 
    * @param type to retrieve element type for
    * @param genericType to retrieve element type for - maybe be null
    */

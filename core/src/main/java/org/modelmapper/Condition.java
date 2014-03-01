@@ -21,16 +21,16 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Condition that must apply in order for mapping to occur.
- *
+ * 
  * @param <S> source type
  * @param <D> destination type
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface Condition<S, D> extends Serializable {
   /**
    * Specifies whether the condition applies to the {@code context}.
-   *
+   * 
    * @param context of current mapping process
    */
   boolean applies(MappingContext<S, D> context);

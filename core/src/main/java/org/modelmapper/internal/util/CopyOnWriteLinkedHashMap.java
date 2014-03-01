@@ -9,11 +9,11 @@ import java.util.Set;
 /**
  * A thread-safe {@link LinkedHashMap} which creates a copy of the underlying map on write
  * operations.
- *
+ * 
  * <p>
  * Read operations, including iteration, do not interfere with writes since the underlying map is
  * never modified.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class CopyOnWriteLinkedHashMap<K, V> implements Map<K, V>, Serializable {

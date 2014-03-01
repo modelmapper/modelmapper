@@ -64,5 +64,4 @@ public class DisambiguationTest4 extends AbstractTest {
 
     assertEquals(d.value, "def");
   }
-
 }

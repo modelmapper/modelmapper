@@ -18,7 +18,7 @@ package org.modelmapper.spi;
 
 /**
  * Nameable types.
- *
+ * 
  * @author Jonathan Halterman
  */
 public enum NameableType {

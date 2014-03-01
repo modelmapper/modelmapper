@@ -19,9 +19,9 @@ import java.io.Serializable;
 
 /**
  * Provides instances of type {@code T}.
- *
+ * 
  * @param <T> type to provide
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface Provider<T> extends Serializable {
@@ -41,7 +41,7 @@ public interface Provider<T> extends Serializable {
   /**
    * Returns an instance of the requested type {@code T} else {@code null} if the requested type
    * cannot be provided. If {@code null} is returned ModelMapper will construct the requested type.
-   *
+   * 
    * @param request information
    * @throws MappingException if an error occurs while providing the requested type
    */

@@ -37,7 +37,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Builds explicit property mappings.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
@@ -59,7 +59,8 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private boolean destinationRequested;
 
   static {
-    PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure", ExplicitMappingBuilder.class);
+    PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure", 
+        ExplicitMappingBuilder.class);
     PROPERTY_MAP_CONFIGURE.setAccessible(true);
   }
 
@@ -155,7 +156,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
 
   /**
    * Builds and returns all property mappings defined in the {@code propertyMap}.
-   *
+   * 
    * @return map of destination property names to mappings
    */
   Collection<MappingImpl> build(PropertyMap<S, D> propertyMap) {

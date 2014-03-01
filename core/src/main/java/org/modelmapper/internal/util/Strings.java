@@ -75,7 +75,7 @@ public final class Strings implements Serializable {
    * characters are upper case, we leave it alone.
    * <p>
    * Thus "FooBah" becomes "fooBah" and "X" becomes "x", but "URL" stays as "URL".
-   *
+   * 
    * @param name The string to be decapitalized.
    * @return The decapitalized version of the string.
    */

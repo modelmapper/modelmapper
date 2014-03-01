@@ -26,9 +26,9 @@ import org.modelmapper.spi.PropertyInfo;
 /**
  * Tracks progress while intercepting a mapping's method invocation chain. Friend of
  * ExplicitMappingBuilder.
- *
+ * 
  * @param <T> PropertyInfo type
- *
+ * 
  * @author Jonathan Halterman
  */
 abstract class ExplicitMappingProgress<T extends PropertyInfo> implements Serializable {

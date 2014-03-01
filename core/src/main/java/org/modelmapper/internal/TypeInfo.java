@@ -23,9 +23,9 @@ import org.modelmapper.config.Configuration;
 /**
  * Contains type information for a particular type and
  * {@link org.modelmapper.config.Configuration}.
- *
+ * 
  * @param <T> type providing information for
- *
+ * 
  * @author Jonathan Halterman
  */
 interface TypeInfo<T> extends Serializable {

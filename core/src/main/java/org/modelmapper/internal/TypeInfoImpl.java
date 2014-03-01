@@ -22,7 +22,7 @@ import org.modelmapper.spi.NameableType;
 
 /**
  * A TypeInfo implementation that lazily reflects members.
- *
+ * 
  * @author Jonathan Halterman
  */
 class TypeInfoImpl<T> implements TypeInfo<T> {

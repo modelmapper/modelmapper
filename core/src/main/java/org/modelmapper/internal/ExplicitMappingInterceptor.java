@@ -25,7 +25,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * Intercepts invocations against mappable types that occur during explicit mapping creation.
- *
+ * 
  * @author Jonathan Halterman
  */
 final class ExplicitMappingInterceptor implements MethodInterceptor, Serializable {
@@ -38,9 +38,11 @@ final class ExplicitMappingInterceptor implements MethodInterceptor, Serializabl
     this.mappingProgress = mappingProgress;
   }
 
-  public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+  public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) 
+      throws Throwable {
     mappingProgress.encountered(Types.deProxy(obj.getClass()), method, args);
 
-    return method.getReturnType() == void.class ? null : ProxyFactory.proxyFor(method.getReturnType(), mappingProgress);
+    return method.getReturnType() == void.class ? null : ProxyFactory.proxyFor(
+        method.getReturnType(), mappingProgress);
   }
 }

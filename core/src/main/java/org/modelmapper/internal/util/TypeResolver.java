@@ -30,7 +30,7 @@ import java.util.WeakHashMap;
 
 /**
  * Enhanced type resolution utilities. Based on org.springframework.core.GenericTypeResolver.
- *
+ * 
  * @author Jonathan Halterman
  */
 public final class TypeResolver implements Serializable {
@@ -53,7 +53,7 @@ public final class TypeResolver implements Serializable {
    * Returns the raw class representing the type argument for the {@code targetType} resolved
    * upwards from the {@code initialType}. If no arguments can be resolved then
    * {@code Unknown.class} is returned.
-   *
+   * 
    * @param initialType to resolve upwards from
    * @param targetType to resolve arguments for
    * @return type argument for {@code initialType} else {@code null} if no type arguments are
@@ -69,7 +69,7 @@ public final class TypeResolver implements Serializable {
    * Resolves the type argument for the {@code genericType} using type variable information from the
    * {@code sourceType}. If {@code genericType} is an instance of class, then {@code genericType} is
    * returned. If no arguments can be resolved then {@code Unknown.class} is returned.
-   *
+   * 
    * @param genericType to resolve upwards from
    * @param targetType to resolve arguments for
    * @return type argument for {@code initialType} else {@code null} if no type arguments are
@@ -94,7 +94,7 @@ public final class TypeResolver implements Serializable {
    * upwards from the {@code initialType}. Arguments for {@code targetType} that cannot be resolved
    * to a Class are returned as {@code Unknown.class}. If no arguments can be resolved then
    * {@code null} is returned.
-   *
+   * 
    * @param initialType to resolve upwards from
    * @param targetType to resolve arguments for
    * @return array of raw classes representing type arguments for {@code initialType} else
@@ -250,7 +250,7 @@ public final class TypeResolver implements Serializable {
         if(owner instanceof ParameterizedType)
           buildTypeVariableMap((ParameterizedType) owner, typeVariableMap);
       }
-
+      
       for (int i = 0; i < typeArguments.length; i++) {
         TypeVariable<?> variable = typeVariables[i];
         Type typeArgument = typeArguments[i];

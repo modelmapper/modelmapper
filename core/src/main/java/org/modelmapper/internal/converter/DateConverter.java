@@ -29,7 +29,7 @@ import org.modelmapper.spi.MappingContext;
 
 /**
  * Converts:
- *
+ * 
  * <ul>
  * <li>Date (and subclasses)</li>
  * <li>Calendar (and subclasses)</li>
@@ -37,16 +37,16 @@ import org.modelmapper.spi.MappingContext;
  * <li>Long</li>
  * <li>String</li>
  * </ul>
- *
+ * 
  * instances to destination instances of:
- *
+ * 
  * <ul>
  * <li>java.util.Date</li>
  * <li>java.sql.Date</li>
  * <li>java.sql.Time</li>
  * <li>java.sql.Timestamp</li>
  * </ul>
- *
+ * 
  * @author Jonathan Halterman
  */
 class DateConverter implements ConditionalConverter<Object, Date> {

@@ -23,7 +23,7 @@ import org.modelmapper.spi.MappingContext;
 /**
  * {@link Condition} utilities and implementations. This class can be extended by a PropertyMap to
  * provide convenient access to methods.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class Conditions implements Serializable {
@@ -149,7 +149,7 @@ public class Conditions implements Serializable {
 
   /**
    * Returns a new condition that applies if {@code condition1} AND {@code condition2} apply.
-   *
+   * 
    * @return new condition
    * @throws IllegalArgumentException if {@code condition1} or {@code condition2} is null
    */
@@ -189,7 +189,7 @@ public class Conditions implements Serializable {
 
   /**
    * Returns a condition that does NOT apply when the given {@code condition} applies.
-   *
+   * 
    * @throws IllegalArgumentException if {@code condition} is null
    */
   public static <S, D> Condition<S, D> not(Condition<S, D> condition) {
@@ -199,7 +199,7 @@ public class Conditions implements Serializable {
 
   /**
    * Returns a new condition that applies if {@code condition1} OR {@code condition2} apply.
-   *
+   * 
    * @return new condition
    * @throws IllegalArgumentException if {@code condition1} or {@code condition2} is null
    */

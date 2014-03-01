@@ -26,10 +26,10 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * Resolves PropertyInfo for individual members.
- *
+ * 
  * @param <M> property type
  * @param <PI> property info type
- *
+ * 
  * @author Jonathan Halterman
  */
 interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> extends Serializable {

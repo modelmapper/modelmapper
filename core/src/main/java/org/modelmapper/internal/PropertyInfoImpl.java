@@ -29,14 +29,14 @@ import org.modelmapper.spi.ValueReader;
 /**
  * Abstract PropertyInfo implementation that provides {@link #equals(Object)} and
  * {@link #hashCode()} operations based on the property name.
- *
+ * 
  * @author Jonathan Halterman
  */
 abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
 
   private static final long serialVersionUID = -265367109429463747L;
-
   protected final Class<?> initialType;
+  
   protected final M member;
   protected final Class<?> type;
   protected final String name;
@@ -221,5 +221,4 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   public String toString() {
     return member == null ? name : member.getDeclaringClass().getSimpleName() + "." + name;
   }
-
 }

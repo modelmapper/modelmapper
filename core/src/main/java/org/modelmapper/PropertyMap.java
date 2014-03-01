@@ -171,7 +171,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
 
   /**
    * Creates a new PropertyMap for the source and destination types {@code S} and {@code D}.
-   *
+   * 
    * @throws IllegalArgumentException if {@code S} and {@code D} are not declared
    */
   @SuppressWarnings("unchecked")
@@ -198,7 +198,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
 
   /**
    * Defines a mapping to a destination. See the <a href="#0">EDSL examples</a>.
-   *
+   * 
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
@@ -210,7 +210,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
   /**
    * Defines a mapping from the {@code source} to a destination. See the See the <a href="#0">EDSL
    * examples</a>.
-   *
+   * 
    * @param source to map from
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
@@ -223,7 +223,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
   /**
    * Specifies that mapping for the destination property be skipped during the mapping process. See
    * the <a href="#3">EDSL examples</a>.
-   *
+   * 
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
@@ -235,7 +235,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
   /**
    * Used for mapping a {@code sourcePropertyPath} to a destination. See the <a href="#7">EDSL
    * examples</a>.
-   *
+   * 
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
@@ -248,7 +248,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
    * Specifies the {@code converter} to use for converting to the destination property hierarchy.
    * When used with deep mapping the {@code converter} should convert to an instance of the
    * <b>last</b> destination property. See the <a href="#4">EDSL examples</a>.
-   *
+   * 
    * @param converter to use when mapping the property
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
@@ -261,7 +261,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
   /**
    * Specifies the {@code condition} that must apply in order for mapping to take place for a
    * particular destination property hierarchy. See the <a href="#5">EDSL examples</a>.
-   *
+   * 
    * @param condition that must apply when mapping the property
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
@@ -275,7 +275,7 @@ public abstract class PropertyMap<S, D> implements Serializable {
    * Specifies a provider to be used for providing instances of the mapped property. When used with
    * deep mapping the {@code provider} should provide an instance of the <b>last</b> destination
    * property. See the <a href="#6">EDSL examples</a>.
-   *
+   * 
    * @param provider to use for providing the destination property
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.

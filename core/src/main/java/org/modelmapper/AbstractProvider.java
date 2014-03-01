@@ -17,9 +17,9 @@ package org.modelmapper;
 
 /**
  * Provider support class. Allows for simpler Provider implementations.
- *
+ * 
  * @param <T> type to provide
- *
+ * 
  * @author Jonathan Halterman
  */
 public abstract class AbstractProvider<T> implements Provider<T> {

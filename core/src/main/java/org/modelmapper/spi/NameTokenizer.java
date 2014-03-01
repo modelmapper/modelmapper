@@ -19,13 +19,13 @@ import java.io.Serializable;
 
 /**
  * Tokenizes property and class names prior to matching.
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface NameTokenizer extends Serializable {
   /**
    * Tokenizes the {@code name} for the given {@code nameableType}.
-   *
+   * 
    * @param name to tokenize
    * @param nameableType to tokenize name for
    */

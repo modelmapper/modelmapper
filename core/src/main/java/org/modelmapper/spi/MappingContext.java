@@ -23,14 +23,14 @@ import org.modelmapper.TypeMap;
 /**
  * Maintains context during the mapping of a source object of type {@code S} to a destination object
  * of type {@code D}.
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface MappingContext<S, D> extends Serializable {
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destination} which
    * inherits all other information from the this MappingContext.
-   *
+   * 
    * @param <CS> child source type
    * @param <CD> child destination type
    * @param source to map from
@@ -43,7 +43,7 @@ public interface MappingContext<S, D> extends Serializable {
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destinationType} which
    * inherits all other information from the this MappingContext.
-   *
+   * 
    * @param <CS> child source type
    * @param <CD> child destination type
    * @param source to map from
@@ -56,7 +56,7 @@ public interface MappingContext<S, D> extends Serializable {
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destinationType} which
    * inherits all other information from the this MappingContext.
-   *
+   * 
    * @param <CS> child source type
    * @param <CD> child destination type
    * @param source to map from

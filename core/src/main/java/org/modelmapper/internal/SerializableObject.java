@@ -3,9 +3,7 @@ package org.modelmapper.internal;
 import java.io.Serializable;
 
 /**
- *
  * @author Ruben Romero
- *
  */
 public class SerializableObject implements Serializable {
 

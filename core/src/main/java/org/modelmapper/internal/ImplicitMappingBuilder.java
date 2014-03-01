@@ -40,10 +40,10 @@ import org.modelmapper.spi.PropertyInfo;
 
 /**
  * Builds and populates implicit property mappings for a TypeMap.
- *
+ * 
  * @param <S> source type
  * @param <D> destination type
- *
+ * 
  * @author Jonathan Halterman
  */
 class ImplicitMappingBuilder<S, D> implements Serializable {
@@ -231,7 +231,7 @@ class ImplicitMappingBuilder<S, D> implements Serializable {
    * closely match the destination. Match closeness is calculated as the total number of matched
    * source to destination tokens / the total number of source and destination tokens. Currently
    * this algorithm does not consider class name tokens.
-   *
+   * 
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
   PropertyMappingImpl disambiguateMappings() {

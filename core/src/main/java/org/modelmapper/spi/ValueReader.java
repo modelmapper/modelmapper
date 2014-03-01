@@ -20,14 +20,14 @@ import java.util.Collection;
 
 /**
  * Reads values from a source. Allows for integration with 3rd party libraries.
- *
+ * 
  * @param <T> source type
  * @author Jonathan Halterman
  */
 public interface ValueReader<T> extends Serializable {
   /**
    * Returns the value from the {@code source} object for the {@code memberName}.
-   *
+   * 
    * @throws IllegalArgumentException if the {@code memberName} is invalid for the {@code source}
    */
   Object get(T source, String memberName);

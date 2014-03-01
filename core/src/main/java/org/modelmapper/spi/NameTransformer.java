@@ -19,13 +19,13 @@ import java.io.Serializable;
 
 /**
  * Transforms eligible property and class names prior to matching.
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface NameTransformer extends Serializable {
   /**
    * Transforms the {@code name} for the given {@code nameableType}.
-   *
+   * 
    * @param name to transform
    * @param nameableType to transform name for
    */

@@ -24,7 +24,7 @@ import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 
 /**
  * Statically stores and retrieves TypeInfo instances by type, parent type, and configuration.
- *
+ * 
  * @author Jonathan Halterman
  */
 class TypeInfoRegistry implements Serializable {

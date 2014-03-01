@@ -24,7 +24,7 @@ import org.modelmapper.spi.ErrorMessage;
 
 /**
  * Thrown when invalid configuration is detected.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class ConfigurationException extends RuntimeException {

@@ -19,13 +19,13 @@ import java.io.Serializable;
 
 /**
  * Engine that performs mapping operations.
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface MappingEngine extends Serializable {
   /**
    * Maps an instance of type {@code D} for the {@code context}.
-   *
+   * 
    * @param <S> source type
    * @param <D> destination type
    * @param context to map for

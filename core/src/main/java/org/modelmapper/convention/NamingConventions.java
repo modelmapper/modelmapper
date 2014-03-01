@@ -22,7 +22,7 @@ import org.modelmapper.spi.PropertyType;
 
 /**
  * {@link NamingConvention} implementations.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class NamingConventions implements Serializable {

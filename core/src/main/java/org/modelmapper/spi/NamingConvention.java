@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 /**
  * Determines which properties are eligible for matching based on their name.
- *
+ * 
  * @author Jonathan Halterman
  */
 public interface NamingConvention extends Serializable {

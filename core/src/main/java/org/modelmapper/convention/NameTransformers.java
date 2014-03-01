@@ -23,7 +23,7 @@ import org.modelmapper.spi.NameableType;
 
 /**
  * {@link NameTransformer} implementations.
- *
+ * 
  * @author Jonathan Halterman
  */
 public class NameTransformers implements Serializable {

@@ -22,7 +22,7 @@ import org.modelmapper.spi.MatchingStrategy.PropertyNameInfo;
 
 /**
  * Performs inexact matching of property tokens.
- *
+ * 
  * @author Jonathan Halterman
  */
 class InexactMatcher implements Serializable {

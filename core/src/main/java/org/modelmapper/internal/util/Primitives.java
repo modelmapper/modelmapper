@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Utility methods for working with primitives.
- *
+ * 
  * @author Jonathan Halterman
  */
 public final class Primitives implements Serializable {
