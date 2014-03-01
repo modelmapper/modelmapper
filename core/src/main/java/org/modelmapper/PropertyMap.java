@@ -31,7 +31,7 @@ import org.modelmapper.internal.util.TypeResolver;
  * To create a PropertyMap simply extend {@code PropertyMap}, supplying type arguments to represent
  * the source type {@code <S>} and destination type {@code <D>}, then override the
  * {@link #configure()} method.
- *
+ * 
  * <pre>
  *   public class OrderMap extends PropertyMap&lt;Order, OrderDTO&gt;() {
  *     protected void configure() {
@@ -39,118 +39,118 @@ import org.modelmapper.internal.util.TypeResolver;
  *     }
  *   };
  * </pre>
- *
+ * 
  * <h2 id=0>Mapping EDSL</h2>
  * <p>
  * PropertyMap uses an Embedded Domain Specific Language (EDSL) to define how source and destination
  * methods and values map to each other. The Mapping EDSL allows you to define mappings using actual
  * code that references the source and destination properties you wish to map. Usage of the EDSL is
  * demonstrated in the examples below.
- *
+ * 
  * <h3 id=1>Mapping</h3>
  * <p>
  * This example maps the destination type's {@code setName} method to the source type's
  * {@code getFirstName} method.
- *
+ * 
  * <pre>    map().setName(source.getFirstName());</pre>
- *
+ * 
  * This example maps the destination type's {@code setEmployer} method to the constant
  * {@code "Initech"}.
- *
+ * 
  * <pre>    map().setEmployer(&quot;Initech&quot;);</pre>
- *
+ * 
  * Map statements can also be written to accept a source property, allowing mapping to a destination
  * whose type does not match the source property's type:
- *
+ * 
  * <pre>    map(source.getAge()).setAgeString(null);</pre>
- *
+ * 
  * Similar for constant values:
- *
+ * 
  * <pre>    map(21).setAgeString(null);</pre>
- *
+ * 
  * <b>Note</b>: Since the {@code setAgeString} method requires a value we simply pass in
  * {@code null} which is unused.
- *
+ * 
  * <h3 id=2>Deep mapping</h3>
  * <p>
  * This example Maps the destination type's {@code setAge} method to the source type's
  * {@code getCustomer().getAge()} method hierarchy, allowing deep mapping to occur between the
  * source and destination methods.
- *
+ * 
  * <pre>    map().setAge(source.getCustomer().getAge());</pre>
- *
+ * 
  * This example maps the destination type's {@code getCustomer().setName()} method hierarchy to the
  * source type's {@code getPerson().getFirstName()} method hierarchy.
- *
+ * 
  * <pre>    map().getCustomer().setName(source.getPerson().getFirstName());</pre>
- *
+ * 
  * <b>Note</b>: In order populate the destination object, deep mapping requires the
  * {@code getCustomer} method to have a corresponding mutator, such as a {@code setCustomer} method
  * or an {@link org.modelmapper.config.Configuration#setFieldAccessLevel(AccessLevel) accessible}
  * {@code customer} field.
- *
+ * 
  * <h3 id=3>Skipping properties</h3>
  * <p>
  * This example specifies that the destination type's {@code setName} method should be skipped
  * during the mapping process.
- *
+ * 
  * <pre>    skip().setName(null);</pre>
- *
+ * 
  * <b>Note</b>: Since the {@code setName} method is skipped the {@code null} value is unused.
- *
+ * 
  * <h3 id=4>Converters</h3>
  * <p>
  * This example specifies that the {@code toUppercase} {@link Converter} be used when mapping the
  * source type's {@code getName} method to the destination type's {@code setName} method:
- *
+ * 
  * <pre>    using(toUppercase).map().setName(source.getName());</pre>
- *
+ * 
  * This example specifies that the {@code personToNameConverter} {@link Converter} be used when
  * mapping the source <i>object</i> to the destination type's {@code setName} method:
- *
+ * 
  * <pre>    using(personToNameConverter).map(source).setName(null);</pre>
- *
+ * 
  * <b>Note</b>: Since a {@code source} object is given the {@code null} value passed to
  * {@code setName()} is unused.
- *
+ * 
  * <h3 id=5>Conditional mapping</h3>
  * <p>
  * This example specifies that the {@code isLocalAddress} {@link Condition} must apply in order for
  * mapping to occur between the the the source type's {@code getAddress} method and the destination
  * type's {@code setAddress} method. If the condition does not apply, mapping to the
  * {@code setAddress} method will be skipped.
- *
+ * 
  * <pre>    when(isLocalAddress).map().setAddress(source.getAddress());</pre>
- *
+ * 
  * This example specifies that the {@code Conditions.isNull} {@link Condition} must apply in order
  * for mapping to the destination type's {@code setAge} method to be <i>skipped</i>. If the
  * condition does not apply, mapping will occur from the the source type's {@code getAge} method.
- *
+ * 
  * <pre>    when(Conditions.isNull).skip().setAge(source.getAge());</pre>
- *
+ * 
  * <h3 id=6>Providers</h3>
  * <p>
  * This example specifies that the {@code nameProvider} {@link Provider} be used to provide
  * destination name instances when mapping the source type's {@code getName} method to the
  * destination type's {@code setName}.
- *
+ * 
  * <pre>    with(nameProvider).map().setName(source.getName());</pre>
- *
+ * 
  * <h3 id=7>String based mappings</h3>
  * <p>
  * As an alternative to mapping properties via their setters and getters, you can also map
  * properties using string references. While String based mappings are not refactoring-safe, they
  * allow flexibility when dealing with models that do not have getters or setters.
- *
+ * 
  * <pre>    map().getCustomer().setName(this.<String>source("person.name"));</pre>
- *
+ * 
  * Or alternatively:
- *
+ * 
  * <pre>    map(source("person.name")).getCustomer().setName(null);</pre>
- *
+ * 
  * @param <S> source type
  * @param <D> destination type
- *
+ * 
  * @author Jonathan Halterman
  */
 public abstract class PropertyMap<S, D> implements Serializable {
