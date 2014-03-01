@@ -59,7 +59,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private boolean destinationRequested;
 
   static {
-    PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure", 
+    PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure",
         ExplicitMappingBuilder.class);
     PROPERTY_MAP_CONFIGURE.setAccessible(true);
   }

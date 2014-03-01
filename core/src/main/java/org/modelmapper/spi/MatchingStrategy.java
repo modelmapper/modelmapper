@@ -49,12 +49,12 @@ public interface MatchingStrategy extends Serializable {
      * Returns the source properties.
      */
     List<PropertyInfo> getSourceProperties();
-
+    
     /**
      * Returns transformed name tokens for the source property.
      */
     List<String[]> getSourcePropertyTokens();
-
+    
     /**
      * Returns transformed name tokens for each source property type.
      */

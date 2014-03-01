@@ -15,7 +15,6 @@
  */
 package org.modelmapper.spi;
 
-
 /**
  * Property type.
  * 

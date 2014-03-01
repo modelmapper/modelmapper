@@ -41,7 +41,7 @@ final class ExplicitMappingInterceptor implements MethodInterceptor, Serializabl
   public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) 
       throws Throwable {
     mappingProgress.encountered(Types.deProxy(obj.getClass()), method, args);
-
+    
     return method.getReturnType() == void.class ? null : ProxyFactory.proxyFor(
         method.getReturnType(), mappingProgress);
   }

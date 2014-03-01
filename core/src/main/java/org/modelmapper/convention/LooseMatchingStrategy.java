@@ -33,7 +33,7 @@ final class LooseMatchingStrategy implements MatchingStrategy {
   }
 
   /**
-   * Since this strategy only requires matching the last source and destination properties, property 
+   * Since this strategy only requires matching the last source and destination properties, property
    * iteration is done in reverse.
    */
   static class Matcher extends InexactMatcher {
@@ -68,7 +68,7 @@ final class LooseMatchingStrategy implements MatchingStrategy {
     }
 
     /**
-     * Returns the number of {@code destTokens} that were matched to a source token starting at 
+     * Returns the number of {@code destTokens} that were matched to a source token starting at
      * {@code destStartIndex}.
      */
     int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
