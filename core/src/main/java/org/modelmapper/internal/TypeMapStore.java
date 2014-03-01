@@ -32,6 +32,10 @@ public final class TypeMapStore implements Serializable {
 
   private static final long serialVersionUID = 1850889742083147101L;
 
+  private class SerializableObject implements Serializable {
+    private static final long serialVersionUID = 1L;
+  }
+  
   private final Map<TypePair<?, ?>, TypeMap<?, ?>> typeMaps = new ConcurrentHashMap<TypePair<?, ?>, TypeMap<?, ?>>();
   private final Map<TypePair<?, ?>, TypeMap<?, ?>> immutableTypeMaps = Collections.unmodifiableMap(typeMaps);
   private final SerializableObject lock = new SerializableObject();

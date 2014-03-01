@@ -13,6 +13,15 @@ import java.util.List;
 import org.modelmapper.internal.util.Types;
 
 /**
+ * This class allows a method instance to be serialized overriding the
+ * {@link #readObject(ObjectInputStream)} and {@link #writeObject(ObjectOutputStream)} methods.
+ * When the method is deserialized, it's instantiated based on the method's info:
+ * <ul>
+ * <li>Declaring Class</li>
+ * <li>Method Name</li>
+ * <li>Parameter types</li>
+ * </ul>
+ * 
  * @author Ruben Romero
  */
 public class SerializableMethod implements Member, Serializable {
@@ -64,7 +73,7 @@ public class SerializableMethod implements Member, Serializable {
         paramType = (Class<?>) stream.readObject();
       }
     } catch (OptionalDataException ode) {
-      //Ignore. Nothing more to read
+      // Ignore. Nothing more to read
     }
     method = Types.methodFor(type, name, parameterTypes.toArray(new Class[0]));
   }
@@ -81,12 +90,12 @@ public class SerializableMethod implements Member, Serializable {
 
   @Override
   public boolean equals(Object paramObject) {
-    if(paramObject == null) {
+    if (paramObject == null) {
       return false;
     }
-    if(!paramObject.getClass().isAssignableFrom(SerializableMethod.class)) {
+    if (!paramObject.getClass().isAssignableFrom(SerializableMethod.class)) {
       return false;
     }
-    return method.equals(((SerializableMethod)paramObject).getMethod());
+    return method.equals(((SerializableMethod) paramObject).getMethod());
   }
 }
