@@ -141,7 +141,8 @@ public class MappingEngineImpl implements MappingEngine {
   @SuppressWarnings("unchecked")
   private <S, D> void propertyMap(Mapping mapping, MappingContextImpl<S, D> context) {
     MappingImpl mappingImpl = (MappingImpl) mapping;
-    if (context.isShaded(mappingImpl.getPath()))
+    String propertyPath = context.destinationPath + mappingImpl.getPath();
+    if (context.isShaded(propertyPath))
       return;
 
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
@@ -154,11 +155,11 @@ public class MappingEngineImpl implements MappingEngine {
 
     Object source = resolveSourceValue(context, mapping);
     MappingContextImpl<Object, Object> propertyContext = propertyContextFor(context, source,
-        mapping);
+        mappingImpl);
 
     if (condition != null) {
       if (!condition.applies(propertyContext)) {
-        context.shadePath(mappingImpl.getPath());
+        context.shadePath(propertyPath);
         return;
       } else if (mapping.isSkipped())
         return;
@@ -168,7 +169,7 @@ public class MappingEngineImpl implements MappingEngine {
     if (converter == null)
       converter = (Converter<Object, Object>) context.getTypeMap().getPropertyConverter();
     if (converter != null)
-      context.shadePath(mappingImpl.getPath());
+      context.shadePath(propertyPath);
     else if (mapping instanceof SourceMapping)
       return;
 
@@ -212,6 +213,7 @@ public class MappingEngineImpl implements MappingEngine {
     Object destination = context.getDestination();
     List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
     StringBuilder destPathBuilder = new StringBuilder();
+    destPathBuilder.append(context.destinationPath);
 
     for (int i = 0; i < mutatorChain.size(); i++) {
       Mutator mutator = mutatorChain.get(i);
@@ -244,7 +246,7 @@ public class MappingEngineImpl implements MappingEngine {
             destinationValue == null ? Primitives.defaultValue(mutator.getType())
                 : destinationValue);
         if (destinationValue == null)
-          context.shadePath(mapping.getPath());
+          context.shadePath(propertyContext.destinationPath);
       } else {
         // Obtain from cache
         Object intermediateDest = context.destinationCache.get(destPath);
@@ -302,7 +304,7 @@ public class MappingEngineImpl implements MappingEngine {
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
-      Object source, Mapping mapping) {
+      Object source, MappingImpl mapping) {
     Class<?> sourceType;
     boolean cyclic = false;
 
@@ -319,7 +321,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
     return new MappingContextImpl(context, source, sourceType, null, destinationType, null,
-        mapping, false);
+        mapping, !cyclic);
   }
 
   /**

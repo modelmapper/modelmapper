@@ -47,12 +47,14 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   final Errors errors;
   private final MappingContextImpl<?, ?> parent;
   private D destination;
+  /** Absolute path to destination. */
+  final String destinationPath;
   private final Class<D> destinationType;
   private final Type genericDestinationType;
   private final String typeMapName;
   /** Whether requested mapping is to a provided destination object */
   final boolean providedDestination;
-  private Mapping mapping;
+  private MappingImpl mapping;
   private final MappingEngine mappingEngine;
   private final S source;
   private final Class<S> sourceType;
@@ -70,6 +72,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
+    this.destinationPath = "";
     this.destinationType = destinationType;
     this.genericDestinationType = genericDestinationType == null ? destinationType
         : genericDestinationType;
@@ -89,12 +92,14 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
-      D destination, Class<D> destinationType, Type genericDestinationType, Mapping mapping,
+      D destination, Class<D> destinationType, Type genericDestinationType, MappingImpl mapping,
       boolean inheritValues) {
     this.parent = context;
     this.source = source;
     this.sourceType = sourceType;
     this.destination = destination;
+    this.destinationPath = mapping == null ? context.destinationPath : context.destinationPath
+        + mapping.getPath();
     this.destinationType = destinationType;
     this.genericDestinationType = genericDestinationType == null ? destinationType
         : genericDestinationType;
