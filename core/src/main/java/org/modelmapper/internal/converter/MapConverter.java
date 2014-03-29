@@ -35,6 +35,9 @@ import org.modelmapper.spi.PropertyMapping;
 class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object>> {
   public Map<Object, Object> convert(MappingContext<Map<?, ?>, Map<Object, Object>> context) {
     Map<?, ?> source = context.getSource();
+    if (source == null)
+      return null;
+
     Map<Object, Object> destination = context.getDestination() == null ? createDestination(context)
         : context.getDestination();
     Mapping mapping = context.getMapping();

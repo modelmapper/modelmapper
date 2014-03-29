@@ -26,8 +26,11 @@ import org.modelmapper.spi.MappingContext;
 class EnumConverter implements ConditionalConverter<Object, Enum<?>> {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Enum<?> convert(MappingContext<Object, Enum<?>> context) {
-    String name = context.getSource().getClass() == String.class ? (String) context.getSource()
-        : ((Enum<?>) context.getSource()).name();
+    Object source = context.getSource();
+    if (source == null)
+      return null;
+
+    String name = source.getClass() == String.class ? (String) source : ((Enum<?>) source).name();
 
     if (name != null)
       try {

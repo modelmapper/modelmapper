@@ -25,7 +25,11 @@ import org.modelmapper.spi.MappingContext;
  */
 class CharacterConverter implements ConditionalConverter<Object, Character> {
   public Character convert(MappingContext<Object, Character> context) {
-    return new Character(context.getSource().toString().charAt(0));
+    Object source = context.getSource();
+    if (source == null)
+      return null;
+
+    return new Character(source.toString().charAt(0));
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {

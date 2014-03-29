@@ -29,7 +29,11 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
   private static final String[] FALSE_STRINGSS = { "false", "no", "n", "off", "0" };
 
   public Boolean convert(MappingContext<Object, Boolean> context) {
-    String stringValue = context.getSource().toString().toLowerCase();
+    Object source = context.getSource();
+    if (source == null)
+      return null;
+
+    String stringValue = source.toString().toLowerCase();
 
     for (int i = 0; i < TRUE_STRINGS.length; i++)
       if (TRUE_STRINGS[i].equals(stringValue))

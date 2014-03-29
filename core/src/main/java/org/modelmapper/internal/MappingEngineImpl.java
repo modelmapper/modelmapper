@@ -238,7 +238,11 @@ public class MappingEngineImpl implements MappingEngine {
           }
 
           destinationValue = convert(propertyContext, converter);
-        } else if (propertyContext.getSource() != null)
+        } else if (propertyContext.getSource() == null) {
+          converter = converterFor(propertyContext);
+          if (converter != null)
+            destinationValue = convert(propertyContext, converter);
+        } else
           destinationValue = map(propertyContext);
 
         context.destinationCache.put(destPath, destinationValue);

@@ -32,6 +32,9 @@ import org.modelmapper.spi.MappingContext;
 abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
   public D convert(MappingContext<S, D> context) {
     S source = context.getSource();
+    if (source == null)
+      return null;
+
     int sourceLength = getSourceLength(source);
     D destination = context.getDestination() == null ? createDestination(context, sourceLength)
         : context.getDestination();

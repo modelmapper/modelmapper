@@ -55,6 +55,9 @@ import org.modelmapper.spi.MappingContext;
 class NumberConverter implements ConditionalConverter<Object, Number> {
   public Number convert(MappingContext<Object, Number> context) {
     Object source = context.getSource();
+    if (source == null)
+      return null;
+
     Class<?> destinationType = Primitives.wrapperFor(context.getDestinationType());
 
     if (source instanceof Number)

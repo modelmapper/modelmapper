@@ -51,6 +51,9 @@ import org.modelmapper.spi.MappingContext;
 class DateConverter implements ConditionalConverter<Object, Date> {
   public Date convert(MappingContext<Object, Date> context) {
     Object source = context.getSource();
+    if (source == null)
+      return null;
+
     Class<?> destinationType = context.getDestinationType();
 
     if (source instanceof Date)
