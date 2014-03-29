@@ -1,14 +1,11 @@
 package org.modelmapper.functional.converter;
 
-import static org.testng.Assert.assertEquals;
-
-import org.modelmapper.AbstractConverter;
-import org.modelmapper.AbstractTest;
-import org.modelmapper.Converter;
-import org.modelmapper.PropertyMap;
+import org.modelmapper.*;
 import org.modelmapper.spi.MappingContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 /**
  * Adapted from the Automapper test suite.
@@ -291,6 +288,139 @@ public class CustomConversion {
       Destination d = modelMapper.map(new Source(), Destination.class);
       assertEquals(d.value2, 20);
     }
+  }
+
+  @Test(groups = "functionl")
+  public static class When_using_converter_for_mapping_to_one_destination_from_many_sources extends AbstractTest {
+      public static class Source {
+          private Source1 source1;
+          private Source2 source2;
+
+          public Source1 getSource1() {
+              return source1;
+          }
+
+          public void setSource1(Source1 source1) {
+              this.source1 = source1;
+          }
+
+          public Source2 getSource2() {
+              return source2;
+          }
+
+          public void setSource2(Source2 source2) {
+              this.source2 = source2;
+          }
+      }
+
+      public static class Source1 {
+          private int value;
+
+          public int getValue() {
+              return value;
+          }
+
+          public void setValue(int value) {
+              this.value = value;
+          }
+      }
+
+      public static class Source2 {
+          private int value;
+
+          public int getValue() {
+              return value;
+          }
+
+          public void setValue(int value) {
+              this.value = value;
+          }
+      }
+
+      public static class Destination {
+          private SubDest dest1 = new SubDest();
+          private SubDest dest2 = new SubDest();
+
+          public SubDest getDest1() {
+              return dest1;
+          }
+
+          public void setDest1(SubDest dest1) {
+              this.dest1 = dest1;
+          }
+
+          public SubDest getDest2() {
+              return dest2;
+          }
+
+          public void setDest2(SubDest dest2) {
+              this.dest2 = dest2;
+          }
+      }
+
+      public static class SubDest {
+          private int squared;
+
+          public int getSquared() {
+              return squared;
+          }
+
+          public void setSquared(int squared) {
+              this.squared = squared;
+          }
+      }
+
+      public void shouldMapSubDestValueWithConverter() {
+          final ModelMapper modelMapper = new ModelMapper();
+
+          modelMapper.addMappings(new PropertyMap<Source, Destination>() {
+              @Override
+              protected void configure() {
+                  map(source.getSource1()).setDest1(null);
+                  map(source.getSource2()).setDest2(null);
+              }
+          });
+
+          modelMapper.addMappings(new PropertyMap<Source1, SubDest>() {
+              @Override
+              protected void configure() {
+                using(new AbstractConverter<Source1, Integer>() {
+                    @Override
+                    protected Integer convert(Source1 source) {
+                        return source.value * source.value;
+                    }
+                })
+                .map(source).setSquared(0);
+              }
+          });
+
+          modelMapper.addMappings(new PropertyMap<Source2, SubDest>() {
+
+              @Override
+              protected void configure() {
+                  using(new AbstractConverter<Source2, Integer>() {
+                      @Override
+                      protected Integer convert(Source2 source) {
+                          return source.value * source.value;
+                      }
+                  })
+                  .map(source).setSquared(0);
+              }
+          });
+
+          final Source source = new Source();
+
+          source.source1 = new Source1();
+          source.source1.value = 2;
+
+          source.source2 = new Source2();
+          source.source2.value = 3;
+
+          Destination dest = modelMapper.map(source, Destination.class);
+
+          assertEquals(dest.dest1.squared, 4);
+          assertEquals(dest.dest2.squared, 9);
+      }
   }
 
   @Test(groups = "functional")
