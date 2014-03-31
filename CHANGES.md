@@ -1,3 +1,9 @@
+# 0.6.4
+3/31/2014
+
+* Fixed #95 - Empower ConditionalConverters to handle null properties in source objects
+* Fixed #96 - Inherited shaded paths preventing customer converters from running
+
 # 0.6.3 
 1/24/2014
 
