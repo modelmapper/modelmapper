@@ -130,7 +130,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     Assert.notNull(destinationType, "destinationType");
 
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
-        destinationType, null, mapping, false);
+        destinationType, null, null, false);
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
