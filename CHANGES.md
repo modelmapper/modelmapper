@@ -1,3 +1,8 @@
+# 0.6.5
+4/15/2014
+
+* Fixed #100 - Problem mapping nested collections
+
 # 0.6.4
 3/31/2014
 
