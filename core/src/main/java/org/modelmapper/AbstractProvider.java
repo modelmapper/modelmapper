@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import org.modelmapper.internal.util.TypeResolver;
+
 /**
  * Provider support class. Allows for simpler Provider implementations.
  * 
@@ -28,6 +30,11 @@ public abstract class AbstractProvider<T> implements Provider<T> {
    */
   public T get(ProvisionRequest<T> request) {
     return get();
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Provider<%s>", TypeResolver.resolveArgument(getClass(), Provider.class));
   }
 
   /**
