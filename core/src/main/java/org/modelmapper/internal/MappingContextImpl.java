@@ -26,6 +26,7 @@ import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
 import org.modelmapper.internal.util.Assert;
+import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
@@ -245,7 +246,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   void setDestination(D destination) {
     this.destination = destination;
-    sourceToDestination.put(source, destination);
+    if (!Primitives.isPrimitiveWrapper(sourceType))
+      sourceToDestination.put(source, destination);
   }
 
   void setParentSource(Object parentSource) {
