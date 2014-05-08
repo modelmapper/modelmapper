@@ -92,7 +92,7 @@ public class MappingEngineImpl implements MappingEngine {
       destination = typeMap(contextImpl, typeMap);
     } else {
       Converter<S, D> converter = converterFor(context);
-      if (converter != null) {
+      if (converter != null && (context.getDestination() == null || context.getParent() != null)) {
         destination = convert(context, converter);
       } else {
         // Call getOrCreate in case TypeMap was created concurrently
