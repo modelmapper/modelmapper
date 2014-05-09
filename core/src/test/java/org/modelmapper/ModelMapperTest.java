@@ -1,15 +1,16 @@
 package org.modelmapper;
 
+import org.modelmapper.config.Configuration.AccessLevel;
+import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.spi.Mapping;
+import org.testng.annotations.Test;
+
+import java.util.Map;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
-
-import java.util.Map;
-
-import org.modelmapper.config.Configuration.AccessLevel;
-import org.modelmapper.spi.Mapping;
-import org.testng.annotations.Test;
 
 /**
  * @author Jonathan Halterman
@@ -45,6 +46,18 @@ public class ModelMapperTest extends AbstractTest {
 
     void setSurName(String surName) {
       this.surName = surName;
+    }
+  }
+  public static class PersonDTOSourceMemberMissing {
+    String firstName;
+    String lastName;
+
+    public void setFirstName(String firstName) {
+      this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+      this.lastName = lastName;
     }
   }
 
@@ -106,7 +119,6 @@ public class ModelMapperTest extends AbstractTest {
 
   public void shouldThrowOnValidateWhenDestinationMembersMissing() {
     modelMapper.createTypeMap(Person.class, PersonDTO.class);
-
     try {
       modelMapper.validate();
     } catch (ValidationException e) {
@@ -116,4 +128,31 @@ public class ModelMapperTest extends AbstractTest {
 
     fail();
   }
+  
+  public void shouldValidateWhenAllSourceMembersMapped() {
+    modelMapper.createTypeMap(PersonDTOSourceMemberMissing.class, Person.class);
+
+    modelMapper.validate(Validators.SOURCE_PROPERTIES_MAPPED);
+  }
+
+  public void shouldThrowOnValidateWhenSourceMembersMissing() {
+    modelMapper.createTypeMap(Person.class, PersonDTOSourceMemberMissing.class);
+    try {
+      modelMapper.validate(Validators.SOURCE_PROPERTIES_MAPPED);
+    } catch (ValidationException e) {
+      Asserts.assertContains(e.getMessage(), "1) Unmapped source properties found");
+      return;
+    }
+    fail("No validation error thrown...");
+    }
+
+  public void shouldSucceedWhenSourceMembersMissingAndModeNotStrict() {
+    modelMapper.createTypeMap(Person.class, PersonDTOSourceMemberMissing.class);
+    try {
+      modelMapper.validate();
+    } catch (ValidationException e) {
+      fail("Validation of mapper failed", e);
+    }
+  }
+
 }

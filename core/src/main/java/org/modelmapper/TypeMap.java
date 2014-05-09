@@ -133,8 +133,29 @@ public interface TypeMap<S, D> {
    * 
    * <p>
    * This method is part of the ModelMapper SPI.
+   * 
+   * @deprecated use {@link #getUnmappedDestinationProperties()} instead
    */
+  @Deprecated
   List<PropertyInfo> getUnmappedProperties();
+
+  /**
+   * Returns a snapshot list of source properties that do not have mappings defined, else empty
+   * list if all source properties are mapped.
+   *
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   */
+  List<PropertyInfo> getUnmappedSourceProperties();
+
+  /**
+   * Returns a snapshot list of destination properties that do not have mappings defined, else empty
+   * list if all destination properties are mapped.
+   * 
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   */
+  List<PropertyInfo> getUnmappedDestinationProperties();
 
   /**
    * Maps {@code source} to an instance of type {@code D}.
@@ -220,11 +241,13 @@ public interface TypeMap<S, D> {
   TypeMap<S, D> setProvider(Provider<D> provider);
 
   /**
-   * Validates that <b>every</b> top level destination property is mapped to one and only one source
-   * property, or that a {@code Converter} was {@link #setConverter(Converter) set}. If not, a
-   * ConfigurationException is thrown detailing any missing mappings.
+   * Validates the TypeMap against the {@code validators}. Any validation failures will result in a
+   * ValidationException being thrown. If no {@code validators} are provided then
+   * {@link Validators#DESTINATION_PROPERTIES_MAPPED} is used by default.
    * 
-   * @throws ValidationException if any TypeMaps contain unmapped properties
+   * @param validators to perform validation with
+   * @throws ValidationException if validation fails
    */
-  void validate();
+  void validate(Validator... validators);
+  
 }

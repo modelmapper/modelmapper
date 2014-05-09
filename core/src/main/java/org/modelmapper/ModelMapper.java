@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 import org.modelmapper.config.Configuration;
+import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.internal.Errors;
 import org.modelmapper.internal.InheritingConfiguration;
 import org.modelmapper.internal.MappingEngineImpl;
@@ -461,18 +462,21 @@ public class ModelMapper {
   }
 
   /**
-   * Validates that <b>every</b> top level destination property for each configured TypeMap is
-   * mapped to one and only one source property, or that a {@code Converter} was
-   * {@link TypeMap#setConverter(Converter) set} for the TypeMap. If not, a ConfigurationException
-   * is thrown detailing any missing mappings.
+   * Validates each configured TypeMap against the {@code validators}. Any validation failures will
+   * result in a ValidationException being thrown. If no {@code validators} are provided then
+   * {@link Validators#DESTINATION_PROPERTIES_MAPPED} is used by default.
    * 
-   * @throws ValidationException if any TypeMaps contain unmapped properties
+   * @param validators to perform validation with
+   * @throws ValidationException if validation fails
    */
-  public void validate() {
+  public void validate(Validator... validators) {
+    if (validators == null || validators.length == 0)
+      validators = new Validator[] { Validators.DESTINATION_PROPERTIES_MAPPED };
     Errors errors = new Errors();
+
     for (TypeMap<?, ?> typeMap : getTypeMaps()) {
       try {
-        typeMap.validate();
+        typeMap.validate(validators);
       } catch (ValidationException e) {
         errors.merge(e.getErrorMessages());
       }

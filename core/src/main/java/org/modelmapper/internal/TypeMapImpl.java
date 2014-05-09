@@ -17,8 +17,10 @@ package org.modelmapper.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.modelmapper.Condition;
@@ -26,6 +28,8 @@ import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
+import org.modelmapper.ValidationException;
+import org.modelmapper.Validator;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -130,16 +134,42 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   public List<PropertyInfo> getUnmappedProperties() {
-    TypeInfo<D> destinationInfo = TypeInfoRegistry.typeInfoFor(destinationType, configuration);
-    List<PropertyInfo> unmapped = new ArrayList<PropertyInfo>();
+    return getUnmappedDestinationProperties();
+  }
 
+  public List<PropertyInfo> getUnmappedSourceProperties() {
+    TypeInfo<S> sourceInfo = TypeInfoRegistry.typeInfoFor(sourceType, configuration);
+    final List<PropertyInfo> propertyInfos = new ArrayList<PropertyInfo>();
     synchronized (mappings) {
-      for (Map.Entry<String, Mutator> entry : destinationInfo.getMutators().entrySet())
-        if (!mappedProperties.containsKey(entry.getKey()))
-          unmapped.add(entry.getValue());
+      // TODO check whether is beneficial to save into a field afterwards
+      // TODO don't forget to update it afterwards when mapping is modified
+      final Set<String> mappedSourcePropertyNames = new HashSet<String>(mappings.size());
+      for (Mapping mapping : mappings.values()) {
+        if (mapping instanceof PropertyMappingImpl) {
+          final PropertyMappingImpl propertyMapping = (PropertyMappingImpl) mapping;
+          mappedSourcePropertyNames.add(propertyMapping.getSourceProperties().get(0).getName());
+        }
+      }
+      for (final Map.Entry<String, Accessor> entry : sourceInfo.getAccessors().entrySet()) {
+        if (!mappedSourcePropertyNames.contains(entry.getKey())) {
+          propertyInfos.add(entry.getValue());
+        }
+      }
     }
+    return propertyInfos;
+  }
 
-    return unmapped;
+  public List<PropertyInfo> getUnmappedDestinationProperties() {
+    TypeInfo<D> destinationInfo = TypeInfoRegistry.typeInfoFor(destinationType, configuration);
+    final List<PropertyInfo> propertyInfos = new ArrayList<PropertyInfo>();
+    synchronized (mappings) {
+      for (final Map.Entry<String, Mutator> entry : destinationInfo.getMutators().entrySet()) {
+        if (!mappedProperties.containsKey(entry.getKey())) {
+          propertyInfos.add(entry.getValue());
+        }
+      }
+    }
+    return propertyInfos;
   }
 
   public D map(S source) {
@@ -224,14 +254,19 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return b.append(']').toString();
   }
 
-  public void validate() {
+  public void validate(Validator... validators) {
     if (converter != null || preConverter != null || postConverter != null)
       return;
 
-    Errors errors = new Errors();
-    List<PropertyInfo> unmappedProperties = getUnmappedProperties();
-    if (!unmappedProperties.isEmpty())
-      errors.errorUnmappedProperties(this, unmappedProperties);
+    final Errors errors = new Errors();
+      
+    for (Validator validator : validators) {
+      try {
+        validator.validate(this);
+      } catch (ValidationException e) {
+        errors.merge(e.getErrorMessages());
+      }
+    }
 
     errors.throwValidationExceptionIfErrorsExist();
   }
