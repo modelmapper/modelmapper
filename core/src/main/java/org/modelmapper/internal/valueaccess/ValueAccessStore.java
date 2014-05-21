@@ -123,7 +123,7 @@ public final class ValueAccessStore {
       Assert.notNull(valueAccessor, "element");
       Class<?> typeArgument = TypeResolver.resolveArgument((Class<T>) valueAccessor.getClass(),
           valueAccessorType);
-      Assert.notNull("Must declare source type argument <T> for the "
+      Assert.notNull(typeArgument, "Must declare source type argument <T> for the "
           + valueAccessorType.getSimpleName());
       valueAccessors.put(valueAccessor, typeArgument);
     }
