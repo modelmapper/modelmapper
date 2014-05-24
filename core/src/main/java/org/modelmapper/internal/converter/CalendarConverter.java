@@ -47,6 +47,8 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class CalendarConverter implements ConditionalConverter<Object, Object> {
+
+  private static final long serialVersionUID = 2895456268542507951L;
   private static DatatypeFactory dataTypeFactory;
 
   private static DatatypeFactory getDataTypeFactory() {

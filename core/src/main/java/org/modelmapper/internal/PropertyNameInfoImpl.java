@@ -30,6 +30,9 @@ import org.modelmapper.spi.PropertyInfo;
  * @author Jonathan Halterman
  */
 class PropertyNameInfoImpl implements PropertyNameInfo {
+
+  private static final long serialVersionUID = -4345709993826530406L;
+
   private final Class<?> sourceClass;
   private final Configuration configuration;
   private String[] sourceClassTokens;

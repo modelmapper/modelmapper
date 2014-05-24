@@ -15,13 +15,17 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 
 /**
  * @author Jonathan Halterman
  */
-public class ArrayIterator implements Iterator<Object> {
+public class ArrayIterator implements Iterator<Object>, Serializable  {
+
+  private static final long serialVersionUID = -4657959920388018578L;
+
   private final Object array;
   private final int length;
   private int index;

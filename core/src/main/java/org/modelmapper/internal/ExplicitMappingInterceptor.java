@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.modelmapper.internal.util.Types;
@@ -27,14 +28,17 @@ import net.sf.cglib.proxy.MethodProxy;
  * 
  * @author Jonathan Halterman
  */
-final class ExplicitMappingInterceptor implements MethodInterceptor {
+final class ExplicitMappingInterceptor implements MethodInterceptor, Serializable {
+
+  private static final long serialVersionUID = -7601515558941439668L;
+
   private final ExplicitMappingProgress<?> mappingProgress;
 
   ExplicitMappingInterceptor(ExplicitMappingProgress<?> mappingProgress) {
     this.mappingProgress = mappingProgress;
   }
 
-  public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
+  public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) 
       throws Throwable {
     mappingProgress.encountered(Types.deProxy(obj.getClass()), method, args);
     

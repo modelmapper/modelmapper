@@ -26,9 +26,13 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-public class Conditions {
+public class Conditions implements Serializable {
+
+  private static final long serialVersionUID = -4031827904732868044L;
+
   private static final Condition<?, ?> IS_NULL = new AbstractCondition<Object, Object>() {
-    @SuppressWarnings("unused") private static final long serialVersionUID = 0;
+
+    private static final long serialVersionUID = 0;
 
     public boolean applies(MappingContext<Object, Object> context) {
       return context.getSource() == null;
@@ -41,7 +45,7 @@ public class Conditions {
   };
 
   private static final Condition<?, ?> IS_NOT_NULL = new AbstractCondition<Object, Object>() {
-    @SuppressWarnings("unused") private static final long serialVersionUID = 0;
+    private static final long serialVersionUID = 0;
 
     public boolean applies(MappingContext<Object, Object> context) {
       return context.getSource() != null;
@@ -174,6 +178,9 @@ public class Conditions {
    */
   public static Condition<?, ?> isType(final Class<?> type) {
     return new Condition<Object, Object>() {
+
+      private static final long serialVersionUID = -1083959268196377674L;
+
       public boolean applies(MappingContext<Object, Object> context) {
         return type.isAssignableFrom(context.getSourceType());
       }

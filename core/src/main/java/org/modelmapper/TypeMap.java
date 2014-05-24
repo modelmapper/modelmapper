@@ -15,6 +15,7 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.spi.Mapping;
@@ -28,7 +29,7 @@ import org.modelmapper.spi.PropertyInfo;
  * 
  * @author Jonathan Halterman
  */
-public interface TypeMap<S, D> {
+public interface TypeMap<S, D> extends Serializable {
   /**
    * Loads mappings from the {@code propertyMap} into the TypeMap. Mappings defined in the
    * {@code propertyMap} will override any implicit mappings for the same properties.

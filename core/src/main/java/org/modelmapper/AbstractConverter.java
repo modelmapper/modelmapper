@@ -27,6 +27,9 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 public abstract class AbstractConverter<S, D> implements Converter<S, D> {
+
+  private static final long serialVersionUID = 1277599441331571147L;
+
   /**
    * Delegates conversion to {@link #convert(Object)}.
    */

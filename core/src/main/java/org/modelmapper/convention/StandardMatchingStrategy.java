@@ -25,11 +25,16 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class StandardMatchingStrategy implements MatchingStrategy {
+
+  private static final long serialVersionUID = -782537586228707293L;
+
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     return new Matcher(propertyNameInfo).match();
   }
 
   static class Matcher extends InexactMatcher {
+
+    private static final long serialVersionUID = 5120519086233032427L;
     private final boolean[] sourceMatches;
 
     Matcher(PropertyNameInfo propertyNameInfo) {

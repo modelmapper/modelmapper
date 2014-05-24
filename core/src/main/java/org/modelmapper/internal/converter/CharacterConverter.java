@@ -24,6 +24,9 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class CharacterConverter implements ConditionalConverter<Object, Character> {
+
+  private static final long serialVersionUID = -4781264174518200391L;
+
   public Character convert(MappingContext<Object, Character> context) {
     Object source = context.getSource();
     if (source == null)

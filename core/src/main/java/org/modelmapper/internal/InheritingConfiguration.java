@@ -40,6 +40,8 @@ import org.modelmapper.spi.ValueReader;
  * @author Jonathan Halterman
  */
 public class InheritingConfiguration implements Configuration {
+  private static final long serialVersionUID = -6342519900197236615L;
+
   private final Configuration parent;
   public final TypeMapStore typeMapStore;
   public final ConverterStore converterStore;

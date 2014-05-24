@@ -15,6 +15,7 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 
 import org.modelmapper.TypeMap;
@@ -25,7 +26,7 @@ import org.modelmapper.TypeMap;
  * 
  * @author Jonathan Halterman
  */
-public interface MappingContext<S, D> {
+public interface MappingContext<S, D> extends Serializable {
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destination} which
    * inherits all other information from the this MappingContext.

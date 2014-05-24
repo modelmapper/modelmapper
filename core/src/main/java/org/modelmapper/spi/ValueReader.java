@@ -15,6 +15,7 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -23,7 +24,7 @@ import java.util.Collection;
  * @param <T> source type
  * @author Jonathan Halterman
  */
-public interface ValueReader<T> {
+public interface ValueReader<T> extends Serializable {
   /**
    * Returns the value from the {@code source} object for the {@code memberName}.
    * 

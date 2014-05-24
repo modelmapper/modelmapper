@@ -24,6 +24,9 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class EnumConverter implements ConditionalConverter<Object, Enum<?>> {
+
+  private static final long serialVersionUID = -7874821633458388628L;
+
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Enum<?> convert(MappingContext<Object, Enum<?>> context) {
     Object source = context.getSource();

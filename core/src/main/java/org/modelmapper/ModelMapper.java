@@ -15,6 +15,7 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -42,7 +43,10 @@ import org.modelmapper.internal.util.Types;
  * 
  * @author Jonathan Halterman
  */
-public class ModelMapper {
+public class ModelMapper implements Serializable {
+
+  private static final long serialVersionUID = 6808737926901075093L;
+
   private final InheritingConfiguration config;
   private final MappingEngineImpl engine;
 

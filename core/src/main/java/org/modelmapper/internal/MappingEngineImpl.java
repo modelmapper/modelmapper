@@ -34,6 +34,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Jonathan Halterman
  */
 public class MappingEngineImpl implements MappingEngine {
+
+  private static final long serialVersionUID = -8588815396248762766L;
+
   /** Cache of conditional converters */
   private final Map<TypePair<?, ?>, Converter<?, ?>> converterCache = new ConcurrentHashMap<TypePair<?, ?>, Converter<?, ?>>();
   private final InheritingConfiguration configuration;

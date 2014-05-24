@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.converter;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -24,7 +25,10 @@ import org.modelmapper.spi.ConditionalConverter.MatchResult;
 /**
  * @author Jonathan Halterman
  */
-public final class ConverterStore {
+public final class ConverterStore implements Serializable {
+
+  private static final long serialVersionUID = 4449131441760112700L;
+
   private static final ConditionalConverter<?, ?>[] DEFAULT_CONVERTERS = new ConditionalConverter<?, ?>[] {
       new StringConverter(), new EnumConverter(), new ArrayConverter(), new CollectionConverter(),
       new MapConverter(), new AssignableConverter(), new NumberConverter(), new BooleanConverter(),

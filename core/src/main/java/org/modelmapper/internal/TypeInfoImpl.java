@@ -26,6 +26,9 @@ import org.modelmapper.spi.NameableType;
  * @author Jonathan Halterman
  */
 class TypeInfoImpl<T> implements TypeInfo<T> {
+
+  private static final long serialVersionUID = 1831935265059461025L;
+
   /** Source object from which memberNames are read. */
   private final T source;
   private final Class<T> type;

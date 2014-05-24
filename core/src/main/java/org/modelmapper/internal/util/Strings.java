@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.spi.PropertyInfo;
@@ -22,7 +23,10 @@ import org.modelmapper.spi.PropertyInfo;
 /**
  * @author Jonathan Halterman
  */
-public final class Strings {
+public final class Strings implements Serializable {
+
+  private static final long serialVersionUID = 7154661249539276484L;
+
   private Strings() {
   }
 

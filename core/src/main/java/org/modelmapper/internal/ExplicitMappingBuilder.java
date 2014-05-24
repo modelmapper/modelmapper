@@ -41,6 +41,9 @@ import org.modelmapper.spi.ValueReader;
  * @author Jonathan Halterman
  */
 public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
+
+  private static final long serialVersionUID = 5036086926810938576L;
+
   private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
   private static Method PROPERTY_MAP_CONFIGURE;
   private final Class<S> sourceType;

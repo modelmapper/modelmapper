@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
+
 /**
  * Provides instances of type {@code T}.
  * 
@@ -22,11 +24,11 @@ package org.modelmapper;
  * 
  * @author Jonathan Halterman
  */
-public interface Provider<T> {
+public interface Provider<T> extends Serializable {
   /**
    * Contains provision request information.
    */
-  public interface ProvisionRequest<T> {
+  public interface ProvisionRequest<T> extends Serializable {
     /**
      * Returns the type being requested.
      */

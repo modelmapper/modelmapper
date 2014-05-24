@@ -15,12 +15,16 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * @author Jonathan Halterman
  */
-public final class Iterables {
+public final class Iterables implements Serializable {
+
+  private static final long serialVersionUID = 8450440846321521704L;
+
   private Iterables() {
   }
 

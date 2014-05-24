@@ -15,6 +15,7 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
@@ -24,7 +25,7 @@ import java.lang.reflect.Type;
  * 
  * @author Jonathan Halterman
  */
-public interface PropertyInfo {
+public interface PropertyInfo extends Serializable {
   /**
    * Returns the annotation on the property's member for the {@code annotationClass} or {@code null}
    * if none exists.

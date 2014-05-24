@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +23,10 @@ import java.util.Map;
 /**
  * @author Jonathan Halterman
  */
-public class ToStringBuilder {
+public class ToStringBuilder implements Serializable {
+
+  private static final long serialVersionUID = 9098003517961566960L;
+
   private final Map<String, Object> properties = new LinkedHashMap<String, Object>();
   private final String name;
 

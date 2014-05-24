@@ -15,6 +15,8 @@
  */
 package org.modelmapper.builder;
 
+import java.io.Serializable;
+
 import org.modelmapper.PropertyMap;
 
 /**
@@ -24,7 +26,7 @@ import org.modelmapper.PropertyMap;
  * 
  * @author Jonathan Halterman
  */
-public interface MapExpression<D> {
+public interface MapExpression<D> extends Serializable {
   /**
    * Defines a mapping to a destination. See the EDSL examples at {@link PropertyMap}.
    * 

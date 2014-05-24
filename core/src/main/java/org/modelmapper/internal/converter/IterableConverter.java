@@ -30,6 +30,9 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 abstract class IterableConverter<S, D> implements ConditionalConverter<S, D> {
+
+  private static final long serialVersionUID = -7765174809255942241L;
+
   public D convert(MappingContext<S, D> context) {
     S source = context.getSource();
     if (source == null)

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.Condition;
@@ -26,7 +27,7 @@ import org.modelmapper.Provider;
  * 
  * @author Jonathan Halterman
  */
-public interface Mapping {
+public interface Mapping extends Serializable {
   /**
    * Gets the condition that to be satisfied before this mapping can be used to perform a mapping.
    * 

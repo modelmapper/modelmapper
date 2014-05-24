@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.modelmapper.config.Configuration;
@@ -27,7 +28,7 @@ import org.modelmapper.config.Configuration;
  * 
  * @author Jonathan Halterman
  */
-interface TypeInfo<T> {
+interface TypeInfo<T> extends Serializable {
   /**
    * Returns a map of accessors representing fields and methods as matched according to the
    * MatchingConfiguration used to construct the TypeInfo.

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,12 +34,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.modelmapper.internal.SerializableMethod;
+
 /**
  * Utilities for working with types.
  * 
  * @author Jonathan Halterman
  */
-public final class Types {
+public final class Types implements Serializable {
+
+  private static final long serialVersionUID = -8717624124573642983L;
+
   private static Class<?> JAVASSIST_PROXY_FACTORY_CLASS;
   private static Method JAVASSIST_IS_PROXY_CLASS_METHOD;
   private static Map<Class<?>, Object[]> defaultConstructionArgs;
@@ -193,7 +199,7 @@ public final class Types {
    * Returns a simplified String representation of the {@code member}.
    */
   public static String toString(Member member) {
-    if (member instanceof Method) {
+    if (member instanceof SerializableMethod) {
       return member.getDeclaringClass().getName() + "." + member.getName() + "()";
     } else if (member instanceof Field) {
       return member.getDeclaringClass().getName() + "." + member.getName();

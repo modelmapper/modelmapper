@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
+
 import org.modelmapper.builder.ConverterExpression;
 import org.modelmapper.builder.MapExpression;
 import org.modelmapper.builder.ProviderExpression;
@@ -151,7 +153,10 @@ import org.modelmapper.internal.util.TypeResolver;
  * 
  * @author Jonathan Halterman
  */
-public abstract class PropertyMap<S, D> {
+public abstract class PropertyMap<S, D> implements Serializable {
+
+  private static final long serialVersionUID = -9136819588659624586L;
+
   /**
    * The source instance to be used in a mapping declaration. See the <a href="#1">EDSL
    * examples</a>.

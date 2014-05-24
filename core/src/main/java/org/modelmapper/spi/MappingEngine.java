@@ -15,12 +15,14 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
+
 /**
  * Engine that performs mapping operations.
  * 
  * @author Jonathan Halterman
  */
-public interface MappingEngine {
+public interface MappingEngine extends Serializable {
   /**
    * Maps an instance of type {@code D} for the {@code context}.
    * 

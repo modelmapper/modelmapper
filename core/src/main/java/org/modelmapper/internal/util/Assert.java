@@ -15,10 +15,15 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
+
 /**
  * @author Jonathan Halterman
  */
-public final class Assert {
+public final class Assert implements Serializable {
+
+  private static final long serialVersionUID = -2849420342481734480L;
+
   private Assert() {
   }
 

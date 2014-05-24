@@ -15,6 +15,7 @@
  */
 package org.modelmapper.convention;
 
+import java.io.Serializable;
 import java.util.regex.Pattern;
 
 import org.modelmapper.spi.NameTokenizer;
@@ -25,7 +26,10 @@ import org.modelmapper.spi.NameableType;
  * 
  * @author Jonathan Halterman
  */
-public class NameTokenizers {
+public class NameTokenizers implements Serializable {
+
+  private static final long serialVersionUID = 6108245602958716728L;
+
   /**
    * Tokenizes class and property names according to the CamelCase naming convention.
    */
@@ -37,6 +41,8 @@ public class NameTokenizers {
   public static final NameTokenizer UNDERSCORE = new UnderscoreNameTokenizer();
 
   private static class CamelCaseNameTokenizer implements NameTokenizer {
+
+    private static final long serialVersionUID = -1687316368680741521L;
     private static final Pattern camelCase = Pattern.compile("(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
 
     public String[] tokenize(String name, NameableType nameableType) {
@@ -50,6 +56,8 @@ public class NameTokenizers {
   }
 
   private static class UnderscoreNameTokenizer implements NameTokenizer {
+
+    private static final long serialVersionUID = 2417156759978693339L;
     private static final Pattern underscore = Pattern.compile("_");
 
     public String[] tokenize(String name, NameableType nameableType) {

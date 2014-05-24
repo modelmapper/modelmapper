@@ -15,12 +15,14 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
+
 /**
  * Determines which properties are eligible for matching based on their name.
  * 
  * @author Jonathan Halterman
  */
-public interface NamingConvention {
+public interface NamingConvention extends Serializable {
   /**
    * Returns true if the naming convention applies to the {@code propertyName} and
    * {@code propertyType}, else returns false.

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.valueaccess;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,10 @@ import org.modelmapper.spi.ValueReader;
  * 
  * @author Jonathan Halterman
  */
-public final class ValueAccessStore {
+public final class ValueAccessStore implements Serializable {
+
+  private static final long serialVersionUID = 1844629851793521886L;
+
   private final TypeResolvingList<ValueReader<?>> valueReaders = new TypeResolvingList<ValueReader<?>>(
       ValueReader.class);
 

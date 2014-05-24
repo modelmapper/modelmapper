@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -31,8 +32,11 @@ import org.modelmapper.spi.PropertyInfo;
  * 
  * @author Jonathan Halterman
  */
-interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
+interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> extends Serializable {
   PropertyInfoResolver<Field, Mutator> FIELDS = new DefaultPropertyResolver<Field, Mutator>() {
+
+    private static final long serialVersionUID = -5528176392030811477L;
+
     public Mutator propertyInfoFor(Class<?> initialType, Field field, Configuration configuration,
         String name) {
       return PropertyInfoRegistry.fieldPropertyFor(initialType, field, configuration, name);
@@ -44,6 +48,9 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
   };
 
   PropertyInfoResolver<Method, Accessor> ACCESSORS = new DefaultPropertyResolver<Method, Accessor>() {
+
+    private static final long serialVersionUID = 9030766158937827663L;
+
     @Override
     public boolean isValid(Method method) {
       return super.isValid(method) && method.getParameterTypes().length == 0
@@ -61,6 +68,9 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
   };
 
   PropertyInfoResolver<Method, Mutator> MUTATORS = new DefaultPropertyResolver<Method, Mutator>() {
+
+    private static final long serialVersionUID = 3358739488480922817L;
+
     @Override
     public boolean isValid(Method method) {
       return super.isValid(method)
@@ -81,6 +91,9 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
 
   static abstract class DefaultPropertyResolver<M extends Member, PI extends PropertyInfo>
       implements PropertyInfoResolver<M, PI> {
+
+    private static final long serialVersionUID = -8180833970925994297L;
+
     public boolean isValid(M member) {
       return !Modifier.isStatic(member.getModifiers());
     }

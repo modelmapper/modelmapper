@@ -15,6 +15,7 @@
  */
 package org.modelmapper.config;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.modelmapper.Condition;
@@ -33,7 +34,7 @@ import org.modelmapper.spi.ValueReader;
  * 
  * @author Jonathan Halterman
  */
-public interface Configuration {
+public interface Configuration extends Serializable {
   /**
    * The level at and below which properties can be accessed.
    */

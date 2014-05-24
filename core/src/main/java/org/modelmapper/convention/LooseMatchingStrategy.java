@@ -25,6 +25,9 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class LooseMatchingStrategy implements MatchingStrategy {
+
+  private static final long serialVersionUID = 7881329295054777247L;
+
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     return new Matcher(propertyNameInfo).match();
   }
@@ -34,6 +37,9 @@ final class LooseMatchingStrategy implements MatchingStrategy {
    * iteration is done in reverse.
    */
   static class Matcher extends InexactMatcher {
+
+    private static final long serialVersionUID = -7301855486349146038L;
+
     boolean lastSourceMatched;
     boolean lastDestinationMatched;
 

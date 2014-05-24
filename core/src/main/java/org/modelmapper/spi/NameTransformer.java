@@ -15,12 +15,14 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
+
 /**
  * Transforms eligible property and class names prior to matching.
  * 
  * @author Jonathan Halterman
  */
-public interface NameTransformer {
+public interface NameTransformer extends Serializable {
   /**
    * Transforms the {@code name} for the given {@code nameableType}.
    * 

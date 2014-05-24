@@ -39,6 +39,9 @@ import org.modelmapper.spi.MappingEngine;
  * @author Jonathan Halterman
  */
 public class MappingContextImpl<S, D> implements MappingContext<S, D>, ProvisionRequest<D> {
+
+  private static final long serialVersionUID = -4060150958023321909L;
+
   /** Caches previously mapped destination objects by path. */
   final Map<String, Object> destinationCache;
   /** Tracks destination objects for each source. Used for circular mapping. */

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
@@ -32,7 +33,10 @@ import java.util.WeakHashMap;
  * 
  * @author Jonathan Halterman
  */
-public final class TypeResolver {
+public final class TypeResolver implements Serializable {
+
+  private static final long serialVersionUID = 8930996736732933790L;
+
   /** An unknown type. */
   public static final class Unknown {
     private Unknown() {

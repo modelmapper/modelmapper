@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,10 @@ import org.modelmapper.spi.PropertyInfo;
  * 
  * @author Jonathan Halterman
  */
-abstract class ExplicitMappingProgress<T extends PropertyInfo> {
+abstract class ExplicitMappingProgress<T extends PropertyInfo> implements Serializable {
+
+  private static final long serialVersionUID = 4890245418261569489L;
+
   protected final ExplicitMappingBuilder<?, ?> builder;
   protected final InheritingConfiguration config;
   protected final List<T> propertyInfo = new ArrayList<T>();
@@ -42,6 +46,9 @@ abstract class ExplicitMappingProgress<T extends PropertyInfo> {
   }
 
   static class DestinationProgress extends ExplicitMappingProgress<Mutator> {
+
+    private static final long serialVersionUID = 2692525588637531326L;
+
     Object argument;
 
     DestinationProgress(ExplicitMappingBuilder<?, ?> builder) {
@@ -81,6 +88,9 @@ abstract class ExplicitMappingProgress<T extends PropertyInfo> {
   }
 
   static class SourceProgress extends ExplicitMappingProgress<Accessor> {
+
+    private static final long serialVersionUID = -3489142032759366607L;
+
     SourceProgress(ExplicitMappingBuilder<?, ?> builder) {
       super(builder);
     }

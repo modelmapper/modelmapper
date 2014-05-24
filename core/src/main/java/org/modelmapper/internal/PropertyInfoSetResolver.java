@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
@@ -36,7 +37,10 @@ import org.modelmapper.spi.ValueReader;
  * 
  * @author Jonathan Halterman
  */
-final class PropertyInfoSetResolver<T> {
+final class PropertyInfoSetResolver<T> implements Serializable {
+
+  private static final long serialVersionUID = -854338256586275449L;
+
   private PropertyInfoSetResolver() {
   }
 

@@ -36,6 +36,9 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class CollectionConverter extends IterableConverter<Object, Collection<Object>> {
+
+  private static final long serialVersionUID = 1727339971947477544L;
+
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Iterables.isIterable(sourceType) && Collection.class.isAssignableFrom(destinationType) ? MatchResult.FULL
         : MatchResult.NONE;

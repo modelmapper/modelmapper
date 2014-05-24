@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +46,10 @@ import org.modelmapper.spi.PropertyInfo;
  * 
  * @author Jonathan Halterman
  */
-class ImplicitMappingBuilder<S, D> {
+class ImplicitMappingBuilder<S, D> implements Serializable {
+
+  private static final long serialVersionUID = 4038354411821447748L;
+
   private final TypeMapImpl<S, D> typeMap;
   private final TypeInfo<S> sourceTypeInfo;
   private final TypeMapStore typeMapStore;

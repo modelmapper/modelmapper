@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +50,9 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class DateConverter implements ConditionalConverter<Object, Date> {
+
+  private static final long serialVersionUID = -1692284492442294737L;
+
   public Date convert(MappingContext<Object, Date> context) {
     Object source = context.getSource();
     if (source == null)

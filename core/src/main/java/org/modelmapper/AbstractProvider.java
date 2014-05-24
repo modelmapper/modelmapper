@@ -25,6 +25,9 @@ import org.modelmapper.internal.util.TypeResolver;
  * @author Jonathan Halterman
  */
 public abstract class AbstractProvider<T> implements Provider<T> {
+
+  private static final long serialVersionUID = 7834406209578944622L;
+
   /**
    * Delegates provisioning to {@link #get()}.
    */

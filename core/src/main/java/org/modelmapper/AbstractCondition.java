@@ -26,6 +26,9 @@ import org.modelmapper.internal.util.Assert;
  * @author Jonathan Halterman
  */
 public abstract class AbstractCondition<S, D> implements Condition<S, D> {
+
+  private static final long serialVersionUID = 2107180422142749245L;
+
   /**
    * Returns a new condition that applies if {@code this} AND the given {@code condition} apply.
    * 

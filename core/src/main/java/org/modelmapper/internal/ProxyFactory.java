@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -33,7 +34,10 @@ import org.modelmapper.internal.util.Types;
  * 
  * @author Jonathan Halterman
  */
-class ProxyFactory {
+class ProxyFactory implements Serializable {
+
+  private static final long serialVersionUID = 1018454619245440934L;
+
   private static final NamingPolicy NAMING_POLICY = new DefaultNamingPolicy() {
     @Override
     protected String getTag() {

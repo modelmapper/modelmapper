@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
+
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -25,7 +27,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-public abstract interface Converter<S, D> {
+public abstract interface Converter<S, D> extends Serializable {
   /**
    * Converts the {@link MappingContext#getSource()} to an instance of
    * {@link MappingContext#getDestinationType()}.

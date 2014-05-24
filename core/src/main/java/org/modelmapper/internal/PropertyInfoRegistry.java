@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -33,7 +34,10 @@ import org.modelmapper.spi.PropertyInfo;
  * 
  * @author Jonathan Halterman
  */
-class PropertyInfoRegistry {
+class PropertyInfoRegistry implements Serializable {
+
+  private static final long serialVersionUID = -6694943863353717398L;
+
   private static final Map<Integer, PropertyInfo> cache = new ConcurrentHashMap<Integer, PropertyInfo>();
 
   private static Integer hashCodeFor(Class<?> initialType, String propertyName,

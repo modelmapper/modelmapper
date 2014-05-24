@@ -16,6 +16,7 @@
 package org.modelmapper.internal;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -36,7 +37,10 @@ import org.modelmapper.spi.ErrorMessage;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyMapping;
 
-public final class Errors {
+public final class Errors implements Serializable {
+
+  private static final long serialVersionUID = -6286792272809781995L;
+
   private List<ErrorMessage> errors;
 
   @SuppressWarnings("rawtypes") private static final Converter<?>[] converters = new Converter[] {
@@ -90,7 +94,7 @@ public final class Errors {
 
   /** Returns the formatted message for an exception with the specified messages. */
   public static String format(String heading, Collection<ErrorMessage> errorMessages) {
-    @SuppressWarnings("resource")
+
     Formatter fmt = new Formatter().format(heading).format(":%n%n");
     int index = 1;
     boolean displayCauses = getOnlyCause(errorMessages) == null;

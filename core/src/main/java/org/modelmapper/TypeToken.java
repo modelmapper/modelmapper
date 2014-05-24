@@ -15,6 +15,7 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -38,7 +39,10 @@ import org.modelmapper.internal.util.Types;
  * @author Jonathan Halterman
  * @param <T> Represented type
  */
-public class TypeToken<T> {
+public class TypeToken<T> implements Serializable {
+
+  private static final long serialVersionUID = 4437984041836453759L;
+
   private final Type type;
   private final Class<T> rawType;
 

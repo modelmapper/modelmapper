@@ -15,6 +15,7 @@
  */
 package org.modelmapper.spi;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -23,12 +24,12 @@ import java.util.List;
  * 
  * @author Jonathan Halterman
  */
-public interface MatchingStrategy {
+public interface MatchingStrategy extends Serializable {
   /**
    * Encapsulates property name information to be use for determining whether a hierarchy of source
    * and destination properties match.
    */
-  public interface PropertyNameInfo {
+  public interface PropertyNameInfo extends Serializable {
     /**
      * Returns the destination properties.
      */

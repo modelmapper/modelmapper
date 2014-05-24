@@ -15,6 +15,8 @@
  */
 package org.modelmapper.convention;
 
+import java.io.Serializable;
+
 import org.modelmapper.spi.MatchingStrategy;
 
 /**
@@ -24,7 +26,10 @@ import org.modelmapper.spi.MatchingStrategy;
  * 
  * @author Jonathan Halterman
  */
-public class MatchingStrategies {
+public class MatchingStrategies implements Serializable {
+
+  private static final long serialVersionUID = 2389504247630341631L;
+
   /**
    * A matching strategy that allows for source properties to be loosely matched to destination
    * properties by requiring that <i>only</i> the last destination property in a hierarchy be

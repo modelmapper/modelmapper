@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import java.io.Serializable;
+
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -25,7 +27,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-public interface Condition<S, D> {
+public interface Condition<S, D> extends Serializable {
   /**
    * Specifies whether the condition applies to the {@code context}.
    * 

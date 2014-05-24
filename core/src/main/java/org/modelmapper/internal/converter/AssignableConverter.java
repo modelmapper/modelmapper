@@ -24,6 +24,9 @@ import org.modelmapper.spi.MappingContext;
  * @author Jonathan Halterman
  */
 class AssignableConverter implements ConditionalConverter<Object, Object> {
+
+  private static final long serialVersionUID = -5898700654455345089L;
+
   public Object convert(MappingContext<Object, Object> context) {
     return context.getDestination() == null ? context.getSource() : context.getDestination();
   }
