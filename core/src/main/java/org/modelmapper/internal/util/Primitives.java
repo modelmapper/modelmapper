@@ -66,8 +66,18 @@ public final class Primitives {
   /**
    * Returns the boxed default value for {@code type} if {@code type} is a primitive, else null.
    */
-  public static Object defaultValue(Class<?> type) {
-    return type.isPrimitive() ? defaultValue.get(type) : null;
+  @SuppressWarnings("unchecked")
+  public static <T> T defaultValue(Class<?> type) {
+    return type.isPrimitive() ? (T) defaultValue.get(type) : null;
+  }
+
+  /**
+   * Returns the boxed default value for {@code type} if {@code type} is a primitive wrapper.
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T defaultValueForWrapper(Class<?> wrapper) {
+    Class<?> primitiveType = primitiveFor(wrapper);
+    return primitiveType == null ? null : (T) defaultValue.get(primitiveType);
   }
 
   /**
@@ -78,17 +88,25 @@ public final class Primitives {
   }
 
   /**
+   * Returns true if {@code type} is a primitive wrapper.
+   */
+  public static boolean isPrimitiveWrapper(Class<?> type) {
+    return wrapperToPrimitive.containsKey(type);
+  }
+
+  /**
+   * Returns the primitive type for the {@code wrapper}, else returns {@code null} if
+   * {@code wrapper} is not a primitive wrapper.
+   */
+  public static Class<?> primitiveFor(Class<?> wrapper) {
+    return wrapperToPrimitive.get(wrapper);
+  }
+
+  /**
    * Returns the primitive wrapper for {@code type}, else returns {@code type} if {@code type} is
    * not a primitive.
    */
   public static Class<?> wrapperFor(Class<?> type) {
     return type.isPrimitive() ? primitiveToWrapper.get(type) : type;
-  }
-
-  /**
-   * Returns true if {@code type} is a primitive wrapper.
-   */
-  public static boolean isPrimitiveWrapper(Class<?> type) {
-    return wrapperToPrimitive.containsKey(type);
   }
 }

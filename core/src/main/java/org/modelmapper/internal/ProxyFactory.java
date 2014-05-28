@@ -26,6 +26,7 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 
+import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
 
 /**
@@ -76,7 +77,7 @@ class ProxyFactory {
   static <T> T proxyFor(Class<T> type, ExplicitMappingProgress<?> mappingProgress)
       throws ErrorsException {
     if (Modifier.isFinal(type.getModifiers()))
-      return null;
+      return Primitives.defaultValueForWrapper(type);
 
     Class<?> enhanced = proxyClassFor(type);
 
