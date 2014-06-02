@@ -121,16 +121,28 @@ public final class Types {
     if (type.isInterface())
       return (Class<T>) type;
 
+    boolean isProxy = false;
+
     // CGLib
     if (type.getName().contains("$$EnhancerBy"))
-      return (Class<T>) type.getSuperclass();
+      isProxy = true;
 
     // Javassist
     try {
       if (JAVASSIST_IS_PROXY_CLASS_METHOD != null && JAVASSIST_IS_PROXY_CLASS_METHOD != null
           && (Boolean) JAVASSIST_IS_PROXY_CLASS_METHOD.invoke(null, type))
-        return (Class<T>) type.getSuperclass();
+        isProxy = true;
     } catch (Exception ignore) {
+    }
+
+    if (isProxy) {
+      if (!type.getSuperclass().equals(Object.class))
+        return (Class<T>) type.getSuperclass();
+      else {
+        Class<?>[] interfaces = type.getInterfaces();
+        if (interfaces.length > 0)
+          return (Class<T>) interfaces[0];
+      }
     }
 
     return (Class<T>) type;
