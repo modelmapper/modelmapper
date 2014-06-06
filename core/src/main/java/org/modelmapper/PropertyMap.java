@@ -290,7 +290,7 @@ public abstract class PropertyMap<S, D> {
    * examples</a>.
    * 
    * @param source to skip
-   * @param destinatino to skip
+   * @param destination to skip
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */

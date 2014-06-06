@@ -49,7 +49,7 @@ public interface SkipExpression<D> extends MapExpression<D> {
    * mapping process. See the EDSL examples at {@link PropertyMap}.
    * 
    * @param source to skip
-   * @param destinatino to skip
+   * @param destination to skip
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */

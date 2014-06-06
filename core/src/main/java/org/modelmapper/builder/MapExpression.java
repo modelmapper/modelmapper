@@ -48,7 +48,7 @@ public interface MapExpression<D> {
    * {@link PropertyMap}.
    * 
    * @param source to map from
-   * @param destinatino to map to
+   * @param destination to map to
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
