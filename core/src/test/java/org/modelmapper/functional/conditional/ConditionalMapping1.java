@@ -20,10 +20,6 @@ public class ConditionalMapping1 extends AbstractTest {
 
   static class Dest {
     String name = "abc";
-
-    public void setName(String name) {
-      this.name = name;
-    }
   }
 
   public void shouldSkipConditionalTypeMapping() {
@@ -36,7 +32,7 @@ public class ConditionalMapping1 extends AbstractTest {
     modelMapper.addMappings(new PropertyMap<Source, Dest>() {
       @Override
       protected void configure() {
-        when(Conditions.isNull()).skip().setName(source.getName());
+        when(Conditions.isNull()).skip(source.getName(), destination.name);
       }
     });
 

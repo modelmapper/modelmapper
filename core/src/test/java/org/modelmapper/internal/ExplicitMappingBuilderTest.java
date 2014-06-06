@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.modelmapper.Asserts;
 import org.modelmapper.Condition;
+import org.modelmapper.Conditions;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.Mappings;
@@ -24,7 +25,7 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test
-public class MappingBuilderImplTest {
+public class ExplicitMappingBuilderTest {
   InheritingConfiguration configuration;
   ExplicitMappingBuilder<Person, PersonDTO> builder;
   ExplicitMappingBuilder<Object, Object> objectObjectBuilder;
@@ -147,7 +148,7 @@ public class MappingBuilderImplTest {
   static final class FinalPersonDTO {
     void setAddress(String address) {
     }
-    
+
     String getEmployer() {
       return null;
     }
@@ -245,56 +246,6 @@ public class MappingBuilderImplTest {
     assertEquals(employer.getConstant(), "joe");
   }
 
-  public void shouldThrowWhenDestinationMethodIsFinal() {
-    try {
-      builder.build(new PropertyMap<Person, PersonDTO>() {
-        protected void configure() {
-          map().getFinalAddressDTO().setStreet("test");
-        }
-      });
-    } catch (ConfigurationException e) {
-      assertEquals(e.getErrorMessages().size(), 1);
-      Asserts.assertContains(e.getMessage(), "1) Cannot map final method");
-      return;
-    }
-
-    fail();
-  }
-
-  public void shouldThrowWhenDestinationMethodIsMissing() {
-    try {
-      objectObjectBuilder.build(new PropertyMap<Object, Object>() {
-        protected void configure() {
-          map();
-        }
-      });
-    } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(),
-          "1) A mapping is missing a required destination method.");
-      return;
-    }
-
-    fail();
-  }
-
-  public void shouldThrowWhenDestinationTypeIsFinal() {
-    try {
-      ExplicitMappingBuilder<Person, FinalPersonDTO> builder = new ExplicitMappingBuilder<Person, FinalPersonDTO>(
-          Person.class, FinalPersonDTO.class, configuration);
-      builder.build(new PropertyMap<Person, FinalPersonDTO>() {
-        protected void configure() {
-          map().setAddress("foo");
-        }
-      });
-    } catch (ConfigurationException e) {
-      assertEquals(e.getErrorMessages().size(), 1);
-      Asserts.assertContains(e.getMessage(), "1) Cannot map final type");
-      return;
-    }
-
-    fail();
-  }
-
   public void shouldThrowWhenDuplicateMappingsAreDefined() {
     try {
       builder.build(new PropertyMap<Person, PersonDTO>() {
@@ -303,12 +254,25 @@ public class MappingBuilderImplTest {
           map().setEmployerName("bob");
         }
       });
+      fail();
     } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
       Asserts.assertContains(e.getMessage(), "1) A mapping already exists for");
-      return;
     }
+  }
 
-    fail();
+  public void shouldThrowWhenInvalidSourceMethod() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          map().setActive(source.equals(null));
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(), "1) Invalid source method");
+    }
   }
 
   public void shouldThrowWhenInvalidDestinationMethod() {
@@ -318,12 +282,10 @@ public class MappingBuilderImplTest {
           map().equals(null);
         }
       });
+      fail();
     } catch (ConfigurationException e) {
       Asserts.assertContains(e.getMessage(), "1) Invalid destination method");
-      return;
     }
-
-    fail();
   }
 
   public void shouldThrowWhenInvalidSourceAndDestinationMethods() {
@@ -334,28 +296,11 @@ public class MappingBuilderImplTest {
           map().equals(null);
         }
       });
+      fail();
     } catch (ConfigurationException e) {
       Asserts.assertContains(e.getMessage(), "Invalid source method");
       Asserts.assertContains(e.getMessage(), "Invalid destination method");
-      return;
     }
-
-    fail();
-  }
-
-  public void shouldThrowWhenInvalidSourceMethod() {
-    try {
-      builder.build(new PropertyMap<Person, PersonDTO>() {
-        protected void configure() {
-          map().setActive(source.equals(null));
-        }
-      });
-    } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(), "1) Invalid source method");
-      return;
-    }
-
-    fail();
   }
 
   public void shouldThrowWhenSourceMethodIsFinal() {
@@ -365,28 +310,11 @@ public class MappingBuilderImplTest {
           map().setEmployerName(source.finalMethod());
         }
       });
+      fail();
     } catch (ConfigurationException e) {
       assertEquals(e.getErrorMessages().size(), 1);
       Asserts.assertContains(e.getMessage(), "1) Cannot map final method");
-      return;
     }
-
-    fail();
-  }
-
-  public void shouldThrowWhenSourceMethodIsMissing() {
-    try {
-      builder.build(new PropertyMap<Person, PersonDTO>() {
-        protected void configure() {
-          map().setObject(source);
-        }
-      });
-    } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(), "1) A mapping is missing a required source method.");
-      return;
-    }
-
-    fail();
   }
 
   public void shouldThrowWhenSourceTypeIsFinal() {
@@ -398,15 +326,43 @@ public class MappingBuilderImplTest {
           map().setEmployerName(source.getEmployer());
         }
       });
+      fail();
     } catch (ConfigurationException e) {
       assertEquals(e.getErrorMessages().size(), 1);
       Asserts.assertContains(e.getMessage(), "1) Cannot map final type");
-      return;
     }
-
-    fail();
   }
-  
+
+  public void shouldThrowWhenDestinationMethodIsFinal() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          map().getFinalAddressDTO().setStreet("test");
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(), "1) Cannot map final method");
+    }
+  }
+
+  public void shouldThrowWhenDestinationTypeIsFinal() {
+    try {
+      ExplicitMappingBuilder<Person, FinalPersonDTO> builder = new ExplicitMappingBuilder<Person, FinalPersonDTO>(
+          Person.class, FinalPersonDTO.class, configuration);
+      builder.build(new PropertyMap<Person, FinalPersonDTO>() {
+        protected void configure() {
+          map().setAddress("foo");
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(), "1) Cannot map final type");
+    }
+  }
+
   public void shouldThrowWhenNullPointerInConfigure() {
     try {
       builder.build(new PropertyMap<Person, PersonDTO>() {
@@ -416,12 +372,129 @@ public class MappingBuilderImplTest {
           String str = foo.toString();
         }
       });
+      fail();
     } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
       Asserts.assertContains(e.getMessage(), "1) Failed to configure mappings");
       assertTrue(e.getCause() instanceof NullPointerException);
-      return;
     }
+  }
 
-    fail();
+  public void shouldThrowWhenMapWithMissingSource() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          map().setObject(source);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(), "1) A mapping is missing a required source member");
+    }
+  }
+
+  public void shouldThrowWhenMapWithMissingDestination1() {
+    try {
+      objectObjectBuilder.build(new PropertyMap<Object, Object>() {
+        protected void configure() {
+          map();
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(),
+          "1) A mapping is missing a required destination member");
+    }
+  }
+
+  public void shouldThrowWhenMapWithMissingDestination2() {
+    try {
+      objectObjectBuilder.build(new PropertyMap<Object, Object>() {
+        protected void configure() {
+          map(null);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(),
+          "1) A mapping is missing a required destination member");
+    }
+  }
+
+  public void shouldThrowWhenMapWithMissingSourceAndDestination() {
+    try {
+      objectObjectBuilder.build(new PropertyMap<Object, Object>() {
+        protected void configure() {
+          map(null, destination);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(),
+          "1) A mapping is missing a required destination member");
+    }
+  }
+
+  public void shouldThrowWhenSkipWithMissingDestination1() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          skip();
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(),
+          "1) A mapping is missing a required destination member");
+    }
+  }
+
+  public void shouldThrowWhenSkipWithMissingDestination2() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          skip(null);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(),
+          "1) A mapping is missing a required destination member");
+    }
+  }
+
+  public void shouldThrowWhenSkipWithMissingSourceAndDestination() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          skip(null, destination);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(),
+          "1) A mapping is missing a required destination member");
+    }
+  }
+
+  public void shouldThrowWhenUsingConditionalSkipWithoutSpecifyingSource() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          when(Conditions.isNull()).skip(destination.employerName);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      Asserts.assertContains(e.getMessage(),
+          "1) A conditional skip can only be used with skip(Object, Object)");
+    }
   }
 }

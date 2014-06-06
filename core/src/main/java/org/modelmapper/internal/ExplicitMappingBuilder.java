@@ -82,7 +82,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     Condition<?, ?> condition;
     Converter<?, ?> converter;
     Provider<?> provider;
-    boolean skip;
+    int skipType;
     boolean mapFromSource;
   }
 
@@ -94,10 +94,19 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   }
 
   public D skip() {
-    saveLastMapping();
-    getNextMapping();
-    options.skip = true;
+    map();
+    options.skipType = 1;
     return destination;
+  }
+
+  public void skip(Object destination) {
+    map(destination);
+    options.skipType = 2;
+  }
+
+  public void skip(Object source, Object destination) {
+    map(source, destination);
+    options.skipType = 3;
   }
 
   public D map() {
@@ -304,6 +313,9 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
         MappingImpl mapping = null;
         if (currentMapping.sourceAccessors.isEmpty())
           currentMapping.sourceAccessors = sourceAccessors;
+
+        if (options.skipType == 2 && options.condition != null)
+          errors.conditionalSkipWithoutSource();
 
         if (options.mapFromSource)
           mapping = new SourceMappingImpl(sourceType, currentMapping.destinationMutators, options);

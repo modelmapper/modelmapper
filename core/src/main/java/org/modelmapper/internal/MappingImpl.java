@@ -53,7 +53,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   MappingImpl(List<Mutator> destinationMutators, MappingOptions options) {
     this.destinationMutators = new ArrayList<PropertyInfo>(destinationMutators);
     path = Strings.join(destinationMutators);
-    this.skip = options.skip;
+    this.skip = options.skipType != 0;
     this.condition = options.condition;
     this.provider = options.provider;
     this.converter = options.converter;

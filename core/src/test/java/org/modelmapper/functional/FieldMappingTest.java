@@ -30,6 +30,7 @@ public class FieldMappingTest extends AbstractTest {
   static class Customer {
     String sId;
     String s1;
+    String s3;
     Address address;
 
     public Address getAddress() {
@@ -62,6 +63,7 @@ public class FieldMappingTest extends AbstractTest {
     int id;
     String d1;
     String d2;
+    String d3;
     AddressDTO address;
 
     public void setId(int id) {
@@ -112,12 +114,14 @@ public class FieldMappingTest extends AbstractTest {
             destination.getCustomer().address.zip);
         map("d1", destination.customer.d1);
         map().getCustomer().setD2("d2");
+        map(source.customer.s3, destination.customer.d3);
       }
     });
 
     Order order = new Order();
     order.customer = new Customer();
     order.customer.sId = "123";
+    order.customer.s3 = "s3";
     order.customer.address = new Address();
     order.customer.address.streetName = "1234 main street";
     order.customer.address.sZip = "92222";
@@ -128,6 +132,7 @@ public class FieldMappingTest extends AbstractTest {
     assertEquals(dto.customer.address.zip + "", order.customer.address.sZip);
     assertEquals(dto.customer.d1, "d1");
     assertEquals(dto.customer.d2, "d2");
+    assertEquals(dto.customer.d3, order.customer.s3);
   }
 
   static class Source {

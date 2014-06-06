@@ -268,6 +268,10 @@ public final class Errors {
         Strings.joinMembers(mappings.get(0).getDestinationProperties()), sourcePropertyInfo);
   }
 
+  Errors conditionalSkipWithoutSource() {
+    return addMessage("A conditional skip can only be used with skip(Object, Object).");
+  }
+
   Errors duplicateMapping(PropertyInfo destinationProperty) {
     return addMessage("A mapping already exists for %s.", destinationProperty);
   }
@@ -350,7 +354,7 @@ public final class Errors {
   }
 
   Errors missingDestination() {
-    return addMessage("A mapping is missing a required destination method.");
+    return addMessage("A mapping is missing a required destination member.");
   }
 
   Errors missingMutatorForAccessor(Method method) {
@@ -358,7 +362,7 @@ public final class Errors {
   }
 
   Errors missingSource() {
-    return addMessage("A mapping is missing a required source method.");
+    return addMessage("A mapping is missing a required source member.");
   }
 
   Errors sourceOutsideOfMap() {

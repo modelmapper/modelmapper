@@ -33,4 +33,25 @@ public interface SkipExpression<D> extends MapExpression<D> {
    *           {@link PropertyMap#configure()}.
    */
   D skip();
+
+  /**
+   * Specifies that mapping to the {@code destination} be skipped during the mapping process. See
+   * the EDSL examples at {@link PropertyMap}.
+   * 
+   * @param destination to skip
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  void skip(Object destination);
+
+  /**
+   * Specifies that mapping from the {@code source} to the {@code destination} be skipped during the
+   * mapping process. See the EDSL examples at {@link PropertyMap}.
+   * 
+   * @param source to skip
+   * @param destinatino to skip
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  void skip(Object source, Object destination);
 }

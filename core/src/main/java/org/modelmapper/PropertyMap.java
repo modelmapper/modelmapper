@@ -113,6 +113,10 @@ import org.modelmapper.internal.util.TypeResolver;
  * <pre>    skip().setName(null);</pre>
  * 
  * <b>Note</b>: Since the {@code setName} method is skipped the {@code null} value is unused.
+ * <p>
+ * Mappings to destination fields can also be skipped.
+ * 
+ * <pre>    skip(destination.address);</pre>
  * 
  * <h3 id=4>Converters</h3>
  * <p>
@@ -265,6 +269,34 @@ public abstract class PropertyMap<S, D> {
   protected final D skip() {
     assertBuilder();
     return builder.skip();
+  }
+
+  /**
+   * Specifies that mapping to the {@code destination} be skipped during the mapping process. See
+   * the <a href="#3">EDSL examples</a>.
+   * 
+   * @param destination to skip
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  protected final void skip(Object destination) {
+    assertBuilder();
+    builder.skip(destination);
+  }
+
+  /**
+   * Specifies that mapping from the {@code source} to the {@code destination} be skipped during the
+   * mapping process. See the EDSL examples at {@link PropertyMap}. See the <a href="#3">EDSL
+   * examples</a>.
+   * 
+   * @param source to skip
+   * @param destinatino to skip
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  protected final void skip(Object source, Object destination) {
+    assertBuilder();
+    builder.skip(source, destination);
   }
 
   /**

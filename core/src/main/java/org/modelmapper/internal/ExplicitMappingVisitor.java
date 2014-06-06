@@ -43,6 +43,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private static final String MAP_EXPR_OWNER_PREFIX = "org/modelmapper/builder";
   private static final String MAP_DEST_METHOD_DESC = "()Ljava/lang/Object;";
   private static final String MAP_SOURCE_METHOD_DESC = "(Ljava/lang/Object;)Ljava/lang/Object;";
+  private static final String SKIP_DEST_METHOD_DESC = "(Ljava/lang/Object;)V";
   private static final String MAP_BOTH_METHOD_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 
   private final Errors errors;
@@ -94,7 +95,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     private String lastMutatorOwner;
     /** 0=none, 1=source, 2=destination */
     private int subjectType;
-    /** 0=none, 1=map(), 2=map(Object) */
+    /** 0=none, 1=map(), 2=map(Object), 3=skip(Object) */
     private int mapType;
 
     private MappingCapturingVisitor() {
@@ -183,6 +184,8 @@ public class ExplicitMappingVisitor extends ClassVisitor {
               subjectType = 2;
             } else if (MAP_BOTH_METHOD_DESC.equals(mn.desc)) {
               recordProperties();
+            } else if (SKIP_DEST_METHOD_DESC.equals(mn.desc)) {
+              mapType = 3;
             }
           } else if (subjectType != 0) {
             Class<?> ownerType = classFor(mn.owner.replace('/', '.'));
@@ -202,7 +205,10 @@ public class ExplicitMappingVisitor extends ClassVisitor {
             }
           }
         } else if (ins.getOpcode() == Opcodes.ALOAD || ins.getOpcode() == Opcodes.RETURN) {
-          if (mapType != 0)
+          // If skip(Object)
+          if (mapType == 3 && subjectType != 0)
+            recordProperties();
+          else if (mapType != 0)
             errors.missingDestination();
         }
       }
