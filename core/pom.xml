@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -12,8 +13,19 @@
   <name>ModelMapper</name>
 
   <properties>
-    <cglib.version>2.2.2</cglib.version>
+    <cglib.version>3.1</cglib.version>
+    <asm.version>5.0.3</asm.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -22,9 +34,13 @@
       <version>${cglib.version}</version>
     </dependency>
     <dependency>
-      <groupId>asm</groupId>
+      <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
-      <version>3.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-tree</artifactId>
+      <version>${asm.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -35,21 +51,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>net.sf.dozer</groupId>
-      <artifactId>dozer</artifactId>
-      <version>5.3.2</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
       <version>1.5.8</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ma.glasnost.orika</groupId>
-      <artifactId>orika-core</artifactId>
-      <version>1.1.6</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -58,10 +62,23 @@
       <version>1.9.0</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Benchmarking dependencies -->
+    <dependency>
+      <groupId>net.sf.dozer</groupId>
+      <artifactId>dozer</artifactId>
+      <version>5.3.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ma.glasnost.orika</groupId>
+      <artifactId>orika-core</artifactId>
+      <version>1.1.6</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
-
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
@@ -172,18 +189,16 @@
           </execution>
         </executions>
         <configuration>
-          <!--
-            the maven-bundle-plugin discards the shaded packages from Export-Package,
-            so we have to add them like this.
-          -->
+          <!-- the maven-bundle-plugin discards the shaded packages from Export-Package, so we have to 
+            add them like this. -->
           <file>${project.build.outputDirectory}/META-INF/MANIFEST.MF</file>
           <regex>false</regex>
           <replacements>
             <replacement>
               <token>Export-Package: org.modelmapper</token>
               <value>Export-Package: org.modelmapper.internal.cglib.proxy;version=${cglib.version},
- org.modelmapper.internal.cglib.core;version=${cglib.version},
- org.modelmapper
+                org.modelmapper.internal.cglib.core;version=${cglib.version},
+                org.modelmapper
               </value>
             </replacement>
           </replacements>
