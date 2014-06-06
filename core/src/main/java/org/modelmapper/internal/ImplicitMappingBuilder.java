@@ -36,6 +36,7 @@ import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.PropertyInfo;
+import org.modelmapper.spi.PropertyMapping;
 
 /**
  * Builds and populates implicit property mappings for a TypeMap.
@@ -50,7 +51,7 @@ class ImplicitMappingBuilder<S, D> {
   private final TypeInfo<S> sourceTypeInfo;
   private final TypeMapStore typeMapStore;
   private final InheritingConfiguration configuration;
-  private final ConverterStore typeConverterStore;
+  private final ConverterStore converterStore;
   private final MatchingStrategy matchingStrategy;
 
   /** Mutable state */
@@ -69,7 +70,7 @@ class ImplicitMappingBuilder<S, D> {
   ImplicitMappingBuilder(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
     this.typeMap = typeMap;
-    this.typeConverterStore = converterStore;
+    this.converterStore = converterStore;
     this.typeMapStore = typeMapStore;
     this.configuration = typeMap.configuration;
     sourceTypeInfo = TypeInfoRegistry.typeInfoFor(source, typeMap.getSourceType(), configuration);
@@ -94,7 +95,8 @@ class ImplicitMappingBuilder<S, D> {
       Mutator mutator = entry.getValue();
 
       // Skip explicit mappings
-      if (!typeMap.isMapped(destPath)) {
+      MappingImpl existingMapping = typeMap.mappingFor(destPath);
+      if (existingMapping == null) {
         matchSource(sourceTypeInfo, mutator);
         propertyNameInfo.clearSource();
         sourceTypes.clear();
@@ -136,7 +138,7 @@ class ImplicitMappingBuilder<S, D> {
           typeMap.addMapping(mapping);
         mergedMappings.clear();
       } else if (isMatchable(mutator.getType()) && !destinationTypes.contains(mutator.getType())
-          && !typeMap.isSkipped(destPath)) {
+          && !typeMap.isSkipped(destPath) && !isConvertable(existingMapping)) {
         matchDestination(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
       }
 
@@ -180,7 +182,7 @@ class ImplicitMappingBuilder<S, D> {
                   propertyConverter));
             doneMatching = matchingStrategy.isExact();
           } else {
-            for (ConditionalConverter<?, ?> converter : typeConverterStore.getConverters()) {
+            for (ConditionalConverter<?, ?> converter : converterStore.getConverters()) {
               MatchResult matchResult = converter.match(accessor.getType(),
                   destinationMutator.getType());
 
@@ -304,5 +306,17 @@ class ImplicitMappingBuilder<S, D> {
   static boolean isMatchable(Class<?> type) {
     return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
         && !Iterables.isIterable(type) && !Types.isGroovyType(type);
+  }
+
+  /**
+   * Indicates whether the mapping represents a PropertyMapping that is convertible to the
+   * destination type.
+   */
+  private boolean isConvertable(Mapping mapping) {
+    return mapping != null
+        && mapping.getProvider() == null
+        && mapping instanceof PropertyMapping
+        && converterStore.getFirstSupported(((PropertyMapping) mapping).getLastSourceProperty()
+            .getType(), mapping.getLastDestinationProperty().getType()) != null;
   }
 }

@@ -23,7 +23,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class AssignableConverter implements ConditionalConverter<Object, Object> {
+public class AssignableConverter implements ConditionalConverter<Object, Object> {
   public Object convert(MappingContext<Object, Object> context) {
     return context.getDestination() == null ? context.getSource() : context.getDestination();
   }

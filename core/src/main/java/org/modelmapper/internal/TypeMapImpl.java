@@ -245,19 +245,19 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   /**
-   * Used by PropertyMapBuilder to determine if a mapping for the {@code path} already exists. No
-   * need to synchronize here since the TypeMap is not exposed publicly yet.
-   */
-  boolean isMapped(String path) {
-    return mappings.containsKey(path);
-  }
-
-  /**
    * Used by PropertyMapBuilder to determine if a skipped mapping exists for the {@code path}. No
    * need to synchronize here since the TypeMap is not exposed publicly yet.
    */
   boolean isSkipped(String path) {
     Mapping mapping = mappings.get(path);
     return mapping != null && mapping.isSkipped();
+  }
+
+  /**
+   * Used by ImplicitMappingBuilder to determine if a mapping for the {@code path} already exists.
+   * No need to synchronize here since the TypeMap is not exposed publicly yet.
+   */
+  MappingImpl mappingFor(String path) {
+    return mappings.get(path);
   }
 }
