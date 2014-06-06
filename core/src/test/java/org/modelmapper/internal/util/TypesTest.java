@@ -18,12 +18,15 @@ import org.testng.annotations.Test;
  */
 @Test
 public class TypesTest {
+  static class Foo {
+  }
+  
   public void shouldDeProxyJavassistProxy() {
     ProxyFactory proxyFactory = new ProxyFactory();
-    proxyFactory.setSuperclass(ArrayList.class);
+    proxyFactory.setSuperclass(Foo.class);
     Class<?> proxy = proxyFactory.createClass();
 
-    assertEquals(Types.deProxy(proxy), ArrayList.class);
+    assertEquals(Types.deProxy(proxy), Foo.class);
   }
 
   public void shouldDeProxyCGLibProxy() throws Exception {
