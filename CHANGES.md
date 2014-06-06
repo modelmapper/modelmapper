@@ -1,3 +1,28 @@
+# 0.7.0
+
+### New Features
+
+* Added #92 - Map properties using field references
+* Added #102 - Skip properties using field references
+
+### Bug Fixes
+
+* Fixed #47 - Handle explicitly provided convertable properties
+* Fixed #79 - Use Objenesis to construct proxies
+* Fixed #101 - Handle circular references for boxed primitives
+* Fixed #104 - Mapping to existing instances of the same type
+* Fixed #106 - Missing null check
+* Fixed #109 - Support for mapping primitive wrappers
+* Fixed #110 - Problem mapping proxied interfaces to POJOs
+
+### API Changes
+
+For field references:
+
+* Added `PropertyMap.map(Object, Object)`
+* Added `PropertyMap.skip(Object)`
+* Added `PropertyMap.skip(Object, Object)`
+
 # 0.6.5
 4/15/2014
 
@@ -13,90 +38,145 @@
 1/24/2014
 
 * Fixed #80 - ModelMapper extensions use maven backward dependencies
-* Fixed #83 - Add MappingContext.create(CS source, CD destination)
 * Fixed #82 - Ignore enums when traversing Enum types
 * Fixed #85 - Allow non-void setter return types
 * FIxed #91 - Add shaded cglib to Export-Package for better OSGi-support
 
+### API Changes
+
+* For #83 - `MappingContext.create(CS source, CD destination)`
+
 # 0.6.2 
 11/5/2013
 
+### New Features
+
 * Added support for mapping Groovy properties
 * Improved jOOQ support
+
+### Bug Fixes
+
 * Fixed #74 - Null intermdiate values possible when instance requested via global provider
 
 # 0.6.0 
 8/2/2013
 
-* Added ValueReaders to SPI
+### New Features
+
+* Added support for named TypeMaps
+* Added support for ValueReaders
 * Added 3rd party integration for Jackson, Gson and jOOQ
 * Added Simpler mapper EDSL for dealing with providers
+* Added #61 - Added UNDERSCORE NameTokenizer
+* Added support for explicit mapping of source path strings
+
+### Bug Fixes
+
 * Fixed #8 - Introduced global property conditions
 * Fixed #39 - Issue when mapping to a String
 * Fixed #49 - Allow implicit mapping to be skipped globally
 * Fixed #54 - Fixed OSGI support
 * Fixed #56 - Allow full type matching to be required
-* Fixed #61 -* Added UNDERSCORE NameTokenizer
 * Fixed issue with Javabeans name transformers for get/set methods
 * Fixed issue with merged TypeMap Providers not being copied
 
-### API Changes:
+### API Changes
 
-* Configuration.enableFieldMatching(boolean) is now setFieldMatchingEnabled(boolean)
-* Configuration.ignoreAmbiguity(boolean) is now setAmbiguityIgnored(boolean)
+For named TypeMaps:
+
+* Added `ModelMapper.createTypeMap(Class, Class, String)`
+* Added `ModelMapper.createTypeMap(Class, Class, String, Configuration)`
+* Added `ModelMapper.createTypeMap(Object, Class, String)`
+* Added `ModelMapper.createTypeMap(Object, Class, String, Configuration)`
+* Added `ModelMapper.map(Object, Class, String)`
+* Added `ModelMapper.map(Object, Object, String)`
+* Added `ModelMapper.map(Object, Type, String)`
+
+For Value Readers:
+
+* Added `ValueReader` interface to the SPI
+* Added `Configuration.getValueReaders()`
+* Added `Configuration.addValueReader(ValueReader)`
+
+For mapping source path Strings:
+
+* Added `PropertyMap.source(String)`
+
+Other changes:
+
+* Added `NameTokenizers.UNDERSCORE`
+* Changed `Configuration.enableFieldMatching(boolean)` to `setFieldMatchingEnabled(boolean)`
+* Changed `Configuration.ignoreAmbiguity(boolean)` to `setAmbiguityIgnored(boolean)`
 
 # 0.5.6 
 3/21/2013
+
+### New Features
 
 * Fixed #46 - Property map difficult to construct types
 * Added #45 - Android compatibility
 * Added #42 - Support for pre and post mapping Converters
 * Added #40 - Enhance TypeTokens support
+
+### Bug Fixes
+
 * Fixed #31 - Multiple source properties hierarchy matching problem
-* FIxed #38 - Map mocked objects
-* Added #34 - Added support for TypeTokens
+* Fixed #38 - Map mocked objects
 
 # 0.5.5 
 2/14/2013
 
-* Added support for TypeTokens
-* Fixed GH #23 - Support for combined token matching
-* Fixed GH #32 - Mapping creates instances for null objects
-* Fixed GH #37 - Mappings being incorrectly created
+### New Features
+
+* Added #34 - Added support for TypeTokens
+* Added #23 - Support for combined token matching
+
+### Bug Fixes
+
+* Fixed #32 - Mapping creates instances for null objects
+* Fixed #37 - Mappings being incorrectly created
+
+### API Changes
+
+For TypeTokens:
+
+* Added `TypeToken` class
+* Added `ModelMapper.map(Object, Type)`
+
 
 # 0.5.4 
 12/22/2012
 
-* Fixed GH #18 - Updated manifest.mf to contain OSGI bundle information for shaded packages
-* Fixed GH #26 - MM attempts to instantiate primitive wrapper when used in destination Converter
-* Fixed GH #27 - Destinations values are not set in MappingContext
-* Fixed GH #30 - Cannot proxy types without a default constructor
+* Fixed #18 - Updated manifest.mf to contain OSGI bundle information for shaded packages
+* Fixed #26 - MM attempts to instantiate primitive wrapper when used in destination Converter
+* Fixed #27 - Destinations values are not set in MappingContext
+* Fixed #30 - Cannot proxy types without a default constructor
 
 # 0.5.3 
 10/22/2012
 
-* Fixed GH #22 - Destination properties being cached by mutator
-* Fixed GH #21 - Added support for XMLGregorianCalendar conversion
+* Fixed #22 - Destination properties being cached by mutator
+* Fixed #21 - Added support for XMLGregorianCalendar conversion
 * Fixed issue when merging from a TypeMap with a Converter
 
 # 0.5.2 
 10/18/2012
 
-* Fixed GH #19 - Merged mappings should respect MatchingStrategy
-* Fixed GH #20 - Enum conversion should support String->Enum
+* Fixed #19 - Merged mappings should respect MatchingStrategy
+* Fixed #20 - Enum conversion should support String->Enum
 
 # 0.5.1 
 9/26/2012
 
 * Fixed scenario where a circular mapping can overrides an existing mapping
-* Fixed GH #11 - Improper shading
-* Fixed GH #10 - Added support for mapped enum conversion
+* Fixed #11 - Improper shading
+* Fixed #10 - Added support for mapped enum conversion
 
 # 0.5.0 
 9/12/2012
 
-* Fixed GH #2 - Add support for circular references
-* Fixed GH #9 - Overriding intemediate objects in provided destinations
+* Fixed #2 - Add support for circular references
+* Fixed #9 - Overriding intemediate objects in provided destinations
 * Fixed conversion of char[] to String
 * Fixed GC #20 - Improved hashCode in TypeInfoRegistry
 * Completed GC #21 - Implement strict matching strategy
@@ -108,10 +188,10 @@
 * Added support for TypeMap-wide property conditions, converters and providers
 * Improved generic type resolution
 * Added support for auto-TypeMap merging
-* Fixed GH #3: Disambiguation enhancements
-* Fixed GH #4: Added source to ProvisionRequest
-* Fixed GH #5: Incorrect shading of null paramters
-* Fixed GH #7: Conversion skipped when source is null
+* Fixed #3: Disambiguation enhancements
+* Fixed #4: Added source to ProvisionRequest
+* Fixed #5: Incorrect shading of null paramters
+* Fixed #7: Conversion skipped when source is null
 * Fixed GC #8: Skipped circular properties
 * Fixed GC #10: Incorrect mappings created for multiple source mappings
 
