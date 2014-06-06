@@ -34,6 +34,7 @@ import org.modelmapper.internal.util.TypeResolver;
  *   public class OrderMap extends PropertyMap&lt;Order, OrderDTO&gt;() {
  *     protected void configure() {
  *       map().setCustomer(source.getCustomerName());
+ *       map().address.setStreet(source.address.streetName);
  *     }
  *   };
  * </pre>
@@ -51,6 +52,16 @@ import org.modelmapper.internal.util.TypeResolver;
  * {@code getFirstName} method.
  * 
  * <pre>    map().setName(source.getFirstName());</pre>
+ * 
+ * This example maps the destination type's {@code setLastName} method to the source type's
+ * {@code surName} field.
+ * 
+ * <pre>    map().setLastName(source.surName);</pre>
+ * 
+ * Alternatively we can map the source type's {@code surName} field directly destination type's
+ * {@code lastName} field.
+ * 
+ * <pre>    map(source.surName, destination.lastName);</pre>
  * 
  * This example maps the destination type's {@code setEmployer} method to the constant
  * {@code "Initech"}.
@@ -80,12 +91,19 @@ import org.modelmapper.internal.util.TypeResolver;
  * This example maps the destination type's {@code getCustomer().setName()} method hierarchy to the
  * source type's {@code getPerson().getFirstName()} method hierarchy.
  * 
- * <pre>    map().getCustomer().setName(source.getPerson().getFirstName());</pre>
+ * <pre>    map().getCustomer().setName(source.person.getFirstName());</pre>
  * 
  * <b>Note</b>: In order populate the destination object, deep mapping requires the
  * {@code getCustomer} method to have a corresponding mutator, such as a {@code setCustomer} method
  * or an {@link org.modelmapper.config.Configuration#setFieldAccessLevel(AccessLevel) accessible}
  * {@code customer} field.
+ * <p>
+ * We can also mix field references into either the source or destination when deep mapping.
+ * 
+ * <pre>
+ *    map(source.customer.age, destination);
+ *    map().customer.setName(source.getPerson().firstName);
+ * </pre>
  * 
  * <h3 id=3>Skipping properties</h3>
  * <p>
@@ -160,6 +178,14 @@ public abstract class PropertyMap<S, D> {
    * {@link #configure()} .
    */
   public S source;
+  /**
+   * The destination instance to be used in a mapping declaration. See the <a href="#1">EDSL
+   * examples</a>.
+   * <p>
+   * <b>Throws:</b> NullPointerException if dereferenced from outside the context of
+   * {@link #configure()} .
+   */
+  public D destination;
   Class<D> destinationType;
   Class<S> sourceType;
   private ExplicitMappingBuilder<S, D> builder;
@@ -213,6 +239,20 @@ public abstract class PropertyMap<S, D> {
   protected final D map(Object source) {
     assertBuilder();
     return builder.map(source);
+  }
+
+  /**
+   * Defines a mapping from the {@code source} to the {@code destination}. See the See the <a
+   * href="#0">EDSL examples</a>.
+   * 
+   * @param source to map from
+   * @param destination to map to
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  protected final void map(Object source, Object destination) {
+    assertBuilder();
+    builder.map(source, destination);
   }
 
   /**
@@ -288,9 +328,11 @@ public abstract class PropertyMap<S, D> {
   @SuppressWarnings("unused")
   private synchronized void configure(ExplicitMappingBuilder<S, D> builder) {
     this.builder = builder;
-    this.source = builder.getSource();
 
     try {
+      builder.visitPropertyMap(this);
+      source = builder.source;
+      destination = builder.destination;
       configure();
     } finally {
       this.builder = null;

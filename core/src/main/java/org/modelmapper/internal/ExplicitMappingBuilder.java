@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2011-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,21 @@
  */
 package org.modelmapper.internal;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
@@ -28,12 +37,14 @@ import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.builder.ConditionExpression;
-import org.modelmapper.internal.ExplicitMappingProgress.DestinationProgress;
-import org.modelmapper.internal.ExplicitMappingProgress.SourceProgress;
+import org.modelmapper.internal.ExplicitMappingVisitor.VisitedMapping;
+import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
+import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ValueReader;
+import org.objectweb.asm.ClassReader;
 
 /**
  * Builds explicit property mappings.
@@ -43,17 +54,23 @@ import org.modelmapper.spi.ValueReader;
 public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
   private static Method PROPERTY_MAP_CONFIGURE;
+
   private final Class<S> sourceType;
   private final Class<D> destinationType;
-  final InheritingConfiguration configuration;
-  volatile S source;
-  private volatile D destination;
-  final Errors errors = new Errors();
+  private final InheritingConfiguration configuration;
+  public volatile S source;
+  public volatile D destination;
+  private final Errors errors = new Errors();
+  private List<VisitedMapping> visitedMappings;
+  private final Map<Object, ExplicitMappingInterceptor> proxyInterceptors = new HashMap<Object, ExplicitMappingInterceptor>();
   private final Set<MappingImpl> propertyMappings = new HashSet<MappingImpl>();
-  private final SourceProgress sourceProgress;
-  private final DestinationProgress destinationProgress;
+
+  /** Per mapping state */
+  private int currentMappingIndex;
+  private VisitedMapping currentMapping;
   private MappingOptions options = new MappingOptions();
-  private boolean destinationRequested;
+  private List<Accessor> sourceAccessors;
+  private Object sourceConstant;
 
   static {
     PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure",
@@ -67,7 +84,6 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     Provider<?> provider;
     boolean skip;
     boolean mapFromSource;
-    String sourcePropertyPath;
   }
 
   ExplicitMappingBuilder(Class<S> sourceType, Class<D> destinationType,
@@ -75,40 +91,49 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     this.sourceType = sourceType;
     this.destinationType = destinationType;
     this.configuration = configuration;
-    sourceProgress = new SourceProgress(this);
-    destinationProgress = new DestinationProgress(this);
   }
 
   public D skip() {
-    assertLastMapping();
+    saveLastMapping();
+    getNextMapping();
     options.skip = true;
-    return getDestination();
+    return destination;
   }
 
   public D map() {
-    assertLastMapping();
-    return getDestination();
+    saveLastMapping();
+    getNextMapping();
+    return destination;
   }
 
   public D map(Object source) {
-    assertLastMapping();
-    options.mapFromSource = source != null && source == this.source;
-    return getDestination();
+    saveLastMapping();
+    getNextMapping();
+    recordSourceValue(source);
+    return destination;
+  }
+
+  public void map(Object source, Object destination) {
+    saveLastMapping();
+    getNextMapping();
+    recordSourceValue(source);
   }
 
   public <T> T source(String sourcePropertyPath) {
-    options.sourcePropertyPath = sourcePropertyPath;
     if (sourcePropertyPath == null)
       errors.errorNullArgument("sourcePropertyPath");
+    if (sourceAccessors != null)
+      saveLastMapping();
 
+    String[] propertyNames = DOT_PATTERN.split(sourcePropertyPath);
+    sourceAccessors = new ArrayList<Accessor>(propertyNames.length);
     ValueReader<?> valueReader = configuration.valueAccessStore.getFirstSupportedReader(sourceType);
     if (valueReader != null)
-      for (String propertyName : DOT_PATTERN.split(sourcePropertyPath))
-        sourceProgress.propertyInfo.add(new ValueReaderPropertyInfo(valueReader, Object.class,
-            propertyName));
+      for (String propertyName : propertyNames)
+        sourceAccessors.add(new ValueReaderPropertyInfo(valueReader, Object.class, propertyName));
     else {
       Accessor accessor = null;
-      for (String propertyName : DOT_PATTERN.split(sourcePropertyPath)) {
+      for (String propertyName : propertyNames) {
         Class<?> propertyType = accessor == null ? sourceType : accessor.getType();
         TypeInfoRegistry.typeInfoFor(propertyType, configuration).getAccessors();
         accessor = PropertyInfoRegistry.accessorFor(propertyType, propertyName, configuration);
@@ -117,7 +142,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
           return null;
         }
 
-        sourceProgress.propertyInfo.add(accessor);
+        sourceAccessors.add(accessor);
       }
     }
 
@@ -125,27 +150,27 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   }
 
   public ConditionExpression<S, D> using(Converter<?, ?> converter) {
+    saveLastMapping();
     if (converter == null)
       errors.errorNullArgument("converter");
-    assertLastMapping();
     Assert.state(options.converter == null, "using() can only be called once per mapping.");
     options.converter = converter;
     return this;
   }
 
   public ConditionExpression<S, D> when(Condition<?, ?> condition) {
+    saveLastMapping();
     if (condition == null)
       errors.errorNullArgument("condition");
-    assertLastMapping();
     Assert.state(options.condition == null, "when() can only be called once per mapping.");
     options.condition = condition;
     return this;
   }
 
   public ConditionExpression<S, D> with(Provider<?> provider) {
+    saveLastMapping();
     if (provider == null)
       errors.errorNullArgument("provider");
-    assertLastMapping();
     Assert.state(options.provider == null, "withProvider() can only be called once per mapping.");
     options.provider = provider;
     return this;
@@ -153,93 +178,150 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
 
   /**
    * Builds and returns all property mappings defined in the {@code propertyMap}.
-   * 
-   * @return map of destination property names to mappings
    */
   Collection<MappingImpl> build(PropertyMap<S, D> propertyMap) {
     try {
       PROPERTY_MAP_CONFIGURE.invoke(propertyMap, this);
-      assertLastMapping();
+      saveLastMapping();
     } catch (IllegalAccessException e) {
       errors.errorAccessingConfigure(e);
     } catch (InvocationTargetException e) {
       Throwable cause = e.getCause();
-
-      if (cause instanceof NullPointerException) {
-        errors.invocationAgainstFinalClassOrMethod();
-      } else if (cause instanceof ConfigurationException)
-        errors.merge(((ConfigurationException) cause).getErrorMessages());
+      if (cause instanceof ConfigurationException)
+        throw (ConfigurationException) cause;
       else
-        errors.addError("building mappings", cause);
+        errors.addMessage(cause, "Failed to configure mappings");
     }
 
     errors.throwConfigurationExceptionIfErrorsExist();
     return propertyMappings;
   }
 
-  private D getDestination() {
-    destinationRequested = true;
+  /**
+   * Visits the {@code propertyMap} and captures and validates mappings.
+   */
+  public void visitPropertyMap(PropertyMap<S, D> propertyMap) {
+    String propertyMapClassName = propertyMap.getClass().getName();
 
-    if (destination == null) {
-      synchronized (ExplicitMappingBuilder.class) {
-        if (destination == null) {
-          try {
-            destination = ProxyFactory.<D>proxyFor(destinationType, destinationProgress);
-          } catch (ErrorsException e) {
-            errors.merge(e.getErrors());
-            errors.throwConfigurationExceptionIfErrorsExist();
-          }
-        }
-      }
-    }
-
-    return destination;
-  }
-
-  public S getSource() {
-    if (source == null) {
-      synchronized (ExplicitMappingBuilder.class) {
-        if (source == null) {
-          try {
-            source = ProxyFactory.<S>proxyFor(sourceType, sourceProgress);
-          } catch (ErrorsException e) {
-            errors.merge(e.getErrors());
-            errors.throwConfigurationExceptionIfErrorsExist();
-          }
-        }
-      }
-    }
-
-    return source;
-  }
-
-  private void assertLastMapping() {
-    if (destinationRequested && destinationProgress.propertyInfo.isEmpty())
-      errors.missingDestination();
-  }
-
-  void saveMapping() {
     try {
-      if (!destinationProgress.propertyInfo.isEmpty()) {
+      ClassReader cr = new ClassReader(propertyMapClassName);
+      ExplicitMappingVisitor visitor = new ExplicitMappingVisitor(errors, configuration,
+          propertyMapClassName, destinationType.getName());
+      cr.accept(visitor, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+      visitedMappings = visitor.mappings;
+    } catch (IOException e) {
+      errors.errorReadingClass(e, propertyMapClassName);
+    }
+
+    validateVisitedMappings();
+    errors.throwConfigurationExceptionIfErrorsExist();
+    createProxies();
+  }
+
+  /**
+   * Validates mappings to ensure that destination properties are present.
+   */
+  private void validateVisitedMappings() {
+    for (VisitedMapping mapping : visitedMappings) {
+      if (mapping.destinationMutators.isEmpty())
+        errors.missingDestination();
+    }
+  }
+
+  /**
+   * Creates the source and destination proxy models.
+   */
+  private void createProxies() {
+    source = createProxy(sourceType);
+    destination = createProxy(destinationType);
+
+    for (VisitedMapping mapping : visitedMappings) {
+      createAccessorProxies(source, mapping.sourceAccessors);
+      createAccessorProxies(destination, mapping.destinationAccessors);
+    }
+  }
+
+  private void createAccessorProxies(Object proxy, List<Accessor> accessors) {
+    for (Accessor accessor : accessors) {
+      if (accessor instanceof MethodAccessor) {
+        ExplicitMappingInterceptor interceptor = proxyInterceptors.get(proxy);
+        String methodName = accessor.getMember().getName();
+        proxy = interceptor.methodProxies.get(methodName);
+        if (proxy == null) {
+          proxy = createProxy(accessor.getType());
+          interceptor.methodProxies.put(methodName, proxy);
+        }
+      } else if (accessor instanceof FieldPropertyInfo) {
+        FieldPropertyInfo field = (FieldPropertyInfo) accessor;
+        Object nextProxy = field.getValue(proxy);
+        if (nextProxy == null) {
+          nextProxy = createProxy(field.getType());
+          field.setValue(proxy, nextProxy);
+        }
+        proxy = nextProxy;
+      }
+    }
+  }
+
+  private final class ExplicitMappingInterceptor implements MethodInterceptor {
+    private final Map<String, Object> methodProxies = new HashMap<String, Object>();
+
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
+        throws Throwable {
+      if (args.length == 1) {
+        sourceConstant = args[0];
+        if (sourceConstant != null && sourceConstant == source)
+          errors.missingSource();
+      }
+      return methodProxies.get(method.getName());
+    }
+  }
+
+  private <T> T createProxy(Class<T> type) {
+    ExplicitMappingInterceptor interceptor = new ExplicitMappingInterceptor();
+    T proxy = (T) ProxyFactory.proxyFor(type, interceptor, errors);
+    proxyInterceptors.put(proxy, interceptor);
+    return proxy;
+  }
+
+  private void getNextMapping() {
+    if (currentMappingIndex < visitedMappings.size())
+      currentMapping = visitedMappings.get(currentMappingIndex++);
+  }
+
+  private void recordSourceValue(Object sourceValue) {
+    if (sourceValue != null) {
+      if (sourceValue == source)
+        options.mapFromSource = true;
+      else if (!Enhancer.isEnhanced(sourceValue.getClass()))
+        sourceConstant = sourceValue;
+    }
+  }
+
+  private void saveLastMapping() {
+    if (currentMapping != null) {
+      try {
         MappingImpl mapping = null;
+        if (currentMapping.sourceAccessors.isEmpty())
+          currentMapping.sourceAccessors = sourceAccessors;
 
         if (options.mapFromSource)
-          mapping = new SourceMappingImpl(sourceType, destinationProgress.propertyInfo, options);
-        else if (sourceProgress.propertyInfo.isEmpty())
-          mapping = new ConstantMappingImpl(destinationProgress.argument,
-              destinationProgress.propertyInfo, options);
+          mapping = new SourceMappingImpl(sourceType, currentMapping.destinationMutators, options);
+        else if (currentMapping.sourceAccessors == null)
+          mapping = new ConstantMappingImpl(sourceConstant, currentMapping.destinationMutators,
+              options);
         else
-          mapping = new PropertyMappingImpl(sourceProgress.propertyInfo,
-              destinationProgress.propertyInfo, options);
+          mapping = new PropertyMappingImpl(currentMapping.sourceAccessors,
+              currentMapping.destinationMutators, options);
 
         if (!propertyMappings.add(mapping))
           errors.duplicateMapping(mapping.getLastDestinationProperty());
+      } finally {
+        currentMapping = null;
+        options = new MappingOptions();
+        sourceAccessors = null;
+        sourceConstant = null;
       }
-    } finally {
-      sourceProgress.reset();
-      destinationProgress.reset();
-      options = new MappingOptions();
-      destinationRequested = false;
     }
   }
 }

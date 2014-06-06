@@ -16,7 +16,11 @@
 package org.modelmapper.internal.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+import org.objectweb.asm.Type;
 
 /**
  * Utility methods for working with primitives.
@@ -27,9 +31,7 @@ public final class Primitives {
   private static Map<Class<?>, Class<?>> primitiveToWrapper;
   private static Map<Class<?>, Class<?>> wrapperToPrimitive;
   private static Map<Class<?>, Object> defaultValue;
-
-  private Primitives() {
-  }
+  private static Set<String> primitiveWrapperInternalNames;
 
   static {
     primitiveToWrapper = new HashMap<Class<?>, Class<?>>();
@@ -61,6 +63,13 @@ public final class Primitives {
     defaultValue.put(Long.TYPE, Long.valueOf(0L));
     defaultValue.put(Float.TYPE, Float.valueOf(0.0f));
     defaultValue.put(Double.TYPE, Double.valueOf(0.0d));
+
+    primitiveWrapperInternalNames = new HashSet<String>();
+    for (Class<?> wrapper : wrapperToPrimitive.keySet())
+      primitiveWrapperInternalNames.add(wrapper.getName().replace('.', '/'));
+  }
+
+  private Primitives() {
   }
 
   /**
@@ -70,7 +79,7 @@ public final class Primitives {
   public static <T> T defaultValue(Class<?> type) {
     return type.isPrimitive() ? (T) defaultValue.get(type) : null;
   }
-
+  
   /**
    * Returns the boxed default value for {@code type} if {@code type} is a primitive wrapper.
    */
@@ -95,11 +104,45 @@ public final class Primitives {
   }
 
   /**
+   * Returns whether the {@code name} is an internal class name of a primitive wrapper.
+   */
+  public static boolean isPrimitiveWrapperInternalName(String name) {
+    return primitiveWrapperInternalNames.contains(name);
+  }
+
+  /**
    * Returns the primitive type for the {@code wrapper}, else returns {@code null} if
    * {@code wrapper} is not a primitive wrapper.
    */
   public static Class<?> primitiveFor(Class<?> wrapper) {
     return wrapperToPrimitive.get(wrapper);
+  }
+
+  /**
+   * Returns a primitive type for the ASM {@code type}, else {@code null}.
+   */
+  public static Class<?> primitiveFor(Type type) {
+    switch (type.getSort()) {
+      case Type.BOOLEAN:
+        return Boolean.TYPE;
+      case Type.CHAR:
+        return Character.TYPE;
+      case Type.BYTE:
+        return Byte.TYPE;
+      case Type.SHORT:
+        return Short.TYPE;
+      case Type.INT:
+        return Integer.TYPE;
+      case Type.FLOAT:
+        return Float.TYPE;
+      case Type.LONG:
+        return Long.TYPE;
+      case Type.DOUBLE:
+        return Double.TYPE;
+      case Type.OBJECT:
+      default:
+        return null;
+    }
   }
 
   /**

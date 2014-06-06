@@ -45,7 +45,7 @@ class ProxyFactory {
   private static final CallbackFilter METHOD_FILTER = new CallbackFilter() {
     public int accept(Method method) {
       return method.isBridge()
-          || (method.getName().equals("finalize") && method.getParameterTypes().length == 0)
+          || (method.getDeclaringClass().equals(Object.class))
           || (method.getReturnType().getName().equals("groovy.lang.MetaClass") && (method.getName()
               .equals("getMetaClass") || method.getName().startsWith("$"))) ? 1 : 0;
     }
@@ -55,7 +55,7 @@ class ProxyFactory {
     return Enhancer.isEnhanced(type);
   }
 
-  static Class<?> proxyClassFor(Class<?> type) throws ErrorsException {
+  static Class<?> proxyClassFor(Class<?> type, Errors errors) throws ErrorsException {
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(type);
     enhancer.setUseFactory(false);
@@ -67,30 +67,26 @@ class ProxyFactory {
     try {
       return enhancer.createClass();
     } catch (Throwable t) {
-      throw new Errors().errorEnhancingClass(type, t).toException();
+      throw errors.errorEnhancingClass(type, t).toException();
     }
   }
 
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
-  static <T> T proxyFor(Class<T> type, ExplicitMappingProgress<?> mappingProgress)
-      throws ErrorsException {
+  static <T> T proxyFor(Class<T> type, MethodInterceptor interceptor, Errors errors) throws ErrorsException {
     if (Modifier.isFinal(type.getModifiers()))
       return Primitives.defaultValueForWrapper(type);
 
-    Class<?> enhanced = proxyClassFor(type);
+    Class<?> enhanced = proxyClassFor(type, errors);
 
     try {
-      Enhancer.registerCallbacks(enhanced, new Callback[] {
-          new ExplicitMappingInterceptor(mappingProgress), NoOp.INSTANCE });
-      mappingProgress.enterConstructor();
+      Enhancer.registerCallbacks(enhanced, new Callback[] { interceptor, NoOp.INSTANCE });
       T result = Types.construct(enhanced, type);
       return result;
     } catch (Throwable t) {
-      throw new Errors().errorInstantiatingProxy(type, t).toException();
+      throw errors.errorInstantiatingProxy(type, t).toException();
     } finally {
-      mappingProgress.leaveConstructor();
       Enhancer.registerCallbacks(enhanced, null);
     }
   }

@@ -66,15 +66,15 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   public void addMappings(PropertyMap<S, D> propertyMap) {
     if (sourceType.isEnum() || destinationType.isEnum())
-      new Errors().mappingForEnum().throwConfigurationExceptionIfErrorsExist();
+      throw new Errors().mappingForEnum().toConfigurationException();
 
     synchronized (mappings) {
       for (MappingImpl mapping : new ExplicitMappingBuilder<S, D>(sourceType, destinationType,
           configuration).build(propertyMap)) {
         MappingImpl existingMapping = addMapping(mapping);
         if (existingMapping != null && existingMapping.isExplicit())
-          new Errors().duplicateMapping(mapping.getLastDestinationProperty())
-              .throwConfigurationExceptionIfErrorsExist();
+          throw new Errors().duplicateMapping(mapping.getLastDestinationProperty())
+              .toConfigurationException();
       }
     }
   }

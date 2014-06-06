@@ -38,14 +38,4 @@ public class PropertyMapTest {
   public void shouldThrowWhenMapOutsideOfDefine() {
     new BadMemberMap().test();
   }
-
-  // @Test(expectedExceptions = ConfigurationException.class)
-  // public void shouldThrowWhenUsingInvokedTwice() {
-  // new BadMemberMap().test();
-  // }
-  //
-  // @Test(expectedExceptions = ConfigurationException.class)
-  // public void shouldThrowWhenWhenInvokedTwice() {
-  // new BadMemberMap().test();
-  // }
 }

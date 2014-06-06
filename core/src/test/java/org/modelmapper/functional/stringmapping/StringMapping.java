@@ -24,12 +24,14 @@ public class StringMapping extends AbstractTest {
   static class Address {
     String street;
     String city;
+    String state;
   }
 
   static class OrderDTO {
     String customerName;
     String customerStreet;
     String customerCity;
+    String customerState;
 
     public void setCustomerName(String customerName) {
       this.customerName = customerName;
@@ -42,6 +44,10 @@ public class StringMapping extends AbstractTest {
     public void setCustomerCity(String customerCity) {
       this.customerCity = customerCity;
     }
+
+    public void setCustomerState(String customerState) {
+      this.customerState = customerState;
+    }
   }
 
   public void shouldMapFromSourceStrings() {
@@ -51,6 +57,7 @@ public class StringMapping extends AbstractTest {
         map().setCustomerName(this.<String>source("customer.name"));
         map().setCustomerStreet(this.<String>source("customer.address.street"));
         map(source("customer.address.city")).setCustomerCity(null);
+        map(source("customer.address.state")).setCustomerState(null);
       }
     });
 
@@ -60,11 +67,13 @@ public class StringMapping extends AbstractTest {
     order.customer.address = new Address();
     order.customer.address.street = "1234 main street";
     order.customer.address.city = "SF";
+    order.customer.address.state = "CA";
     OrderDTO dto = modelMapper.map(order, OrderDTO.class);
 
     assertEquals(dto.customerName, order.customer.name);
     assertEquals(dto.customerStreet, order.customer.address.street);
     assertEquals(dto.customerCity, order.customer.address.city);
+    assertEquals(dto.customerState, order.customer.address.state);
   }
 
   @Test(expectedExceptions = ConfigurationException.class)

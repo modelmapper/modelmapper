@@ -54,8 +54,8 @@ class CalendarConverter implements ConditionalConverter<Object, Object> {
       try {
         dataTypeFactory = DatatypeFactory.newInstance();
       } catch (DatatypeConfigurationException e) {
-        throw new Errors().addError(
-            "Failed to create DataTypeFactory required for XMLGregorianCalendar conversion", e)
+        throw new Errors().addMessage(e,
+            "Failed to create DataTypeFactory required for XMLGregorianCalendar conversion")
             .toMappingException();
       }
     }

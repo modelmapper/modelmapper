@@ -135,6 +135,22 @@ public class MappingBuilderImplTest {
     void setSurName(String surName) {
       this.surName = surName;
     }
+
+    final AddressDTO getFinalAddressDTO() {
+      return null;
+    }
+
+    void setFinalAddressDTO(AddressDTO dto) {
+    }
+  }
+
+  static final class FinalPersonDTO {
+    void setAddress(String address) {
+    }
+    
+    String getEmployer() {
+      return null;
+    }
   }
 
   @BeforeMethod
@@ -231,15 +247,14 @@ public class MappingBuilderImplTest {
 
   public void shouldThrowWhenDestinationMethodIsFinal() {
     try {
-      objectObjectBuilder.build(new PropertyMap<Object, Object>() {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
         protected void configure() {
-          map().getClass();
+          map().getFinalAddressDTO().setStreet("test");
         }
       });
     } catch (ConfigurationException e) {
       assertEquals(e.getErrorMessages().size(), 1);
-      Asserts.assertContains(e.getMessage(),
-          "1) A mapping is missing a required destination method");
+      Asserts.assertContains(e.getMessage(), "1) Cannot map final method");
       return;
     }
 
@@ -262,33 +277,18 @@ public class MappingBuilderImplTest {
     fail();
   }
 
-  // Not sure if this scenario can be checked
-  // public void shouldThrowOnMisplacedMap() {
-  // try {
-  // objectObjectBuilder.record(new MemberMap<Object, Object>() {
-  // protected void configure() {
-  // map().equals(map());
-  // }
-  // });
-  // } catch (ConfigurationException e) {
-  // Asserts.assertContains(e.getMessage(), "1) xxx");
-  // return;
-  // }
-  //
-  // fail();
-  // }
-
   public void shouldThrowWhenDestinationTypeIsFinal() {
     try {
-      ExplicitMappingBuilder<Object, String> builder = new ExplicitMappingBuilder<Object, String>(
-          Object.class, String.class, configuration);
-      builder.build(new PropertyMap<Object, String>() {
+      ExplicitMappingBuilder<Person, FinalPersonDTO> builder = new ExplicitMappingBuilder<Person, FinalPersonDTO>(
+          Person.class, FinalPersonDTO.class, configuration);
+      builder.build(new PropertyMap<Person, FinalPersonDTO>() {
         protected void configure() {
-          map().length();
+          map().setAddress("foo");
         }
       });
     } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(), "1) Cannot map to final type.");
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(), "1) Cannot map final type");
       return;
     }
 
@@ -362,12 +362,12 @@ public class MappingBuilderImplTest {
     try {
       builder.build(new PropertyMap<Person, PersonDTO>() {
         protected void configure() {
-          map().setEmployerName(source.finalMethod().toLowerCase());
+          map().setEmployerName(source.finalMethod());
         }
       });
     } catch (ConfigurationException e) {
       assertEquals(e.getErrorMessages().size(), 1);
-      Asserts.assertContains(e.getMessage(), "1) Cannot map to final type");
+      Asserts.assertContains(e.getMessage(), "1) Cannot map final method");
       return;
     }
 
@@ -391,15 +391,34 @@ public class MappingBuilderImplTest {
 
   public void shouldThrowWhenSourceTypeIsFinal() {
     try {
-      ExplicitMappingBuilder<String, Object> builder = new ExplicitMappingBuilder<String, Object>(
-          String.class, Object.class, configuration);
-      builder.build(new PropertyMap<String, Object>() {
+      ExplicitMappingBuilder<FinalPersonDTO, PersonDTO> builder = new ExplicitMappingBuilder<FinalPersonDTO, PersonDTO>(
+          FinalPersonDTO.class, PersonDTO.class, configuration);
+      builder.build(new PropertyMap<FinalPersonDTO, PersonDTO>() {
         protected void configure() {
-          map().equals(source.length());
+          map().setEmployerName(source.getEmployer());
         }
       });
     } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(), "1) Cannot map to final type.");
+      assertEquals(e.getErrorMessages().size(), 1);
+      Asserts.assertContains(e.getMessage(), "1) Cannot map final type");
+      return;
+    }
+
+    fail();
+  }
+  
+  public void shouldThrowWhenNullPointerInConfigure() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        @SuppressWarnings({ "null", "unused" })
+        protected void configure() {
+          Object foo = null;
+          String str = foo.toString();
+        }
+      });
+    } catch (ConfigurationException e) {
+      Asserts.assertContains(e.getMessage(), "1) Failed to configure mappings");
+      assertTrue(e.getCause() instanceof NullPointerException);
       return;
     }
 

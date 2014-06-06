@@ -6,6 +6,8 @@ import static org.testng.Assert.assertTrue;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.cglib.proxy.MethodInterceptor;
+
 import org.testng.annotations.Test;
 
 /**
@@ -40,8 +42,8 @@ public class ProxyFactoryTest {
 
   @Test
   public void shouldProxyTypesWithNonDefaultConstructor() {
-    ExplicitMappingProgress<?> progress = mock(ExplicitMappingProgress.class);
-    assertTrue(ProxyFactory.proxyFor(A1.class, progress) instanceof A1);
-    assertTrue(ProxyFactory.proxyFor(A2.class, progress) instanceof A2);
+    MethodInterceptor interceptor = mock(MethodInterceptor.class);
+    assertTrue(ProxyFactory.proxyFor(A1.class, interceptor, null) instanceof A1);
+    assertTrue(ProxyFactory.proxyFor(A2.class, interceptor, null) instanceof A2);
   }
 }
