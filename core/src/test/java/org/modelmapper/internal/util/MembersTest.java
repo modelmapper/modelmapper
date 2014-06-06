@@ -40,23 +40,23 @@ public class MembersTest {
   }
 
   public void shouldGetMethodForInterface() {
-    Method getter = Members.methodFor(IInterface.class, "getter", null);
+    Method getter = Members.methodFor(IInterface.class, "getter", (Class<?>[]) null);
     Method setter = Members.methodFor(IInterface.class, "setter", new Class<?>[] { String.class });
     assertEquals(getter.getDeclaringClass(), IInterface.class);
     assertEquals(setter.getDeclaringClass(), IInterface.class);
   }
 
   public void shouldGetMethodForClass() {
-    Method getter = Members.methodFor(Parent.class, "getter", null);
+    Method getter = Members.methodFor(Parent.class, "getter", (Class<?>[]) null);
     Method setter = Members.methodFor(Parent.class, "setter", new Class<?>[] { String.class });
     assertEquals(getter.getDeclaringClass(), Parent.class);
     assertEquals(setter.getDeclaringClass(), Parent.class);
   }
 
   public void shuoldGetMethodForChildClass() {
-    Method getter = Members.methodFor(Child.class, "getter", null);
+    Method getter = Members.methodFor(Child.class, "getter", (Class<?>[]) null);
     Method setter = Members.methodFor(Child.class, "setter", new Class<?>[] { String.class });
-    Method childGetter = Members.methodFor(Child.class, "childGetter", null);
+    Method childGetter = Members.methodFor(Child.class, "childGetter", (Class<?>[]) null);
     Method childSetter = Members.methodFor(Child.class, "childSetter",
         new Class<?>[] { String.class });
     assertEquals(getter.getDeclaringClass(), Parent.class);

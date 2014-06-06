@@ -28,7 +28,7 @@ public final class Members {
   private Members() {
   }
 
-  public static Method methodFor(Class<?> type, String methodName, Class<?>[] parameterTypes) {
+  public static Method methodFor(Class<?> type, String methodName, Class<?>... parameterTypes) {
     while (type != null) {
       for (Method method : type.getDeclaredMethods())
         if (method.getName().equals(methodName)

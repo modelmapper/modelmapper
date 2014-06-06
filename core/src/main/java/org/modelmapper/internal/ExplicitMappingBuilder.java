@@ -42,7 +42,7 @@ import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
 import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.util.Assert;
-import org.modelmapper.internal.util.Types;
+import org.modelmapper.internal.util.Members;
 import org.modelmapper.spi.ValueReader;
 import org.objectweb.asm.ClassReader;
 
@@ -73,7 +73,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private Object sourceConstant;
 
   static {
-    PROPERTY_MAP_CONFIGURE = Types.methodFor(PropertyMap.class, "configure",
+    PROPERTY_MAP_CONFIGURE = Members.methodFor(PropertyMap.class, "configure",
         ExplicitMappingBuilder.class);
     PROPERTY_MAP_CONFIGURE.setAccessible(true);
   }

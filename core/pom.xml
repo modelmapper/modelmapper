@@ -15,6 +15,7 @@
   <properties>
     <cglib.version>3.1</cglib.version>
     <asm.version>5.0.3</asm.version>
+    <objenesis.version>2.1</objenesis.version>
   </properties>
 
   <dependencyManagement>
@@ -41,6 +42,11 @@
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-tree</artifactId>
       <version>${asm.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.objenesis</groupId>
+      <artifactId>objenesis</artifactId>
+      <version>${objenesis.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -118,6 +124,10 @@
             <relocation>
               <pattern>org.objectweb.asm</pattern>
               <shadedPattern>org.modelmapper.internal.asm</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.objenesis</pattern>
+              <shadedPattern>org.modelmapper.internal.objenesis</shadedPattern>
             </relocation>
           </relocations>
         </configuration>
