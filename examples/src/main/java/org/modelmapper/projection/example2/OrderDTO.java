@@ -1,8 +1,8 @@
 package org.modelmapper.projection.example2;
 
 public class OrderDTO {
- private String street;
-  private String city;
+  private String street;
+  String city;
 
   public String getStreet() {
     return street;

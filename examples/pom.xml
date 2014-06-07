@@ -5,14 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.modelmapper</groupId>
   <artifactId>modelmapper-examples</artifactId>
-  <version>0.5.4-SNAPSHOT</version>
+  <version>0.6.6-SNAPSHOT</version>
   <name>ModelMapper Examples</name>
   
   <dependencies>
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
-      <version>0.6.1</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testng</groupId>

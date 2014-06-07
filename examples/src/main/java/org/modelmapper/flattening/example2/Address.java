@@ -2,6 +2,7 @@ package org.modelmapper.flattening.example2;
 
 public class Address {
   private String street;
+  String city;
 
   public String getStreet() {
     return street;
@@ -18,6 +19,4 @@ public class Address {
   public void setCity(String city) {
     this.city = city;
   }
-
-  private String city;
 }

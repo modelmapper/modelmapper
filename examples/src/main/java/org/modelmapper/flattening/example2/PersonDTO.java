@@ -1,7 +1,7 @@
 package org.modelmapper.flattening.example2;
 
 public class PersonDTO {
-  private String city;
+  String city;
   private String street;
 
   public String getStreet() {

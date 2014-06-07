@@ -1,7 +1,7 @@
 package org.modelmapper.projection.example2;
 
 public class Order {
-  private Address address;
+  Address address;
 
   public Address getAddress() {
     return address;

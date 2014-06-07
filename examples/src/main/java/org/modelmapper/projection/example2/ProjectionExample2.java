@@ -6,7 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
 
-public class FlatteningExample2 {
+public class ProjectionExample2 {
   public static void main(String... args) {
     OrderDTO orderDTO = new OrderDTO();
     orderDTO.setStreet("1234 Pike Street");
@@ -17,7 +17,7 @@ public class FlatteningExample2 {
     PropertyMap<OrderDTO, Order> orderMap = new PropertyMap<OrderDTO, Order>() {
       protected void configure() {
         map().getAddress().setStreet(source.getStreet());
-        map().getAddress().setCity(source.getCity());
+        map().address.setCity(source.city);
       }
     };
 

@@ -3,8 +3,8 @@ package org.modelmapper.gettingstarted;
 public class OrderDTO {
   private String customerFirstName;
   private String customerLastName;
-  private String billingStreet;
-  private String billingCity;
+  String billingStreet;
+  String billingCity;
 
   public String getCustomerFirstName() {
     return customerFirstName;

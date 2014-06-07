@@ -1,8 +1,8 @@
 package org.modelmapper.gettingstarted;
 
 public class Order {
-  private Customer customer;
-  private Address billingAddress;
+  Customer customer;
+  Address billingAddress;
 
   public Order(Customer customer, Address billingAddress) {
     this.customer = customer;

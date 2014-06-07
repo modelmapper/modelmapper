@@ -19,7 +19,7 @@ public class FlatteningExample2 {
     PropertyMap<Person, PersonDTO> personMap = new PropertyMap<Person, PersonDTO>() {
       protected void configure() {
         map().setStreet(source.getAddress().getStreet());
-        map().setCity(source.getAddress().getCity());
+        map(source.getAddress().city, destination.city);
       }
     };
 
