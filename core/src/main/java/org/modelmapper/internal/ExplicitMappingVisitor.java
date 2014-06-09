@@ -180,8 +180,13 @@ public class ExplicitMappingVisitor extends ClassVisitor {
               mapType = 1;
               subjectType = 2;
             } else if (MAP_SOURCE_METHOD_DESC.equals(mn.desc)) {
-              mapType = 2;
-              subjectType = 2;
+              // If already recorded destination field
+              if (subjectType == 2) {
+                recordProperties();
+              } else {
+                mapType = 2;
+                subjectType = 2;
+              }
             } else if (MAP_BOTH_METHOD_DESC.equals(mn.desc)) {
               recordProperties();
             } else if (SKIP_DEST_METHOD_DESC.equals(mn.desc)) {

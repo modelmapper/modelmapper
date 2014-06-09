@@ -54,23 +54,57 @@ public class ConverterTest1 extends AbstractTest {
 
   public void propertyMapConverterShouldOverrideTypeMapPropertyConverter() {
     modelMapper.createTypeMap(Source.class, Dest.class)
-               .setPropertyConverter(new Converter<Object, Object>() {
-                 public Object convert(MappingContext<Object, Object> context) {
-                   return "test";
-                 }
-               })
-               .addMappings(new PropertyMap<Source, Dest>() {
-                 @Override
-                 protected void configure() {
-                   using(new Converter<Object, Object>() {
-                     public Object convert(MappingContext<Object, Object> context) {
-                       return "abc";
-                     }
-                   }).map().setValue(null);
-                 }
-               });
+        .setPropertyConverter(new Converter<Object, Object>() {
+          public Object convert(MappingContext<Object, Object> context) {
+            return "test";
+          }
+        })
+        .addMappings(new PropertyMap<Source, Dest>() {
+          @Override
+          protected void configure() {
+            using(new Converter<Object, Object>() {
+              public Object convert(MappingContext<Object, Object> context) {
+                return "abc";
+              }
+            }).map().setValue(null);
+          }
+        });
 
     Dest dest = modelMapper.map(new Source(), Dest.class);
     assertEquals(dest.value, "abc");
+  }
+
+  public void shouldUseConverterWhenMappingDestinationFieldWithoutSource() {
+    modelMapper.addMappings(new PropertyMap<Source, Dest>() {
+      @Override
+      protected void configure() {
+        using(new Converter<Object, Object>() {
+          public Object convert(MappingContext<Object, Object> context) {
+            return "abc";
+          }
+        }).map(destination.value);
+      }
+    });
+
+    Dest dest = modelMapper.map(new Source(), Dest.class);
+    assertEquals(dest.value, "abc");
+  }
+
+  public void shouldUseConverterWhenMappingFields() {
+    modelMapper.addMappings(new PropertyMap<Source, Dest>() {
+      @Override
+      protected void configure() {
+        using(new Converter<Object, Object>() {
+          public Object convert(MappingContext<Object, Object> context) {
+            return context.getSource() + "abc";
+          }
+        }).map(source.value, destination.value);
+      }
+    });
+
+    Source source = new Source();
+    source.value = "test";
+    Dest dest = modelMapper.map(source, Dest.class);
+    assertEquals(dest.value, "testabc");
   }
 }

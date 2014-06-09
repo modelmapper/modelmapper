@@ -43,6 +43,7 @@ import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Members;
+import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
 import org.objectweb.asm.ClassReader;
 
@@ -115,10 +116,10 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     return destination;
   }
 
-  public D map(Object source) {
+  public D map(Object subject) {
     saveLastMapping();
     getNextMapping();
-    recordSourceValue(source);
+    recordSourceValue(subject);
     return destination;
   }
 
@@ -228,7 +229,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   }
 
   /**
-   * Validates mappings to ensure that destination properties are present.
+   * Validates mappings that were visited by ExplicitMappingVisitor.
    */
   private void validateVisitedMappings() {
     for (VisitedMapping mapping : visitedMappings) {
@@ -307,15 +308,29 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     }
   }
 
+  /**
+   * Validates the current mapping that was recorded via a MapExpression.
+   */
+  private void validateRecordedMapping() {
+    // If mapping a field without a source
+    if (options.skipType == 0
+        && (currentMapping.sourceAccessors == null || currentMapping.sourceAccessors.isEmpty())
+        && currentMapping.destinationMutators.get(currentMapping.destinationMutators.size() - 1)
+            .getPropertyType()
+            .equals(PropertyType.FIELD) && options.converter == null && !options.mapFromSource
+        && sourceConstant == null)
+      errors.missingSource();
+    else if (options.skipType == 2 && options.condition != null)
+      errors.conditionalSkipWithoutSource();
+  }
+
   private void saveLastMapping() {
     if (currentMapping != null) {
       try {
         MappingImpl mapping = null;
         if (currentMapping.sourceAccessors.isEmpty())
           currentMapping.sourceAccessors = sourceAccessors;
-
-        if (options.skipType == 2 && options.condition != null)
-          errors.conditionalSkipWithoutSource();
+        validateRecordedMapping();
 
         if (options.mapFromSource)
           mapping = new SourceMappingImpl(sourceType, currentMapping.destinationMutators, options);

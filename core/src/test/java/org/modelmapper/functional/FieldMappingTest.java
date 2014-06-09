@@ -4,12 +4,14 @@ import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.AbstractProvider;
-import org.modelmapper.AbstractTest;
 import org.modelmapper.Conditions;
 import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
+import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.convention.MatchingStrategies;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -18,7 +20,28 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test
-public class FieldMappingTest extends AbstractTest {
+public class FieldMappingTest {
+  ModelMapper modelMapper;
+  Order order;
+
+  @BeforeMethod
+  protected void beforeMethod() {
+    modelMapper = new ModelMapper();
+    modelMapper.getConfiguration()
+        .setFieldMatchingEnabled(true)
+        .setFieldAccessLevel(AccessLevel.PACKAGE_PRIVATE)
+        .setMethodAccessLevel(AccessLevel.PACKAGE_PRIVATE)
+        .setMatchingStrategy(MatchingStrategies.STRICT);
+
+    order = new Order();
+    order.customer = new Customer();
+    order.customer.sId = "123";
+    order.customer.s3 = "s3";
+    order.customer.address = new Address();
+    order.customer.address.streetName = "1234 main street";
+    order.customer.address.sZip = "92222";
+  }
+
   static class Order {
     Customer customer;
 
@@ -89,7 +112,6 @@ public class FieldMappingTest extends AbstractTest {
   }
 
   public void shouldMapFieldReferencesFromPropertyMap() {
-    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     modelMapper.addMappings(new PropertyMap<Order, OrderDTO>() {
       @Override
       protected void configure() {
@@ -118,15 +140,11 @@ public class FieldMappingTest extends AbstractTest {
       }
     });
 
-    Order order = new Order();
-    order.customer = new Customer();
-    order.customer.sId = "123";
-    order.customer.s3 = "s3";
-    order.customer.address = new Address();
-    order.customer.address.streetName = "1234 main street";
-    order.customer.address.sZip = "92222";
-
     OrderDTO dto = modelMapper.map(order, OrderDTO.class);
+    assertOrdersEqual(dto);
+  }
+
+  private void assertOrdersEqual(OrderDTO dto) {
     assertEquals(dto.customer.id + "", order.customer.sId);
     assertEquals(dto.customer.address.street, order.customer.address.streetName);
     assertEquals(dto.customer.address.zip + "", order.customer.address.sZip);

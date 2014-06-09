@@ -233,16 +233,15 @@ public abstract class PropertyMap<S, D> {
   }
 
   /**
-   * Defines a mapping from the {@code source} to a destination. See the See the <a href="#0">EDSL
-   * examples</a>.
+   * Defines a mapping for the {@code subject}. See the See the <a href="#0">EDSL examples</a>.
    * 
-   * @param source to map from
+   * @param subject to map
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final D map(Object source) {
+  protected final D map(Object subject) {
     assertBuilder();
-    return builder.map(source);
+    return builder.map(subject);
   }
 
   /**

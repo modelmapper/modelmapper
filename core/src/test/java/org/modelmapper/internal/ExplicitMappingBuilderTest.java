@@ -497,4 +497,17 @@ public class ExplicitMappingBuilderTest {
           "1) A conditional skip can only be used with skip(Object, Object)");
     }
   }
+
+  public void shouldThrowWhenMappingDestinationFieldWithoutSourceAndConverter() {
+    try {
+      builder.build(new PropertyMap<Person, PersonDTO>() {
+        protected void configure() {
+          map(destination.employerName);
+        }
+      });
+      fail();
+    } catch (ConfigurationException e) {
+      Asserts.assertContains(e.getMessage(), "1) A mapping is missing a required source member");
+    }
+  }
 }

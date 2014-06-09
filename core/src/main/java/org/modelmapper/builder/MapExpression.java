@@ -34,15 +34,14 @@ public interface MapExpression<D> {
   D map();
 
   /**
-   * Defines a mapping from the {@code source} to a destination. See the EDSL examples at
-   * {@link PropertyMap}.
+   * Defines a mapping for the {@code subject}. See the EDSL examples at {@link PropertyMap}.
    * 
-   * @param source to map from
+   * @param subject to map
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  D map(Object source);
-  
+  D map(Object subject);
+
   /**
    * Defines a mapping from the {@code source} to the {@code destination}. See the EDSL examples at
    * {@link PropertyMap}.
