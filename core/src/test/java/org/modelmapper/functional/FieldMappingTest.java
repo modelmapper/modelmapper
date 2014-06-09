@@ -190,4 +190,20 @@ public class FieldMappingTest {
     D1 dest = modelMapper.map(source, D1.class);
     assertEquals(dest.d.value, source.value);
   }
+
+  public void shouldMapConstantToDestinationField() {
+    modelMapper.addMappings(new PropertyMap<Address, AddressDTO>() {
+      @Override
+      protected void configure() {
+        map("1234 Main Street", destination.street);
+        map(source.sZip, destination.zip);
+      }
+    });
+
+    Address address = new Address();
+    address.sZip = "92123";
+    AddressDTO dto = modelMapper.map(address, AddressDTO.class);
+    assertEquals(dto.street, "1234 Main Street");
+    assertEquals(dto.zip + "", address.sZip);
+  }
 }
