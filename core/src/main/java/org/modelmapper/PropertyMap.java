@@ -68,8 +68,11 @@ import org.modelmapper.internal.util.TypeResolver;
  * 
  * <pre>    map().setEmployer(&quot;Initech&quot;);</pre>
  * 
- * Map statements can also be written to accept a source property, allowing mapping to a destination
- * whose type does not match the source property's type:
+ * This example maps the constant {@code "Initech"} to destination type's {@code employer} field.
+ * 
+ * <pre>    map("Initech", destination.employer);</pre>
+ * 
+ * Map statements can also be written to map methods whose types do not match:
  * 
  * <pre>    map(source.getAge()).setAgeString(null);</pre>
  * 
@@ -77,8 +80,8 @@ import org.modelmapper.internal.util.TypeResolver;
  * 
  * <pre>    map(21).setAgeString(null);</pre>
  * 
- * <b>Note</b>: Since the {@code setAgeString} method requires a value we simply pass in
- * {@code null} which is unused.
+ * <b>Note</b>: When a value is provided on the left-hand side of a {@code map} method, any value
+ * provided on the right-hand side in a setter is not used.
  * 
  * <h3 id=2>Deep mapping</h3>
  * <p>
@@ -89,11 +92,11 @@ import org.modelmapper.internal.util.TypeResolver;
  * <pre>    map().setAge(source.getCustomer().getAge());</pre>
  * 
  * This example maps the destination type's {@code getCustomer().setName()} method hierarchy to the
- * source type's {@code getPerson().getFirstName()} method hierarchy.
+ * source type's {@code getPerson().getFirstName()} property hierarchy.
  * 
  * <pre>    map().getCustomer().setName(source.person.getFirstName());</pre>
  * 
- * <b>Note</b>: In order populate the destination object, deep mapping requires the
+ * <b>Note</b>: In order to populate the destination object, deep mapping requires the
  * {@code getCustomer} method to have a corresponding mutator, such as a {@code setCustomer} method
  * or an {@link org.modelmapper.config.Configuration#setFieldAccessLevel(AccessLevel) accessible}
  * {@code customer} field.
@@ -105,6 +108,11 @@ import org.modelmapper.internal.util.TypeResolver;
  *    map().customer.setName(source.getPerson().firstName);
  * </pre>
  * 
+ * Deep mapping can also be performed for source properties or values whose types do not match the
+ * destination property’s type.
+ * 
+ * <pre>    map(source.person.getAge()).setAgeString(null);</pre>
+ * 
  * <h3 id=3>Skipping properties</h3>
  * <p>
  * This example specifies that the destination type's {@code setName} method should be skipped
@@ -114,7 +122,7 @@ import org.modelmapper.internal.util.TypeResolver;
  * 
  * <b>Note</b>: Since the {@code setName} method is skipped the {@code null} value is unused.
  * <p>
- * Mappings to destination fields can also be skipped.
+ * We can also skip the mapping of fields.
  * 
  * <pre>    skip(destination.address);</pre>
  * 
@@ -124,6 +132,10 @@ import org.modelmapper.internal.util.TypeResolver;
  * source type's {@code getName} method to the destination type's {@code setName} method:
  * 
  * <pre>    using(toUppercase).map().setName(source.getName());</pre>
+ * 
+ * We can also use a Converter to map fields:
+ * 
+ * <pre>    using(toUppercase).map(source.name, destination.name);</pre>
  * 
  * This example specifies that the {@code personToNameConverter} {@link Converter} be used when
  * mapping the source <i>object</i> to the destination type's {@code setName} method:
@@ -141,6 +153,10 @@ import org.modelmapper.internal.util.TypeResolver;
  * {@code setAddress} method will be skipped.
  * 
  * <pre>    when(isLocalAddress).map().setAddress(source.getAddress());</pre>
+ * 
+ * We can also conditionally skip the mapping of fields.
+ * 
+ * <pre>    when(notNull).skip(source.name, destination.name);</pre>
  * 
  * This example specifies that the {@code Conditions.isNull} {@link Condition} must apply in order
  * for mapping to the destination type's {@code setAge} method to be <i>skipped</i>. If the
