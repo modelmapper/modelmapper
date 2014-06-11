@@ -1,3 +1,13 @@
+# 0.7.1
+
+### New Features
+
+* Add support for mapping destination fields using a Converter
+
+### Bug Fixes
+
+* Fixed #111 - Ignore synthetic members and bridge methods
+
 # 0.7.0
 
 ### New Features
