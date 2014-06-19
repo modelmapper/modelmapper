@@ -46,7 +46,10 @@ class ProxyFactory {
   private static final CallbackFilter METHOD_FILTER = new CallbackFilter() {
     public int accept(Method method) {
       return method.isBridge()
-          || (method.getDeclaringClass().equals(Object.class))
+          || method.getDeclaringClass().equals(Object.class)
+          || (method.getName().equals("equals") && method.getParameterTypes().length == 1
+              && method.getParameterTypes()[0].equals(Object.class) && method.getReturnType()
+              .equals(Boolean.TYPE))
           || (method.getReturnType().getName().equals("groovy.lang.MetaClass") && (method.getName()
               .equals("getMetaClass") || method.getName().startsWith("$"))) ? 1 : 0;
     }
