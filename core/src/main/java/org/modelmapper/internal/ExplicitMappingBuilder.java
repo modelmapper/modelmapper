@@ -214,7 +214,8 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     String propertyMapClassName = propertyMap.getClass().getName();
 
     try {
-      ClassReader cr = new ClassReader(propertyMapClassName);
+      ClassReader cr = new ClassReader(getClass().getClassLoader().getResourceAsStream(
+          propertyMapClassName.replace('.', '/') + ".class"));
       ExplicitMappingVisitor visitor = new ExplicitMappingVisitor(errors, configuration,
           propertyMapClassName, destinationType.getName());
       cr.accept(visitor, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
