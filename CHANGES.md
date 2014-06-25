@@ -1,3 +1,10 @@
+# 0.7.2
+
+### Bug Fixes
+
+* Fixed #113 - Proxies should ignore overriden equals methods
+* Fixed #114 - Use specific classloader for loading PropertyMap classes
+
 # 0.7.1
 
 ### New Features
