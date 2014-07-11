@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal.util;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -79,7 +80,7 @@ public final class Primitives {
   public static <T> T defaultValue(Class<?> type) {
     return type.isPrimitive() ? (T) defaultValue.get(type) : null;
   }
-  
+
   /**
    * Returns the boxed default value for {@code type} if {@code type} is a primitive wrapper.
    */
@@ -133,12 +134,15 @@ public final class Primitives {
         return Short.TYPE;
       case Type.INT:
         return Integer.TYPE;
-      case Type.FLOAT:
-        return Float.TYPE;
       case Type.LONG:
         return Long.TYPE;
+      case Type.FLOAT:
+        return Float.TYPE;
       case Type.DOUBLE:
         return Double.TYPE;
+      case Type.ARRAY:
+        return Array.newInstance(primitiveFor(type.getElementType()), new int[type.getDimensions()])
+            .getClass();
       case Type.OBJECT:
       default:
         return null;
