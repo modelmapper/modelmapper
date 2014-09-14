@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   public volatile D destination;
   private final Errors errors = new Errors();
   private List<VisitedMapping> visitedMappings;
-  private final Map<Object, ExplicitMappingInterceptor> proxyInterceptors = new HashMap<Object, ExplicitMappingInterceptor>();
+  private final Map<Object, ExplicitMappingInterceptor> proxyInterceptors = new IdentityHashMap<Object, ExplicitMappingInterceptor>();
   private final Set<MappingImpl> propertyMappings = new HashSet<MappingImpl>();
 
   /** Per mapping state */
