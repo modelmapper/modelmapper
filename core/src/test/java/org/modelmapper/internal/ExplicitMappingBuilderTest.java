@@ -5,6 +5,8 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.modelmapper.Asserts;
@@ -29,6 +31,7 @@ public class ExplicitMappingBuilderTest {
   InheritingConfiguration configuration;
   ExplicitMappingBuilder<Person, PersonDTO> builder;
   ExplicitMappingBuilder<Object, Object> objectObjectBuilder;
+  ExplicitMappingBuilder<BreakingHashCode, PersonDTO> breakingHashCodeBuilder;
 
   private static Converter<String, String> UPPERCASE_CONVERTER = new Converter<String, String>() {
     public String convert(MappingContext<String, String> context) {
@@ -154,6 +157,22 @@ public class ExplicitMappingBuilderTest {
     }
   }
 
+  static class BreakingHashCode {
+    List<String> strings;
+    BreakingHashCode(){
+      strings = new ArrayList<String>();
+    }
+
+    public boolean getActive(){
+      return strings.size() == 0;
+    }
+
+    @Override
+    public int hashCode() {
+      return strings.size();
+    }
+  }
+
   @BeforeMethod
   public void init() {
     configuration = (InheritingConfiguration) new InheritingConfiguration().setFieldMatchingEnabled(
@@ -163,6 +182,8 @@ public class ExplicitMappingBuilderTest {
     builder = new ExplicitMappingBuilder<Person, PersonDTO>(Person.class, PersonDTO.class,
         configuration);
     objectObjectBuilder = new ExplicitMappingBuilder<Object, Object>(Object.class, Object.class,
+        configuration);
+    breakingHashCodeBuilder = new ExplicitMappingBuilder<BreakingHashCode, PersonDTO>(BreakingHashCode.class, PersonDTO.class,
         configuration);
   }
 
@@ -244,6 +265,15 @@ public class ExplicitMappingBuilderTest {
     ConstantMapping employer = (ConstantMapping) mappings.get("setEmployerName");
     assertEquals(employer.getConverter(), UPPERCASE_CONVERTER);
     assertEquals(employer.getConstant(), "joe");
+  }
+
+  public void shouldBuildMappingsWithBrokenHashCode() {
+    breakingHashCodeBuilder.build(new PropertyMap<BreakingHashCode, PersonDTO>() {
+      @Override
+      protected void configure() {
+        map().setActive(source.getActive());
+      }
+    });
   }
 
   public void shouldThrowWhenDuplicateMappingsAreDefined() {
