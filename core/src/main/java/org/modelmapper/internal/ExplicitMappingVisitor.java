@@ -50,6 +50,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private final InheritingConfiguration config;
   private final String propMapClassInternalName;
   private final String destClassInternalName;
+  private final ClassLoader propertyMapClassLoader;
   private final Set<String> syntheticFields = new HashSet<String>();
 
   /** Result mappings */
@@ -62,12 +63,13 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   }
 
   public ExplicitMappingVisitor(Errors errors, InheritingConfiguration config,
-      String propertyMapClassName, String destinationClassName) {
+      String propertyMapClassName, String destinationClassName, ClassLoader propertyMapClassLoader) {
     super(Opcodes.ASM5);
     this.errors = errors;
     this.config = config;
     propMapClassInternalName = propertyMapClassName.replace('.', '/');
     destClassInternalName = destinationClassName.replace('.', '/');
+    this.propertyMapClassLoader = propertyMapClassLoader;
   }
 
   @Override
@@ -340,7 +342,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
 
   private Class<?> classFor(String className) {
     try {
-      return Class.forName(className);
+      return Class.forName(className, true, propertyMapClassLoader);
     } catch (ClassNotFoundException e) {
       throw errors.errorResolvingClass(e, className).toException();
     }
