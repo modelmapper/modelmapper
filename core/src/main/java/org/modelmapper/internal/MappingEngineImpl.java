@@ -125,7 +125,7 @@ public class MappingEngineImpl implements MappingEngine {
 
       converter = typeMap.getPreConverter();
       if (converter != null)
-        context.setDestination(convert(context, converter));
+        context.setDestination(convert(context, converter), true);
 
       for (Mapping mapping : typeMap.getMappings())
         propertyMap(mapping, context);
@@ -233,7 +233,7 @@ public class MappingEngineImpl implements MappingEngine {
                 .get(mutator.getName());
             if (accessor != null) {
               Object intermediateDest = accessor.getValue(destination);
-              propertyContext.setDestination(intermediateDest);
+              propertyContext.setDestination(intermediateDest, true);
             }
           }
 
@@ -380,7 +380,7 @@ public class MappingEngineImpl implements MappingEngine {
       return destination;
 
     destination = instantiate(context.getDestinationType(), contextImpl.errors);
-    contextImpl.setDestination(destination);
+    contextImpl.setDestination(destination, true);
     return destination;
   }
 
@@ -406,7 +406,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     D destination = provider.get(context);
     validateDestination(context.getDestinationType(), destination, context.errors);
-    context.setDestination(destination);
+    context.setDestination(destination, false);
     return destination;
   }
 

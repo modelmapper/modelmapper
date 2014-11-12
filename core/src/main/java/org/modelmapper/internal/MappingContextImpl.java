@@ -244,9 +244,9 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return parent == null ? null : parent.typeMap;
   }
 
-  void setDestination(D destination) {
+  void setDestination(D destination, boolean trackForSource) {
     this.destination = destination;
-    if (!Primitives.isPrimitiveWrapper(sourceType))
+    if (trackForSource && !Primitives.isPrimitiveWrapper(sourceType))
       sourceToDestination.put(source, destination);
   }
 
