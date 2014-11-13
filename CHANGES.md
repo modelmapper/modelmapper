@@ -1,3 +1,12 @@
+# 0.7.3
+
+### Bug Fixes
+
+* Fixed #115 - Fixed mapping of arrays
+* Fixed #119 - Fix the use of Providers with circular/hierarchical references
+* Fixed #120 - Added support for fragile proxies
+* Fixed #126 - Ignore synthetic and bridge methods when resolving methods for explicit mappings
+
 # 0.7.2
 
 ### Bug Fixes
