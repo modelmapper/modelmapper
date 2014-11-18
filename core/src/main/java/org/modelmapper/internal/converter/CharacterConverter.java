@@ -29,7 +29,10 @@ class CharacterConverter implements ConditionalConverter<Object, Character> {
     if (source == null)
       return null;
 
-    return new Character(source.toString().charAt(0));
+    String stringValue = source.toString();
+    if (stringValue.length() == 0)
+      return null;
+    return Character.valueOf(stringValue.charAt(0));
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {

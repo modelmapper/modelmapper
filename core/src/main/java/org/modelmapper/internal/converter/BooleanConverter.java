@@ -34,6 +34,8 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
       return null;
 
     String stringValue = source.toString().toLowerCase();
+    if (stringValue.length() == 0)
+      return null;
 
     for (int i = 0; i < TRUE_STRINGS.length; i++)
       if (TRUE_STRINGS[i].equals(stringValue))
