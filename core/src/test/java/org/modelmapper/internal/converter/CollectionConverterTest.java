@@ -6,9 +6,11 @@ import static org.testng.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.modelmapper.Asserts;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
@@ -86,6 +88,22 @@ public class CollectionConverterTest extends AbstractConverterTest {
   public void shouldConvertArrayToCollection() {
     Collection<String> source = Arrays.asList("a", "b", "c");
     assertEquals(convert(source, Collection.class), source);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertListToHashSet() {
+    List<String> source = Arrays.asList("a", "b", "c");
+    Set<String> dest = (Set<String>) convert(source, Set.class);
+    assertTrue(dest instanceof HashSet);
+    Asserts.assertEquals(source, dest);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertListToSortedSet() {
+    List<String> source = Arrays.asList("a", "b", "c");
+    SortedSet<String> dest = (SortedSet<String>) convert(source, SortedSet.class);
+    assertTrue(dest instanceof SortedSet);
+    Asserts.assertEquals(source, dest);
   }
 
   public void testMatches() {
