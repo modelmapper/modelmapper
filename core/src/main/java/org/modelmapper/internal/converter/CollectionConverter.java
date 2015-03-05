@@ -19,7 +19,9 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.TypeResolver;
@@ -45,7 +47,9 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
   protected Collection<Object> createDestination(
       MappingContext<Object, Collection<Object>> context, int length) {
     if (context.getDestinationType().isInterface())
-      if (Set.class.isAssignableFrom(context.getDestinationType()))
+      if (SortedSet.class.isAssignableFrom(context.getDestinationType()))
+        return new TreeSet<Object>();
+      else if (Set.class.isAssignableFrom(context.getDestinationType()))
         return new HashSet<Object>();
       else
         return new ArrayList<Object>(length);
