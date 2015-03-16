@@ -124,6 +124,7 @@
               <includes>
                 <include>net/sf/cglib/core/**</include>
                 <include>net/sf/cglib/proxy/**</include>
+                <include>net/sf/cglib/reflect/**</include>
                 <include>net/sf/cglib/transform/ClassTransformer.class</include>
               </includes>
             </filter>
