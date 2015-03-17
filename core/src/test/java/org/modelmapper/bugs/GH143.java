@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.Fixtures;
-import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import org.testng.annotations.Test;
 
