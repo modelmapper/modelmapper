@@ -42,7 +42,7 @@ class InexactMatcher {
       String srcStr = src[srcStartIndex];
       String dstStr = dst[dstStartIndex];
 
-      for (int srcIndex = srcStartIndex, dstIndex = dstStartIndex, srcCharIndex = 0, dstCharIndex = 0;;) {
+      for (int srcIndex = srcStartIndex, dstIndex = dstStartIndex, srcCharIndex = 0, dstCharIndex = 0; srcStr.length() > 0 && dstStr.length() > 0;) {
         char c1 = srcStr.charAt(srcCharIndex);
         char c2 = dstStr.charAt(dstCharIndex);
 
