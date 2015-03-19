@@ -1,3 +1,12 @@
+# 0.7.4
+
+### Bug Fixes
+
+* Fixed #141 - Add cglib reflect package to shadowed jar
+* Fixed #143 - Prevent StringIndexOutOfBoundsException when matching underscore tokens
+* Fixed #138 - Add support for mapping to SortedSets destinations
+* Fixed #129 - Add support for converting empty strings to primitives and primitive wrappers
+
 # 0.7.3
 
 ### Bug Fixes
