@@ -28,17 +28,23 @@ public final class Members {
   private Members() {}
 
   public static Method methodFor(Class<?> type, String methodName, Class<?>... parameterTypes) {
-    while (type != null) {
-      for (Method method : type.getDeclaredMethods())
-        if (!method.isBridge()
-            && !method.isSynthetic()
-            && method.getName().equals(methodName)
-            && ((parameterTypes == null && method.getParameterTypes().length == 0) || Arrays.equals(
-                method.getParameterTypes(), parameterTypes)))
-          return method;
-      type = type.getSuperclass();
+    if (type == null)
+      return null;
+
+    for (Method method : type.getDeclaredMethods())
+      if (!method.isBridge()
+          && !method.isSynthetic()
+          && method.getName().equals(methodName)
+          && ((parameterTypes == null && method.getParameterTypes().length == 0) || Arrays.equals(
+              method.getParameterTypes(), parameterTypes)))
+        return method;
+
+    for (Class<?> interfaze : type.getInterfaces()) {
+      Method result = methodFor(interfaze, methodName, parameterTypes);
+      if (result != null)
+        return result;
     }
-    return null;
+    return methodFor(type.getSuperclass(), methodName, parameterTypes);
   }
 
   public static Field fieldFor(Class<?> type, String fieldName) {
