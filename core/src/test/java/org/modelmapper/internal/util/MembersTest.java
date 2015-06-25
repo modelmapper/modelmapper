@@ -39,9 +39,29 @@ public class MembersTest {
     }
   }
 
+  interface DerivedInterface extends IInterface {
+  }
+
+  interface MoreDerivedInterface extends DerivedInterface {
+  }
+
   public void shouldGetMethodForInterface() {
     Method getter = Members.methodFor(IInterface.class, "getter", (Class<?>[]) null);
     Method setter = Members.methodFor(IInterface.class, "setter", new Class<?>[] { String.class });
+    assertEquals(getter.getDeclaringClass(), IInterface.class);
+    assertEquals(setter.getDeclaringClass(), IInterface.class);
+  }
+
+  public void shouldGetMethodForDerivedInterface() {
+    Method getter = Members.methodFor(DerivedInterface.class, "getter", (Class<?>[]) null);
+    Method setter = Members.methodFor(DerivedInterface.class, "setter", new Class<?>[] { String.class });
+    assertEquals(getter.getDeclaringClass(), IInterface.class);
+    assertEquals(setter.getDeclaringClass(), IInterface.class);
+ }
+
+  public void shouldGetMethodForMoreDerivedInterface() {
+    Method getter = Members.methodFor(MoreDerivedInterface.class, "getter", (Class<?>[]) null);
+    Method setter = Members.methodFor(MoreDerivedInterface.class, "setter", new Class<?>[] { String.class });
     assertEquals(getter.getDeclaringClass(), IInterface.class);
     assertEquals(setter.getDeclaringClass(), IInterface.class);
   }
