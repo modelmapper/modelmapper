@@ -76,7 +76,7 @@ public final class Errors {
     }
 
     boolean appliesTo(Object subject) {
-      return type.isAssignableFrom(subject.getClass());
+      return subject != null && type.isAssignableFrom(subject.getClass());
     }
 
     String convert(Object subject) {
