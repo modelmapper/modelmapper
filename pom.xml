@@ -11,7 +11,7 @@
   <packaging>pom</packaging>
   <groupId>org.modelmapper</groupId>
   <artifactId>modelmapper-parent</artifactId>
-  <version>0.7.5</version>
+  <version>0.7.6-SNAPSHOT</version>
   <name>ModelMapper Parent</name>
   <description>Simple, Intelligent, Object Mapping</description>
   <url>http://modelmapper.org</url>
