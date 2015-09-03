@@ -11,3 +11,5 @@ notifications:
 branches:
   only:
     - master
+
+sudo: false
