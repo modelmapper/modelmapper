@@ -81,7 +81,7 @@ public class MappingEngineImpl implements MappingEngine {
     // Resolve some circular dependencies
     if (!Iterables.isIterable(destinationType)) {
       D circularDest = contextImpl.destinationForSource();
-      if (circularDest != null)
+      if (circularDest != null && circularDest.getClass().isAssignableFrom(contextImpl.getDestinationType()))
         return circularDest;
     }
 
@@ -102,6 +102,7 @@ public class MappingEngineImpl implements MappingEngine {
       }
     }
 
+    contextImpl.setDestination(destination, true);
     return destination;
   }
 
