@@ -1,3 +1,9 @@
+# 0.7.6
+
+### Bug Fixes
+
+* Fixed #176 - Reuse of Converters
+
 # 0.7.4
 
 ### Bug Fixes
