@@ -22,6 +22,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
@@ -60,6 +61,10 @@ public final class Types {
     if (type.getName().contains("$$EnhancerBy"))
       isProxy = true;
 
+    // Dynamic Proxy
+    if (Proxy.isProxyClass(type))
+      isProxy = true;
+
     // Javassist
     try {
       if (JAVASSIST_IS_PROXY_CLASS_METHOD != null && JAVASSIST_IS_PROXY_CLASS_METHOD != null
@@ -69,8 +74,9 @@ public final class Types {
     }
 
     if (isProxy) {
-      if (!type.getSuperclass().equals(Object.class))
-        return (Class<T>) type.getSuperclass();
+      final Class<?> superclass = type.getSuperclass();
+      if (!superclass.equals(Object.class) && !superclass.equals(Proxy.class))
+        return (Class<T>) superclass;
       else {
         Class<?>[] interfaces = type.getInterfaces();
         if (interfaces.length > 0)
