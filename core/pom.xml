@@ -12,8 +12,8 @@
   <name>ModelMapper</name>
 
   <properties>
-    <cglib.version>3.1</cglib.version>
-    <asm.version>5.0.3</asm.version>
+    <cglib.version>3.2.4</cglib.version>
+    <asm.version>5.1</asm.version>
     <objenesis.version>2.1</objenesis.version>
   </properties>
 
