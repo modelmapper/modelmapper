@@ -2,6 +2,9 @@ package org.modelmapper.internal.util;
 
 import static org.testng.Assert.assertEquals;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 
 import javassist.util.proxy.ProxyFactory;
@@ -16,6 +19,14 @@ import org.testng.annotations.Test;
 @Test
 public class TypesTest {
   static class Foo {
+  }
+  static interface Bar {
+  }
+
+  static class NullInvocationHandler implements InvocationHandler {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      return null;
+    }
   }
 
   public void shouldDeProxyJavassistProxy() {
@@ -33,5 +44,11 @@ public class TypesTest {
     Class<?> proxy = enhancer.createClass();
 
     assertEquals(Types.deProxy(proxy), ArrayList.class);
+  }
+
+  public void shouldDeProxyDynamicProxy() {
+    final Object proxy = Proxy.newProxyInstance(TypesTest.class.getClassLoader(),
+            new Class<?>[]{Bar.class}, new NullInvocationHandler());
+    assertEquals(Types.deProxy(proxy.getClass()), Bar.class);
   }
 }
