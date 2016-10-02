@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
 import org.modelmapper.internal.util.Members;
@@ -36,7 +37,6 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private static final String PROXY_FIELD_DESC = "Ljava/lang/Object;";
   private static final String CONFIGURE_METHOD = "configure";
   private static final String CONFIGURE_METHOD_DESC = "()V";
-  private static final String ACCESSOR_METHOD_DESC_PREFIX = "()";
 
   private static final String MAP_METHOD = "map";
   private static final String SKIP_METHOD = "skip";
@@ -45,6 +45,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private static final String MAP_SOURCE_METHOD_DESC = "(Ljava/lang/Object;)Ljava/lang/Object;";
   private static final String SKIP_DEST_METHOD_DESC = "(Ljava/lang/Object;)V";
   private static final String MAP_BOTH_METHOD_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)V";
+  private static final String MUTATOR_METHOD_DESC_PATTERN = "(.+)V";
 
   private final Errors errors;
   private final InheritingConfiguration config;
@@ -93,8 +94,6 @@ public class ExplicitMappingVisitor extends ClassVisitor {
 
     /** Per mapping state */
     private VisitedMapping mapping = new VisitedMapping();
-    /** The class that owns the last expected mutator method */
-    private String lastMutatorOwner;
     /** 0=none, 1=source, 2=destination */
     private int subjectType;
     /** 0=none, 1=map(), 2=map(Object), 3=skip(Object) */
@@ -118,7 +117,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
           AbstractInsnNode previous = instructions.get(instructions.size() - 1);
           if (isMethodInvocation(previous)) {
             MethodInsnNode mn = (MethodInsnNode) previous;
-            if (isMapBothMethod(mn) || !isAccessor(mn))
+            if (isMapBothMethod(mn) || isMutator(mn))
               instructions.add(new InsnNode(opcode));
           }
         }
@@ -170,14 +169,12 @@ public class ExplicitMappingVisitor extends ClassVisitor {
           if (subjectType == 1)
             recordSourceField(ownerType, fieldFor(ownerType, fn));
           else if (subjectType == 2) {
-            setLastMutatorOwner(Type.getType(fn.desc));
             recordDestinationField(ownerType, fieldFor(ownerType, fn));
           }
         } else if (isMethodInvocation(ins)) {
           MethodInsnNode mn = (MethodInsnNode) ins;
 
           if (isMapMethod(mn) || isSkipMethod(mn)) {
-            lastMutatorOwner = destClassInternalName;
             if (MAP_DEST_METHOD_DESC.equals(mn.desc)) {
               mapType = 1;
               subjectType = 2;
@@ -199,14 +196,13 @@ public class ExplicitMappingVisitor extends ClassVisitor {
             Type methodType = Type.getMethodType(mn.desc);
 
             // If last destination mutator
-            if (mapType != 0 && !isAccessor(mn) && mn.owner.equals(lastMutatorOwner)) {
+            if (mapType != 0 && isMutator(mn)) {
               recordDestinationMethod(ownerType, methodFor(ownerType, methodType, mn));
               recordProperties();
             } else {
               if (subjectType == 1)
                 recordSourceMethod(ownerType, methodFor(ownerType, methodType, mn));
               else if (subjectType == 2) {
-                setLastMutatorOwner(methodType.getReturnType());
                 recordDestinationMethod(ownerType, methodFor(ownerType, methodType, mn));
               }
             }
@@ -219,12 +215,6 @@ public class ExplicitMappingVisitor extends ClassVisitor {
             errors.missingDestination();
         }
       }
-    }
-
-    private void setLastMutatorOwner(Type type) {
-      int sort = type.getSort();
-      if (sort == Type.ARRAY || sort == Type.OBJECT)
-        lastMutatorOwner = type.getInternalName();
     }
 
     private boolean isMethodInvocation(AbstractInsnNode ins) {
@@ -247,14 +237,13 @@ public class ExplicitMappingVisitor extends ClassVisitor {
           && mn.desc.equals(MAP_BOTH_METHOD_DESC);
     }
 
-    private boolean isAccessor(MethodInsnNode mn) {
-      return mn.desc.startsWith(ACCESSOR_METHOD_DESC_PREFIX);
+    private boolean isMutator(MethodInsnNode mn) {
+      return Pattern.matches(MUTATOR_METHOD_DESC_PATTERN, mn.desc);
     }
 
     private void recordProperties() {
       mappings.add(mapping);
       mapping = new VisitedMapping();
-      lastMutatorOwner = null;
       subjectType = 0;
       mapType = 0;
     }
