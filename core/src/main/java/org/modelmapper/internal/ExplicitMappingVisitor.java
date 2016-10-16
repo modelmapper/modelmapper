@@ -50,7 +50,6 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private final Errors errors;
   private final InheritingConfiguration config;
   private final String propMapClassInternalName;
-  private final String destClassInternalName;
   private final ClassLoader propertyMapClassLoader;
   private final Set<String> syntheticFields = new HashSet<String>();
 
@@ -69,7 +68,6 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     this.errors = errors;
     this.config = config;
     propMapClassInternalName = propertyMapClassName.replace('.', '/');
-    destClassInternalName = destinationClassName.replace('.', '/');
     this.propertyMapClassLoader = propertyMapClassLoader;
   }
 
