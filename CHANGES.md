@@ -1,3 +1,10 @@
+# 0.7.7
+
+### Bug Fixes
+
+* Fixed #153 - Reusable Generic PropertyMap
+* Fixed #185 - Deproxy dynamic proxies
+
 # 0.7.6
 
 ### Bug Fixes
