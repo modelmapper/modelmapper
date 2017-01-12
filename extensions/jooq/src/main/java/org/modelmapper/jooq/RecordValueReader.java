@@ -57,4 +57,11 @@ public class RecordValueReader implements ValueReader<Record> {
   public String toString() {
     return "jOOQ";
   }
+
+  public Class<?> getType(Record source, String memberName) {
+    for (Field<?> field : source.fields())
+      if (memberName.equalsIgnoreCase(field.getName()))
+        return field.getType();
+    return null;
+  }
 }

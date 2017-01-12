@@ -73,4 +73,23 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
   public String toString() {
     return "Jackson";
   }
+
+  public Class<?> getType(JsonNode source, String memberName) {
+    JsonNode propertyNode = source.get(memberName);
+    if (propertyNode == null) throw new IllegalArgumentException();
+      switch (propertyNode.getNodeType()) {
+        case BOOLEAN:
+          return Boolean.class;
+        case NULL:
+          return null;
+        case NUMBER:
+          return Double.class;
+        case STRING:
+          return String.class;
+        case ARRAY:
+          return Collection.class;
+        default:
+          return Object.class;
+    }
+  }
 }
