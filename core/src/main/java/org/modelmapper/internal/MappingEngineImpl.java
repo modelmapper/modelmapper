@@ -160,8 +160,10 @@ public class MappingEngineImpl implements MappingEngine {
 
     if (condition != null) {
       if (!condition.applies(propertyContext)) {
-        context.shadePath(propertyPath);
-        return;
+        if (!mapping.isSkipped()) {
+          context.shadePath(propertyPath);
+          return;
+        }
       } else if (mapping.isSkipped())
         return;
     }
