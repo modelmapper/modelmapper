@@ -231,25 +231,4 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>javadoc</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <configuration>
-              <author>false</author>
-              <protected>true</protected>
-              <excludePackageNames>*.internal</excludePackageNames>
-              <reportOutputDirectory>../docs</reportOutputDirectory>
-              <destDir>javadoc</destDir>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
