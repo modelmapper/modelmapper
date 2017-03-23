@@ -276,4 +276,32 @@ public interface TypeMap<S, D> {
    * @return this typeMap
    */
   TypeMap<S, D> addMappings(ExpressionMap<S, D> mapper);
+
+  /**
+   * Constructs a new TypeMap derived from {@code this}. The derived TypeMap will includes
+   * all {@code mappings} from the base {@link TypeMap}, but will NOT include {@code converter},
+   * {@code condition}, and {@code provider} from the base {@link TypeMap}.
+   *
+   * @param sourceType source type
+   * @param destinationType destination type
+   * @param <DS> derived type of source class
+   * @param <DD> derived type of destination class
+   * @return this type map
+   *
+   * @throws IllegalArgumentException if {@code TypePair.of(sourceType, destinationType)} already defined
+   *         in {@code modelMapper.getTypeMaps()}
+   */
+  <DS extends S, DD extends D> TypeMap<S, D> include(Class<DS> sourceType, Class<DD> destinationType);
+
+  /**
+   * Includes {@code mappings} from a base {@link TypeMap}.
+   *
+   * @param sourceType source type
+   * @param destinationType destination type
+   * @return this type map
+   *
+   * @throws IllegalArgumentException if {@code TypePair.of(sourceType, destinationType)} already defined
+   *         in {@code modelMapper.getTypeMaps()}
+   */
+  TypeMap<S, D> includeBase(Class<? super S> sourceType, Class<? super D> destinationType);
 }
