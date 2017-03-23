@@ -67,6 +67,19 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     this.engine = engine;
   }
 
+  private TypeMapImpl(TypeMapImpl<? super S, ? super D> baseTypeMap, Class<S> sourceTYpe, Class<D> destinationType) {
+    this.sourceType = sourceTYpe;
+    this.destinationType = destinationType;
+    this.name = baseTypeMap.name;
+    this.configuration = baseTypeMap.configuration;
+    this.engine = baseTypeMap.engine;
+
+    synchronized (baseTypeMap.mappings) {
+      mappedProperties.putAll(baseTypeMap.mappedProperties);
+      mappings.putAll(baseTypeMap.mappings);
+    }
+  }
+
   public void addMappings(PropertyMap<S, D> propertyMap) {
     if (sourceType.isEnum() || destinationType.isEnum())
       throw new Errors().mappingForEnum().toConfigurationException();
@@ -247,6 +260,28 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
       errors.errorUnmappedProperties(this, unmappedProperties);
 
     errors.throwValidationExceptionIfErrorsExist();
+  }
+
+  public <DS extends S, DD extends D> TypeMap<S, D> include(Class<DS> sourceType, Class<DD> destinationType) {
+    TypeMapImpl<DS, DD> derivedTypeMap = new TypeMapImpl<DS, DD>(this, sourceType, destinationType);
+    configuration.typeMapStore.put(derivedTypeMap);
+    return this;
+  }
+
+  public TypeMap<S, D> includeBase(Class<? super S> sourceType, Class<? super D> destinationType) {
+    @SuppressWarnings("unchecked")
+    TypeMapImpl<? super S, ? super D> baseTypeMap = (TypeMapImpl<? super S, ? super D>)
+        configuration.typeMapStore.get(sourceType, destinationType, name);
+
+    Assert.notNull(baseTypeMap, "Cannot find base TypeMap");
+
+    synchronized (baseTypeMap.mappings) {
+      for (Map.Entry<String, MappingImpl> entry : baseTypeMap.mappings.entrySet()) {
+        addMapping(entry.getValue());
+      }
+    }
+
+    return this;
   }
 
   MappingImpl addMapping(MappingImpl mapping) {
