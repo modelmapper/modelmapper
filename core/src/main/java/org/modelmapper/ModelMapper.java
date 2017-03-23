@@ -70,7 +70,7 @@ public class ModelMapper {
   public <S, D> void addConverter(Converter<S, D> converter) {
     Assert.notNull(converter, "converter");
     Class<?>[] typeArguments = TypeResolver.resolveArguments(converter.getClass(), Converter.class);
-    Assert.notNull("Must declare source type argument <S> and destination type argument <D> for converter");
+    Assert.notNull(typeArguments, "Must declare source type argument <S> and destination type argument <D> for converter");
     config.typeMapStore.<S, D>getOrCreate(null, (Class<S>) typeArguments[0],
         (Class<D>) typeArguments[1], null, null, converter, engine);
   }

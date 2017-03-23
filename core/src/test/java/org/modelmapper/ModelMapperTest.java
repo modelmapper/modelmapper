@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.spi.Mapping;
+import org.modelmapper.spi.MappingContext;
 import org.testng.annotations.Test;
 
 /**
@@ -115,5 +116,21 @@ public class ModelMapperTest extends AbstractTest {
     }
 
     fail();
+  }
+
+  public void shouldThrowWithNullConverter() {
+    try {
+      Converter converter = new Converter() {
+        public Object convert(MappingContext context) {
+          return new Object();
+        }
+      };
+
+      modelMapper.addConverter(converter);
+      fail();
+    } catch (IllegalArgumentException e) {
+      Asserts.assertContains(e.getMessage(),
+          "Must declare source type argument <S> and destination type argument <D> for converter");
+    }
   }
 }
