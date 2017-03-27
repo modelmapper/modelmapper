@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
@@ -45,7 +46,8 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private static final String MAP_SOURCE_METHOD_DESC = "(Ljava/lang/Object;)Ljava/lang/Object;";
   private static final String SKIP_DEST_METHOD_DESC = "(Ljava/lang/Object;)V";
   private static final String MAP_BOTH_METHOD_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)V";
-  private static final String MUTATOR_METHOD_DESC_PATTERN = "(.+)V";
+
+  private static final Pattern MUTATOR_METHOD_DESC_PATTERN = Pattern.compile("^\\(.+\\)(.+)$");
 
   private final Errors errors;
   private final InheritingConfiguration config;
@@ -236,7 +238,13 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     }
 
     private boolean isMutator(MethodInsnNode mn) {
-      return Pattern.matches(MUTATOR_METHOD_DESC_PATTERN, mn.desc);
+      Matcher matcher = MUTATOR_METHOD_DESC_PATTERN.matcher(mn.desc);
+      if (!matcher.find())
+        return false;
+
+      String returnType = matcher.group(1);
+      return returnType.equals("V")
+          || returnType.contains(mn.owner);
     }
 
     private void recordProperties() {

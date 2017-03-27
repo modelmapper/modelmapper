@@ -24,7 +24,6 @@ import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
 import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.internal.PropertyInfoImpl.MethodMutator;
-import org.modelmapper.spi.PropertyInfo;
 
 /**
  * Statically stores and retrieves MemberInfo by member and configuration. This registry is designed
@@ -34,21 +33,26 @@ import org.modelmapper.spi.PropertyInfo;
  * @author Jonathan Halterman
  */
 class PropertyInfoRegistry {
-  private static final Map<Integer, PropertyInfo> cache = new ConcurrentHashMap<Integer, PropertyInfo>();
+  private static final Map<Integer, Mutator> MUTATOR_CACHE = new ConcurrentHashMap<Integer, Mutator>();
+  private static final Map<Integer, Accessor> ACCESSOR_CACHE = new ConcurrentHashMap<Integer, Accessor>();
+  private static final Map<Integer, FieldPropertyInfo> FIELD_CACHE = new ConcurrentHashMap<Integer, FieldPropertyInfo>();
 
   private static Integer hashCodeFor(Class<?> initialType, String propertyName,
       Configuration configuration) {
     int result = 31 + initialType.hashCode();
     result = 31 * result + propertyName.hashCode();
     result = 31 * result + configuration.hashCode();
-    return Integer.valueOf(result);
+    return result;
   }
 
   /**
    * Returns an accessor for the {@code accessorName}, else {@code null} if none exists.
    */
   static Accessor accessorFor(Class<?> type, String accessorName, Configuration configuration) {
-    return (Accessor) cache.get(hashCodeFor(type, accessorName, configuration));
+    Integer hashCode = hashCodeFor(type, accessorName, configuration);
+    if (ACCESSOR_CACHE.containsKey(hashCode))
+      return ACCESSOR_CACHE.get(hashCode);
+    return FIELD_CACHE.get(hashCode);
   }
 
   /**
@@ -58,10 +62,10 @@ class PropertyInfoRegistry {
   static synchronized Accessor accessorFor(Class<?> type, Method method,
       Configuration configuration, String name) {
     Integer hashCode = hashCodeFor(type, method.getName(), configuration);
-    Accessor accessor = (Accessor) cache.get(hashCode);
+    Accessor accessor = ACCESSOR_CACHE.get(hashCode);
     if (accessor == null) {
       accessor = new MethodAccessor(type, method, name);
-      cache.put(hashCode, accessor);
+      ACCESSOR_CACHE.put(hashCode, accessor);
     }
 
     return accessor;
@@ -73,10 +77,10 @@ class PropertyInfoRegistry {
   static synchronized FieldPropertyInfo fieldPropertyFor(Class<?> type, Field field,
       Configuration configuration, String name) {
     Integer hashCode = hashCodeFor(type, field.getName(), configuration);
-    FieldPropertyInfo fieldPropertyInfo = (FieldPropertyInfo) cache.get(hashCode);
+    FieldPropertyInfo fieldPropertyInfo = FIELD_CACHE.get(hashCode);
     if (fieldPropertyInfo == null) {
       fieldPropertyInfo = new FieldPropertyInfo(type, field, name);
-      cache.put(hashCode, fieldPropertyInfo);
+      FIELD_CACHE.put(hashCode, fieldPropertyInfo);
     }
 
     return fieldPropertyInfo;
@@ -89,10 +93,10 @@ class PropertyInfoRegistry {
   static synchronized Mutator mutatorFor(Class<?> type, Method method, Configuration configuration,
       String name) {
     Integer hashCode = hashCodeFor(type, method.getName(), configuration);
-    Mutator mutator = (Mutator) cache.get(hashCode);
+    Mutator mutator = MUTATOR_CACHE.get(hashCode);
     if (mutator == null) {
       mutator = new MethodMutator(type, method, name);
-      cache.put(hashCode, mutator);
+      MUTATOR_CACHE.put(hashCode, mutator);
     }
 
     return mutator;
