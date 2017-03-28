@@ -30,24 +30,37 @@ public final class ConverterStore {
       new AssignableConverter(), new StringConverter(), new EnumConverter(), new NumberConverter(),
       new BooleanConverter(), new CharacterConverter(), new DateConverter(),
       new CalendarConverter() };
-  private final List<ConditionalConverter<?, ?>> converters = new CopyOnWriteArrayList<ConditionalConverter<?, ?>>();
+
+  private final List<ConditionalConverter<?, ?>> converters;
 
   public ConverterStore() {
-    for (ConditionalConverter<?, ?> converter : DEFAULT_CONVERTERS)
-      converters.add(converter);
+    this(new CopyOnWriteArrayList<ConditionalConverter<?, ?>>(DEFAULT_CONVERTERS));
+  }
+
+  ConverterStore(List<ConditionalConverter<?, ?>> converters) {
+    this.converters = converters;
   }
 
   /**
    * Returns the first converter that supports converting from {@code sourceType} to
-   * {@code destinationType}.
+   * {@code destinationType}. It will select converter that was full match first.
+   * Then it will select {@code MatchResult.PARTIAL} if there is no full match converter
+   * exists.
    */
   @SuppressWarnings("unchecked")
   public <S, D> ConditionalConverter<S, D> getFirstSupported(Class<?> sourceType,
       Class<?> destinationType) {
-    for (ConditionalConverter<?, ?> converter : converters)
-      if (!MatchResult.NONE.equals(converter.match(sourceType, destinationType)))
+    ConditionalConverter<S, D> firstPartialMatchConverter = null;
+
+    for (ConditionalConverter<?, ?> converter : converters) {
+      MatchResult matchResult = converter.match(sourceType, destinationType);
+      if (matchResult == MatchResult.FULL)
         return (ConditionalConverter<S, D>) converter;
-    return null;
+      if (firstPartialMatchConverter == null
+          && matchResult == MatchResult.PARTIAL)
+        firstPartialMatchConverter = (ConditionalConverter<S, D>) converter;
+    }
+    return firstPartialMatchConverter;
   }
 
   public List<ConditionalConverter<?, ?>> getConverters() {
