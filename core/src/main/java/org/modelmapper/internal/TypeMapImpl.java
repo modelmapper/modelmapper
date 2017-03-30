@@ -28,8 +28,11 @@ import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Types;
+import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
+import org.modelmapper.spi.SourceGetter;
+import org.modelmapper.ExpressionMap;
 
 /**
  * TypeMap implementation.
@@ -209,6 +212,16 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   public TypeMap<S, D> setProvider(Provider<D> provider) {
     this.provider = Assert.notNull(provider, "provider");
+    return this;
+  }
+
+  public <V> TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
+    new ReferenceMapExpressionImpl<S, D>(this).map(sourceGetter, destinationSetter);
+    return this;
+  }
+
+  public TypeMap<S, D> addMappings(ExpressionMap<S, D> mapper) {
+    mapper.configure(new ConfigurableMapExpressionImpl<S, D>(this));
     return this;
   }
 
