@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
+import org.modelmapper.ExpressionMap;
 
 /**
  * @author Jonathan Halterman
@@ -111,6 +112,23 @@ public final class TypeMapStore {
 
       if (converter != null)
         typeMap.setConverter(converter);
+      return typeMap;
+    }
+  }
+
+  public <S, D> TypeMap<S, D> getOrCreate(Class<S> sourceType, Class<D> destinationType,
+      String typeMapName, ExpressionMap<S, D> mapper, MappingEngineImpl engine) {
+    synchronized (lock) {
+      TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
+      @SuppressWarnings("unchecked")
+      TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
+
+      if (typeMap == null) {
+        typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName, config, engine);
+        typeMaps.put(typePair, typeMap);
+      }
+
+      mapper.configure(new ConfigurableMapExpressionImpl<S, D>(typeMap));
       return typeMap;
     }
   }

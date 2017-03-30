@@ -17,8 +17,10 @@ package org.modelmapper;
 
 import java.util.List;
 
+import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
+import org.modelmapper.spi.SourceGetter;
 
 /**
  * Encapsulates mapping configuration for a source and destination type pair.
@@ -227,4 +229,51 @@ public interface TypeMap<S, D> {
    * @throws ValidationException if any TypeMaps contain unmapped properties
    */
   void validate();
+
+  /**
+   * Adds a mapping into {@code TypeMap} by defining {@code sourceGetter} -> {@code destinationSetter}
+   *
+   * <pre>
+   * {@code
+   *   typeMap.addMapping(Src::getA, Dest::setB);
+   *   typeMap.<String>addMapping(src -> src.getC().getD(), (dest, value) -> dest.getE().setF(value))
+   * }
+   * </pre>
+   *
+   * @param sourceGetter source property getter
+   * @param destinationSetter destination property setter
+   * @param <V> type of destination property wants to be set
+   */
+  <V> TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter);
+
+  /**
+   * Add a mapping into {@code TypeMap} by defining a {@code mapper} action
+   *
+   * You can chain {@code addMappings} contains only one property mapping like
+   * <pre>
+   * {@code
+   *   typeMap.addMappings(mapper -> mapper.<String>map(Src::getA, Dest::setB))
+   *          .addMappings(mapper -> mapper.<String>skip(Dest::setB))
+   *          .addMappings(mapper -> mapper.when(condition).<String>map(Src::getA, Dest::setB))
+   *          .addMappings(mapper -> mapper.when(condition).<String>skip(Dest::setB))
+   *          .addMappings(mapper -> mapper.using(converter).<String>map(Src::getA, Dest::setB))
+   *          .addMappings(mapper -> mapper.with(provider).<String>map(Src::getA, Dest::setB));
+   * }
+   * </pre>
+   *
+   * Or you can define all property mappings in one {@code addMappings} like
+   * <pre>
+   * {@code
+   *   typeMap.addMappings(mapper -> {
+   *     mapper.<String>map(Src::getA, Dest::setB);
+   *     mapper.<String>skip(Dest::setB);
+   *     mapper.when(condition).<String>map(Src::getA, Dest::setB);
+   *   });
+   * }
+   * </pre>
+   *
+   * @param mapper a mapper defined a mapping action
+   * @return this typeMap
+   */
+  TypeMap<S, D> addMappings(ExpressionMap<S, D> mapper);
 }
