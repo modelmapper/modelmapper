@@ -1,6 +1,7 @@
 package org.modelmapper.jackson;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
@@ -19,7 +20,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Test
 public class JsonNodeValueReaderTest {
   private final JsonNodeValueReader valueReader = new JsonNodeValueReader();
+
   private ModelMapper modelMapper;
+  private ObjectMapper objectMapper;
 
   public static class Order {
     public int id;
@@ -59,11 +62,12 @@ public class JsonNodeValueReaderTest {
         .setFieldMatchingEnabled(true)
         .setSourceNameTokenizer(NameTokenizers.UNDERSCORE)
         .addValueReader(valueReader);
+
+    objectMapper = new ObjectMapper();
   }
 
   public void shouldMapFromJsonNode() throws Exception {
     String orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":\"SF\"}}";
-    ObjectMapper objectMapper = new ObjectMapper();
     JsonNode node = objectMapper.readTree(orderJson);
 
     Order order = modelMapper.map(node, Order.class);
@@ -82,11 +86,13 @@ public class JsonNodeValueReaderTest {
     assertEquals(order.customer.id, 333);
     assertEquals(order.customer.address.street, "444 Main Street");
     assertEquals(order.customer.address.city, "LA");
+
+    assertNotNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
+    modelMapper.validate();
   }
 
   public void shouldMapWithExplicitMapping() throws Exception {
     String orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"strt\":\"123 Main Street\", \"cty\":\"SF\"}}";
-    ObjectMapper objectMapper = new ObjectMapper();
     JsonNode node = objectMapper.readTree(orderJson);
 
     modelMapper.createTypeMap(node, Order.class).addMappings(new PropertyMap<JsonNode, Order>() {
@@ -103,11 +109,14 @@ public class JsonNodeValueReaderTest {
     assertEquals(order.customer.id, 789);
     assertEquals(order.customer.address.street, "123 Main Street");
     assertEquals(order.customer.address.city, "SF");
+
+    assertNotNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
+    modelMapper.validate();
   }
 
   public void shouldGetElements() throws Exception {
     String json = "{\"object\":{\"subkey\":\"subvalue\"}, \"array\":[\"elem1\", \"elem2\"], \"boolean\":true, \"number\":55, \"string\":\"foo\", \"null\": null}";
-    JsonNode node = new ObjectMapper().readTree(json);
+    JsonNode node = objectMapper.readTree(json);
 
     ObjectNode objElem = (ObjectNode) valueReader.get(node, "object");
     assertEquals(objElem.get("subkey").asText(), "subvalue");
@@ -116,9 +125,38 @@ public class JsonNodeValueReaderTest {
     assertEquals(Arrays.asList(arrayElem.get(0).asText(), arrayElem.get(1).asText()),
         Arrays.asList("elem1", "elem2"));
 
-    assertEquals(valueReader.get(node, "boolean"), true);
+    assertEquals(valueReader.get(node, "boolean"), Boolean.TRUE);
     assertEquals(((Number) valueReader.get(node, "number")).intValue(), 55);
     assertEquals(valueReader.get(node, "string"), "foo");
     assertNull(valueReader.get(node, "null"));
+  }
+
+  public void shouldMapAfterMapNull() throws Exception {
+    String orderJson = "{\"id\":456, \"customer\":null}";
+    JsonNode node = objectMapper.readTree(orderJson);
+    Order order = modelMapper.map(node, Order.class);
+    assertEquals(order.id, 456);
+    assertNull(order.customer);
+    assertNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
+
+    orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":null}}";
+    node = objectMapper.readTree(orderJson);
+    order = modelMapper.map(node, Order.class);
+    assertEquals(order.id, 456);
+    assertEquals(order.customer.id, 789);
+    assertEquals(order.customer.address.street, "123 Main Street");
+    assertNull(order.customer.address.city);
+    assertNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
+
+    orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":\"LA\"}}";
+    node = objectMapper.readTree(orderJson);
+    order = modelMapper.map(node, Order.class);
+    assertEquals(order.id, 456);
+    assertEquals(order.customer.id, 789);
+    assertEquals(order.customer.address.street, "123 Main Street");
+    assertEquals(order.customer.address.city, "LA");
+    assertNotNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
+
+    modelMapper.validate();
   }
 }

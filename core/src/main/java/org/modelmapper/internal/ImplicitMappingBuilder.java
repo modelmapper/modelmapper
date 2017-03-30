@@ -27,7 +27,6 @@ import org.modelmapper.TypeMap;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
-import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Strings;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConditionalConverter;
@@ -137,9 +136,11 @@ class ImplicitMappingBuilder<S, D> {
         for (MappingImpl mapping : mergedMappings)
           typeMap.addMapping(mapping);
         mergedMappings.clear();
-      } else if (isMatchable(mutator.getType()) && !destinationTypes.contains(mutator.getType())
-          && !typeMap.isSkipped(destPath) && !isConvertable(existingMapping)) {
-        matchDestination(TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration));
+      } else if (!destinationTypes.contains(mutator.getType())
+          && !typeMap.isSkipped(destPath)
+          && Types.mightContainsProperties(mutator.getType())
+          && !isConvertable(existingMapping)) {
+        matchDestination(mutator.getTypeInfo(configuration));
       }
 
       propertyNameInfo.popDestination();
@@ -211,9 +212,9 @@ class ImplicitMappingBuilder<S, D> {
       }
 
       if (!doneMatching
-          && isMatchable(accessor.getType())
+          && Types.mightContainsProperties(accessor.getType())
           && (!sourceTypes.contains(accessor.getType()) || accessor instanceof ValueReaderPropertyInfo))
-        matchSource(TypeInfoRegistry.typeInfoFor(accessor, configuration), destinationMutator);
+        matchSource(accessor.getTypeInfo(configuration), destinationMutator);
 
       propertyNameInfo.popSource();
 
@@ -303,10 +304,6 @@ class ImplicitMappingBuilder<S, D> {
           propertyNameInfo.getSourceProperties(), propertyNameInfo.getDestinationProperties()));
   }
 
-  static boolean isMatchable(Class<?> type) {
-    return type != Object.class && type != String.class && !Primitives.isPrimitive(type)
-        && !Iterables.isIterable(type) && !Types.isGroovyType(type);
-  }
 
   /**
    * Indicates whether the mapping represents a PropertyMapping that is convertible to the

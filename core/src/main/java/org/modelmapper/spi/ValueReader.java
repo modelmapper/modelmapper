@@ -32,8 +32,64 @@ public interface ValueReader<T> {
   Object get(T source, String memberName);
 
   /**
+   * Returns the {@link Member} from the {@code source} within given {@code memberName}.
+   *
+   * @param source the source object
+   * @param memberName the name of member
+   */
+  Member<T> getMember(T source, String memberName);
+
+  /**
    * Returns all member names for the {@code source} object, else {@code null} if the source has no
    * members.
    */
   Collection<String> memberNames(T source);
+
+
+  /**
+   * A member of a given source
+   *
+   * @param <T> source type
+   */
+  class Member<T> {
+    private ValueReader<T> valueReader;
+    private Class<Object> valueType;
+    private T nestedValue;
+
+    /**
+     * Creates a member doesn't contain nested value
+     *
+     * @param valueReader the ValueReader itself
+     * @param valueType the value type
+     */
+    public Member(ValueReader<T> valueReader, Class<?> valueType) {
+      this(valueReader, valueType, null);
+    }
+
+    /**
+     * Creates a member contains nested value
+     *
+     * @param valueReader the ValueReader itself
+     * @param valueType the value type
+     * @param nestedValue the nested value
+     */
+    @SuppressWarnings("unchecked")
+    public Member(ValueReader<T> valueReader, Class<?> valueType, T nestedValue) {
+      this.valueReader = valueReader;
+      this.valueType = (Class<Object>) valueType;
+      this.nestedValue = nestedValue;
+    }
+
+    public ValueReader<T> getValueReader() {
+      return valueReader;
+    }
+
+    public Class<Object> getValueType() {
+      return valueType;
+    }
+
+    public T getNestedValue() {
+      return nestedValue;
+    }
+  }
 }

@@ -15,13 +15,11 @@
  */
 package org.modelmapper.internal;
 
-import org.modelmapper.spi.PropertyInfo;
-
 /**
  * A mutator that encapsulates a property.
  * 
  * @author Jonathan Halterman
  */
-interface Mutator extends PropertyInfo {
+interface Mutator extends InternalPropertyInfo {
   void setValue(Object subject, Object value);
 }

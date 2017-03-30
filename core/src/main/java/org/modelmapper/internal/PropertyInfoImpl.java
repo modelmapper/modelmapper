@@ -79,6 +79,10 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
         throw new Errors().errorSettingValue(member, value, e).toMappingException();
       }
     }
+
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(this, configuration);
+    }
   }
 
   static class MethodAccessor extends AbstractMethodInfo implements Accessor {
@@ -100,6 +104,10 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
         throw new Errors().errorGettingValue(member, e).toMappingException();
       }
     }
+
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(this, configuration);
+    }
   }
 
   static class MethodMutator extends AbstractMethodInfo implements Mutator {
@@ -118,25 +126,19 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
         throw new Errors().errorSettingValue(member, value, e).toMappingException();
       }
     }
+
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(type, configuration);
+    }
   }
 
   static class ValueReaderPropertyInfo extends PropertyInfoImpl<Member> implements Accessor {
-    private final ValueReader<Object> valueReader;
-    /** Provides access to structural information of members. */
-    final Object source;
+    private ValueReader<Object> valueReader;
 
     @SuppressWarnings("unchecked")
     ValueReaderPropertyInfo(ValueReader<?> valueReader, Class<?> initialType, String name) {
       super(initialType, null, PropertyType.GENERIC, name);
       this.valueReader = (ValueReader<Object>) valueReader;
-      source = null;
-    }
-
-    @SuppressWarnings("unchecked")
-    ValueReaderPropertyInfo(ValueReader<?> valueReader, Object source, String name) {
-      super(source.getClass(), null, PropertyType.GENERIC, name);
-      this.valueReader = (ValueReader<Object>) valueReader;
-      this.source = source;
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
@@ -147,8 +149,26 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       return type;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getValue(Object subject) {
       return valueReader.get(subject, name);
+    }
+
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(type, configuration);
+    }
+
+    static ValueReaderPropertyInfo fromMember(final ValueReader.Member<?> valueReaderMember, String memberName) {
+      if (valueReaderMember.getNestedValue() != null) {
+        return new ValueReaderPropertyInfo(valueReaderMember.getValueReader(), valueReaderMember.getValueType(), memberName) {
+          @Override
+          public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+            return TypeInfoRegistry.typeInfoFor(valueReaderMember.getNestedValue(),
+                valueReaderMember.getValueType(), configuration);
+          }
+        };
+      }
+      return new ValueReaderPropertyInfo(valueReaderMember.getValueReader(), valueReaderMember.getValueType(), memberName);
     }
   }
 

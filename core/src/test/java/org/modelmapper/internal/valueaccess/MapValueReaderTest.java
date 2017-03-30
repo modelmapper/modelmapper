@@ -1,6 +1,8 @@
 package org.modelmapper.internal.valueaccess;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -93,5 +95,30 @@ public class MapValueReaderTest extends AbstractTest {
     modelMapper.validate();
     assertEquals(map.get("customer").get("address").get("city"), order.customer.address.city);
     assertEquals(map.get("customer").get("address").get("street"), order.customer.address.street);
+  }
+
+  public void shouldMapNullValue() {
+    Map<String, Object> addressMap1 = new HashMap<String, Object>();
+    addressMap1.put("street", "Street A");
+    addressMap1.put("city", null);
+
+    Map<String, Object> addressMap2 = new HashMap<String, Object>();
+    addressMap2.put("street", "Street B");
+    addressMap2.put("city", "City");
+
+    Map<String, Object> addressMap3 = new HashMap<String, Object>();
+    addressMap3.put("street", "Street C");
+    addressMap3.put("city", "City II");
+
+    Address address1 = modelMapper.map(addressMap1, Address.class);
+    Address address2 = modelMapper.map(addressMap2, Address.class);
+    Address address3 = modelMapper.map(addressMap3, Address.class);
+
+    assertEquals(address1.street, "Street A");
+    assertNull(address1.city);
+    assertEquals(address2.street, "Street B");
+    assertEquals(address2.city, "City");
+    assertEquals(address3.street, "Street C");
+    assertEquals(address3.city, "City II");
   }
 }

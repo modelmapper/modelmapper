@@ -185,5 +185,9 @@ public class MatchingStrategyTestSupport {
     public Class<?> getInitialType() {
       return null;
     }
+
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(memberClass, configuration);
+    }
   }
 }

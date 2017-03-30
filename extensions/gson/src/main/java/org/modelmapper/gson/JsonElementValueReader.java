@@ -56,6 +56,18 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
     return null;
   }
 
+  public Member<JsonElement> getMember(JsonElement source, String memberName) {
+    final Object value = get(source, memberName);
+    if (value == null)
+      return null;
+
+    if (value instanceof JsonElement) {
+      return new Member<JsonElement>(this, JsonElement.class, (JsonElement) value);
+    }
+
+    return new Member<JsonElement>(this, value.getClass());
+  }
+
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Collection<String> memberNames(JsonElement source) {
     if (source.isJsonObject())

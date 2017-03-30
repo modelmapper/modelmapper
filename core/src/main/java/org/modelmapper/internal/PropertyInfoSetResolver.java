@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
-import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.NamingConvention;
@@ -77,10 +76,10 @@ final class PropertyInfoSetResolver<T> {
     else {
       NameTransformer nameTransformer = configuration.getSourceNameTransformer();
       for (String memberName : valueReader.memberNames(source)) {
-        Object sourceValue = valueReader.get(source, memberName);
-        if (sourceValue != null)
+        ValueReader.Member<?> member = valueReader.getMember(source, memberName);
+        if (member != null)
           accessors.put(nameTransformer.transform(memberName, NameableType.GENERIC),
-              new ValueReaderPropertyInfo(valueReader, sourceValue, memberName));
+              PropertyInfoImpl.ValueReaderPropertyInfo.fromMember(member, memberName));
       }
     }
     return accessors;
