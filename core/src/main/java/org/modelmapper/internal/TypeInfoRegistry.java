@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.modelmapper.config.Configuration;
-import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 
 /**
  * Statically stores and retrieves TypeInfo instances by type, parent type, and configuration.
@@ -57,9 +56,7 @@ class TypeInfoRegistry {
 
   @SuppressWarnings("unchecked")
   static <T> TypeInfoImpl<T> typeInfoFor(Accessor accessor, InheritingConfiguration configuration) {
-    return (TypeInfoImpl<T>) TypeInfoRegistry.typeInfoFor(
-        (T) (accessor instanceof ValueReaderPropertyInfo ? ((ValueReaderPropertyInfo) accessor).source
-            : null), (Class<T>) accessor.getType(), configuration);
+    return TypeInfoRegistry.typeInfoFor(null, (Class<T>) accessor.getType(), configuration);
   }
 
   /**

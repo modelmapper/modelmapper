@@ -15,13 +15,11 @@
  */
 package org.modelmapper.internal;
 
-import org.modelmapper.spi.PropertyInfo;
-
 /**
  * An accessor that encapsulates a property.
  * 
  * @author Jonathan Halterman
  */
-interface Accessor extends PropertyInfo {
+interface Accessor extends InternalPropertyInfo {
   Object getValue(Object subject);
 }

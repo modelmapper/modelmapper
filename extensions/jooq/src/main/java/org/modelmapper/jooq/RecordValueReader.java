@@ -30,15 +30,27 @@ import org.modelmapper.spi.ValueReader;
  */
 public class RecordValueReader implements ValueReader<Record> {
   public Object get(Record source, String memberName) {
-    try {
-      for (Field<?> field : source.fields())
-        if (memberName.equalsIgnoreCase(field.getName()))
-          return source.getValue(field);
-      return null;
-    } catch (Exception e) {
-      throw new IllegalArgumentException(memberName
-          + " is not a valid member for the source record", e);
+    Field<?> field = matchField(source, memberName);
+    if (field != null) {
+      return source.getValue(field);
     }
+    return null;
+  }
+
+  public Member<Record> getMember(Record source, String memberName) {
+    Field<?> field = matchField(source, memberName);
+    if (field != null) {
+      return new Member<Record>(this, field.getType());
+    }
+
+    return null;
+  }
+
+  private Field<?> matchField(Record source, String memberName) {
+    for (Field<?> field : source.fields())
+      if (memberName.equalsIgnoreCase(field.getName()))
+        return field;
+    return null;
   }
 
   public Collection<String> memberNames(Record source) {

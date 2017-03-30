@@ -26,6 +26,8 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Utilities for working with types.
@@ -146,5 +148,18 @@ public final class Types {
    */
   public static String toString(Type type) {
     return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
+  }
+
+  /**
+   * Returns whether the type might contains properties or not.
+   */
+  public static boolean mightContainsProperties(Class<?> type) {
+    return type != Object.class
+        && type != String.class
+        && type != Date.class
+        && type != Calendar.class
+        && !Primitives.isPrimitive(type)
+        && !Iterables.isIterable(type)
+        && !Types.isGroovyType(type);
   }
 }

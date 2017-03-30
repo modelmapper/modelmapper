@@ -22,8 +22,6 @@ import org.modelmapper.internal.util.Lists;
 import org.modelmapper.spi.ValueReader;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NumericNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 
 /**
@@ -43,7 +41,7 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
       case NULL:
         return null;
       case NUMBER:
-        return ((NumericNode) propertyNode).numberValue();
+        return propertyNode.numberValue();
       case POJO:
         return ((POJONode) propertyNode).getPojo();
       case STRING:
@@ -63,9 +61,29 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
     }
   }
 
+  public Member<JsonNode> getMember(JsonNode source, String memberName) {
+    Object value = get(source, memberName);
+
+    if (value == null) {
+      return null;
+    } else if (value instanceof JsonNode) {
+      final JsonNode jsonNode = (JsonNode) value;
+      if (jsonNode.isMissingNode()) {
+        return null;
+      } else if (jsonNode.isContainerNode()) {
+        return new Member<JsonNode>(this, JsonNode.class, jsonNode);
+      } else {
+        // Should not be here
+        throw new IllegalArgumentException();
+      }
+    } else {
+      return new Member<JsonNode>(this, value.getClass());
+    }
+  }
+
   public Collection<String> memberNames(JsonNode source) {
     if (source.isObject())
-      return Lists.from(((ObjectNode) source).fieldNames());
+      return Lists.from(source.fieldNames());
     return null;
   }
 

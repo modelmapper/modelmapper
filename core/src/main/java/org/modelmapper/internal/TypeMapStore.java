@@ -21,9 +21,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.modelmapper.Converter;
+import org.modelmapper.ExpressionMap;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
-import org.modelmapper.ExpressionMap;
+import org.modelmapper.internal.util.Types;
 
 /**
  * @author Jonathan Halterman
@@ -49,8 +50,8 @@ public final class TypeMapStore {
       TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName,
           configuration, engine);
       if (configuration.isImplicitMappingEnabled()
-          && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
-          && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+          && Types.mightContainsProperties(typeMap.getSourceType())
+          && Types.mightContainsProperties(typeMap.getDestinationType()))
         new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
             config.converterStore).build();
       typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
@@ -101,14 +102,17 @@ public final class TypeMapStore {
         if (propertyMap != null)
           typeMap.addMappings(propertyMap);
         if (converter == null && config.isImplicitMappingEnabled()
-            && ImplicitMappingBuilder.isMatchable(typeMap.getSourceType())
-            && ImplicitMappingBuilder.isMatchable(typeMap.getDestinationType()))
+            && Types.mightContainsProperties(typeMap.getSourceType())
+            && Types.mightContainsProperties(typeMap.getDestinationType()))
           new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
               config.converterStore).build();
 
-        typeMaps.put(typePair, typeMap);
-      } else if (propertyMap != null)
+        if (typeMap.isFullMatching()) {
+          typeMaps.put(typePair, typeMap);
+        }
+      } else if (propertyMap != null) {
         typeMap.addMappings(propertyMap);
+      }
 
       if (converter != null)
         typeMap.setConverter(converter);

@@ -1,20 +1,21 @@
 package org.modelmapper.gson;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 
 import java.util.Arrays;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.NameTokenizers;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @Test
 public class JsonElementValueReaderTest {
@@ -121,5 +122,40 @@ public class JsonElementValueReaderTest {
     assertEquals(((Number) valueReader.get(element, "number")).intValue(), 55);
     assertEquals(valueReader.get(element, "string"), "foo");
     assertNull(valueReader.get(element, "null"));
+  }
+
+  @Test
+  public void shouldMapAfterMapNull() throws Exception {
+    JsonParser jsonParser = new JsonParser();
+
+    String orderJsonWithNullCustomer = "{\"id\":456, \"customer\":null}";
+    JsonElement element1 = jsonParser.parse(orderJsonWithNullCustomer);
+    Order order1 = modelMapper.map(element1, Order.class);
+
+    assertEquals(order1.id, 456);
+    assertNull(order1.customer);
+    assertNull(modelMapper.getTypeMap(JsonObject.class, Order.class));
+
+    String orderJsonWithNullCity = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":null}}";
+    JsonElement element2 = jsonParser.parse(orderJsonWithNullCity);
+    Order order2 = modelMapper.map(element2, Order.class);
+
+    assertEquals(order2.id, 456);
+    assertEquals(order2.customer.id, 789);
+    assertEquals(order2.customer.address.street, "123 Main Street");
+    assertNull(order2.customer.address.city);
+    assertNull(modelMapper.getTypeMap(JsonObject.class, Order.class));
+
+    String orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":\"SF\"}}";
+    JsonElement element3 = jsonParser.parse(orderJson);
+    Order order3 = modelMapper.map(element3, Order.class);
+
+    assertEquals(order3.id, 456);
+    assertEquals(order3.customer.id, 789);
+    assertEquals(order3.customer.address.street, "123 Main Street");
+    assertEquals(order3.customer.address.city, "SF");
+    assertNotNull(modelMapper.getTypeMap(JsonObject.class, Order.class));
+
+    modelMapper.validate();
   }
 }

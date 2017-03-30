@@ -278,7 +278,9 @@ public class NestedMappingTest2 extends AbstractTest {
 
     Event3 event3 = modelMapper.map(dto, Event3.class);
 
-    modelMapper.validate();
+    // The typeMap is not full match
+    // modelMapper.validate();
+
     assertEquals(dto.firstYear, event3.firstEvent.year);
     assertEquals(event3.firstEvent.date, 0);
     assertEquals(event3.firstEvent.month, 0);

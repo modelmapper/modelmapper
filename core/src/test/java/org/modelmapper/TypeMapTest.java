@@ -3,6 +3,8 @@ package org.modelmapper;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -53,11 +55,17 @@ public class TypeMapTest extends AbstractTest {
     List<PropertyInfo> memberInfo = personMap.getUnmappedProperties();
     assertEquals(memberInfo.size(), 2);
 
-    PropertyInfo surName = memberInfo.get(0);
-    assertEquals(surName.getMember().getName(), "setSurName");
+    Collections.sort(memberInfo, new Comparator<PropertyInfo>() {
+      public int compare(PropertyInfo o1, PropertyInfo o2) {
+        return o1.getName().compareTo(o2.getName());
+      }
+    });
 
-    PropertyInfo employerName = memberInfo.get(1);
+    PropertyInfo employerName = memberInfo.get(0);
     assertEquals(employerName.getMember().getName(), "setEmployerName");
+
+    PropertyInfo surName = memberInfo.get(1);
+    assertEquals(surName.getMember().getName(), "setSurName");
   }
 
   public void shouldMergeMappings() {

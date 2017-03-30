@@ -71,10 +71,10 @@ public class DeepMappingTest1 extends AbstractTest {
   }
 
   static class D2 {
-    String value;
+    String dest;
 
-    public void setDest(String value) {
-      this.value = value;
+    public void setDest(String dest) {
+      this.dest = dest;
     }
   }
 
@@ -111,6 +111,6 @@ public class DeepMappingTest1 extends AbstractTest {
     A2 a2 = modelMapper.map(a1, A2.class);
 
     modelMapper.validate();
-    assertEquals(a2.bb.cc.dd.value, "src");
+    assertEquals(a2.bb.cc.dd.dest, "src");
   }
 }
