@@ -1,3 +1,11 @@
+# 0.7.8
+
+### Bug Fixes
+
+* Fixed #197 - Fix conditional skip bug
+* Fixed #200 - Improve converter selection from ConverterStore
+* Fixed #204 - Fix handling mutator/accessor had same signature problem
+
 # 0.7.7
 
 ### Bug Fixes
