@@ -59,6 +59,7 @@ public class InheritingConfiguration implements Configuration {
   private Boolean ambiguityIgnored;
   private Boolean fullTypeMatchingRequired;
   private Boolean implicitMatchingEnabled;
+  private Boolean skipNullEnabled;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -81,6 +82,7 @@ public class InheritingConfiguration implements Configuration {
     ambiguityIgnored = Boolean.FALSE;
     fullTypeMatchingRequired = Boolean.FALSE;
     implicitMatchingEnabled = Boolean.TRUE;
+    skipNullEnabled = Boolean.FALSE;
   }
 
   /**
@@ -111,6 +113,7 @@ public class InheritingConfiguration implements Configuration {
       propertyCondition = source.propertyCondition;
       fullTypeMatchingRequired = source.fullTypeMatchingRequired;
       implicitMatchingEnabled = source.implicitMatchingEnabled;
+      skipNullEnabled = source.skipNullEnabled;
     }
   }
 
@@ -238,6 +241,11 @@ public class InheritingConfiguration implements Configuration {
         : implicitMatchingEnabled;
   }
 
+  public boolean isSkipNullEnabled() {
+    return skipNullEnabled == null ? parent.isSkipNullEnabled()
+        : skipNullEnabled;
+  }
+
   public Configuration setAmbiguityIgnored(boolean ignore) {
     this.ambiguityIgnored = ignore;
     return this;
@@ -275,6 +283,11 @@ public class InheritingConfiguration implements Configuration {
 
   public Configuration setImplicitMappingEnabled(boolean enabled) {
     implicitMatchingEnabled = enabled;
+    return this;
+  }
+
+  public Configuration setSkipNullEnabled(boolean enabled) {
+    skipNullEnabled = enabled;
     return this;
   }
 

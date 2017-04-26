@@ -207,6 +207,14 @@ public interface Configuration {
   boolean isImplicitMappingEnabled();
 
   /**
+   * Returns whether a property mapping will be skipped if the property value is {@code null}.
+   * When {@code true}, ModelMapper will always not set {@code null} to destination property.
+   *
+   * @see #setSkipNullEnabled(boolean)
+   */
+  boolean isSkipNullEnabled();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true, ambiguous destination properties are skipped during the matching process. When
    * false, a ConfigurationException is thrown when ambiguous properties are encountered.
@@ -281,6 +289,14 @@ public interface Configuration {
    * @see #isImplicitMappingEnabled()
    */
   Configuration setImplicitMappingEnabled(boolean enabled);
+
+  /**
+   * Sets whether a property should be skipped or not when the property value is {@code null}.
+   *
+   * @param enabled whether skip null is enabled
+   * @see #isSkipNullEnabled()
+   */
+  Configuration setSkipNullEnabled(boolean enabled);
 
   /**
    * Sets the strategy used to match source properties to destination properties.
