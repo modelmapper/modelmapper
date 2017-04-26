@@ -252,9 +252,10 @@ public class MappingEngineImpl implements MappingEngine {
           destinationValue = map(propertyContext);
 
         context.destinationCache.put(destPath, destinationValue);
-        mutator.setValue(destination,
-            destinationValue == null ? Primitives.defaultValue(mutator.getType())
-                : destinationValue);
+        if (destinationValue != null || !configuration.isSkipNullEnabled())
+          mutator.setValue(destination,
+              destinationValue == null ? Primitives.defaultValue(mutator.getType())
+                  : destinationValue);
         if (destinationValue == null)
           context.shadePath(propertyContext.destinationPath);
       } else {
