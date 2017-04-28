@@ -35,4 +35,8 @@ public class MapValueReader implements ValueReader<Map<String, Object>> {
   public Collection<String> memberNames(Map<String, Object> source) {
     return source.keySet();
   }
+
+  public Class<?> getType(Map<String, Object> source, String memberName) {
+    return null;
+  }
 }

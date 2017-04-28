@@ -67,4 +67,14 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
   public String toString() {
     return "Gson";
   }
+
+  public Class<?> getType(JsonElement source, String memberName) {
+    if (source.isJsonObject()) {
+      JsonObject subjObj = source.getAsJsonObject();
+      JsonElement propertyElement = subjObj.get(memberName);
+      if (propertyElement == null) throw new IllegalArgumentException();
+        return propertyElement.getClass();
+    }
+    return null;
+  }
 }

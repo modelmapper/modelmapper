@@ -36,4 +36,13 @@ public interface ValueReader<T> {
    * members.
    */
   Collection<String> memberNames(T source);
+
+  /**
+   * Returns the type from the {@code source} object for the {@code memberName}.   
+   * 
+   * @param source - source object
+   * @param memberName - source class member name
+   * @return type of source class member
+   */
+  Class<?> getType(T source, String memberName);
 }
