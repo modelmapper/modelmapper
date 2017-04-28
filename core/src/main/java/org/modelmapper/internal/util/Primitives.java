@@ -15,13 +15,10 @@
  */
 package org.modelmapper.internal.util;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.objectweb.asm.Type;
 
 /**
  * Utility methods for working with primitives.
@@ -117,36 +114,6 @@ public final class Primitives {
    */
   public static Class<?> primitiveFor(Class<?> wrapper) {
     return wrapperToPrimitive.get(wrapper);
-  }
-
-  /**
-   * Returns a primitive type for the ASM {@code type}, else {@code null}.
-   */
-  public static Class<?> primitiveFor(Type type) {
-    switch (type.getSort()) {
-      case Type.BOOLEAN:
-        return Boolean.TYPE;
-      case Type.CHAR:
-        return Character.TYPE;
-      case Type.BYTE:
-        return Byte.TYPE;
-      case Type.SHORT:
-        return Short.TYPE;
-      case Type.INT:
-        return Integer.TYPE;
-      case Type.LONG:
-        return Long.TYPE;
-      case Type.FLOAT:
-        return Float.TYPE;
-      case Type.DOUBLE:
-        return Double.TYPE;
-      case Type.ARRAY:
-        return Array.newInstance(primitiveFor(type.getElementType()), new int[type.getDimensions()])
-            .getClass();
-      case Type.OBJECT:
-      default:
-        return null;
-    }
   }
 
   /**

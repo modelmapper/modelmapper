@@ -1,5 +1,6 @@
 package org.modelmapper.internal;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -329,10 +330,39 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     Type[] argumentTypes = methodType.getArgumentTypes();
     Class<?>[] paramTypes = new Class<?>[argumentTypes.length];
     for (int i = 0; i < paramTypes.length; i++) {
-      Class<?> paramType = Primitives.primitiveFor(argumentTypes[i]);
-      paramTypes[i] = paramType == null ? classFor(argumentTypes[i].getClassName()) : paramType;
+      paramTypes[i] = classFor(argumentTypes[i]);
     }
     return Members.methodFor(type, mn.name, paramTypes);
+  }
+
+  /**
+   * Returns a origin class for the ASM {@code type}, else {@code null}.
+   */
+  public Class<?> classFor(Type type) {
+    switch (type.getSort()) {
+      case Type.BOOLEAN:
+        return Boolean.TYPE;
+      case Type.CHAR:
+        return Character.TYPE;
+      case Type.BYTE:
+        return Byte.TYPE;
+      case Type.SHORT:
+        return Short.TYPE;
+      case Type.INT:
+        return Integer.TYPE;
+      case Type.LONG:
+        return Long.TYPE;
+      case Type.FLOAT:
+        return Float.TYPE;
+      case Type.DOUBLE:
+        return Double.TYPE;
+      case Type.ARRAY:
+        return Array.newInstance(classFor(type.getElementType()), new int[type.getDimensions()])
+            .getClass();
+      case Type.OBJECT:
+      default:
+        return classFor(type.getClassName());
+    }
   }
 
   private Class<?> classFor(String className) {
