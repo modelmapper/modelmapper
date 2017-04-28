@@ -128,6 +128,36 @@ public final class Types {
   }
 
   /**
+   * Returns a origin class for the ASM {@code type}, else {@code null}.
+   */
+  public static Class<?> classFor(org.objectweb.asm.Type type, ClassLoader classLoader) throws ClassNotFoundException {
+    switch (type.getSort()) {
+      case org.objectweb.asm.Type.BOOLEAN:
+        return Boolean.TYPE;
+      case org.objectweb.asm.Type.CHAR:
+        return Character.TYPE;
+      case org.objectweb.asm.Type.BYTE:
+        return Byte.TYPE;
+      case org.objectweb.asm.Type.SHORT:
+        return Short.TYPE;
+      case org.objectweb.asm.Type.INT:
+        return Integer.TYPE;
+      case org.objectweb.asm.Type.LONG:
+        return Long.TYPE;
+      case org.objectweb.asm.Type.FLOAT:
+        return Float.TYPE;
+      case org.objectweb.asm.Type.DOUBLE:
+        return Double.TYPE;
+      case org.objectweb.asm.Type.ARRAY:
+        return Array.newInstance(classFor(type.getElementType(), classLoader), new int[type.getDimensions()])
+            .getClass();
+      case org.objectweb.asm.Type.OBJECT:
+      default:
+        return Class.forName(type.getClassName(), true, classLoader);
+    }
+  }
+
+  /**
    * Returns a simplified String representation of the {@code member}.
    */
   public static String toString(Member member) {

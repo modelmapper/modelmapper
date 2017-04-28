@@ -1,6 +1,5 @@
 package org.modelmapper.internal;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -15,6 +14,7 @@ import java.util.regex.Pattern;
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
 import org.modelmapper.internal.util.Members;
 import org.modelmapper.internal.util.Primitives;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.NameableType;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -330,39 +330,13 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     Type[] argumentTypes = methodType.getArgumentTypes();
     Class<?>[] paramTypes = new Class<?>[argumentTypes.length];
     for (int i = 0; i < paramTypes.length; i++) {
-      paramTypes[i] = classFor(argumentTypes[i]);
+      try {
+        paramTypes[i] = Types.classFor(argumentTypes[i], propertyMapClassLoader);
+      } catch (ClassNotFoundException e) {
+        throw errors.errorResolvingClass(e, argumentTypes[i].getClassName()).toException();
+      }
     }
     return Members.methodFor(type, mn.name, paramTypes);
-  }
-
-  /**
-   * Returns a origin class for the ASM {@code type}, else {@code null}.
-   */
-  public Class<?> classFor(Type type) {
-    switch (type.getSort()) {
-      case Type.BOOLEAN:
-        return Boolean.TYPE;
-      case Type.CHAR:
-        return Character.TYPE;
-      case Type.BYTE:
-        return Byte.TYPE;
-      case Type.SHORT:
-        return Short.TYPE;
-      case Type.INT:
-        return Integer.TYPE;
-      case Type.LONG:
-        return Long.TYPE;
-      case Type.FLOAT:
-        return Float.TYPE;
-      case Type.DOUBLE:
-        return Double.TYPE;
-      case Type.ARRAY:
-        return Array.newInstance(classFor(type.getElementType()), new int[type.getDimensions()])
-            .getClass();
-      case Type.OBJECT:
-      default:
-        return classFor(type.getClassName());
-    }
   }
 
   private Class<?> classFor(String className) {
