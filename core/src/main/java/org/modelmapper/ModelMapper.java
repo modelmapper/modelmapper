@@ -314,6 +314,37 @@ public class ModelMapper {
   }
 
   /**
+   * Returns the TypeMap for the {@code sourceType}, {@code destinationType}, creates TypeMap
+   * automatically if none exists.
+   *
+   * @param <S> source type
+   * @param <D> destination type
+   * @throws IllegalArgumentException is {@code sourceType}, {@code destinationType} are null
+   */
+  public <S, D> TypeMap<S, D> typeMap(Class<S> sourceType, Class<D> destinationType) {
+    Assert.notNull(sourceType, "sourceType");
+    Assert.notNull(destinationType, "destinationType");
+    return config.typeMapStore.getOrCreate(null, sourceType, destinationType, null, engine);
+  }
+
+  /**
+   * Returns the TypeMap for the {@code sourceType}, {@code destinationType}, and {@code typeMapName}
+   * creates TypeMap automatically if none exists.
+   *
+   * @param <S> source type
+   * @param <D> destination type
+   * @throws IllegalArgumentException is {@code sourceType}, {@code destinationType} or
+   *           {@code typeMapName} are null
+   */
+  public <S, D> TypeMap<S, D> typeMap(Class<S> sourceType, Class<D> destinationType,
+      String typeMapName) {
+    Assert.notNull(sourceType, "sourceType");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    return config.typeMapStore.getOrCreate(null, sourceType, destinationType, typeMapName, engine);
+  }
+
+  /**
    * Returns all TypeMaps for the ModelMapper.
    */
   public Collection<TypeMap<?, ?>> getTypeMaps() {
