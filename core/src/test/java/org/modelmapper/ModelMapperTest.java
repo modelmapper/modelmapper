@@ -1,9 +1,6 @@
 package org.modelmapper;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import static org.testng.Assert.*;
 
 import java.util.Map;
 
@@ -132,5 +129,22 @@ public class ModelMapperTest extends AbstractTest {
       Asserts.assertContains(e.getMessage(),
           "Must declare source type argument <S> and destination type argument <D> for converter");
     }
+  }
+
+  public void shouldTypeMapCreateOrGet() {
+    TypeMap<Person, PersonDTO> typeMap = modelMapper.typeMap(Person.class, PersonDTO.class);
+    assertNotNull(typeMap);
+    assertSame(modelMapper.typeMap(Person.class, PersonDTO.class), typeMap);
+
+    TypeMap<Person, PersonDTO> typeMapWithName = modelMapper.typeMap(Person.class, PersonDTO.class, "foo");
+    assertNotNull(typeMapWithName);
+    assertNotSame(typeMapWithName, typeMap);
+    assertSame(modelMapper.typeMap(Person.class, PersonDTO.class, "foo"), typeMapWithName);
+
+    TypeMap<Person, PersonDTO> typeMapWithDifferentName = modelMapper.typeMap(Person.class, PersonDTO.class, "bar");
+    assertNotNull(typeMapWithDifferentName);
+    assertNotSame(typeMapWithDifferentName, typeMap);
+    assertNotSame(typeMapWithDifferentName, typeMapWithName);
+    assertSame(modelMapper.typeMap(Person.class, PersonDTO.class, "bar"), typeMapWithDifferentName);
   }
 }
