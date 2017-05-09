@@ -16,12 +16,8 @@
 package org.modelmapper.internal;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import java.util.TreeMap;
 
 import org.modelmapper.Condition;
@@ -48,8 +44,10 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   private final String name;
   final InheritingConfiguration configuration;
   private final MappingEngineImpl engine;
+
   /** Guarded by "mappings" */
-  private final Map<String, MappingImpl> mappings = new TreeMap<String, MappingImpl>();
+  final Map<String, MappingImpl> mappings = new TreeMap<String, MappingImpl>();
+
   private Converter<S, D> converter;
   private Converter<S, D> preConverter;
   private Converter<S, D> postConverter;
@@ -146,15 +144,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   }
 
   public List<PropertyInfo> getUnmappedProperties() {
-    PathProperties pathProperties = getDestinationProperties();
-
-    synchronized (mappings) {
-      for (Map.Entry<String, MappingImpl> entry : mappings.entrySet()) {
-        pathProperties.matchAndRemove(entry.getKey());
-      }
-    }
-
-    return pathProperties.get();
+    return engine.getUnmappedProperties(this);
   }
 
   public D map(S source) {
@@ -253,10 +243,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     if (converter != null || preConverter != null || postConverter != null)
       return;
 
-    Errors errors = new Errors();
-    List<PropertyInfo> unmappedProperties = getUnmappedProperties();
-    if (!unmappedProperties.isEmpty())
-      errors.errorUnmappedProperties(this, unmappedProperties);
+    Errors errors = engine.validate(this);
 
     errors.throwValidationExceptionIfErrorsExist();
   }
@@ -309,84 +296,5 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   boolean isFullMatching() {
     return getUnmappedProperties().isEmpty()
         || configuration.valueAccessStore.getFirstSupportedReader(sourceType) == null;
-  }
-
-  private PathProperties getDestinationProperties() {
-    PathProperties pathProperties = new PathProperties();
-    Set<Class<?>> classes = new HashSet<Class<?>>();
-
-    Stack<Property> propertyStack = new Stack<Property>();
-    propertyStack.push(new Property("", TypeInfoRegistry.typeInfoFor(destinationType, configuration)));
-
-    while (!propertyStack.isEmpty()) {
-      Property property = propertyStack.pop();
-      classes.add(property.typeInfo.getType());
-      for (Map.Entry<String, Mutator> entry : property.typeInfo.getMutators().entrySet()) {
-        if (entry.getValue() instanceof PropertyInfoImpl.FieldPropertyInfo
-            && !configuration.isFieldMatchingEnabled()) {
-          continue;
-        }
-
-        String path = property.prefix + entry.getKey() + ".";
-        Mutator mutator = entry.getValue();
-        pathProperties.pathProperties.add(new PathProperty(path, mutator));
-
-        if (!classes.contains(mutator.getType())
-            && Types.mightContainsProperties(mutator.getType()))
-          propertyStack.push(new Property(path, TypeInfoRegistry.typeInfoFor(mutator.getType(), configuration)));
-      }
-    }
-    return pathProperties;
-  }
-
-  private static final class Property {
-    String prefix;
-    TypeInfo<?> typeInfo;
-
-    public Property(String prefix, TypeInfo<?> typeInfo) {
-      this.prefix = prefix;
-      this.typeInfo = typeInfo;
-    }
-  }
-
-  private static final class PathProperties {
-    List<PathProperty> pathProperties = new ArrayList<PathProperty>();
-
-    private void matchAndRemove(String path) {
-      int startIndex = 0;
-      int endIndex;
-      while ((endIndex = path.indexOf(".", startIndex)) != -1) {
-        String currentPath = path.substring(0, endIndex + 1);
-
-        Iterator<PathProperty> iterator = pathProperties.iterator();
-        while (iterator.hasNext())
-          if (iterator.next().path.equals(currentPath))
-            iterator.remove();
-
-        startIndex = endIndex + 1;
-      }
-
-      Iterator<PathProperty> iterator = pathProperties.iterator();
-      while (iterator.hasNext())
-        if (iterator.next().path.startsWith(path))
-          iterator.remove();
-    }
-
-    public List<PropertyInfo> get() {
-      List<PropertyInfo> mutators = new ArrayList<PropertyInfo>(pathProperties.size());
-      for (PathProperty pathProperty : pathProperties)
-        mutators.add(pathProperty.mutator);
-      return mutators;
-    }
-  }
-
-  private static final class PathProperty {
-    String path;
-    Mutator mutator;
-
-    private PathProperty(String path, Mutator mutator) {
-      this.path = path;
-      this.mutator = mutator;
-    }
   }
 }
