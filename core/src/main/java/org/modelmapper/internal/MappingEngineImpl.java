@@ -110,6 +110,9 @@ public class MappingEngineImpl implements MappingEngine {
    * Performs a type mapping for the {@code typeMap} and {@code context}.
    */
   <S, D> D typeMap(MappingContextImpl<S, D> context, TypeMap<S, D> typeMap) {
+    if (context.getParent() != null && context.getDestination() == null)
+      context.setDestination(destinationProperty(context), false);
+
     context.setTypeMap(typeMap);
     if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
       D destination = createDestination(context);
@@ -329,6 +332,30 @@ public class MappingEngineImpl implements MappingEngine {
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
     return new MappingContextImpl(context, source, sourceType, null, destinationType, null,
         mapping, !cyclic);
+  }
+
+  private <S, D> D destinationProperty(MappingContextImpl<S, D> context) {
+    if (!context.providedDestination)
+      return null;
+
+    Object intermediateDest = context.getParent().getDestination();
+    @SuppressWarnings("unchecked")
+    List<Mutator> mutatorChain = (List<Mutator>) context.getMapping().getDestinationProperties();
+    for (Mutator mutator : mutatorChain) {
+      if (intermediateDest == null)
+        break;
+
+      Accessor accessor = TypeInfoRegistry.typeInfoFor(intermediateDest.getClass(),
+          configuration)
+          .getAccessors()
+          .get(mutator.getName());
+      if (accessor != null)
+        intermediateDest = accessor.getValue(intermediateDest);
+    }
+
+    @SuppressWarnings("unchecked")
+    D destinationProperty = (D) intermediateDest;
+    return destinationProperty;
   }
 
   /**
