@@ -15,12 +15,12 @@
  */
 package org.modelmapper;
 
-import java.util.List;
-
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceGetter;
+
+import java.util.List;
 
 /**
  * Encapsulates mapping configuration for a source and destination type pair.
@@ -242,9 +242,8 @@ public interface TypeMap<S, D> {
    *
    * @param sourceGetter source property getter
    * @param destinationSetter destination property setter
-   * @param <V> type of destination property wants to be set
    */
-  <V> TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter);
+  TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, ?> destinationSetter);
 
   /**
    * Add a mapping into {@code TypeMap} by defining a {@code mapper} action
