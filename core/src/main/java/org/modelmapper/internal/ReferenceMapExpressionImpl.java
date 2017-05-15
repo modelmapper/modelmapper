@@ -44,35 +44,29 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     this.options = options;
   }
 
-  public void map(SourceGetter<S> sourceGetter, DestinationSetter<D, ?> destinationSetter) {
+  public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, options);
 
     S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getErrors());
     sourceGetter.get(source);
 
     D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getErrors());
-
-    @SuppressWarnings("unchecked")
-    DestinationSetter<D, Object> typedDestinationSetter = (DestinationSetter<D, Object>) destinationSetter;
-    typedDestinationSetter.accept(destination, destinationValue(destinationSetter));
+    destinationSetter.accept(destination, destinationValue(destinationSetter));
 
     typeMap.addMapping(collector.collect());
   }
 
-  public void skip(DestinationSetter<D, ?> destinationSetter) {
+  public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     options.skipType = 1;
 
     PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, options);
     D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getErrors());
-
-    @SuppressWarnings("unchecked")
-    DestinationSetter<D, Object> typedDestinationSetter = (DestinationSetter<D, Object>) destinationSetter;
-    typedDestinationSetter.accept(destination, destinationValue(destinationSetter));
+    destinationSetter.accept(destination, destinationValue(destinationSetter));
 
     typeMap.addMapping(collector.collect());
   }
 
-  private Object destinationValue(DestinationSetter<D, ?> destinationSetter) {
+  private <V> V destinationValue(DestinationSetter<D, V> destinationSetter) {
     Class<?>[] typeArguments = TypeResolver.resolveArguments(destinationSetter.getClass(), DestinationSetter.class);
     if (typeArguments != null) {
       Class<?> valueClass = typeArguments[1];

@@ -62,13 +62,13 @@ class ConfigurableMapExpressionImpl<S, D> implements ConfigurableMapExpression<S
     return new ReferenceMapExpressionImpl<S, D>(typeMap, options);
   }
 
-  public void map(SourceGetter<S> sourceGetter, DestinationSetter<D, ?> destinationSetter) {
+  public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     notNull(sourceGetter, "sourceGetter");
     notNull(destinationSetter, "destinationSetter");
     new ReferenceMapExpressionImpl<S, D>(typeMap).map(sourceGetter, destinationSetter);
   }
 
-  public void skip(DestinationSetter<D, ?> destinationSetter) {
+  public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     notNull(destinationSetter, "destinationSetter");
     new ReferenceMapExpressionImpl<S, D>(typeMap).skip(destinationSetter);
   }

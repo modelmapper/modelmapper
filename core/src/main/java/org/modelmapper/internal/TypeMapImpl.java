@@ -227,7 +227,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return this;
   }
 
-  public TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, ?> destinationSetter) {
+  public <V> TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     new ReferenceMapExpressionImpl<S, D>(this).map(sourceGetter, destinationSetter);
     return this;
   }
