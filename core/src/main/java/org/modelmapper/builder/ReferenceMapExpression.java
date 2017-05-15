@@ -40,9 +40,8 @@ public interface ReferenceMapExpression<S, D> {
    *
    * @param sourceGetter a method reference to source getter
    * @param destinationSetter a method reference to destination setter
-   * @param <V> the value type to set into destination
    */
-  <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter);
+  void map(SourceGetter<S> sourceGetter, DestinationSetter<D, ?> destinationSetter);
 
   /**
    * Skip destination property based on {@code destinationSetter}
@@ -55,7 +54,6 @@ public interface ReferenceMapExpression<S, D> {
    * </pre>
    *
    * @param destinationSetter a method reference to destination setter
-   * @param <V> the value type of the setter
    */
-  <V> void skip(DestinationSetter<D, V> destinationSetter);
+  void skip(DestinationSetter<D, ?> destinationSetter);
 }
