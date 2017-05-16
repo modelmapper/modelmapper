@@ -56,7 +56,7 @@ class InexactMatcher {
             return (dstIndex - dstStartIndex) + 1;
           // Done with dest tokens
           if (dstIndex == dst.length - 1)
-            return 0;
+            break;
 
           dstStr = dst[++dstIndex];
           dstCharIndex = 0;
@@ -66,7 +66,8 @@ class InexactMatcher {
         if (srcCharIndex == srcStr.length() - 1) {
           // Done with source tokens
           if (srcIndex == src.length - 1)
-            return 0;
+            break;
+
           srcStr = src[++srcIndex];
           srcCharIndex = 0;
         } else

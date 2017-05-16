@@ -40,7 +40,7 @@ public class InexactMatcherTest {
     assertEquals(
         matchTokens(new String[] { "customer", "fiRst", "naMe" },
             new String[] { "cusTomFirstname" }, 0), 0);
-    assertEquals(matchTokens(new String[] { "oo", "a", "aaa" }, new String[] { "aa", "a" }, 0), 0);
+    assertEquals(matchTokens(new String[] { "oo", "a", "aaa" }, new String[] { "aa", "a" }, 0), 2);
     assertEquals(matchTokens(new String[] { "aabbc", "cc" }, new String[] { "aa", "bb", "cc" }, 0),
         0);
     assertEquals(
@@ -54,5 +54,11 @@ public class InexactMatcherTest {
         matchTokens(new String[] { "my", "firstNaMe" }, new String[] { "my", "asdf", "first" }, 2),
         0);
     assertEquals(matchTokens(new String[] { "a", "a", "a" }, new String[] { "b" }, 0), 0);
+
+    assertEquals(matchTokens(new String[] { "goo", "go" }, new String[] { "goo", "go" }, 0), 1);
+    assertEquals(matchTokens(new String[] { "goo", "go" }, new String[] { "goo", "go" }, 1), 1);
+
+    assertEquals(matchTokens(new String[] { "go", "goo" }, new String[] { "go", "goo" }, 0), 1);
+    assertEquals(matchTokens(new String[] { "go", "goo" }, new String[] { "go", "goo" }, 1), 1);
   }
 }
