@@ -414,6 +414,25 @@ public class ModelMapper {
 
   /**
    * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
+   * TypeMap. If no TypeMap exists for {@code source.getClass()} and {@code destinationType}
+   * then one is created.
+   * 
+   * @param source object to map from
+   * @param destination object to map to
+   * @param destinationType type to map to
+   * @throws IllegalArgumentException if {@code source} or {@code destination} are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
+   * @throws MappingException if an error occurs while mapping
+   */
+  public void map(Object source, Object destination, Class<?> destinationType) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destination, "destination");
+    mapInternal(source, destination, destinationType, null);
+  }
+
+  /**
+   * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
    * TypeMap for the {@code typeMapName}. If no TypeMap exists for the {@code source.getClass()},
    * {@code destination.getClass()} and {@code typeMapName} then one is created.
    * 
@@ -523,7 +542,7 @@ public class ModelMapper {
   }
 
   private <D> D mapInternal(Object source, D destination, Type destinationType, String typeMapName) {
-    if (destination != null)
+    if (destination != null && destinationType == null)
       destinationType = Types.<D>deProxy(destination.getClass());
     return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), destination,
         TypeToken.<D>of(destinationType), typeMapName);
