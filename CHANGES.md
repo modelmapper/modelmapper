@@ -1,3 +1,18 @@
+# 1.0.0
+
+### New Features
+
+* Add support ExpressionMap for lambda friendly API
+* Add support TypeMap inheritance
+* Added `ModelMapper.typeMap` for shortcut to create or get TypeMap
+
+### Bug Fixes
+
+* Fixed #168 - TypeMap won't cache wrong mapping result when using ValueReader
+* Fixed #171 - Destination properties won't be erased when not mapping.
+* Fixed #219 - Reduced the jar size
+* Fixed #220 - Resolved ASM type correctly
+
 # 0.7.8
 
 ### Bug Fixes
