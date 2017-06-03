@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.modelmapper.extensions</groupId>
     <artifactId>modelmapper-extensions</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>modelmapper-guice</artifactId>
