@@ -15,6 +15,8 @@
  */
 package org.modelmapper;
 
+import net.jodah.typetools.TypeResolver;
+
 import java.lang.reflect.Type;
 import java.util.Collection;
 
@@ -23,7 +25,6 @@ import org.modelmapper.internal.Errors;
 import org.modelmapper.internal.InheritingConfiguration;
 import org.modelmapper.internal.MappingEngineImpl;
 import org.modelmapper.internal.util.Assert;
-import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.internal.util.Types;
 
 /**
@@ -69,7 +70,7 @@ public class ModelMapper {
   @SuppressWarnings("unchecked")
   public <S, D> void addConverter(Converter<S, D> converter) {
     Assert.notNull(converter, "converter");
-    Class<?>[] typeArguments = TypeResolver.resolveArguments(converter.getClass(), Converter.class);
+    Class<?>[] typeArguments = TypeResolver.resolveRawArguments(Converter.class, converter.getClass());
     Assert.notNull(typeArguments, "Must declare source type argument <S> and destination type argument <D> for converter");
     config.typeMapStore.<S, D>getOrCreate(null, (Class<S>) typeArguments[0],
         (Class<D>) typeArguments[1], null, null, converter, engine);

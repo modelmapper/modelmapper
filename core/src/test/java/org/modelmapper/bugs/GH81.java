@@ -2,11 +2,12 @@ package org.modelmapper.bugs;
 
 import static org.testng.Assert.assertEquals;
 
+import net.jodah.typetools.TypeResolver;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.bugs.GH81.FooPrime.BarPrime;
-import org.modelmapper.internal.util.TypeResolver;
 import org.testng.annotations.Test;
 
 /**
@@ -28,6 +29,6 @@ public class GH81 {
 
   @Test
   public void shouldResolveArgumentsOfMemberType() {
-    assertEquals(TypeResolver.resolveArguments(BarPrime.class, List.class)[0], Integer.class);
+    assertEquals(TypeResolver.resolveRawArguments(List.class, BarPrime.class)[0], Integer.class);
   }
 }

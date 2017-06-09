@@ -15,13 +15,14 @@
  */
 package org.modelmapper.internal;
 
+import net.jodah.typetools.TypeResolver;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
@@ -177,7 +178,7 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     this.member = member;
     this.propertyType = propertyType;
     Type genericType = getGenericType();
-    this.type = genericType == null ? initialType : TypeResolver.resolveClass(genericType,
+    this.type = genericType == null ? initialType : TypeResolver.resolveRawClass(genericType,
         initialType);
     this.name = name;
   }

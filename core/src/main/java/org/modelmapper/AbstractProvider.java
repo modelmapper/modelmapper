@@ -15,7 +15,7 @@
  */
 package org.modelmapper;
 
-import org.modelmapper.internal.util.TypeResolver;
+import net.jodah.typetools.TypeResolver;
 
 /**
  * Provider support class. Allows for simpler Provider implementations.
@@ -34,7 +34,7 @@ public abstract class AbstractProvider<T> implements Provider<T> {
 
   @Override
   public String toString() {
-    return String.format("Provider<%s>", TypeResolver.resolveArgument(getClass(), Provider.class));
+    return String.format("Provider<%s>", TypeResolver.resolveRawArgument(Provider.class, getClass()));
   }
 
   /**

@@ -15,10 +15,11 @@
  */
 package org.modelmapper.internal;
 
+import net.jodah.typetools.TypeResolver;
+
 import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 
 import org.modelmapper.internal.util.Primitives;
-import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.spi.SourceGetter;
@@ -67,7 +68,7 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   }
 
   private <V> V destinationValue(DestinationSetter<D, V> destinationSetter) {
-    Class<?>[] typeArguments = TypeResolver.resolveArguments(destinationSetter.getClass(), DestinationSetter.class);
+    Class<?>[] typeArguments = TypeResolver.resolveRawArguments(DestinationSetter.class, destinationSetter.getClass());
     if (typeArguments != null) {
       Class<?> valueClass = typeArguments[1];
       if (Primitives.isPrimitive(valueClass)) {

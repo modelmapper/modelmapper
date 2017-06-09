@@ -15,13 +15,14 @@
  */
 package org.modelmapper;
 
+import net.jodah.typetools.TypeResolver;
+
 import org.modelmapper.builder.ConverterExpression;
 import org.modelmapper.builder.MapExpression;
 import org.modelmapper.builder.ProviderExpression;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.ExplicitMappingBuilder;
 import org.modelmapper.internal.util.Assert;
-import org.modelmapper.internal.util.TypeResolver;
 
 /**
  * A PropertyMap defines mappings between properties for a particular source and destination type.
@@ -217,9 +218,10 @@ public abstract class PropertyMap<S, D> {
    */
   @SuppressWarnings("unchecked")
   protected PropertyMap() {
-    Class<?>[] typeArguments = TypeResolver.resolveArguments(getClass(), PropertyMap.class);
+    Class<?>[] typeArguments = TypeResolver.resolveRawArguments(PropertyMap.class, getClass());
     Assert.notNull(typeArguments,
         "Must declare source type argument <S> and destination type argument <D> for PropertyMap");
+
     sourceType = (Class<S>) typeArguments[0];
     destinationType = (Class<D>) typeArguments[1];
   }

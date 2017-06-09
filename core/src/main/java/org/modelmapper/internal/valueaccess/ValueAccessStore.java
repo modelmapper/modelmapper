@@ -15,6 +15,8 @@
  */
 package org.modelmapper.internal.valueaccess;
 
+import net.jodah.typetools.TypeResolver;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.CopyOnWriteLinkedHashMap;
-import org.modelmapper.internal.util.TypeResolver;
 import org.modelmapper.spi.ValueReader;
 
 /**
@@ -121,8 +122,7 @@ public final class ValueAccessStore {
     @SuppressWarnings("unchecked")
     private void putValueAccessor(T valueAccessor) {
       Assert.notNull(valueAccessor, "element");
-      Class<?> typeArgument = TypeResolver.resolveArgument((Class<T>) valueAccessor.getClass(),
-          valueAccessorType);
+      Class<?> typeArgument = TypeResolver.resolveRawArgument(valueAccessorType, valueAccessor.getClass());
       Assert.notNull(typeArgument, "Must declare source type argument <T> for the "
           + valueAccessorType.getSimpleName());
       valueAccessors.put(valueAccessor, typeArgument);

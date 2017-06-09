@@ -1,5 +1,7 @@
 package org.modelmapper;
 
+import net.jodah.typetools.TypeResolver;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -17,13 +19,15 @@ public class PropertyMapTest {
   }
 
   @SuppressWarnings("rawtypes")
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void loadShouldRequireTypeParameters() {
-    new PropertyMap() {
+    PropertyMap propertyMap = new PropertyMap() {
       @Override
       protected void configure() {
       }
     };
+    Assert.assertTrue(propertyMap.sourceType == TypeResolver.Unknown.class);
+    Assert.assertTrue(propertyMap.destinationType == TypeResolver.Unknown.class);
   }
 
   public void shouldInstantiate() {
