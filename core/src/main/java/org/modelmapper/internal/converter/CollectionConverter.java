@@ -19,18 +19,19 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.modelmapper.internal.util.Iterables;
-import org.modelmapper.internal.util.TypeResolver;
-import org.modelmapper.internal.util.TypeResolver.Unknown;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyMapping;
+
+import net.jodah.typetools.TypeResolver;
+import net.jodah.typetools.TypeResolver.Unknown;
 
 /**
  * Converts {@link Collection} and array instances to {@link Collection} instances.
@@ -62,7 +63,7 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
     Mapping mapping = context.getMapping();
     if (mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = ((PropertyMapping) mapping).getLastDestinationProperty();
-      Class<?> elementType = TypeResolver.resolveArgument(destInfo.getGenericType(),
+      Class<?> elementType = TypeResolver.resolveRawArgument(destInfo.getGenericType(),
           destInfo.getInitialType());
       return elementType == Unknown.class ? Object.class : elementType;
     } else if (context.getGenericDestinationType() instanceof ParameterizedType)

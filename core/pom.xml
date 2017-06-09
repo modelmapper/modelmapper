@@ -15,6 +15,7 @@
     <cglib.version>3.2.4</cglib.version>
     <asm.version>5.1</asm.version>
     <objenesis.version>2.1</objenesis.version>
+    <typetools.version>0.5.0</typetools.version>
   </properties>
 
   <dependencyManagement>
@@ -52,6 +53,11 @@
       <groupId>org.objenesis</groupId>
       <artifactId>objenesis</artifactId>
       <version>${objenesis.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.jodah</groupId>
+      <artifactId>typetools</artifactId>
+      <version>${typetools.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -146,6 +152,10 @@
             <relocation>
               <pattern>org.objenesis</pattern>
               <shadedPattern>org.modelmapper.internal.objenesis</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>net.jodah.typetools</pattern>
+              <shadedPattern>org.modelmapper.internal.typetools</shadedPattern>
             </relocation>
           </relocations>
         </configuration>

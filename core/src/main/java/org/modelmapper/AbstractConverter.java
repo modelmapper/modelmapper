@@ -15,7 +15,7 @@
  */
 package org.modelmapper;
 
-import org.modelmapper.internal.util.TypeResolver;
+import net.jodah.typetools.TypeResolver;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -37,7 +37,7 @@ public abstract class AbstractConverter<S, D> implements Converter<S, D> {
   @Override
   public String toString() {
     return String.format("Converter<%s, %s>",
-        (Object[]) TypeResolver.resolveArguments(getClass(), Converter.class));
+        (Object[]) TypeResolver.resolveRawArguments(Converter.class, getClass()));
   }
 
   /**

@@ -115,22 +115,6 @@ public class ModelMapperTest extends AbstractTest {
     fail();
   }
 
-  public void shouldThrowWithNullConverter() {
-    try {
-      Converter converter = new Converter() {
-        public Object convert(MappingContext context) {
-          return new Object();
-        }
-      };
-
-      modelMapper.addConverter(converter);
-      fail();
-    } catch (IllegalArgumentException e) {
-      Asserts.assertContains(e.getMessage(),
-          "Must declare source type argument <S> and destination type argument <D> for converter");
-    }
-  }
-
   public void shouldTypeMapCreateOrGet() {
     TypeMap<Person, PersonDTO> typeMap = modelMapper.typeMap(Person.class, PersonDTO.class);
     assertNotNull(typeMap);
