@@ -58,6 +58,7 @@
   <modules>
     <module>core</module>
     <module>extensions</module>
+    <module>examples</module>
   </modules>
 
   <dependencies>
