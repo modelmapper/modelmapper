@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.modelmapper</groupId>
   <artifactId>modelmapper-examples</artifactId>
-  <version>0.6.6-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>ModelMapper Examples</name>
   
   <dependencies>
