@@ -20,14 +20,11 @@ public class InheritanceExample1 {
         C c = new C(bases);
 
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.createTypeMap(BaseSrcA.class, BaseDestA.class);
-        modelMapper.createTypeMap(BaseSrcB.class, BaseDestB.class);
 
         TypeMap<BaseSrc, BaseDest> typeMap = modelMapper.createTypeMap(BaseSrc.class, BaseDest.class);
 
-        typeMap.include(BaseSrc.class, BaseDest.class)
-                .include(BaseSrcB.class, BaseDestB.class)
-                .include(BaseSrcA.class, BaseDestA.class);
+        typeMap.include(BaseSrcA.class, BaseDestA.class)
+                .include(BaseSrcB.class, BaseDestB.class);
 
         CcDTO ccDTO = modelMapper.map(c, CcDTO.class);
 
