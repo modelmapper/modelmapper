@@ -5,6 +5,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -15,12 +16,7 @@ import org.modelmapper.config.Configuration;
 public class InheritanceExample1 {
 
     public static void main(String... args) {
-        BaseSrcA baseSrcA = new BaseSrcA();
-        BaseSrcB baseSrcB = new BaseSrcB();
-        List<BaseSrc> bases = new ArrayList<BaseSrc>();
-        bases.add(baseSrcA);
-        bases.add(baseSrcB);
-        org.modelmapper.inheritance.C c = new org.modelmapper.inheritance.C(bases);
+        org.modelmapper.inheritance.C c = new org.modelmapper.inheritance.C(Arrays.asList(new BaseSrcA(),  new BaseSrcB()));
 
         ModelMapper modelMapper = new ModelMapper();
 
