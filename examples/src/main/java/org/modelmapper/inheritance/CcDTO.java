@@ -9,4 +9,8 @@ public class CcDTO {
     public List<BaseDest> getBases() {
         return bases;
     }
+
+    public void setBases(List<BaseDest> bases) {
+        this.bases = bases;
+    }
 }

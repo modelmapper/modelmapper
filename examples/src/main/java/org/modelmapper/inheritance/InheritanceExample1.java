@@ -1,13 +1,16 @@
 package org.modelmapper.inheritance;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.Provider;
+import org.modelmapper.TypeMap;
+import org.modelmapper.config.Configuration;
 
 public class InheritanceExample1 {
 
@@ -17,14 +20,27 @@ public class InheritanceExample1 {
         List<BaseSrc> bases = new ArrayList<BaseSrc>();
         bases.add(baseSrcA);
         bases.add(baseSrcB);
-        C c = new C(bases);
+        org.modelmapper.inheritance.C c = new org.modelmapper.inheritance.C(bases);
 
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setFieldMatchingEnabled(true)
+                .setFieldAccessLevel(Configuration.AccessLevel.PACKAGE_PRIVATE)
+                .setMethodAccessLevel(Configuration.AccessLevel.PACKAGE_PRIVATE);
 
-        TypeMap<BaseSrc, BaseDest> typeMap = modelMapper.createTypeMap(BaseSrc.class, BaseDest.class);
-
-        typeMap.include(BaseSrcA.class, BaseDestA.class)
+        TypeMap<BaseSrc, BaseDest> typeMap = modelMapper.createTypeMap(BaseSrc.class, BaseDest.class)
+                .include(BaseSrcA.class, BaseDestA.class)
                 .include(BaseSrcB.class, BaseDestB.class);
+
+        modelMapper.typeMap(BaseSrcA.class, BaseDest.class).setProvider(new Provider<BaseDest>() {
+            public BaseDest get(ProvisionRequest<BaseDest> request) {
+                return new BaseDestA();
+            }
+        });
+        modelMapper.typeMap(BaseSrcB.class, BaseDest.class).setProvider(new Provider<BaseDest>() {
+            public BaseDest get(ProvisionRequest<BaseDest> request) {
+                return new BaseDestB();
+            }
+        });
 
         CcDTO ccDTO = modelMapper.map(c, CcDTO.class);
 
