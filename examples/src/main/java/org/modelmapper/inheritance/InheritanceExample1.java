@@ -23,9 +23,6 @@ public class InheritanceExample1 {
         org.modelmapper.inheritance.C c = new org.modelmapper.inheritance.C(bases);
 
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setFieldMatchingEnabled(true)
-                .setFieldAccessLevel(Configuration.AccessLevel.PACKAGE_PRIVATE)
-                .setMethodAccessLevel(Configuration.AccessLevel.PACKAGE_PRIVATE);
 
         TypeMap<BaseSrc, BaseDest> typeMap = modelMapper.createTypeMap(BaseSrc.class, BaseDest.class)
                 .include(BaseSrcA.class, BaseDestA.class)
