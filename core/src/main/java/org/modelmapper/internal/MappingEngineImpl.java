@@ -335,7 +335,7 @@ public class MappingEngineImpl implements MappingEngine {
   }
 
   private <S, D> D destinationProperty(MappingContextImpl<S, D> context) {
-    if (!context.providedDestination)
+    if (!context.providedDestination || context.getMapping() == null)
       return null;
 
     Object intermediateDest = context.getParent().getDestination();
