@@ -28,7 +28,7 @@ import org.modelmapper.spi.ValueReader;
 public class MapValueReader implements ValueReader<Map<String, Object>> {
   public Object get(Map<String, Object> source, String memberName) {
     if (!source.containsKey(memberName))
-      throw new IllegalArgumentException();
+      return null;
     return source.get(memberName);
   }
 
