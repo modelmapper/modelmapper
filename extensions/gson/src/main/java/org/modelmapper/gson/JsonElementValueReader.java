@@ -36,7 +36,7 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
       JsonObject subjObj = source.getAsJsonObject();
       JsonElement propertyElement = subjObj.get(memberName);
       if (propertyElement == null)
-        throw new IllegalArgumentException();
+        return null;
 
       if (propertyElement.isJsonObject())
         return propertyElement.getAsJsonObject();

@@ -102,23 +102,35 @@ public class MapValueReaderTest extends AbstractTest {
     addressMap1.put("street", "Street A");
     addressMap1.put("city", null);
 
+    Address address1 = modelMapper.map(addressMap1, Address.class);
+    assertEquals(address1.street, "Street A");
+    assertNull(address1.city);
+
     Map<String, Object> addressMap2 = new HashMap<String, Object>();
     addressMap2.put("street", "Street B");
     addressMap2.put("city", "City");
+
+    Address address2 = modelMapper.map(addressMap2, Address.class);
+
+    assertEquals(address2.street, "Street B");
+    assertEquals(address2.city, "City");
 
     Map<String, Object> addressMap3 = new HashMap<String, Object>();
     addressMap3.put("street", "Street C");
     addressMap3.put("city", "City II");
 
-    Address address1 = modelMapper.map(addressMap1, Address.class);
-    Address address2 = modelMapper.map(addressMap2, Address.class);
     Address address3 = modelMapper.map(addressMap3, Address.class);
 
-    assertEquals(address1.street, "Street A");
-    assertNull(address1.city);
-    assertEquals(address2.street, "Street B");
-    assertEquals(address2.city, "City");
     assertEquals(address3.street, "Street C");
     assertEquals(address3.city, "City II");
+
+    Map<String, Object> addressMap4 = new HashMap<String, Object>();
+    addressMap4.put("street", "Street C");
+    addressMap4.put("city", null);
+
+    Address address4 = modelMapper.map(addressMap4, Address.class);
+
+    assertEquals(address4.street, "Street C");
+    assertNull(address4.city);
   }
 }

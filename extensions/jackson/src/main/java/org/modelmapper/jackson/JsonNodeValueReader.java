@@ -33,7 +33,7 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
   public Object get(JsonNode source, String memberName) {
     JsonNode propertyNode = source.get(memberName);
     if (propertyNode == null)
-      throw new IllegalArgumentException();
+      throw null;
 
     switch (propertyNode.getNodeType()) {
       case BOOLEAN:
