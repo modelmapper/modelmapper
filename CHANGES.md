@@ -1,3 +1,17 @@
+# 1.1.0
+
+### New Features
+
+* Added a new configuration option: skipNull
+* Added example for Type Map inheritance
+* Includes example as a module of ModelMapper
+* Includes typetools as dependency for lambda expression type resolver
+
+### Bug Fixes
+
+* Fixed #194 - Returns null when read inexist value using ValueReader
+* Fixed #249 - Fixed NullPointerException when getting destination property
+
 # 1.0.0
 
 ### New Features
