@@ -2,11 +2,12 @@ package org.modelmapper;
 
 import static org.testng.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.spi.Mapping;
-import org.modelmapper.spi.MappingContext;
 import org.testng.annotations.Test;
 
 /**
@@ -130,5 +131,21 @@ public class ModelMapperTest extends AbstractTest {
     assertNotSame(typeMapWithDifferentName, typeMap);
     assertNotSame(typeMapWithDifferentName, typeMapWithName);
     assertSame(modelMapper.typeMap(Person.class, PersonDTO.class, "bar"), typeMapWithDifferentName);
+  }
+  
+  public void shouldMapList() {
+    List<Person> sourceList = new ArrayList<Person>();
+    Person personA = new Person();
+    personA.firstName = "a";
+    sourceList.add(personA);
+    Person personB = new Person();
+    personB.firstName = "b";
+    sourceList.add(personB);
+    final int LIST_SIZE = sourceList.size();
+    List<PersonDTO> destionationList = modelMapper.mapList(sourceList, PersonDTO.class);
+    assertNotNull(destionationList);
+    assertEquals(destionationList.size(), LIST_SIZE);
+    assertEquals(destionationList.get(0).firstName, sourceList.get(0).firstName);
+    assertEquals(destionationList.get(1).firstName, sourceList.get(1).firstName);
   }
 }

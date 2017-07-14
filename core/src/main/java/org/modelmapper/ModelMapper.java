@@ -18,7 +18,9 @@ package org.modelmapper;
 import net.jodah.typetools.TypeResolver;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.Errors;
@@ -491,6 +493,53 @@ public class ModelMapper {
     Assert.notNull(typeMapName, "typeMapName");
     return mapInternal(source, null, destinationType, typeMapName);
   }
+  
+  /**
+   * For each element of {@code sourceList}, maps {@code source} to an instance of
+   * {@code itemDestinationType}. Mapping is performed according to the corresponding TypeMap. If no
+   * TypeMap exists for {@code source.getClass()} and {@code itemDestinationType} then one is
+   * created.
+   *
+   * @param <S> item source type
+   * @param <D> item destination type
+   * @param sourceList list of objects to map from
+   * @param itemDestinationType type to map to each element
+   * @return list of fully mapped instances of {@code itemDestinationType}
+   * @throws IllegalArgumentException if {@code sourceList} or {@code itemDestinationType} are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
+   * @throws MappingException if a runtime error occurs while mapping
+   */
+  public <S, D> List<D> mapList(final List<S> sourceList, final Class<D> itemDestinationType) {
+    Assert.notNull(sourceList, "sourceList");
+    Assert.notNull(itemDestinationType, "itemDestinationType");
+    return mapListInternal(sourceList, itemDestinationType, null);
+  }
+
+  /**
+   * For each element of {@code sourceList}, maps {@code source} to an instance of
+   * {@code itemDestinationType}. Mapping is performed according to the corresponding TypeMap for
+   * the {@code typeMapName}. If no TypeMap exists for the {@code source.getClass()},
+   * {@code itemDestinationType} and {@code typeMapName} then one is created.
+   *
+   * @param <S> item source type
+   * @param <D> item destination type
+   * @param sourceList list of objects to map from
+   * @param itemDestinationType type to map to each element
+   * @param typeMapName name of existing TypeMap to use mappings from
+   * @return list of fully mapped instances of {@code itemDestinationType}
+   * @throws IllegalArgumentException if {@code sourceList}, {@code itemDestinationType} or
+   *           {@code typeMapName} are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
+   * @throws MappingException if a runtime error occurs while mapping
+   */
+  public <S, D> List<D> mapList(final List<S> sourceList, final Class<D> itemDestinationType, final String typeMapName) {
+    Assert.notNull(sourceList, "sourceList");
+    Assert.notNull(itemDestinationType, "itemDestinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    return mapListInternal(sourceList, itemDestinationType, typeMapName);
+  }
 
   /**
    * Validates that <b>every</b> top level destination property for each configured TypeMap is
@@ -528,5 +577,22 @@ public class ModelMapper {
       destinationType = Types.<D>deProxy(destination.getClass());
     return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), destination,
         TypeToken.<D>of(destinationType), typeMapName);
+  }
+  
+  private <S, D> List<D> mapListInternal(final List<S> sourceList, final Class<D> destinationType, final String typeMapName) {
+    final List<D> destinationList = new ArrayList<D>(sourceList.size());
+    for (final S source : sourceList) {
+      final D destination = mapListElementInternal(source, destinationType, typeMapName);
+      destinationList.add(destination);
+    }
+    return destinationList;
+  }
+
+  private <S, D> D mapListElementInternal(final S source, final Class<D> destinationType, final String typeMapName) {
+    if (typeMapName != null) {
+      return map(source, destinationType, typeMapName);
+    } else {
+      return map(source, destinationType);
+    }
   }
 }
