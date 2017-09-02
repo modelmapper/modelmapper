@@ -38,6 +38,7 @@ class PropertyReferenceCollector {
   private List<Accessor> accessors;
   private List<Mutator> mutators;
   private Errors errors;
+  private Errors proxyErrors;
 
   PropertyReferenceCollector(InheritingConfiguration config, MappingOptions options) {
     this.config = config;
@@ -45,6 +46,7 @@ class PropertyReferenceCollector {
     this.accessors = new ArrayList<Accessor>();
     this.mutators = new ArrayList<Mutator>();
     this.errors = new Errors();
+    this.proxyErrors = new Errors();
   }
 
   public MethodInterceptor newSourceInterceptor() {
@@ -54,7 +56,12 @@ class PropertyReferenceCollector {
 
         if (Void.class.isAssignableFrom(method.getReturnType()))
           return null;
-        return ProxyFactory.proxyFor(method.getReturnType(), this, errors);
+
+        try {
+          return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+        } catch (ErrorsException e) {
+          return null;
+        }
       }
     };
   }
@@ -66,7 +73,7 @@ class PropertyReferenceCollector {
 
         if (Void.class.isAssignableFrom(method.getReturnType()))
           return null;
-        return ProxyFactory.proxyFor(method.getReturnType(), this, new Errors());
+        return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
       }
     };
   }
@@ -114,5 +121,9 @@ class PropertyReferenceCollector {
 
   public Errors getErrors() {
     return errors;
+  }
+
+  public Errors getProxyErrors() {
+    return proxyErrors;
   }
 }

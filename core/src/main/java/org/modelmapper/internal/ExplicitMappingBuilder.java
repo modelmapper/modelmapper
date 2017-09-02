@@ -62,6 +62,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private final InheritingConfiguration configuration;
   public volatile S source;
   public volatile D destination;
+  private final Errors proxyErrors = new Errors();
   private final Errors errors = new Errors();
   private List<VisitedMapping> visitedMappings;
   private final Map<Object, ExplicitMappingInterceptor> proxyInterceptors = new IdentityHashMap<Object, ExplicitMappingInterceptor>();
@@ -202,6 +203,11 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
         throw (ConfigurationException) cause;
       else
         errors.addMessage(cause, "Failed to configure mappings");
+    } catch (NullPointerException e) {
+      if (proxyErrors.hasErrors()) {
+        throw proxyErrors.toException();
+      }
+      throw e;
     }
 
     errors.throwConfigurationExceptionIfErrorsExist();
@@ -291,9 +297,14 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
 
   private <T> T createProxy(Class<T> type) {
     ExplicitMappingInterceptor interceptor = new ExplicitMappingInterceptor();
-    T proxy = (T) ProxyFactory.proxyFor(type, interceptor, errors);
-    proxyInterceptors.put(proxy, interceptor);
-    return proxy;
+
+    try {
+      T proxy = ProxyFactory.proxyFor(type, interceptor, proxyErrors);
+      proxyInterceptors.put(proxy, interceptor);
+      return proxy;
+    } catch (ErrorsException e) {
+      return null;
+    }
   }
 
   private void getNextMapping() {
