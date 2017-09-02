@@ -49,10 +49,24 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, options);
 
     S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getErrors());
-    sourceGetter.get(source);
+
+    try {
+      sourceGetter.get(source);
+    } catch (NullPointerException e) {
+      if (collector.getProxyErrors().hasErrors())
+        throw collector.getProxyErrors().toException();
+      throw e;
+    }
 
     D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getErrors());
-    destinationSetter.accept(destination, destinationValue(destinationSetter));
+
+    try {
+      destinationSetter.accept(destination, destinationValue(destinationSetter));
+    } catch (NullPointerException e) {
+      if (collector.getProxyErrors().hasErrors())
+        throw collector.getProxyErrors().toException();
+      throw e;
+    }
 
     typeMap.addMapping(collector.collect());
   }
