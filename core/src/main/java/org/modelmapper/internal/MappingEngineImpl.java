@@ -149,13 +149,14 @@ public class MappingEngineImpl implements MappingEngine {
     if (context.isShaded(propertyPath))
       return;
 
+    if (mapping.getCondition() == null && mapping.isSkipped())
+      return;
+
     Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
     if (condition == null)
       condition = (Condition<Object, Object>) context.getTypeMap().getPropertyCondition();
     if (condition == null)
       condition = (Condition<Object, Object>) configuration.getPropertyCondition();
-    if (condition == null && mapping.isSkipped())
-      return;
 
     Object source = resolveSourceValue(context, mapping);
     MappingContextImpl<Object, Object> propertyContext = propertyContextFor(context, source,
