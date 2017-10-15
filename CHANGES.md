@@ -1,3 +1,10 @@
+# 1.1.1
+
+### Bug Fixes
+
+* Fixed #260 - handling well on explicit mapping, like EnumSet
+* Fixed #267 - propertyCondition won't be used by skip
+
 # 1.1.0
 
 ### New Features
