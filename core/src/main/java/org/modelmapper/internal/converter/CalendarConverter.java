@@ -15,17 +15,19 @@
  */
 package org.modelmapper.internal.converter;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import org.modelmapper.internal.Errors;
+import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.MappingContext;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.modelmapper.internal.Errors;
-import org.modelmapper.spi.ConditionalConverter;
-import org.modelmapper.spi.MappingContext;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Converts:
@@ -86,8 +88,19 @@ class CalendarConverter implements ConditionalConverter<Object, Object> {
       GregorianCalendar cal = xmlCal.toGregorianCalendar();
       calendar.setTimeZone(cal.getTimeZone());
       calendar.setTimeInMillis(cal.getTime().getTime());
-    } else if (source instanceof Long)
+    } else if (source instanceof Long) {
       calendar.setTimeInMillis(((Long) source).longValue());
+    } else if (source instanceof LocalDateTime) {
+      LocalDateTime localDateTime = (LocalDateTime) source;
+      ZoneOffset currentOffsetForMyZone = calendar.getTimeZone().toZoneId().getRules().getOffset(localDateTime);
+      calendar.setTimeInMillis(localDateTime.toInstant(currentOffsetForMyZone).toEpochMilli());
+    } else if (source instanceof LocalDate) {
+      LocalDate localDate = (LocalDate) source;
+      LocalDateTime localDateTime = localDate.atStartOfDay();
+      ZoneOffset currentOffsetForMyZone = calendar.getTimeZone().toZoneId().getRules().getOffset(localDateTime);
+      calendar.setTimeInMillis(localDateTime.toInstant(currentOffsetForMyZone).toEpochMilli());
+    }
+
 
     return destinationType.equals(XMLGregorianCalendar.class) ? getDataTypeFactory().newXMLGregorianCalendar(
         calendar)
@@ -97,7 +110,9 @@ class CalendarConverter implements ConditionalConverter<Object, Object> {
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return (Calendar.class.isAssignableFrom(destinationType) || destinationType == XMLGregorianCalendar.class)
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
-            || sourceType == XMLGregorianCalendar.class || sourceType == Long.class || sourceType == Long.TYPE) ? MatchResult.FULL
+            || sourceType == XMLGregorianCalendar.class || sourceType == Long.class || sourceType == Long.TYPE
+            || sourceType == LocalDateTime.class || sourceType == LocalDate.class) ? MatchResult.FULL
+
         : MatchResult.NONE;
   }
 }

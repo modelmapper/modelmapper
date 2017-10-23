@@ -15,16 +15,18 @@
  */
 package org.modelmapper.internal.converter;
 
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.modelmapper.internal.Errors;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Converts:
@@ -65,6 +67,10 @@ class DateConverter implements ConditionalConverter<Object, Date> {
           destinationType);
     if (source instanceof Long)
       return dateFor(((Long) source).longValue(), destinationType);
+    if (source instanceof LocalDateTime)
+      return dateFor(((LocalDateTime)source).toInstant(ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now())).toEpochMilli(), destinationType);
+    if (source instanceof LocalDate)
+      return dateFor(((LocalDate)source).atStartOfDay().toInstant(ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now())).toEpochMilli(), destinationType);
     return dateFor(source.toString(), context.getDestinationType());
   }
 
@@ -72,7 +78,7 @@ class DateConverter implements ConditionalConverter<Object, Date> {
     return Date.class.isAssignableFrom(destinationType)
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
             || sourceType == XMLGregorianCalendar.class || sourceType == Long.class
-            || sourceType == Long.TYPE || sourceType == String.class) ? MatchResult.FULL
+            || sourceType == Long.TYPE || sourceType == String.class || sourceType == LocalDateTime.class || sourceType == LocalDate.class) ? MatchResult.FULL
         : MatchResult.NONE;
   }
 

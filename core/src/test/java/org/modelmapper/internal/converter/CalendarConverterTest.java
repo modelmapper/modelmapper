@@ -16,12 +16,13 @@
  */
 package org.modelmapper.internal.converter;
 
-import java.util.Calendar;
-import java.util.Date;
+import org.testng.annotations.Test;
 
 import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.testng.annotations.Test;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 
 @Test
 public class CalendarConverterTest extends AbstractDateConverterTest {
@@ -36,6 +37,6 @@ public class CalendarConverterTest extends AbstractDateConverterTest {
 
   public void testMatches() {
     assertMatches(new Class<?>[] { Date.class, Calendar.class, XMLGregorianCalendar.class,
-        Long.class, Long.TYPE }, new Class<?>[] { Calendar.class, XMLGregorianCalendar.class });
+            Long.class, Long.TYPE, LocalDateTime.class, LocalDate.class }, new Class<?>[] { Calendar.class, XMLGregorianCalendar.class });
   }
 }
