@@ -17,7 +17,9 @@ package org.modelmapper.internal;
 
 import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,10 +55,8 @@ class PropertyReferenceCollector {
     return new MethodInterceptor() {
       public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         visitSource(o.getClass(), method);
-
         if (Void.class.isAssignableFrom(method.getReturnType()))
           return null;
-
         try {
           return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
         } catch (ErrorsException e) {
@@ -70,10 +70,13 @@ class PropertyReferenceCollector {
     return new MethodInterceptor() {
       public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
         visitDestination(o.getClass(), method);
-
         if (Void.class.isAssignableFrom(method.getReturnType()))
           return null;
-        return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+        try {
+          return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+        } catch (ErrorsException e) {
+          return null;
+        }
       }
     };
   }

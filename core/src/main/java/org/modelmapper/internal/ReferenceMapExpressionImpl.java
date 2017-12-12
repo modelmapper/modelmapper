@@ -24,6 +24,8 @@ import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.spi.SourceGetter;
 
+import java.lang.reflect.Modifier;
+
 /**
  * {@link ReferenceMapExpression} implementation
  *
@@ -48,24 +50,26 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, options);
 
-    S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getErrors());
-
     try {
+      S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getProxyErrors());
       sourceGetter.get(source);
     } catch (NullPointerException e) {
       if (collector.getProxyErrors().hasErrors())
         throw collector.getProxyErrors().toException();
       throw e;
+    } catch (ErrorsException e) {
+      throw e.getErrors().toConfigurationException();
     }
 
-    D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getErrors());
-
     try {
+      D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getProxyErrors());
       destinationSetter.accept(destination, destinationValue(destinationSetter));
     } catch (NullPointerException e) {
       if (collector.getProxyErrors().hasErrors())
         throw collector.getProxyErrors().toException();
       throw e;
+    } catch (ErrorsException e) {
+      throw e.getErrors().toConfigurationException();
     }
 
     typeMap.addMapping(collector.collect());
