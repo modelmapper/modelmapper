@@ -77,8 +77,10 @@ class ProxyFactory {
   @SuppressWarnings("unchecked")
   static <T> T proxyFor(Class<T> type, MethodInterceptor interceptor, Errors errors)
       throws ErrorsException {
-    if (Modifier.isFinal(type.getModifiers()))
+    if (Primitives.isPrimitive(type))
       return Primitives.defaultValueForWrapper(type);
+    if (Modifier.isFinal(type.getModifiers()))
+      throw errors.invocationAgainstFinalClass(type).toException();
 
     Class<?> enhanced = proxyClassFor(type, errors);
 
