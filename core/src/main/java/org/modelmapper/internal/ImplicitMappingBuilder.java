@@ -310,10 +310,18 @@ class ImplicitMappingBuilder<S, D> {
    * destination type.
    */
   private boolean isConvertable(Mapping mapping) {
-    return mapping != null
-        && mapping.getProvider() == null
-        && mapping instanceof PropertyMapping
-        && converterStore.getFirstSupported(((PropertyMapping) mapping).getLastSourceProperty()
-            .getType(), mapping.getLastDestinationProperty().getType()) != null;
+    if (mapping == null || mapping.getProvider() != null || !(mapping instanceof PropertyMapping))
+      return false;
+
+    PropertyMapping propertyMapping = (PropertyMapping) mapping;
+    boolean hasSupportConverter = converterStore.getFirstSupported(
+        propertyMapping.getLastSourceProperty().getType(),
+        mapping.getLastDestinationProperty().getType()) != null;
+    boolean hasSupportTypeMap = typeMapStore.get(
+        propertyMapping.getLastSourceProperty().getType(),
+        mapping.getLastDestinationProperty().getType(),
+        null) != null;
+
+    return hasSupportConverter || hasSupportTypeMap;
   }
 }
