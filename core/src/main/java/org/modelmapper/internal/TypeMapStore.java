@@ -15,15 +15,14 @@
  */
 package org.modelmapper.internal;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
+import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
 
 /**
@@ -69,7 +68,17 @@ public final class TypeMapStore {
    */
   @SuppressWarnings("unchecked")
   public <S, D> TypeMap<S, D> get(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
-    return (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType, typeMapName));
+    TypeMap<S, D> typeMap = (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType, typeMapName));
+    if (typeMap != null)
+      return typeMap;
+
+    for (TypePair<?, ?> typePair : getPrimitiveWrapperTypePairs(sourceType, destinationType, typeMapName)) {
+      typeMap = (TypeMap<S, D>) typeMaps.get(typePair);
+      if (typeMap != null)
+        return typeMap;
+    }
+
+    return null;
   }
 
   /**
@@ -152,5 +161,19 @@ public final class TypeMapStore {
       }
       typeMaps.put(typePair, typeMap);
     }
+  }
+
+  private <S, D> List<TypePair<?, ?>> getPrimitiveWrapperTypePairs(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
+    List<TypePair<?, ?>> typePairs = new ArrayList<TypePair<?, ?>>(1);
+    if (Primitives.isPrimitive(sourceType)) {
+      typePairs.add(TypePair.of(Primitives.wrapperFor(sourceType), destinationType, typeMapName));
+    }
+    if (Primitives.isPrimitive(destinationType)) {
+      typePairs.add(TypePair.of(sourceType, Primitives.wrapperFor(destinationType), typeMapName));
+    }
+    if (Primitives.isPrimitive(sourceType) && Primitives.isPrimitiveWrapper(destinationType)) {
+      typePairs.add(TypePair.of(Primitives.wrapperFor(sourceType), Primitives.wrapperFor(destinationType), typeMapName));
+    }
+    return typePairs;
   }
 }
