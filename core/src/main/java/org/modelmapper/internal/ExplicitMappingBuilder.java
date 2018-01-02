@@ -28,10 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
-
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
@@ -48,9 +44,13 @@ import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
 import org.objectweb.asm.ClassReader;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
 /**
  * Builds explicit property mappings.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
@@ -299,7 +299,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     ExplicitMappingInterceptor interceptor = new ExplicitMappingInterceptor();
 
     try {
-      T proxy = ProxyFactory.proxyFor(type, interceptor, proxyErrors);
+      T proxy = ProxyFactory.proxyFor(type, interceptor, proxyErrors, configuration.isUseOSGiClassLoaderBridging());
       proxyInterceptors.put(proxy, interceptor);
       return proxy;
     } catch (ErrorsException e) {

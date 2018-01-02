@@ -30,7 +30,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Configures conventions used during the matching process.
- * 
+ *
  * @author Jonathan Halterman
  */
 public interface Configuration {
@@ -50,10 +50,10 @@ public interface Configuration {
 
   /**
    * Registers the {@code valueReader} to use when mapping from instances of types {@code T}.
-   * 
+   *
    * <p>
    * This method is part of the ModelMapper SPI.
-   * 
+   *
    * @param <T> source type
    * @param valueReader to register
    * @throws IllegalArgumentException if {@code valueReader} is null or if type argument {@code T}
@@ -70,7 +70,7 @@ public interface Configuration {
    * Gets the ordered list of internal conditional converters that are used to perform type
    * conversion. This list is mutable and may be modified to control which converters are used to
    * perform type conversion along with the order in which converters are selected.
-   * 
+   *
    * <p>
    * This method is part of the ModelMapper SPI.
    */
@@ -78,42 +78,42 @@ public interface Configuration {
 
   /**
    * Returns the destination name tokenizer.
-   * 
+   *
    * @see #setDestinationNameTokenizer(NameTokenizer)
    */
   NameTokenizer getDestinationNameTokenizer();
 
   /**
    * Returns the destination name transformer.
-   * 
+   *
    * @see #setDestinationNameTransformer(NameTransformer)
    */
   NameTransformer getDestinationNameTransformer();
 
   /**
    * Returns the destination naming convention.
-   * 
+   *
    * @see #setDestinationNamingConvention(NamingConvention)
    */
   NamingConvention getDestinationNamingConvention();
 
   /**
    * Returns the field access level.
-   * 
+   *
    * @see #setFieldAccessLevel(AccessLevel)
    */
   AccessLevel getFieldAccessLevel();
 
   /**
    * Gets the matching strategy.
-   * 
+   *
    * @see #setMatchingStrategy(MatchingStrategy)
    */
   MatchingStrategy getMatchingStrategy();
 
   /**
    * Returns the method access level.
-   * 
+   *
    * @see #setMethodAccessLevel(AccessLevel)
    */
   AccessLevel getMethodAccessLevel();
@@ -121,7 +121,7 @@ public interface Configuration {
   /**
    * Returns the Condition that must apply for a property in order for mapping to take place, else
    * {@code null} if no condition has been configured.
-   * 
+   *
    * @see #setPropertyCondition(Condition)
    */
   Condition<?, ?> getPropertyCondition();
@@ -129,28 +129,28 @@ public interface Configuration {
   /**
    * Returns the Provider used for provisioning destination object instances, else {@code null} if
    * no Provider has been configured.
-   * 
+   *
    * @see #setProvider(Provider)
    */
   Provider<?> getProvider();
 
   /**
    * Returns the source name tokenizer.
-   * 
+   *
    * @see #setSourceNameTokenizer(NameTokenizer)
    */
   NameTokenizer getSourceNameTokenizer();
 
   /**
    * Returns the source name transformer.
-   * 
+   *
    * @see #setSourceNameTransformer(NameTransformer)
    */
   NameTransformer getSourceNameTransformer();
 
   /**
    * Gets the source naming convention.
-   * 
+   *
    * @see #setSourceNamingConvention(NamingConvention)
    */
   NamingConvention getSourceNamingConvention();
@@ -160,11 +160,11 @@ public interface Configuration {
    * used to read source object values during mapping. This list is may be modified to control which
    * ValueReaders are used to along with the order in which ValueReaders are selected for a source
    * type.
-   * 
+   *
    * <p>
    * The returned List throws an IllegalArgumentException when attempting to add or set a
    * ValueReader for which the type argument {@code T} has not been defined.
-   * 
+   *
    * <p>
    * This method is part of the ModelMapper SPI.
    */
@@ -173,14 +173,14 @@ public interface Configuration {
   /**
    * Returns {@code true} if ambiguous properties are ignored or {@code false} if they will result
    * in an exception.
-   * 
+   *
    * @see #setAmbiguityIgnored(boolean)
    */
   boolean isAmbiguityIgnored();
 
   /**
    * Returns whether field matching is enabled.
-   * 
+   *
    * @see #setFieldMatchingEnabled(boolean)
    */
   boolean isFieldMatchingEnabled();
@@ -191,7 +191,7 @@ public interface Configuration {
    * {@link MatchResult#PARTIAL partial} match.
    * <p>
    * Default is {@code false}.
-   * 
+   *
    * @see #setFullTypeMatchingRequired(boolean)
    */
   boolean isFullTypeMatchingRequired();
@@ -201,7 +201,7 @@ public interface Configuration {
    * will implicitly map source to destination properties based on configured conventions. When
    * {@code false}, only explicit mappings defined in {@link PropertyMap property maps} will be
    * used.
-   * 
+   *
    * @see #setImplicitMappingEnabled(boolean)
    */
   boolean isImplicitMappingEnabled();
@@ -215,10 +215,17 @@ public interface Configuration {
   boolean isSkipNullEnabled();
 
   /**
+   * Returns whether OSGi Class Loader Bridging is required.
+   *
+   * @see #setUseOSGiClassLoaderBridging(boolean)
+   */
+  boolean isUseOSGiClassLoaderBridging();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true, ambiguous destination properties are skipped during the matching process. When
    * false, a ConfigurationException is thrown when ambiguous properties are encountered.
-   * 
+   *
    * @param ignore whether ambiguity is to be ignored
    * @see #isAmbiguityIgnored()
    */
@@ -227,7 +234,7 @@ public interface Configuration {
   /**
    * Sets the tokenizer to be applied to destination property and class names during the matching
    * process.
-   * 
+   *
    * @throws IllegalArgumentException if {@code nameTokenizer} is null
    */
   Configuration setDestinationNameTokenizer(NameTokenizer nameTokenizer);
@@ -235,25 +242,25 @@ public interface Configuration {
   /**
    * Sets the name transformer used to transform destination property and class names during the
    * matching process.
-   * 
+   *
    * @throws IllegalArgumentException if {@code nameTransformer} is null
    */
   Configuration setDestinationNameTransformer(NameTransformer nameTransformer);
 
   /**
    * Sets the convention used to identify destination property names during the matching process.
-   * 
+   *
    * @throws IllegalArgumentException if {@code namingConvention} is null
    */
   Configuration setDestinationNamingConvention(NamingConvention namingConvention);
 
   /**
    * Indicates that fields should be eligible for matching at the given {@code accessLevel}.
-   * 
+   *
    * <p>
    * <b>Note</b>: Field access is only used when {@link #setFieldMatchingEnabled(boolean) field
    * matching} is enabled.
-   * 
+   *
    * @throws IllegalArgumentException if {@code accessLevel} is null
    * @see #setFieldMatchingEnabled(boolean)
    */
@@ -262,7 +269,7 @@ public interface Configuration {
   /**
    * Sets whether field matching should be enabled. When true, mapping may take place between
    * accessible fields. Default is {@code false}.
-   * 
+   *
    * @param enabled whether field matching is enabled
    * @see #isFieldMatchingEnabled()
    * @see #setFieldAccessLevel(AccessLevel)
@@ -273,7 +280,7 @@ public interface Configuration {
    * Set whether {@link ConditionalConverter}s must define a {@link MatchResult#FULL full} match in
    * order to be applied. If {@code false}, conditional converters may also be applied for a
    * {@link MatchResult#PARTIAL partial} match.
-   * 
+   *
    * @param required whether full type matching is required for conditional converters.
    * @see #isFullTypeMatchingRequired()
    */
@@ -284,7 +291,7 @@ public interface Configuration {
    * implicitly map source to destination properties based on configured conventions. When
    * {@code false}, only explicit mappings defined in {@link PropertyMap property maps} will be
    * used.
-   * 
+   *
    * @param enabled whether implicit matching is enabled
    * @see #isImplicitMappingEnabled()
    */
@@ -299,15 +306,36 @@ public interface Configuration {
   Configuration setSkipNullEnabled(boolean enabled);
 
   /**
+   * Sets whether to use an OSGi Class Loader Bridge as described in the following article:
+   * https://www.infoq.com/articles/code-generation-with-osgi
+   * <p>
+   * This eliminates the need for forcing ModelMapper users to add custom OSGi imports to cglib's internals.
+   * <p>
+   * In addition to that, the Class Loader Bridge will attempt to solve the issue described in the following StackOverflow topic:
+   * https://stackoverflow.com/questions/47854086/cglib-creating-class-proxy-in-osgi-results-in-noclassdeffounderror
+   * <p>
+   * Ideally, this is expected to eliminate class loading issues in OSGi environments that were caused by missing custom imports.
+   * <p>
+   * <b>Note</b>:
+   * If Class Loader Bridging is selected, then the source and destination class types must not be package-private.
+   * That is because in Java, two classes are only consider equal to the JRE if they were loaded with the same class loader even if they otherwise represent an identical class.
+   * The same is true for Java packages. If a class is loaded with a different class loader, it cannot get private-package access to any classes (or class members) that belong to another class loader.
+   *
+   * @param useOSGiClassLoaderBridging whether to use OSGi Class Loader Bridge. Default is false
+   * @see #isUseOSGiClassLoaderBridging()
+   */
+  Configuration setUseOSGiClassLoaderBridging(boolean useOSGiClassLoaderBridging);
+
+  /**
    * Sets the strategy used to match source properties to destination properties.
-   * 
+   *
    * @throws IllegalArgumentException if {@code matchingStrategy} is null
    */
   Configuration setMatchingStrategy(MatchingStrategy matchingStrategy);
 
   /**
    * Indicates that methods should be eligible for matching at the given {@code accessLevel}.
-   * 
+   *
    * @throws IllegalArgumentException if {@code accessLevel} is null
    * @see AccessLevel
    */
@@ -316,14 +344,14 @@ public interface Configuration {
   /**
    * Sets the {@code condition} that must apply for a property in order for mapping to take place.
    * This is overridden by any property conditions defined in a TypeMap or PropertyMap.
-   * 
+   *
    * @throws IllegalArgumentException if {@code condition} is null
    */
   Configuration setPropertyCondition(Condition<?, ?> condition);
 
   /**
    * Sets the {@code provider} to use for providing destination object instances.
-   * 
+   *
    * @param provider to register
    * @throws IllegalArgumentException if {@code provider} is null
    */
@@ -332,7 +360,7 @@ public interface Configuration {
   /**
    * Sets the tokenizer to be applied to source property and class names during the matching
    * process.
-   * 
+   *
    * @throws IllegalArgumentException if {@code nameTokenizer} is null
    */
   Configuration setSourceNameTokenizer(NameTokenizer nameTokenizer);
@@ -340,14 +368,14 @@ public interface Configuration {
   /**
    * Sets the name transformer used to transform source property and class names during the matching
    * process.
-   * 
+   *
    * @throws IllegalArgumentException if {@code nameTransformer} is null
    */
   Configuration setSourceNameTransformer(NameTransformer nameTransformer);
 
   /**
    * Sets the convention used to identify source property names during the matching process.
-   * 
+   *
    * @throws IllegalArgumentException if {@code namingConvention} is null
    */
   Configuration setSourceNamingConvention(NamingConvention namingConvention);
