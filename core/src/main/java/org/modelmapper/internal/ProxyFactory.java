@@ -19,6 +19,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import org.modelmapper.internal.util.Primitives;
+import org.objenesis.Objenesis;
+import org.objenesis.ObjenesisStd;
+
 import net.sf.cglib.core.DefaultNamingPolicy;
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.proxy.CallbackFilter;
@@ -26,13 +30,9 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 
-import org.modelmapper.internal.util.Primitives;
-import org.objenesis.Objenesis;
-import org.objenesis.ObjenesisStd;
-
 /**
  * Produces proxied instances of mappable types that participate in mapping creation.
- * 
+ *
  * @author Jonathan Halterman
  */
 class ProxyFactory {
@@ -55,8 +55,10 @@ class ProxyFactory {
     }
   };
 
-  static Class<?> proxyClassFor(Class<?> type, Errors errors) throws ErrorsException {
+  static Class<?> proxyClassFor(Class<?> type, Errors errors, boolean useOSGiClassLoaderBridging) throws ErrorsException {
     Enhancer enhancer = new Enhancer();
+    if (useOSGiClassLoaderBridging)
+        enhancer.setClassLoader(BridgeClassLoaderFactory.getClassLoader(type));
     enhancer.setSuperclass(type);
     enhancer.setUseFactory(true);
     enhancer.setUseCache(true);
@@ -74,15 +76,23 @@ class ProxyFactory {
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
-  @SuppressWarnings("unchecked")
   static <T> T proxyFor(Class<T> type, MethodInterceptor interceptor, Errors errors)
+      throws ErrorsException {
+    return proxyFor(type, interceptor, errors, Boolean.FALSE);
+  }
+
+  /**
+   * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
+   */
+  @SuppressWarnings("unchecked")
+  static <T> T proxyFor(Class<T> type, MethodInterceptor interceptor, Errors errors, boolean useOSGiClassLoaderBridging)
       throws ErrorsException {
     if (Primitives.isPrimitive(type))
       return Primitives.defaultValueForWrapper(type);
     if (Modifier.isFinal(type.getModifiers()))
       throw errors.invocationAgainstFinalClass(type).toException();
 
-    Class<?> enhanced = proxyClassFor(type, errors);
+    Class<?> enhanced = proxyClassFor(type, errors, useOSGiClassLoaderBridging);
 
     try {
       T result = (T) OBJENESIS.newInstance(enhanced);
