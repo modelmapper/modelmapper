@@ -36,7 +36,7 @@ import org.modelmapper.spi.ValueReader;
 
 /**
  * Inheritable mapping configuration implementation.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class InheritingConfiguration implements Configuration {
@@ -60,6 +60,7 @@ public class InheritingConfiguration implements Configuration {
   private Boolean fullTypeMatchingRequired;
   private Boolean implicitMatchingEnabled;
   private Boolean skipNullEnabled;
+  private Boolean useOSGiClassLoaderBridging;
 
   /**
    * Creates an initial InheritingConfiguration.
@@ -83,6 +84,7 @@ public class InheritingConfiguration implements Configuration {
     fullTypeMatchingRequired = Boolean.FALSE;
     implicitMatchingEnabled = Boolean.TRUE;
     skipNullEnabled = Boolean.FALSE;
+    useOSGiClassLoaderBridging = Boolean.FALSE;
   }
 
   /**
@@ -246,6 +248,11 @@ public class InheritingConfiguration implements Configuration {
         : skipNullEnabled;
   }
 
+  public boolean isUseOSGiClassLoaderBridging() {
+    return useOSGiClassLoaderBridging == null ? parent.isUseOSGiClassLoaderBridging()
+        : useOSGiClassLoaderBridging;
+  }
+
   public Configuration setAmbiguityIgnored(boolean ignore) {
     this.ambiguityIgnored = ignore;
     return this;
@@ -323,6 +330,11 @@ public class InheritingConfiguration implements Configuration {
 
   public Configuration setSourceNamingConvention(NamingConvention namingConvention) {
     sourceNamingConvention = Assert.notNull(namingConvention);
+    return this;
+  }
+
+  public Configuration setUseOSGiClassLoaderBridging(boolean useOSGiClassLoaderBridging) {
+    this.useOSGiClassLoaderBridging = useOSGiClassLoaderBridging;
     return this;
   }
 }
