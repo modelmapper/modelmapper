@@ -12,9 +12,9 @@
   <name>ModelMapper</name>
 
   <properties>
-    <cglib.version>3.2.4</cglib.version>
-    <asm.version>5.1</asm.version>
-    <objenesis.version>2.1</objenesis.version>
+    <cglib.version>3.2.5</cglib.version>
+    <asm.version>6.0</asm.version>
+    <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.5.0</typetools.version>
   </properties>
 
@@ -112,6 +112,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -222,7 +223,7 @@
             </Export-Package>
             <Private-Package>
               org.modelmapper.internal.**
-            </Private-Package>          
+            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
