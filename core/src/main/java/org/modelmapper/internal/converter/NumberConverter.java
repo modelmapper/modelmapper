@@ -25,6 +25,8 @@ import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 /**
  * Converts:
  * 
@@ -68,6 +70,8 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
       return Long.valueOf(((Date) source).getTime());
     if (source instanceof Calendar && Long.class.equals(destinationType))
       return Long.valueOf(((Calendar) source).getTime().getTime());
+    if (source instanceof XMLGregorianCalendar && Long.class.equals(destinationType))
+      return ((XMLGregorianCalendar) source).toGregorianCalendar().getTimeInMillis();
     return numberFor(source.toString(), destinationType);
   }
 
@@ -77,7 +81,8 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
       return Number.class.isAssignableFrom(Primitives.wrapperFor(sourceType))
           || sourceType == Boolean.class || sourceType == Boolean.TYPE
           || sourceType == String.class || Date.class.isAssignableFrom(sourceType)
-          || Calendar.class.isAssignableFrom(sourceType) ? MatchResult.FULL : MatchResult.PARTIAL;
+          || Calendar.class.isAssignableFrom(sourceType)
+          || XMLGregorianCalendar.class.isAssignableFrom(sourceType) ? MatchResult.FULL : MatchResult.PARTIAL;
     } else
       return MatchResult.NONE;
   }

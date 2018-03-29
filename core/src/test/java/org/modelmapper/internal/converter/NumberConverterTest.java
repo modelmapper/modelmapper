@@ -21,11 +21,15 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.modelmapper.MappingException;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
@@ -120,6 +124,12 @@ public class NumberConverterTest extends AbstractConverterTest {
   public void shouldConvertDateToLong() {
     Date dateValue = new Date();
     assertEquals(new Long(dateValue.getTime()), convert(dateValue, Long.class));
+  }
+
+  @Test
+  public void shouldConvertXmlGregorianCalendarToLong() throws DatatypeConfigurationException {
+    XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar());
+    assertEquals(xmlGregorianCalendar.toGregorianCalendar().getTimeInMillis(), convert(xmlGregorianCalendar, Long.class));
   }
 
   public void shouldConvertDoubles() {
@@ -328,7 +338,7 @@ public class NumberConverterTest extends AbstractConverterTest {
     Class<?>[] sourceTypes = { Byte.class, Byte.TYPE, Short.class, Short.TYPE, Integer.class,
         Integer.TYPE, Long.class, Long.TYPE, Float.class, Float.TYPE, Double.class, Double.TYPE,
         BigDecimal.class, BigInteger.class, Boolean.class, Boolean.TYPE, Date.class,
-        Calendar.class, String.class };
+        Calendar.class, String.class, XMLGregorianCalendar.class };
     Class<?>[] destinationTypes = { Byte.class, Byte.TYPE, Short.class, Short.TYPE, Integer.class,
         Integer.TYPE, Long.class, Long.TYPE, Float.class, Float.TYPE, Double.class, Double.TYPE,
         BigDecimal.class, BigInteger.class };
