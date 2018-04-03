@@ -1,3 +1,16 @@
+# 1.1.3
+
+### Bug Fixes
+
+*  Fixed #296 - Updates dependency for Java 9 issue
+
+# 1.1.2
+
+### Bug Fixes
+
+* Fixed #284 - OSGi Import-Package list is wrong
+* Fixed #287 - NullPointerException when mapping final class by using lambda mapping
+
 # 1.1.1
 
 ### Bug Fixes
