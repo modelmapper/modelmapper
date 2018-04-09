@@ -513,6 +513,16 @@ public class ModelMapper {
     errors.throwValidationExceptionIfErrorsExist();
   }
 
+  /**
+   * Register a module
+   *
+   * @param module a module for extension
+   */
+  public ModelMapper registerModule(Module module) {
+    module.setupModule(this);
+    return this;
+  }
+
   private <S, D> TypeMap<S, D> createTypeMapInternal(S source, Class<S> sourceType,
       Class<D> destinationType, String typeMapName, Configuration configuration) {
     if (source != null)
