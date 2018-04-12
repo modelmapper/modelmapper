@@ -1,12 +1,11 @@
 package org.modelmapper.internal;
 
 import static org.mockito.Mockito.mock;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 
+import java.lang.reflect.InvocationHandler;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.cglib.proxy.MethodInterceptor;
 
 import org.testng.annotations.Test;
 
@@ -14,6 +13,7 @@ import org.testng.annotations.Test;
  * @author Jonathan Halterman
  */
 @Test
+@SuppressWarnings("unused")
 public class ProxyFactoryTest {
   enum E {
     a, b, c
@@ -23,7 +23,6 @@ public class ProxyFactoryTest {
     A1() {
     }
 
-    @SuppressWarnings("unused")
     private A1(List<String> a) {
     }
   }
@@ -32,7 +31,6 @@ public class ProxyFactoryTest {
     A2(String a, Object b, A1 c, Integer d, E e, boolean f) {
     }
 
-    @SuppressWarnings("unused")
     private A2() {
     }
 
@@ -42,8 +40,10 @@ public class ProxyFactoryTest {
 
   @Test
   public void shouldProxyTypesWithNonDefaultConstructor() {
-    MethodInterceptor interceptor = mock(MethodInterceptor.class);
-    assertTrue(ProxyFactory.proxyFor(A1.class, interceptor, null) instanceof A1);
-    assertTrue(ProxyFactory.proxyFor(A2.class, interceptor, null) instanceof A2);
+    InvocationHandler interceptor = mock(InvocationHandler.class);
+    A1 a1 = ProxyFactory.proxyFor(A1.class, interceptor, null);
+    assertNotNull(a1);
+    A2 a2 = ProxyFactory.proxyFor(A2.class, interceptor, null);
+    assertNotNull(a2);
   }
 }

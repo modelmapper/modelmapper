@@ -57,25 +57,7 @@ public final class Types {
     if (type.isInterface())
       return (Class<T>) type;
 
-    boolean isProxy = false;
-
-    // CGLib
-    if (type.getName().contains("$$EnhancerBy"))
-      isProxy = true;
-
-    // Dynamic Proxy
-    if (Proxy.isProxyClass(type))
-      isProxy = true;
-
-    // Javassist
-    try {
-      if (JAVASSIST_IS_PROXY_CLASS_METHOD != null && JAVASSIST_IS_PROXY_CLASS_METHOD != null
-          && (Boolean) JAVASSIST_IS_PROXY_CLASS_METHOD.invoke(null, type))
-        isProxy = true;
-    } catch (Exception ignore) {
-    }
-
-    if (isProxy) {
+    if (isProxied(type)) {
       final Class<?> superclass = type.getSuperclass();
       if (!superclass.equals(Object.class) && !superclass.equals(Proxy.class))
         return (Class<T>) superclass;
@@ -87,6 +69,25 @@ public final class Types {
     }
 
     return (Class<T>) type;
+  }
+
+  public static boolean isProxied(Class<?> type) {
+    if (type.getName().contains("$ByteBuddy$"))
+      return true;
+    if (type.getName().contains("$$EnhancerBy"))
+      return true;
+    if (Proxy.isProxyClass(type))
+      return true;
+    return isProxiedByJavassist(type);
+  }
+
+  private static boolean isProxiedByJavassist(Class<?> type) {
+    try {
+      return JAVASSIST_IS_PROXY_CLASS_METHOD != null
+          && (Boolean) JAVASSIST_IS_PROXY_CLASS_METHOD.invoke(null, type);
+    } catch (Exception ignore) {
+    }
+    return false;
   }
 
   /**

@@ -20,11 +20,11 @@ import org.testng.annotations.Test;
 public class TypesTest {
   static class Foo {
   }
-  static interface Bar {
+  interface Bar {
   }
 
   static class NullInvocationHandler implements InvocationHandler {
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
       return null;
     }
   }
@@ -37,7 +37,7 @@ public class TypesTest {
     assertEquals(Types.deProxy(proxy), Foo.class);
   }
 
-  public void shouldDeProxyCGLibProxy() throws Exception {
+  public void shouldDeProxyCGLibProxy() {
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(ArrayList.class);
     enhancer.setCallbackTypes(new Class[] { NoOp.class });
