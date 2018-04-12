@@ -82,9 +82,9 @@ public final class Primitives {
    * Returns the boxed default value for {@code type} if {@code type} is a primitive wrapper.
    */
   @SuppressWarnings("unchecked")
-  public static <T> T defaultValueForWrapper(Class<?> wrapper) {
-    Class<?> primitiveType = primitiveFor(wrapper);
-    return primitiveType == null ? null : (T) defaultValue.get(primitiveType);
+  public static <T> T defaultValueForWrapper(Class<?> type) {
+    Class<?> primiviteType = isPrimitiveWrapper(type) ? primitiveFor(type) : type;
+    return primiviteType == null ? null : (T) defaultValue.get(primiviteType);
   }
 
   /**

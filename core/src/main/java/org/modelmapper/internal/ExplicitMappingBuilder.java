@@ -16,6 +16,7 @@
 package org.modelmapper.internal;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,13 +41,10 @@ import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Members;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
 import org.objectweb.asm.ClassReader;
-
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * Builds explicit property mappings.
@@ -281,11 +279,11 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     }
   }
 
-  private final class ExplicitMappingInterceptor implements MethodInterceptor {
+  public final class ExplicitMappingInterceptor implements InvocationHandler {
     private final Map<String, Object> methodProxies = new HashMap<String, Object>();
 
-    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy)
-        throws Throwable {
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) {
       if (args.length == 1) {
         sourceConstant = args[0];
         if (sourceConstant != null && sourceConstant == source)
@@ -316,7 +314,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     if (sourceValue != null) {
       if (sourceValue == source)
         options.mapFromSource = true;
-      else if (!Enhancer.isEnhanced(sourceValue.getClass()))
+      else if (!Types.isProxied(sourceValue.getClass()))
         sourceConstant = sourceValue;
     }
   }
@@ -340,7 +338,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private void saveLastMapping() {
     if (currentMapping != null) {
       try {
-        MappingImpl mapping = null;
+        MappingImpl mapping;
         if (currentMapping.sourceAccessors.isEmpty())
           currentMapping.sourceAccessors = sourceAccessors;
         validateRecordedMapping();

@@ -15,18 +15,12 @@
  */
 package org.modelmapper.internal;
 
-import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
-
-import java.lang.reflect.Member;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.spi.NameableType;
-
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * Produces method interceptors that collect getters/setters invoke of the
@@ -36,13 +30,13 @@ import net.sf.cglib.proxy.MethodProxy;
  */
 class PropertyReferenceCollector {
   private InheritingConfiguration config;
-  private MappingOptions options;
+  private ExplicitMappingBuilder.MappingOptions options;
   private List<Accessor> accessors;
   private List<Mutator> mutators;
   private Errors errors;
   private Errors proxyErrors;
 
-  PropertyReferenceCollector(InheritingConfiguration config, MappingOptions options) {
+  PropertyReferenceCollector(InheritingConfiguration config, ExplicitMappingBuilder.MappingOptions options) {
     this.config = config;
     this.options = options;
     this.accessors = new ArrayList<Accessor>();
@@ -51,34 +45,40 @@ class PropertyReferenceCollector {
     this.proxyErrors = new Errors();
   }
 
-  public MethodInterceptor newSourceInterceptor() {
-    return new MethodInterceptor() {
-      public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        visitSource(o.getClass(), method);
-        if (Void.class.isAssignableFrom(method.getReturnType()))
-          return null;
-        try {
-          return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
-        } catch (ErrorsException e) {
-          return null;
-        }
+  public final class SourceInterceptor implements InvocationHandler {
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) {
+      visitSource(proxy.getClass(), method);
+      if (Void.class.isAssignableFrom(method.getReturnType()))
+        return null;
+      try {
+        return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+      } catch (ErrorsException e) {
+        return null;
       }
-    };
+    }
   }
 
-  public MethodInterceptor newDestinationInterceptor() {
-    return new MethodInterceptor() {
-      public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-        visitDestination(o.getClass(), method);
-        if (Void.class.isAssignableFrom(method.getReturnType()))
-          return null;
-        try {
-          return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
-        } catch (ErrorsException e) {
-          return null;
-        }
+  public final class DestinationInterceptor implements InvocationHandler {
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) {
+      visitDestination(proxy.getClass(), method);
+      if (Void.class.isAssignableFrom(method.getReturnType()))
+        return null;
+      try {
+        return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+      } catch (ErrorsException e) {
+        return null;
       }
-    };
+    }
+  }
+
+  public SourceInterceptor newSourceInterceptor() {
+    return new SourceInterceptor();
+  }
+
+  public DestinationInterceptor newDestinationInterceptor() {
+    return new DestinationInterceptor();
   }
 
   private void visitSource(Class<?> type, Method method) {

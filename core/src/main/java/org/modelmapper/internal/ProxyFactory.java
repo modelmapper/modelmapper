@@ -15,20 +15,20 @@
  */
 package org.modelmapper.internal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Modifier;
 
 import org.modelmapper.internal.util.Primitives;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
-import net.sf.cglib.core.DefaultNamingPolicy;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.NoOp;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.implementation.InvocationHandlerAdapter;
+import net.bytebuddy.matcher.ElementMatcher;
 
 /**
  * Produces proxied instances of mappable types that participate in mapping creation.
@@ -37,46 +37,13 @@ import net.sf.cglib.proxy.NoOp;
  */
 class ProxyFactory {
   private static final Objenesis OBJENESIS = new ObjenesisStd();
-  private static final NamingPolicy NAMING_POLICY = new DefaultNamingPolicy() {
-    @Override
-    protected String getTag() {
-      return "ByModelMapper";
-    }
-  };
-  private static final CallbackFilter METHOD_FILTER = new CallbackFilter() {
-    public int accept(Method method) {
-      return method.isBridge()
-          || method.getDeclaringClass().equals(Object.class)
-          || (method.getName().equals("equals") && method.getParameterTypes().length == 1
-              && method.getParameterTypes()[0].equals(Object.class) && method.getReturnType()
-              .equals(Boolean.TYPE))
-          || (method.getReturnType().getName().equals("groovy.lang.MetaClass") && (method.getName()
-              .equals("getMetaClass") || method.getName().startsWith("$"))) ? 1 : 0;
-    }
-  };
-
-  static Class<?> proxyClassFor(Class<?> type, Errors errors, boolean useOSGiClassLoaderBridging) throws ErrorsException {
-    Enhancer enhancer = new Enhancer();
-    if (useOSGiClassLoaderBridging)
-      enhancer.setClassLoader(BridgeClassLoaderFactory.getClassLoader(type));
-    enhancer.setSuperclass(type);
-    enhancer.setUseFactory(true);
-    enhancer.setUseCache(true);
-    enhancer.setNamingPolicy(NAMING_POLICY);
-    enhancer.setCallbackFilter(METHOD_FILTER);
-    enhancer.setCallbackTypes(new Class[] { MethodInterceptor.class, NoOp.class });
-
-    try {
-      return enhancer.createClass();
-    } catch (Throwable t) {
-      throw errors.errorEnhancingClass(type, t).toException();
-    }
-  }
+  private static final ElementMatcher<? super MethodDescription> METHOD_FILTER = not(
+      named("toString").or(named("hashCode").or(named("equals"))));
 
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
-  static <T> T proxyFor(Class<T> type, MethodInterceptor interceptor, Errors errors)
+  static <T> T proxyFor(Class<T> type, InvocationHandler interceptor, Errors errors)
       throws ErrorsException {
     return proxyFor(type, interceptor, errors, Boolean.FALSE);
   }
@@ -85,30 +52,25 @@ class ProxyFactory {
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
   @SuppressWarnings("unchecked")
-  static <T> T proxyFor(Class<T> type, MethodInterceptor interceptor, Errors errors, boolean useOSGiClassLoaderBridging)
+  static <T> T proxyFor(Class<T> type, InvocationHandler interceptor, Errors errors, boolean useOSGiClassLoaderBridging)
       throws ErrorsException {
     if (Primitives.isPrimitive(type))
       return Primitives.defaultValueForWrapper(type);
+    if (type.equals(String.class))
+      return null;
     if (Modifier.isFinal(type.getModifiers()))
       throw errors.invocationAgainstFinalClass(type).toException();
 
-    Class<?> enhanced = proxyClassFor(type, errors, useOSGiClassLoaderBridging);
-
     try {
-      T result = (T) OBJENESIS.newInstance(enhanced);
-      setCallbacks(result, interceptor);
-      return result;
+      return OBJENESIS.newInstance(new ByteBuddy()
+          .subclass(type)
+          .method(METHOD_FILTER)
+          .intercept(InvocationHandlerAdapter.of(interceptor))
+          .make()
+          .load(useOSGiClassLoaderBridging ? BridgeClassLoaderFactory.getClassLoader(type) : type.getClassLoader())
+          .getLoaded());
     } catch (Throwable t) {
       throw errors.errorInstantiatingProxy(type, t).toException();
     }
-  }
-
-  private static void setCallbacks(Object enhanced, MethodInterceptor interceptor) throws Exception {
-    Field callback1 = enhanced.getClass().getDeclaredField("CGLIB$CALLBACK_0");
-    callback1.setAccessible(true);
-    callback1.set(enhanced, interceptor);
-    Field callback2 = enhanced.getClass().getDeclaredField("CGLIB$CALLBACK_1");
-    callback2.setAccessible(true);
-    callback2.set(enhanced, NoOp.INSTANCE);
   }
 }

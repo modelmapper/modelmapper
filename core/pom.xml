@@ -12,10 +12,11 @@
   <name>ModelMapper</name>
 
   <properties>
-    <cglib.version>3.2.5</cglib.version>
-    <asm.version>6.0</asm.version>
+    <cglib.version>3.2.6</cglib.version>
+    <asm.version>6.1.1</asm.version>
     <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.5.0</typetools.version>
+    <bytebuddy.version>1.8.3</bytebuddy.version>
   </properties>
 
   <dependencyManagement>
@@ -30,21 +31,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-      <version>${cglib.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.ant</groupId>
-          <artifactId>ant</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-tree</artifactId>
       <version>${asm.version}</version>
@@ -58,6 +44,21 @@
       <groupId>net.jodah</groupId>
       <artifactId>typetools</artifactId>
       <version>${typetools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy-dep</artifactId>
+      <version>${bytebuddy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm-commons</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -91,6 +92,12 @@
       <version>4.3.7.Final</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>${cglib.version}</version>
+      <scope>test</scope>
+    </dependency>
 
     <!-- Benchmarking dependencies -->
     <dependency>
@@ -122,21 +129,10 @@
           </execution>
         </executions>
         <configuration>
-          <filters>
-            <filter>
-              <artifact>cglib:cglib</artifact>
-              <includes>
-                <include>net/sf/cglib/core/**</include>
-                <include>net/sf/cglib/proxy/**</include>
-                <include>net/sf/cglib/reflect/**</include>
-                <include>net/sf/cglib/transform/ClassTransformer.class</include>
-              </includes>
-            </filter>
-          </filters>
           <relocations>
             <relocation>
-              <pattern>net.sf.cglib</pattern>
-              <shadedPattern>org.modelmapper.internal.cglib</shadedPattern>
+              <pattern>net.bytebuddy</pattern>
+              <shadedPattern>org.modelmapper.internal.bytebuddy</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.objectweb.asm</pattern>
