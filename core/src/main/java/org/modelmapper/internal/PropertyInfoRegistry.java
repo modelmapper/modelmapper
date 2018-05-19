@@ -36,6 +36,7 @@ class PropertyInfoRegistry {
   private static final Map<Integer, Mutator> MUTATOR_CACHE = new ConcurrentHashMap<Integer, Mutator>();
   private static final Map<Integer, Accessor> ACCESSOR_CACHE = new ConcurrentHashMap<Integer, Accessor>();
   private static final Map<Integer, FieldPropertyInfo> FIELD_CACHE = new ConcurrentHashMap<Integer, FieldPropertyInfo>();
+  private static final String SELF = "(self)";
 
   private static Integer hashCodeFor(Class<?> initialType, String propertyName,
       Configuration configuration) {
@@ -76,7 +77,7 @@ class PropertyInfoRegistry {
    */
   static synchronized FieldPropertyInfo fieldPropertyFor(Class<?> type, Field field,
       Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(type, field.getName(), configuration);
+    Integer hashCode = hashCodeFor(type, field == null ? SELF : field.getName(), configuration);
     FieldPropertyInfo fieldPropertyInfo = FIELD_CACHE.get(hashCode);
     if (fieldPropertyInfo == null) {
       fieldPropertyInfo = new FieldPropertyInfo(type, field, name);
