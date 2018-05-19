@@ -16,16 +16,15 @@
 package org.modelmapper.internal;
 
 import net.jodah.typetools.TypeResolver;
+import org.modelmapper.spi.PropertyInfo;
+import org.modelmapper.spi.PropertyType;
+import org.modelmapper.spi.ValueReader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-
-import org.modelmapper.spi.PropertyInfo;
-import org.modelmapper.spi.PropertyType;
-import org.modelmapper.spi.ValueReader;
 
 /**
  * Abstract PropertyInfo implementation that provides {@link #equals(Object)} and
@@ -54,7 +53,9 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   static class FieldPropertyInfo extends PropertyInfoImpl<Field> implements Accessor, Mutator {
     FieldPropertyInfo(Class<?> initialType, Field field, String name) {
       super(initialType, field, PropertyType.FIELD, name);
-      field.setAccessible(true);
+      if (field != null) {
+        field.setAccessible(true);
+      }
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
@@ -62,12 +63,12 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     }
 
     public Type getGenericType() {
-      return member.getGenericType();
+      return member == null ? null : member.getGenericType();
     }
 
     public Object getValue(Object subject) {
       try {
-        return member.get(subject);
+        return member == null ? subject : member.get(subject);
       } catch (Exception e) {
         throw new Errors().errorGettingValue(member, e).toMappingException();
       }

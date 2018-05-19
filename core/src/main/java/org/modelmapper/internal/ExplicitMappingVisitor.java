@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
   private static final String MAP_BOTH_METHOD_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)V";
 
   private static final Pattern MUTATOR_METHOD_DESC_PATTERN = Pattern.compile("^\\(.+\\)(.+)$");
+  private static final String SELF = "(self)";
 
   private final Errors errors;
   private final InheritingConfiguration config;
@@ -158,15 +160,19 @@ public class ExplicitMappingVisitor extends ClassVisitor {
         if (ins.getOpcode() == Opcodes.GETFIELD) {
           FieldInsnNode fn = (FieldInsnNode) ins;
 
-          if (fn.owner.equals(propMapClassInternalName) && fn.desc.equals(PROXY_FIELD_DESC)) {
-            if (fn.name.equals(SOURCE_FIELD))
-              subjectType = 1;
-            else if (fn.name.equals(DEST_FIELD))
-              subjectType = 2;
-            continue;
-          }
+            Class<?> ownerType = classFor(fn.owner.replace('/', '.'));
 
-          Class<?> ownerType = classFor(fn.owner.replace('/', '.'));
+            if (fn.owner.equals(propMapClassInternalName) && fn.desc.equals(PROXY_FIELD_DESC)) {
+                if (fn.name.equals(SOURCE_FIELD)) {
+                    subjectType = 1;
+                    ownerType = getSourceOwnerFromGeneric(fn.owner.replace('/', '.'));
+                    if (ownerType == null) continue;
+                } else if (fn.name.equals(DEST_FIELD)) {
+                    subjectType = 2;
+                    continue;
+                }
+            }
+
           if (subjectType == 1)
             recordSourceField(ownerType, fieldFor(ownerType, fn));
           else if (subjectType == 2) {
@@ -269,7 +275,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     private void recordSourceField(Class<?> type, Field field) {
       assertNotFinal(field);
       if (PropertyInfoResolver.FIELDS.isValid(field)) {
-        String propertyName = config.getSourceNameTransformer().transform(field.getName(),
+        String propertyName = config.getSourceNameTransformer().transform(field == null ? SELF : field.getName(),
             NameableType.FIELD);
         mapping.sourceAccessors.add(PropertyInfoRegistry.fieldPropertyFor(type, field, config,
             propertyName));
@@ -315,6 +321,7 @@ public class ExplicitMappingVisitor extends ClassVisitor {
     }
 
     private void assertNotFinal(Member member) {
+      if (member == null) return;
       if (Modifier.isFinal(member.getDeclaringClass().getModifiers()))
         errors.invocationAgainstFinalClass(member.getDeclaringClass());
       if (member instanceof Method && Modifier.isFinal(member.getModifiers()))
@@ -344,6 +351,14 @@ public class ExplicitMappingVisitor extends ClassVisitor {
       return Class.forName(className, true, propertyMapClassLoader);
     } catch (ClassNotFoundException e) {
       throw errors.errorResolvingClass(e, className).toException();
+    }
+  }
+
+  private Class<?> getSourceOwnerFromGeneric(String className) {
+    try {
+      return (Class<?>) ((ParameterizedType) classFor(className).getGenericSuperclass()).getActualTypeArguments()[0];
+    } catch (Throwable t) {
+      return null;
     }
   }
 }

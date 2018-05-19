@@ -83,7 +83,7 @@ interface PropertyInfoResolver<M extends Member, PI extends PropertyInfo> {
   static abstract class DefaultPropertyResolver<M extends Member, PI extends PropertyInfo>
       implements PropertyInfoResolver<M, PI> {
     public boolean isValid(M member) {
-      return !Modifier.isStatic(member.getModifiers()) && !member.isSynthetic();
+      return member == null || (!Modifier.isStatic(member.getModifiers()) && !member.isSynthetic());
     }
   }
 

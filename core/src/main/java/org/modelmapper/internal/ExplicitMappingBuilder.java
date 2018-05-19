@@ -54,7 +54,7 @@ import org.objectweb.asm.ClassReader;
 public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
   private static Method PROPERTY_MAP_CONFIGURE;
-
+  private static final String SELF = "(self)";
   private final Class<S> sourceType;
   private final Class<D> destinationType;
   private final InheritingConfiguration configuration;
@@ -269,7 +269,12 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
         }
       } else if (accessor instanceof FieldPropertyInfo) {
         FieldPropertyInfo field = (FieldPropertyInfo) accessor;
-        Object nextProxy = field.getValue(proxy);
+        Object nextProxy;
+        if (field.getName().equals(SELF)) {
+          nextProxy = proxy;
+        } else {
+          nextProxy = field.getValue(proxy);
+        }
         if (nextProxy == null) {
           nextProxy = createProxy(field.getType());
           field.setValue(proxy, nextProxy);
@@ -343,8 +348,11 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
           currentMapping.sourceAccessors = sourceAccessors;
         validateRecordedMapping();
 
-        if (options.mapFromSource)
-          mapping = new SourceMappingImpl(sourceType, currentMapping.destinationMutators, options);
+        if (options.mapFromSource) {
+          mapping = !currentMapping.sourceAccessors.isEmpty()
+                  ? new PropertyMappingImpl(currentMapping.sourceAccessors, currentMapping.destinationMutators, options)
+                  : new SourceMappingImpl(sourceType, currentMapping.destinationMutators, options);
+        }
         else if (currentMapping.sourceAccessors == null)
           mapping = new ConstantMappingImpl(sourceConstant, currentMapping.destinationMutators,
               options);
