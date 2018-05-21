@@ -33,7 +33,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   protected final List<PropertyInfo> destinationMutators;
   private final boolean explicit;
   private final String path;
-  private boolean skip;
+  private int skipType;
   private Condition<?, ?> condition;
   protected Provider<?> provider;
   protected Converter<?, ?> converter;
@@ -50,10 +50,10 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   /**
    * Creates an explicit mapping.
    */
-  MappingImpl(List<Mutator> destinationMutators, MappingOptions options) {
+  MappingImpl(List<? extends PropertyInfo> destinationMutators, MappingOptions options) {
     this.destinationMutators = new ArrayList<PropertyInfo>(destinationMutators);
     path = Strings.join(destinationMutators);
-    this.skip = options.skipType != 0;
+    this.skipType = options.skipType;
     this.condition = options.condition;
     this.provider = options.provider;
     this.converter = options.converter;
@@ -69,7 +69,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     destinationMutators.addAll(mergedMutators);
     destinationMutators.addAll(copy.destinationMutators);
     path = Strings.join(destinationMutators);
-    skip = copy.skip;
+    skipType = copy.skipType;
     condition = copy.condition;
     provider = copy.provider;
     converter = copy.converter;
@@ -116,7 +116,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
   }
 
   public boolean isSkipped() {
-    return skip;
+    return skipType != 0;
   };
 
   /**
@@ -138,5 +138,14 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
    */
   boolean isExplicit() {
     return explicit;
+  }
+
+  MappingOptions getOptions() {
+    MappingOptions options = new MappingOptions();
+    options.skipType = skipType;
+    options.condition = condition;
+    options.converter = converter;
+    options.provider = provider;
+    return options;
   }
 }
