@@ -58,7 +58,7 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
    * Creates an explicit PropertyMapping.
    */
   PropertyMappingImpl(List<? extends PropertyInfo> sourceAccessors,
-      List<Mutator> destinationMutators, MappingOptions options) {
+      List<? extends PropertyInfo> destinationMutators, MappingOptions options) {
     super(destinationMutators, options);
     this.sourceAccessors = new ArrayList<PropertyInfo>(sourceAccessors);
   }

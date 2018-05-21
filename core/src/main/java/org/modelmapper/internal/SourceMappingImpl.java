@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
@@ -36,14 +37,6 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
     this.sourceType = sourceType;
   }
 
-  /**
-   * Creates a merged SourceMappingImpl.
-   */
-  SourceMappingImpl(SourceMappingImpl mapping, List<? extends PropertyInfo> mergedMutators) {
-    super(mapping, mergedMutators);
-    this.sourceType = mapping.sourceType;
-  }
-
   public Class<?> getSourceType() {
     return sourceType;
   }
@@ -57,6 +50,9 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
   @Override
   MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
       List<? extends PropertyInfo> mergedMutators) {
-    return new SourceMappingImpl(this, mergedMutators);
+    List<PropertyInfo> mutators = new ArrayList<PropertyInfo>();
+    mutators.addAll(mergedMutators);
+    mutators.addAll(destinationMutators);
+    return new PropertyMappingImpl(mergedAccessors, mutators, getOptions());
   }
 }
