@@ -1,3 +1,15 @@
+# 2.0.0
+
+### New Features
+
+* ModelMapper with modules
+* Minimum JDK support to 1.6
+
+### Bug Fixes
+
+* Fixed #322 - Java 10
+* Fixed #331 - Convert nested objects
+
 # 1.1.3
 
 ### Bug Fixes
