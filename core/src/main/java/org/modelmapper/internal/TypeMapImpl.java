@@ -80,19 +80,20 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     }
   }
 
-  public void addMappings(PropertyMap<S, D> propertyMap) {
+  public TypeMap<S, D> addMappings(PropertyMap<S, D> propertyMap) {
     if (sourceType.isEnum() || destinationType.isEnum())
       throw new Errors().mappingForEnum().toConfigurationException();
 
     synchronized (mappings) {
-      for (MappingImpl mapping : new ExplicitMappingBuilder<S, D>(sourceType, destinationType,
-          configuration).build(propertyMap)) {
+      for (MappingImpl mapping : ExplicitMappingBuilder.build(sourceType,
+          destinationType, configuration, propertyMap)) {
         MappingImpl existingMapping = addMapping(mapping);
         if (existingMapping != null && existingMapping.isExplicit())
           throw new Errors().duplicateMapping(mapping.getLastDestinationProperty())
               .toConfigurationException();
       }
     }
+    return this;
   }
 
   public Condition<?, ?> getCondition() {
@@ -281,6 +282,18 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     }
 
     return this;
+  }
+
+  public TypeMap<S, D> implicitMappings() {
+    ImplicitMappingBuilder.build(null, this, configuration.typeMapStore, configuration.converterStore);
+    return this;
+  }
+
+  void addMappingIfAbsent(MappingImpl mapping) {
+    synchronized (mappings) {
+      if (!mappings.containsKey(mapping.getPath()))
+        mappings.put(mapping.getPath(), mapping);
+    }
   }
 
   MappingImpl addMapping(MappingImpl mapping) {

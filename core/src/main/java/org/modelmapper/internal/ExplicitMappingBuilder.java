@@ -87,6 +87,12 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     boolean mapFromSource;
   }
 
+  static <S, D> Collection<MappingImpl> build(Class<S> sourceType, Class<D> destinationType,
+      InheritingConfiguration configuration, PropertyMap<S, D> propertyMap) {
+    return new ExplicitMappingBuilder<S, D>(sourceType, destinationType, configuration)
+        .build(propertyMap);
+  }
+
   ExplicitMappingBuilder(Class<S> sourceType, Class<D> destinationType,
       InheritingConfiguration configuration) {
     this.sourceType = sourceType;

@@ -113,8 +113,7 @@ public final class TypeMapStore {
         if (converter == null && config.isImplicitMappingEnabled()
             && Types.mightContainsProperties(typeMap.getSourceType())
             && Types.mightContainsProperties(typeMap.getDestinationType()))
-          new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
-              config.converterStore).build();
+          ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore);
 
         if (typeMap.isFullMatching()) {
           typeMaps.put(typePair, typeMap);

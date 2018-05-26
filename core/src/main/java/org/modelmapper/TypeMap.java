@@ -36,11 +36,12 @@ public interface TypeMap<S, D> {
    * {@code propertyMap} will override any implicit mappings for the same properties.
    * 
    * @param propertyMap from which mappings should be loaded
+   * @return this type map
    * @throws IllegalArgumentException if {@code propertyMap} is null
    * @throws ConfigurationException if a configuration error occurs while adding mappings for the
    *           {@code propertyMap}
    */
-  void addMappings(PropertyMap<S, D> propertyMap);
+  TypeMap<S, D> addMappings(PropertyMap<S, D> propertyMap);
 
   /**
    * Returns the Condition that must apply for the source and destination in order for mapping to
@@ -304,4 +305,11 @@ public interface TypeMap<S, D> {
    *         in {@code modelMapper.getTypeMaps()}
    */
   TypeMap<S, D> includeBase(Class<? super S> sourceType, Class<? super D> destinationType);
+
+  /**
+   * Performs implicit mapping
+   *
+   * @return this type map
+   */
+  TypeMap<S, D> implicitMappings();
 }
