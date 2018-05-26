@@ -66,6 +66,11 @@ class ImplicitMappingBuilder<S, D> {
   /** Mappings which are to be merged in from a pre-existing TypeMap. */
   private final List<MappingImpl> mergedMappings = new ArrayList<MappingImpl>();
 
+  static <S, D> void build(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
+      ConverterStore converterStore) {
+    new ImplicitMappingBuilder<S, D>(source, typeMap, typeMapStore, converterStore).build();
+  }
+
   ImplicitMappingBuilder(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
     this.typeMap = typeMap;
@@ -116,7 +121,7 @@ class ImplicitMappingBuilder<S, D> {
         }
 
         if (mapping != null) {
-          typeMap.addMapping(mapping);
+          typeMap.addMappingIfAbsent(mapping);
 
           // If the mapping is potentially circular, add intermediate mappings
           if (Iterables.isIterable(mapping.getLastDestinationProperty().getType())) {
@@ -124,7 +129,7 @@ class ImplicitMappingBuilder<S, D> {
               PropertyMappingImpl intermediateMapping = intermediateMappings.get(sourceAccessor);
               if (intermediateMapping != null
                   && !intermediateMapping.getPath().equals(mapping.getPath()))
-                typeMap.addMapping(intermediateMapping);
+                typeMap.addMappingIfAbsent(intermediateMapping);
             }
           }
         }
@@ -134,7 +139,7 @@ class ImplicitMappingBuilder<S, D> {
         intermediateMappings.clear();
       } else if (!mergedMappings.isEmpty()) {
         for (MappingImpl mapping : mergedMappings)
-          typeMap.addMapping(mapping);
+          typeMap.addMappingIfAbsent(mapping);
         mergedMappings.clear();
       } else if (!destinationTypes.contains(mutator.getType())
           && !typeMap.isSkipped(destPath)
