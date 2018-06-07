@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
  *
  * @author Chun Han Hsiao
  */
-public class ArrayNodeConverter implements ConditionalConverter<ArrayNode, Collection<Object>> {
+public class ArrayNodeToCollectionConverter implements ConditionalConverter<ArrayNode, Collection<Object>> {
   @Override
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Collection.class.isAssignableFrom(destinationType) && sourceType.isAssignableFrom(ArrayNode.class)
