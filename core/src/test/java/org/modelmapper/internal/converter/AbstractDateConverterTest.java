@@ -16,28 +16,28 @@
  */
 package org.modelmapper.internal.converter;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
-
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.modelmapper.MappingException;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import static org.testng.Assert.*;
 
 /**
  * Adapted from the BeanUtils test suite.
@@ -93,6 +93,9 @@ public abstract class AbstractDateConverterTest extends AbstractConverterTest {
     assertValid(toSqlDate(calendar), type, expected);
     assertValid(toTime(calendar), type, expected);
     assertValid(toTimestamp(calendar), type, expected);
+    assertValid(toLocalDateTime(calendar), type, expected);
+    assertValid(toLocalDate(calendar), type, expected);
+
   }
 
   @Test(expectedExceptions = MappingException.class)
@@ -136,6 +139,10 @@ public abstract class AbstractDateConverterTest extends AbstractConverterTest {
       return ((Calendar) date).getTimeInMillis();
     else if (date instanceof XMLGregorianCalendar)
       return ((XMLGregorianCalendar) date).toGregorianCalendar().getTimeInMillis();
+    else if (date instanceof LocalDateTime)
+      return ((LocalDateTime) date).toInstant(ZoneOffset.UTC).toEpochMilli();
+    else if (date instanceof LocalDate)
+      return ((LocalDate) date).atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
     else
       return ((Date) date).getTime();
   }
@@ -168,6 +175,15 @@ public abstract class AbstractDateConverterTest extends AbstractConverterTest {
   protected Timestamp toTimestamp(Calendar calendar) {
     return new Timestamp(getTimeInMillis(calendar));
   }
+
+  protected LocalDateTime toLocalDateTime(Calendar calendar) {
+    return LocalDateTime.ofInstant(calendar.toInstant(), ZoneId.systemDefault());
+  }
+
+  protected LocalDate toLocalDate(Calendar calendar) {
+    return toLocalDateTime(calendar).toLocalDate();
+  }
+
 
   private Object toType(Calendar calendar, Class<?> destinationType) {
     if (destinationType == Date.class)
