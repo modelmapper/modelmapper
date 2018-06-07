@@ -222,6 +222,14 @@ public interface Configuration {
   boolean isUseOSGiClassLoaderBridging();
 
   /**
+   * Returns whether the deep copy feature is enabled.
+   *
+   * @see #setDeepCopyEnabled(boolean)
+   * @see org.modelmapper.internal.converter.AssignableConverter
+   */
+  boolean isDeepCopyEnabled();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true, ambiguous destination properties are skipped during the matching process. When
    * false, a ConfigurationException is thrown when ambiguous properties are encountered.
@@ -304,6 +312,17 @@ public interface Configuration {
    * @see #isSkipNullEnabled()
    */
   Configuration setSkipNullEnabled(boolean enabled);
+
+  /**
+   * Sets whether deep copy should be enabled. When {@code false} (default), ModelMapper will
+   * copy the reference to the destination object of a property if they have same type. When {@code true},
+   * ModelMapper will deep copy the property to destination object.
+   *
+   * @param enabled enabled whether deep copy is enabled
+   * @see #isDeepCopyEnabled()
+   * @see org.modelmapper.internal.converter.AssignableConverter
+   */
+  Configuration setDeepCopyEnabled(boolean enabled);
 
   /**
    * Sets whether to use an OSGi Class Loader Bridge as described in the following article:
