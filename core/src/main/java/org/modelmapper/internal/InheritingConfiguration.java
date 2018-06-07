@@ -45,6 +45,8 @@ public class InheritingConfiguration implements Configuration {
   public final TypeMapStore typeMapStore;
   public final ConverterStore converterStore;
   public final ValueAccessStore valueAccessStore;
+  public final TypeMapValidator typeMapValidator;
+
   private NameTokenizer destinationNameTokenizer;
   private NameTransformer destinationNameTransformer;
   private NamingConvention destinationNamingConvention;
@@ -71,6 +73,7 @@ public class InheritingConfiguration implements Configuration {
     typeMapStore = new TypeMapStore(this);
     converterStore = new ConverterStore();
     valueAccessStore = new ValueAccessStore();
+    typeMapValidator = new TypeMapValidator();
     sourceNameTokenizer = NameTokenizers.CAMEL_CASE;
     destinationNameTokenizer = NameTokenizers.CAMEL_CASE;
     sourceNamingConvention = NamingConventions.JAVABEANS_ACCESSOR;
@@ -96,6 +99,7 @@ public class InheritingConfiguration implements Configuration {
     typeMapStore = source.typeMapStore;
     converterStore = source.converterStore;
     valueAccessStore = source.valueAccessStore;
+    typeMapValidator = source.typeMapValidator;
 
     if (inherit) {
       this.parent = source;

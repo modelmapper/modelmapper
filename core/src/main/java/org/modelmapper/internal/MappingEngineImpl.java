@@ -39,11 +39,13 @@ public class MappingEngineImpl implements MappingEngine {
   private final InheritingConfiguration configuration;
   private final TypeMapStore typeMapStore;
   private final ConverterStore converterStore;
+  private final TypeMapValidator typeMapValidator;
 
   public MappingEngineImpl(InheritingConfiguration configuration) {
     this.configuration = configuration;
     this.typeMapStore = configuration.typeMapStore;
     this.converterStore = configuration.converterStore;
+    this.typeMapValidator = configuration.typeMapValidator;
   }
 
   /**
@@ -460,5 +462,13 @@ public class MappingEngineImpl implements MappingEngine {
   private void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
     if (destination != null && !destinationType.isAssignableFrom(destination.getClass()))
       errors.invalidProvidedDestinationInstance(destination, destinationType);
+  }
+
+  public <S, D> Errors validate(TypeMap<S, D> typeMap) {
+    return typeMapValidator.validate(typeMap);
+  }
+
+  public <S, D> List<PropertyInfo> getUnmappedProperties(TypeMap<S, D> typeMap) {
+    return typeMapValidator.getUnmappedProperties(typeMap);
   }
 }
