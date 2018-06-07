@@ -24,6 +24,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.convention.NameTransformers;
 import org.modelmapper.convention.NamingConventions;
+import org.modelmapper.internal.converter.AssignableConverter;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.valueaccess.ValueAccessStore;
@@ -119,11 +120,13 @@ public class InheritingConfiguration implements Configuration {
     }
   }
 
+  @Override
   public <T> Configuration addValueReader(ValueReader<T> valueReader) {
     getValueReaders().add(valueReader);
     return this;
   }
 
+  @Override
   public Configuration copy() {
     return new InheritingConfiguration(this, false);
   }
@@ -152,59 +155,72 @@ public class InheritingConfiguration implements Configuration {
     return true;
   }
 
+  @Override
   public List<ConditionalConverter<?, ?>> getConverters() {
     return converterStore.getConverters();
   }
 
+  @Override
   public NameTokenizer getDestinationNameTokenizer() {
     return destinationNameTokenizer == null ? parent.getDestinationNameTokenizer()
         : destinationNameTokenizer;
   }
 
+  @Override
   public NameTransformer getDestinationNameTransformer() {
     return destinationNameTransformer == null ? parent.getDestinationNameTransformer()
         : destinationNameTransformer;
   }
 
+  @Override
   public NamingConvention getDestinationNamingConvention() {
     return destinationNamingConvention == null ? parent.getDestinationNamingConvention()
         : destinationNamingConvention;
   }
 
+  @Override
   public AccessLevel getFieldAccessLevel() {
     return fieldAccessLevel == null ? parent.getFieldAccessLevel() : fieldAccessLevel;
   }
 
+  @Override
   public MatchingStrategy getMatchingStrategy() {
     return matchingStrategy == null ? parent.getMatchingStrategy() : matchingStrategy;
   }
 
+  @Override
   public AccessLevel getMethodAccessLevel() {
     return methodAccessLevel == null ? parent.getMethodAccessLevel() : methodAccessLevel;
   }
 
+  @Override
   public Condition<?, ?> getPropertyCondition() {
     return propertyCondition;
   }
 
+  @Override
   public Provider<?> getProvider() {
     return provider;
   }
 
+  @Override
   public NameTokenizer getSourceNameTokenizer() {
     return sourceNameTokenizer == null ? parent.getSourceNameTokenizer() : sourceNameTokenizer;
   }
 
+  @Override
   public NameTransformer getSourceNameTransformer() {
     return sourceNameTransformer == null ? parent.getSourceNameTransformer()
         : sourceNameTransformer;
   }
 
+  @Override
   public NamingConvention getSourceNamingConvention() {
     return sourceNamingConvention == null ? parent.getSourceNamingConvention()
         : sourceNamingConvention;
   }
 
+  @Override
   public List<ValueReader<?>> getValueReaders() {
     return valueAccessStore.getValueReaders();
   }
@@ -225,114 +241,151 @@ public class InheritingConfiguration implements Configuration {
     return result;
   }
 
+  @Override
   public boolean isAmbiguityIgnored() {
     return ambiguityIgnored == null ? parent.isAmbiguityIgnored() : ambiguityIgnored;
   }
 
+  @Override
   public boolean isFieldMatchingEnabled() {
     return fieldMatchingEnabled == null ? parent.isFieldMatchingEnabled() : fieldMatchingEnabled;
   }
 
+  @Override
   public boolean isFullTypeMatchingRequired() {
     return fullTypeMatchingRequired == null ? parent.isFullTypeMatchingRequired()
         : fullTypeMatchingRequired;
   }
 
+  @Override
   public boolean isImplicitMappingEnabled() {
     return implicitMatchingEnabled == null ? parent.isImplicitMappingEnabled()
         : implicitMatchingEnabled;
   }
 
+  @Override
   public boolean isSkipNullEnabled() {
     return skipNullEnabled == null ? parent.isSkipNullEnabled()
         : skipNullEnabled;
   }
 
+  @Override
   public boolean isUseOSGiClassLoaderBridging() {
     return useOSGiClassLoaderBridging == null ? parent.isUseOSGiClassLoaderBridging()
         : useOSGiClassLoaderBridging;
   }
 
+  @Override
+  public boolean isDeepCopyEnabled() {
+    return converterStore.hasConverter(AssignableConverter.class);
+  }
+
+  @Override
   public Configuration setAmbiguityIgnored(boolean ignore) {
     this.ambiguityIgnored = ignore;
     return this;
   }
 
+  @Override
   public Configuration setDestinationNameTokenizer(NameTokenizer nameTokenizer) {
     destinationNameTokenizer = Assert.notNull(nameTokenizer);
     return this;
   }
 
+  @Override
   public Configuration setDestinationNameTransformer(NameTransformer nameTransformer) {
     destinationNameTransformer = Assert.notNull(nameTransformer);
     return this;
   }
 
+  @Override
   public Configuration setDestinationNamingConvention(NamingConvention namingConvention) {
     destinationNamingConvention = Assert.notNull(namingConvention);
     return this;
   }
 
+  @Override
   public Configuration setFieldAccessLevel(AccessLevel accessLevel) {
     fieldAccessLevel = Assert.notNull(accessLevel);
     return this;
   }
 
+  @Override
   public Configuration setFieldMatchingEnabled(boolean enabled) {
     fieldMatchingEnabled = enabled;
     return this;
   }
 
+  @Override
   public Configuration setFullTypeMatchingRequired(boolean required) {
     fullTypeMatchingRequired = required;
     return this;
   }
 
+  @Override
   public Configuration setImplicitMappingEnabled(boolean enabled) {
     implicitMatchingEnabled = enabled;
     return this;
   }
 
+  @Override
   public Configuration setSkipNullEnabled(boolean enabled) {
     skipNullEnabled = enabled;
     return this;
   }
 
+  @Override
+  public Configuration setDeepCopyEnabled(boolean enabled) {
+    if (enabled && converterStore.hasConverter(AssignableConverter.class))
+      converterStore.removeConverter(AssignableConverter.class);
+    else if (!enabled && converterStore.hasConverter(AssignableConverter.class))
+      converterStore.addConverter(new AssignableConverter());
+    return this;
+  }
+
+  @Override
   public Configuration setMatchingStrategy(MatchingStrategy matchingStrategy) {
     this.matchingStrategy = Assert.notNull(matchingStrategy);
     return this;
   }
 
+  @Override
   public Configuration setMethodAccessLevel(AccessLevel accessLevel) {
     methodAccessLevel = Assert.notNull(accessLevel);
     return this;
   }
 
+  @Override
   public Configuration setPropertyCondition(Condition<?, ?> condition) {
     propertyCondition = Assert.notNull(condition);
     return this;
   }
 
+  @Override
   public Configuration setProvider(Provider<?> provider) {
     this.provider = Assert.notNull(provider);
     return this;
   }
 
+  @Override
   public Configuration setSourceNameTokenizer(NameTokenizer nameTokenizer) {
     sourceNameTokenizer = Assert.notNull(nameTokenizer);
     return this;
   }
 
+  @Override
   public Configuration setSourceNameTransformer(NameTransformer nameTransformer) {
     sourceNameTransformer = Assert.notNull(nameTransformer);
     return this;
   }
 
+  @Override
   public Configuration setSourceNamingConvention(NamingConvention namingConvention) {
     sourceNamingConvention = Assert.notNull(namingConvention);
     return this;
   }
 
+  @Override
   public Configuration setUseOSGiClassLoaderBridging(boolean useOSGiClassLoaderBridging) {
     this.useOSGiClassLoaderBridging = useOSGiClassLoaderBridging;
     return this;

@@ -66,4 +66,28 @@ public final class ConverterStore {
   public List<ConditionalConverter<?, ?>> getConverters() {
     return converters;
   }
+
+  public ConverterStore removeConverter(Class<? extends ConditionalConverter<?, ?>> converterClass) {
+    ConditionalConverter<?, ?> matchConverter = getConverterByType(converterClass);
+    if (matchConverter != null)
+      converters.remove(matchConverter);
+    return this;
+  }
+
+  public boolean hasConverter(Class<? extends ConditionalConverter<?, ?>> converterClass) {
+    return getConverterByType(converterClass) != null;
+  }
+
+  public ConverterStore addConverter(ConditionalConverter<?, ?> converter) {
+    converters.add(converter);
+    return this;
+  }
+
+  private ConditionalConverter<?, ?> getConverterByType(Class<? extends ConditionalConverter<?, ?>> converterClass) {
+    for (ConditionalConverter<?, ?> converter : converters) {
+      if (converter.getClass().equals(converterClass))
+        return converter;
+    }
+    return null;
+  }
 }
