@@ -8,6 +8,12 @@ ModelMapper is an intelligent object mapping library that automatically maps obj
 
 Visit [modelmapper.org](http://modelmapper.org) to learn more.
 
+## Modules
+
+In v2.0, ModelMapper provides modules for 3rd library integration you can easily register by ```modelMapper.registerModule(TheModule())```.
+
+- [Java 8](https://github.com/chhsiao90/modelmapper-module-java8)
+
 ## Contributing
 
 Bug reports and feature requests are welcome via the [issue tracker](https://github.com/modelmapper/modelmapper/issues). Fixes and enhancements are also welcome via pull requests. If you're unsure about a contribution idea, feel free to [contact me][me].
