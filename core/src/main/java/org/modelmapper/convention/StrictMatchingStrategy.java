@@ -18,6 +18,7 @@ package org.modelmapper.convention;
 import java.util.List;
 
 import org.modelmapper.spi.MatchingStrategy;
+import org.modelmapper.spi.PropertyNameInfo;
 
 /**
  * See {@link MatchingStrategies#STRICT}.

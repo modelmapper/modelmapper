@@ -15,8 +15,6 @@
  */
 package org.modelmapper.spi;
 
-import java.util.List;
-
 /**
  * Identifies source to destination property matches by comparing source and destination type, property
  * and property type names.
@@ -24,42 +22,6 @@ import java.util.List;
  * @author Jonathan Halterman
  */
 public interface MatchingStrategy {
-  /**
-   * Encapsulates property name information to be use for determining whether a hierarchy of source
-   * and destination properties match.
-   */
-  interface PropertyNameInfo {
-    /**
-     * Returns the destination properties.
-     */
-    List<PropertyInfo> getDestinationProperties();
-
-    /**
-     * Returns transformed name tokens for the destination property.
-     */
-    List<String[]> getDestinationPropertyTokens();
-
-    /**
-     * Returns transformed name tokens for the source's declaring class.
-     */
-    String[] getSourceClassTokens();
-
-    /**
-     * Returns the source properties.
-     */
-    List<PropertyInfo> getSourceProperties();
-    
-    /**
-     * Returns transformed name tokens for the source property.
-     */
-    List<String[]> getSourcePropertyTokens();
-    
-    /**
-     * Returns transformed name tokens for each source property type.
-     */
-    List<String[]> getSourcePropertyTypeTokens();
-  }
-
   /**
    * Indicates whether the matching strategy determines exact matches that are guaranteed not to be
    * ambiguous with any other source and destination properties in the object graph. If false,
