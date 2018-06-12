@@ -23,14 +23,13 @@ import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import org.modelmapper.internal.util.Strings;
-import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
 
 /**
  * @author Jonathan Halterman
  */
-abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
-  protected final List<PropertyInfo> destinationMutators;
+abstract class MappingImpl implements InternalMapping, Comparable<MappingImpl> {
+  private final List<PropertyInfo> destinationMutators;
   private final boolean explicit;
   private final String path;
   private int skipType;
@@ -65,7 +64,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
    */
   MappingImpl(MappingImpl copy, List<? extends PropertyInfo> mergedMutators) {
     destinationMutators = new ArrayList<PropertyInfo>(copy.destinationMutators.size()
-        + (mergedMutators == null ? 0 : mergedMutators.size()));
+        + mergedMutators.size());
     destinationMutators.addAll(mergedMutators);
     destinationMutators.addAll(copy.destinationMutators);
     path = Strings.join(destinationMutators);
@@ -76,6 +75,7 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     explicit = copy.explicit;
   }
 
+  @Override
   public int compareTo(MappingImpl mapping) {
     return path.compareToIgnoreCase(mapping.path);
   }
@@ -90,22 +90,27 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     return path.equals(other.path);
   }
 
+  @Override
   public Condition<?, ?> getCondition() {
     return condition;
   }
 
+  @Override
   public Converter<?, ?> getConverter() {
     return converter;
   }
 
+  @Override
   public List<? extends PropertyInfo> getDestinationProperties() {
     return destinationMutators;
   }
 
+  @Override
   public PropertyInfo getLastDestinationProperty() {
     return destinationMutators.get(destinationMutators.size() - 1);
   }
 
+  @Override
   public Provider<?> getProvider() {
     return provider;
   }
@@ -115,28 +120,18 @@ abstract class MappingImpl implements Mapping, Comparable<MappingImpl> {
     return path.hashCode();
   }
 
+  @Override
   public boolean isSkipped() {
     return skipType != 0;
-  };
+  }
 
-  /**
-   * Creates a merged mapping whose source path begins with the {@code mergedAccessors} and
-   * destination path begins with the {@code mergedMutators}.
-   */
-  abstract MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
-      List<? extends PropertyInfo> mergedMutators);
-
-  /**
-   * Returns a string key representing the path of the destination property hierarchy.
-   */
-  String getPath() {
+  @Override
+  public String getPath() {
     return path;
   }
 
-  /**
-   * Returns whether the mapping is explicit or implicit.
-   */
-  boolean isExplicit() {
+  @Override
+  public boolean isExplicit() {
     return explicit;
   }
 

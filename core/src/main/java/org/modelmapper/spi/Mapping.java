@@ -59,6 +59,11 @@ public interface Mapping {
   Provider<?> getProvider();
 
   /**
+   * Returns a string key representing the path of the destination property hierarchy.
+   */
+  String getPath();
+
+  /**
    * Returns whether the destination should be skipped when performing a mapping.
    */
   boolean isSkipped();

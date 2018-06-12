@@ -37,6 +37,7 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
     this.sourceType = sourceType;
   }
 
+  @Override
   public Class<?> getSourceType() {
     return sourceType;
   }
@@ -44,15 +45,15 @@ class SourceMappingImpl extends MappingImpl implements SourceMapping {
   @Override
   public String toString() {
     return String.format("SourceMapping[%s -> %s]", sourceType,
-        Strings.joinWithFirstType(destinationMutators));
+        Strings.joinWithFirstType(getDestinationProperties()));
   }
 
   @Override
-  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+  public InternalMapping createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
       List<? extends PropertyInfo> mergedMutators) {
     List<PropertyInfo> mutators = new ArrayList<PropertyInfo>();
     mutators.addAll(mergedMutators);
-    mutators.addAll(destinationMutators);
+    mutators.addAll(getDestinationProperties());
     return new PropertyMappingImpl(mergedAccessors, mutators, getOptions());
   }
 }

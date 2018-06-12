@@ -5,6 +5,7 @@ import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.modelmapper.Asserts;
@@ -28,13 +29,13 @@ public class TypeMapImplTest {
     Mutator mutator = new FieldPropertyInfo(ArrayList.class,
         ArrayList.class.getDeclaredField("size"), arg) {
     };
-    return new MappingImpl(Arrays.asList(mutator)) {
+    return new MappingImpl(Collections.singletonList(mutator)) {
       public String toString() {
         return arg;
       }
 
       @Override
-      MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+      public InternalMapping createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
           List<? extends PropertyInfo> mergedMutators) {
         return null;
       }

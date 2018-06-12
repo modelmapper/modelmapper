@@ -49,7 +49,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   final InheritingConfiguration configuration;
   private final MappingEngineImpl engine;
   /** Guarded by "mappings" */
-  private final Map<String, MappingImpl> mappings = new TreeMap<String, MappingImpl>();
+  private final Map<String, InternalMapping> mappings = new TreeMap<String, InternalMapping>();
   private Converter<S, D> converter;
   private Converter<S, D> preConverter;
   private Converter<S, D> postConverter;
@@ -85,9 +85,9 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
       throw new Errors().mappingForEnum().toConfigurationException();
 
     synchronized (mappings) {
-      for (MappingImpl mapping : ExplicitMappingBuilder.build(sourceType,
+      for (InternalMapping mapping : ExplicitMappingBuilder.build(sourceType,
           destinationType, configuration, propertyMap)) {
-        MappingImpl existingMapping = addMapping(mapping);
+        InternalMapping existingMapping = addMapping(mapping);
         if (existingMapping != null && existingMapping.isExplicit())
           throw new Errors().duplicateMapping(mapping.getLastDestinationProperty())
               .toConfigurationException();
@@ -150,7 +150,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     PathProperties pathProperties = getDestinationProperties();
 
     synchronized (mappings) {
-      for (Map.Entry<String, MappingImpl> entry : mappings.entrySet()) {
+      for (Map.Entry<String, InternalMapping> entry : mappings.entrySet()) {
         pathProperties.matchAndRemove(entry.getKey());
       }
     }
@@ -276,7 +276,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     Assert.notNull(baseTypeMap, "Cannot find base TypeMap");
 
     synchronized (baseTypeMap.mappings) {
-      for (Map.Entry<String, MappingImpl> entry : baseTypeMap.mappings.entrySet()) {
+      for (Map.Entry<String, InternalMapping> entry : baseTypeMap.mappings.entrySet()) {
         addMapping(entry.getValue());
       }
     }
@@ -289,14 +289,14 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return this;
   }
 
-  void addMappingIfAbsent(MappingImpl mapping) {
+  void addMappingIfAbsent(InternalMapping mapping) {
     synchronized (mappings) {
       if (!mappings.containsKey(mapping.getPath()))
         mappings.put(mapping.getPath(), mapping);
     }
   }
 
-  MappingImpl addMapping(MappingImpl mapping) {
+  InternalMapping addMapping(InternalMapping mapping) {
     synchronized (mappings) {
       return mappings.put(mapping.getPath(), mapping);
     }
@@ -315,7 +315,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
    * Used by ImplicitMappingBuilder to determine if a mapping for the {@code path} already exists.
    * No need to synchronize here since the TypeMap is not exposed publicly yet.
    */
-  MappingImpl mappingFor(String path) {
+  Mapping mappingFor(String path) {
     return mappings.get(path);
   }
 

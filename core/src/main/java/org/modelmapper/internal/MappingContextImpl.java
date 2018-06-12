@@ -138,7 +138,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   public <CS, CD> MappingContext<CS, CD> create(CS source, Type destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
-    TypeToken<CD> destinationTypeToken = TypeToken.<CD>of(destinationType);
+    TypeToken<CD> destinationTypeToken = TypeToken.of(destinationType);
 
     return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
         destinationTypeToken.getRawType(), destinationTypeToken.getType(), mapping, false);

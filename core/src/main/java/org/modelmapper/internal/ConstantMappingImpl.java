@@ -32,17 +32,9 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
   /**
    * Creates a merged ConstantMapping.
    */
-  ConstantMappingImpl(ConstantMappingImpl mapping, List<? extends PropertyInfo> mergedMutators) {
+  private ConstantMappingImpl(ConstantMappingImpl mapping, List<? extends PropertyInfo> mergedMutators) {
     super(mapping, mergedMutators);
     this.constant = mapping.constant;
-  }
-
-  /**
-   * Creates an implicit merged ConstantMapping.
-   */
-  ConstantMappingImpl(Object constant, List<Mutator> destinationMutators) {
-    super(destinationMutators);
-    this.constant = constant;
   }
 
   /**
@@ -53,6 +45,7 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
     this.constant = constant;
   }
 
+  @Override
   public Object getConstant() {
     return constant;
   }
@@ -60,11 +53,11 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
   @Override
   public String toString() {
     return String.format("ConstantMapping[%s -> %s]", constant,
-        Strings.joinWithFirstType(destinationMutators));
+        Strings.joinWithFirstType(getDestinationProperties()));
   }
 
   @Override
-  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+  public InternalMapping createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
       List<? extends PropertyInfo> mergedMutators) {
     return new ConstantMappingImpl(this, mergedMutators);
   }

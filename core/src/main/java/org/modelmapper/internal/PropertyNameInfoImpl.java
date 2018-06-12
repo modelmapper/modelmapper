@@ -44,14 +44,17 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
     this.configuration = configuration;
   }
 
+  @Override
   public List<PropertyInfo> getDestinationProperties() {
     return destinationProperties;
   }
 
+  @Override
   public List<String[]> getDestinationPropertyTokens() {
     return destinationPropertyTokens;
   }
 
+  @Override
   public String[] getSourceClassTokens() {
     if (sourceClassTokens == null) {
       String className = configuration.getSourceNameTransformer().transform(
@@ -63,14 +66,17 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
     return sourceClassTokens;
   }
 
+  @Override
   public List<PropertyInfo> getSourceProperties() {
-    return (List<PropertyInfo>) sourceProperties;
+    return sourceProperties;
   }
 
+  @Override
   public List<String[]> getSourcePropertyTokens() {
     return sourcePropertyTokens;
   }
 
+  @Override
   public List<String[]> getSourcePropertyTypeTokens() {
     if (sourcePropertyTypeTokens == null) {
       sourcePropertyTypeTokens = new Stack<String[]>();
@@ -122,7 +128,7 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
     pushSourcePropertyType(sourceProperty);
   }
 
-  void pushSourcePropertyType(PropertyInfo sourceProperty) {
+  private void pushSourcePropertyType(PropertyInfo sourceProperty) {
     if (sourcePropertyTypeTokens == null)
       return;
     String typeName = configuration.getSourceNameTransformer().transform(
