@@ -20,9 +20,9 @@ import java.util.List;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.util.Stack;
 import org.modelmapper.internal.util.ToStringBuilder;
-import org.modelmapper.spi.MatchingStrategy.PropertyNameInfo;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.PropertyInfo;
+import org.modelmapper.spi.PropertyNameInfo;
 
 /**
  * PropertyNameInfo implementation that tracks source and destination properties.

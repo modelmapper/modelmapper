@@ -16,8 +16,7 @@
 package org.modelmapper.convention;
 
 import java.util.List;
-
-import org.modelmapper.spi.MatchingStrategy.PropertyNameInfo;
+import org.modelmapper.spi.PropertyNameInfo;
 
 /**
  * Performs inexact matching of property tokens.
