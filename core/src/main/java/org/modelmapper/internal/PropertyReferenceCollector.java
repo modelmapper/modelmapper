@@ -33,6 +33,10 @@ class PropertyReferenceCollector {
   private ExplicitMappingBuilder.MappingOptions options;
   private List<Accessor> accessors;
   private List<Mutator> mutators;
+
+  private Class<?> sourceType;
+  private boolean mapFromSource;
+
   private Errors errors;
   private Errors proxyErrors;
 
@@ -73,11 +77,11 @@ class PropertyReferenceCollector {
     }
   }
 
-  public SourceInterceptor newSourceInterceptor() {
+  SourceInterceptor newSourceInterceptor() {
     return new SourceInterceptor();
   }
 
-  public DestinationInterceptor newDestinationInterceptor() {
+  DestinationInterceptor newDestinationInterceptor() {
     return new DestinationInterceptor();
   }
 
@@ -108,13 +112,16 @@ class PropertyReferenceCollector {
       errors.addMessage("Illegal DestinationSetter method: %s.%s", type.getName(), method.getName());
   }
 
-  public MappingImpl collect() {
-    if ((!isSkip()) && accessors.isEmpty())
+  MappingImpl collect() {
+    if (!isSkip() && !mapFromSource && accessors.isEmpty())
       errors.addMessage("Illegal SourceGetter defined");
     if (mutators.isEmpty())
       errors.addMessage("Illegal DestinationSetter defined");
 
     errors.throwConfigurationExceptionIfErrorsExist();
+
+    if (mapFromSource)
+      return new SourceMappingImpl(sourceType, mutators, options);
     return new PropertyMappingImpl(accessors, mutators, options);
   }
 
@@ -126,7 +133,12 @@ class PropertyReferenceCollector {
     return errors;
   }
 
-  public Errors getProxyErrors() {
+  Errors getProxyErrors() {
     return proxyErrors;
+  }
+
+  void mapFromSource(Class<?> sourceType) {
+    this.mapFromSource = true;
+    this.sourceType = sourceType;
   }
 }

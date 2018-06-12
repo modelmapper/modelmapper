@@ -38,6 +38,11 @@ public class TypeMapImplTest {
           List<? extends PropertyInfo> mergedMutators) {
         return null;
       }
+
+      @Override
+      public Class<?> getSourceType() {
+        return null;
+      }
     };
   }
 

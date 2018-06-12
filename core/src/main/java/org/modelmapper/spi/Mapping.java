@@ -62,4 +62,9 @@ public interface Mapping {
    * Returns whether the destination should be skipped when performing a mapping.
    */
   boolean isSkipped();
+
+  /**
+   * Gets the source object type.
+   */
+  Class<?> getSourceType();
 }

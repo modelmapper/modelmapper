@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import org.modelmapper.internal.util.Strings;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConstantMapping;
 import org.modelmapper.spi.PropertyInfo;
 
@@ -66,5 +67,10 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
   MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
       List<? extends PropertyInfo> mergedMutators) {
     return new ConstantMappingImpl(this, mergedMutators);
+  }
+
+  @Override
+  public Class<?> getSourceType() {
+    return constant == null ? Object.class : Types.deProxy(constant.getClass());
   }
 }

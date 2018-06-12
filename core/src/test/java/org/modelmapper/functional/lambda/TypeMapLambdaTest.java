@@ -2,7 +2,6 @@ package org.modelmapper.functional.lambda;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertSame;
 import static org.testng.Assert.fail;
 
 import org.modelmapper.AbstractTest;
@@ -11,7 +10,6 @@ import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.MappingContext;
@@ -22,15 +20,16 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
+@SuppressWarnings("unused")
 public class TypeMapLambdaTest extends AbstractTest {
   static class Src {
     String srcText;
 
-    public Src(String srcText) {
+    Src(String srcText) {
       this.srcText = srcText;
     }
 
-    public String getSrcText() {
+    String getSrcText() {
       return srcText;
     }
 
@@ -46,7 +45,7 @@ public class TypeMapLambdaTest extends AbstractTest {
       return destText;
     }
 
-    public void setDestText(String destText) {
+    void setDestText(String destText) {
       this.destText = destText;
     }
   }
@@ -111,21 +110,6 @@ public class TypeMapLambdaTest extends AbstractTest {
     typeMap.validate();
     assertNull(typeMap.map(new Src("bar")).destText);
     assertEquals(typeMap.map(new Src("foo")).destText, "foo");
-  }
-
-  public void shouldFailedWithEmptySourceGetter() {
-    TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-
-    try {
-      typeMap.addMapping(new SourceGetter<Src>() {
-        public Object get(Src source) {
-          return source;
-        }
-      }, destSetter());
-      fail();
-    } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(), "Illegal SourceGetter defined");
-    }
   }
 
   public void shouldFailedWithEmptyDestinationSetter() {
