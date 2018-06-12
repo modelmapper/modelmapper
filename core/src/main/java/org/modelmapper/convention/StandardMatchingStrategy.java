@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.PropertyNameInfo;
+import org.modelmapper.spi.Tokens;
 
 /**
  * See {@link MatchingStrategies#STANDARD}.
@@ -40,13 +41,13 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     }
 
     boolean match() {
-      List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
-      for (String[] tokens: destTokens) {
-        for (int destTokenIndex = 0; destTokenIndex < tokens.length;) {
+      List<Tokens> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+      for (Tokens tokens: destTokens) {
+        for (int destTokenIndex = 0; destTokenIndex < tokens.size();) {
           int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
           if (matchedTokens == 0)
-            if (matchSourcePropertyType(tokens[destTokenIndex])
-                || matchSourceClass(tokens[destTokenIndex]))
+            if (matchSourcePropertyType(tokens.token(destTokenIndex))
+                || matchSourceClass(tokens.token(destTokenIndex)))
               destTokenIndex += 1;
             else
               return false;
@@ -67,9 +68,9 @@ final class StandardMatchingStrategy implements MatchingStrategy {
      * Returns the number of {@code destTokens} that were matched to a source token starting at
      * {@code destStartIndex}.
      */
-    int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
+    int matchSourcePropertyName(Tokens destTokens, int destStartIndex) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-        String[] srcTokens = sourceTokens.get(sourceIndex);
+        Tokens srcTokens = sourceTokens.get(sourceIndex);
         int matchCount = matchTokens(srcTokens, destTokens, destStartIndex);
         if (matchCount > 0) {
           sourceMatches[sourceIndex] = true;
@@ -87,10 +88,10 @@ final class StandardMatchingStrategy implements MatchingStrategy {
      * @param index of unmatched source property
      */
     boolean matchedPreviously(int index) {
-      String[] current = sourceTokens.get(index);
+      Tokens current = sourceTokens.get(index);
       for (int sourceIndex = 0; sourceIndex < index; sourceIndex++) {
         if (sourceMatches[sourceIndex]) {
-          String[] previous = sourceTokens.get(sourceIndex);
+          Tokens previous = sourceTokens.get(sourceIndex);
           if (anyTokenMatch(current, previous))
             return true;
         }

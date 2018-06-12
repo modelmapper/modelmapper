@@ -17,6 +17,7 @@ package org.modelmapper.convention;
 
 import java.util.List;
 import org.modelmapper.spi.PropertyNameInfo;
+import org.modelmapper.spi.Tokens;
 
 /**
  * Performs inexact matching of property tokens.
@@ -25,7 +26,7 @@ import org.modelmapper.spi.PropertyNameInfo;
  */
 class InexactMatcher {
   protected final PropertyNameInfo propertyNameInfo;
-  protected final List<String[]> sourceTokens;
+  protected final List<Tokens> sourceTokens;
 
   InexactMatcher(PropertyNameInfo propertyNameInfo) {
     this.propertyNameInfo = propertyNameInfo;
@@ -36,8 +37,8 @@ class InexactMatcher {
    * Returns the number of {@code dst} elements that were matched to a source starting at
    * {@code dstStartIndex}. {@code src} and {@code dst} elements can be matched in combination.
    */
-  static int matchTokens(String[] src, String[] dst, int dstStartIndex) {
-    for (int srcStartIndex = 0; srcStartIndex < src.length; srcStartIndex++) {
+  static int matchTokens(Tokens src, Tokens dst, int dstStartIndex) {
+    for (int srcStartIndex = 0; srcStartIndex < src.size(); srcStartIndex++) {
       TokensIterator srcTokensIterator = TokensIterator.of(src, srcStartIndex);
       TokensIterator dstTokensIterator = TokensIterator.of(dst, dstStartIndex);
       StringIterator srcStrIterator = StringIterator.of(srcTokensIterator.next());
@@ -73,7 +74,7 @@ class InexactMatcher {
     return true;
   }
 
-  static boolean anyTokenMatch(String[] tokens1, String[] tokens2) {
+  static boolean anyTokenMatch(Tokens tokens1, Tokens tokens2) {
     for (String token1: tokens1)
       for (String token2: tokens2)
         if (token1.equalsIgnoreCase(token2))
@@ -95,7 +96,7 @@ class InexactMatcher {
    * Returns whether any source property type token is an inexact to the {@code destination}.
    */
   boolean matchSourcePropertyType(String destination) {
-    for (String[] tokens: propertyNameInfo.getSourcePropertyTypeTokens())
+    for (Tokens tokens: propertyNameInfo.getSourcePropertyTypeTokens())
       for (String token: tokens)
         if (token.equalsIgnoreCase(destination))
           return true;
@@ -103,24 +104,24 @@ class InexactMatcher {
   }
 
   static class TokensIterator {
-    private String[] tokens;
+    private Tokens tokens;
     private int pos;
 
-    static TokensIterator of(String[] tokens, int pos) {
+    static TokensIterator of(Tokens tokens, int pos) {
       return new TokensIterator(tokens, pos - 1);
     }
 
-    TokensIterator(String[] tokens, int pos) {
+    TokensIterator(Tokens tokens, int pos) {
       this.tokens = tokens;
       this.pos = pos;
     }
 
     public boolean hasNext() {
-      return pos < tokens.length - 1;
+      return pos < tokens.size() - 1;
     }
 
     public String next() {
-      return tokens[++pos];
+      return tokens.token(++pos);
     }
 
     public int pos() {

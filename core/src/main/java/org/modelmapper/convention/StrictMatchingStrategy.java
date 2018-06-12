@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.PropertyNameInfo;
+import org.modelmapper.spi.Tokens;
 
 /**
  * See {@link MatchingStrategies#STRICT}.
@@ -33,20 +34,20 @@ final class StrictMatchingStrategy implements MatchingStrategy {
 
   @Override
   public boolean matches(PropertyNameInfo propertyNameInfo) {
-    List<String[]> sourceTokens = propertyNameInfo.getSourcePropertyTokens();
-    List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+    List<Tokens> sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+    List<Tokens> destTokens = propertyNameInfo.getDestinationPropertyTokens();
     if (sourceTokens.size() != destTokens.size())
       return false;
 
     for (int propIndex = 0; propIndex < destTokens.size(); propIndex++) {
-      String[] sTokens = sourceTokens.get(propIndex);
-      String[] dTokens = destTokens.get(propIndex);
+      Tokens sTokens = sourceTokens.get(propIndex);
+      Tokens dTokens = destTokens.get(propIndex);
 
-      if (sTokens.length != dTokens.length)
+      if (sTokens.size() != dTokens.size())
         return false;
 
-      for (int tokenIndex = 0; tokenIndex < sTokens.length; tokenIndex++)
-        if (!sTokens[tokenIndex].equalsIgnoreCase(dTokens[tokenIndex]))
+      for (int tokenIndex = 0; tokenIndex < sTokens.size(); tokenIndex++)
+        if (!sTokens.token(tokenIndex).equalsIgnoreCase(dTokens.token(tokenIndex)))
           return false;
     }
 

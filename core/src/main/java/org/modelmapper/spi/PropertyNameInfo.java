@@ -17,12 +17,12 @@ public interface PropertyNameInfo {
   /**
    * Returns transformed name tokens for the destination property.
    */
-  List<String[]> getDestinationPropertyTokens();
+  List<Tokens> getDestinationPropertyTokens();
 
   /**
    * Returns transformed name tokens for the source's declaring class.
    */
-  String[] getSourceClassTokens();
+  Tokens getSourceClassTokens();
 
   /**
    * Returns the source properties.
@@ -32,10 +32,10 @@ public interface PropertyNameInfo {
   /**
    * Returns transformed name tokens for the source property.
    */
-  List<String[]> getSourcePropertyTokens();
+  List<Tokens> getSourcePropertyTokens();
 
   /**
    * Returns transformed name tokens for each source property type.
    */
-  List<String[]> getSourcePropertyTypeTokens();
+  List<Tokens> getSourcePropertyTypeTokens();
 }

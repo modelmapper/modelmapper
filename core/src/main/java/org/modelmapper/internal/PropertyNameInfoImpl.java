@@ -23,6 +23,7 @@ import org.modelmapper.internal.util.ToStringBuilder;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyNameInfo;
+import org.modelmapper.spi.Tokens;
 
 /**
  * PropertyNameInfo implementation that tracks source and destination properties.
@@ -32,10 +33,10 @@ import org.modelmapper.spi.PropertyNameInfo;
 class PropertyNameInfoImpl implements PropertyNameInfo {
   private final Class<?> sourceClass;
   private final Configuration configuration;
-  private String[] sourceClassTokens;
-  private Stack<String[]> sourcePropertyTypeTokens;
-  private final Stack<String[]> sourcePropertyTokens = new Stack<String[]>();
-  private final Stack<String[]> destinationPropertyTokens = new Stack<String[]>();
+  private Tokens sourceClassTokens;
+  private Stack<Tokens> sourcePropertyTypeTokens;
+  private final Stack<Tokens> sourcePropertyTokens = new Stack<Tokens>();
+  private final Stack<Tokens> destinationPropertyTokens = new Stack<Tokens>();
   private final Stack<PropertyInfo> sourceProperties = new Stack<PropertyInfo>();
   private final Stack<PropertyInfo> destinationProperties = new Stack<PropertyInfo>();
 
@@ -50,17 +51,17 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
   }
 
   @Override
-  public List<String[]> getDestinationPropertyTokens() {
+  public List<Tokens> getDestinationPropertyTokens() {
     return destinationPropertyTokens;
   }
 
   @Override
-  public String[] getSourceClassTokens() {
+  public Tokens getSourceClassTokens() {
     if (sourceClassTokens == null) {
       String className = configuration.getSourceNameTransformer().transform(
           sourceClass.getSimpleName(), NameableType.CLASS);
-      sourceClassTokens = configuration.getSourceNameTokenizer().tokenize(className,
-          NameableType.CLASS);
+      sourceClassTokens = Tokens.of(configuration.getSourceNameTokenizer().tokenize(className,
+          NameableType.CLASS));
     }
 
     return sourceClassTokens;
@@ -72,14 +73,14 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
   }
 
   @Override
-  public List<String[]> getSourcePropertyTokens() {
+  public List<Tokens> getSourcePropertyTokens() {
     return sourcePropertyTokens;
   }
 
   @Override
-  public List<String[]> getSourcePropertyTypeTokens() {
+  public List<Tokens> getSourcePropertyTypeTokens() {
     if (sourcePropertyTypeTokens == null) {
-      sourcePropertyTypeTokens = new Stack<String[]>();
+      sourcePropertyTypeTokens = new Stack<Tokens>();
       for (PropertyInfo sourceProperty : sourceProperties)
         pushSourcePropertyType(sourceProperty);
     }
@@ -115,15 +116,17 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
 
   void pushDestination(String destinationName, Mutator destinationProperty) {
     NameableType nameableType = NameableType.forPropertyType(destinationProperty.getPropertyType());
-    destinationPropertyTokens.push(configuration.getDestinationNameTokenizer().tokenize(
-        destinationName, nameableType));
+    String[] tokens = configuration.getDestinationNameTokenizer().tokenize(
+        destinationName, nameableType);
+    destinationPropertyTokens.push(Tokens.of(tokens));
     destinationProperties.push(destinationProperty);
   }
 
   void pushSource(String sourceName, Accessor sourceProperty) {
     NameableType nameableType = NameableType.forPropertyType(sourceProperty.getPropertyType());
-    sourcePropertyTokens.push(configuration.getSourceNameTokenizer().tokenize(sourceName,
-        nameableType));
+    String[] tokens = configuration.getSourceNameTokenizer().tokenize(sourceName,
+        nameableType);
+    sourcePropertyTokens.push(Tokens.of(tokens));
     sourceProperties.push(sourceProperty);
     pushSourcePropertyType(sourceProperty);
   }
@@ -133,7 +136,8 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
       return;
     String typeName = configuration.getSourceNameTransformer().transform(
         sourceProperty.getType().getSimpleName(), NameableType.CLASS);
-    sourcePropertyTypeTokens.add(configuration.getSourceNameTokenizer().tokenize(typeName,
-        NameableType.CLASS));
+    String[] tokens = configuration.getSourceNameTokenizer().tokenize(typeName,
+        NameableType.CLASS);
+    sourcePropertyTypeTokens.add(Tokens.of(tokens));
   }
 }
