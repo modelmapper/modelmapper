@@ -126,22 +126,6 @@ public class TypeMapLambdaTest extends AbstractTest {
     }
   }
 
-  public void shouldFailedWithWrongSourceGetter() {
-    TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-
-    try {
-      typeMap.addMapping(new SourceGetter<Src>() {
-        public Object get(Src source) {
-          return source.toString();
-        }
-      }, destSetter());
-      fail();
-    } catch (ConfigurationException e) {
-      Asserts.assertContains(e.getMessage(), "Illegal SourceGetter defined");
-    }
-  }
-
-
   private static SourceGetter<Src> srcGetter() {
     return new SourceGetter<Src>() {
       public Object get(Src source) {

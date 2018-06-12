@@ -53,6 +53,8 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
       Object sourceProperty = sourceGetter.get(source);
       if (source == sourceProperty)
         collector.mapFromSource(typeMap.getSourceType());
+      if (collector.isNoSourceGetter())
+        collector.mapFromConstant(sourceProperty);
     } catch (NullPointerException e) {
       if (collector.getProxyErrors().hasErrors())
         throw collector.getProxyErrors().toException();
