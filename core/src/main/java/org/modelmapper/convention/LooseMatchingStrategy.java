@@ -25,6 +25,7 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class LooseMatchingStrategy implements MatchingStrategy {
+  @Override
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     return new Matcher(propertyNameInfo).match();
   }
@@ -80,6 +81,7 @@ final class LooseMatchingStrategy implements MatchingStrategy {
     }
   }
 
+  @Override
   public boolean isExact() {
     return false;
   }

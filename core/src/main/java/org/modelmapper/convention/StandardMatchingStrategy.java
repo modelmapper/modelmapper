@@ -25,6 +25,7 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class StandardMatchingStrategy implements MatchingStrategy {
+  @Override
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     return new Matcher(propertyNameInfo).match();
   }
@@ -39,9 +40,7 @@ final class StandardMatchingStrategy implements MatchingStrategy {
 
     boolean match() {
       List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
-      for (int destIndex = 0; destIndex < destTokens.size(); destIndex++) {
-        String[] tokens = destTokens.get(destIndex);
-
+      for (String[] tokens: destTokens) {
         for (int destTokenIndex = 0; destTokenIndex < tokens.length;) {
           int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
           if (matchedTokens == 0)
@@ -70,10 +69,10 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
       for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
         String[] srcTokens = sourceTokens.get(sourceIndex);
-        int matched = matchTokens(srcTokens, destTokens, destStartIndex);
-        if (matched > 0) {
+        int matchCount = matchTokens(srcTokens, destTokens, destStartIndex);
+        if (matchCount > 0) {
           sourceMatches[sourceIndex] = true;
-          return matched;
+          return matchCount;
         }
       }
 
@@ -87,15 +86,12 @@ final class StandardMatchingStrategy implements MatchingStrategy {
      * @param index of unmatched source property
      */
     boolean matchedPreviously(int index) {
+      String[] current = sourceTokens.get(index);
       for (int sourceIndex = 0; sourceIndex < index; sourceIndex++) {
         if (sourceMatches[sourceIndex]) {
-          String[] current = sourceTokens.get(index);
           String[] previous = sourceTokens.get(sourceIndex);
-
-          for (int i = 0; i < current.length; i++)
-            for (int j = 0; j < previous.length; j++)
-              if (current[i].equalsIgnoreCase(previous[j]))
-                return true;
+          if (anyTokenMatch(current, previous))
+            return true;
         }
       }
 
@@ -103,6 +99,7 @@ final class StandardMatchingStrategy implements MatchingStrategy {
     }
   }
 
+  @Override
   public boolean isExact() {
     return false;
   }

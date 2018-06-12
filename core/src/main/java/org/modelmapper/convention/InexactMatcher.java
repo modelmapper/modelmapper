@@ -39,52 +39,55 @@ class InexactMatcher {
    */
   static int matchTokens(String[] src, String[] dst, int dstStartIndex) {
     for (int srcStartIndex = 0; srcStartIndex < src.length; srcStartIndex++) {
-      String srcStr = src[srcStartIndex];
-      String dstStr = dst[dstStartIndex];
-
-      for (int srcIndex = srcStartIndex, dstIndex = dstStartIndex, srcCharIndex = 0, dstCharIndex = 0; srcStr.length() > 0 && dstStr.length() > 0;) {
-        char c1 = srcStr.charAt(srcCharIndex);
-        char c2 = dstStr.charAt(dstCharIndex);
-
-        if (Character.toUpperCase(c1) != Character.toUpperCase(c2)
-            || Character.toLowerCase(c1) != Character.toLowerCase(c2))
+      TokensIterator srcTokensIterator = TokensIterator.of(src, srcStartIndex);
+      TokensIterator dstTokensIterator = TokensIterator.of(dst, dstStartIndex);
+      StringIterator srcStrIterator = StringIterator.of(srcTokensIterator.next());
+      StringIterator dstStrIterator = StringIterator.of(dstTokensIterator.next());
+      while (srcStrIterator.hasNext() || srcStrIterator.hasNext()) {
+        if (!matchToken(srcStrIterator, dstStrIterator))
           break;
-
-        if (dstCharIndex == dstStr.length() - 1) {
-          // Token match
-          if (srcCharIndex == srcStr.length() - 1)
-            return (dstIndex - dstStartIndex) + 1;
-          // Done with dest tokens
-          if (dstIndex == dst.length - 1)
-            break;
-
-          dstStr = dst[++dstIndex];
-          dstCharIndex = 0;
-        } else
-          dstCharIndex++;
-
-        if (srcCharIndex == srcStr.length() - 1) {
-          // Done with source tokens
-          if (srcIndex == src.length - 1)
-            break;
-
-          srcStr = src[++srcIndex];
-          srcCharIndex = 0;
-        } else
-          srcCharIndex++;
+        if (!srcStrIterator.hasNext() && !dstStrIterator.hasNext())
+          return dstTokensIterator.pos() - dstStartIndex + 1;
+        if (!srcStrIterator.hasNext() && !srcTokensIterator.hasNext())
+          break;
+        if (!dstStrIterator.hasNext() && !dstTokensIterator.hasNext())
+          break;
+        if (!srcStrIterator.hasNext() && srcTokensIterator.hasNext())
+          srcStrIterator = StringIterator.of(srcTokensIterator.next());
+        if (!dstStrIterator.hasNext() && dstTokensIterator.hasNext())
+          dstStrIterator = StringIterator.of(dstTokensIterator.next());
       }
     }
 
     return 0;
   }
 
+  static boolean matchToken(StringIterator srcStrIterator, StringIterator destStrIterator) {
+    while (srcStrIterator.hasNext() && destStrIterator.hasNext()) {
+      char srcChar = srcStrIterator.next();
+      char destChar = destStrIterator.next();
+
+      if (Character.toUpperCase(srcChar) != Character.toUpperCase(destChar)
+          || Character.toLowerCase(srcChar) != Character.toLowerCase(destChar))
+        return false;
+    }
+    return true;
+  }
+
+  static boolean anyTokenMatch(String[] tokens1, String[] tokens2) {
+    for (String token1: tokens1)
+      for (String token2: tokens2)
+        if (token1.equalsIgnoreCase(token2))
+          return true;
+    return false;
+  }
+
   /**
    * Returns whether the source class token is an inexact to the {@code destination}.
    */
   boolean matchSourceClass(String destination) {
-    String[] tokens = propertyNameInfo.getSourceClassTokens();
-    for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
-      if (tokens[tokenIndex].equalsIgnoreCase(destination))
+    for (String token: propertyNameInfo.getSourceClassTokens())
+      if (token.equalsIgnoreCase(destination))
         return true;
     return false;
   }
@@ -93,13 +96,57 @@ class InexactMatcher {
    * Returns whether any source property type token is an inexact to the {@code destination}.
    */
   boolean matchSourcePropertyType(String destination) {
-    for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-      String[] tokens = propertyNameInfo.getSourcePropertyTypeTokens().get(sourceIndex);
-      for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++)
-        if (tokens[tokenIndex].equalsIgnoreCase(destination))
+    for (String[] tokens: propertyNameInfo.getSourcePropertyTypeTokens())
+      for (String token: tokens)
+        if (token.equalsIgnoreCase(destination))
           return true;
+    return false;
+  }
+
+  static class TokensIterator {
+    private String[] tokens;
+    private int pos;
+
+    static TokensIterator of(String[] tokens, int pos) {
+      return new TokensIterator(tokens, pos - 1);
     }
 
-    return false;
+    TokensIterator(String[] tokens, int pos) {
+      this.tokens = tokens;
+      this.pos = pos;
+    }
+
+    public boolean hasNext() {
+      return pos < tokens.length - 1;
+    }
+
+    public String next() {
+      return tokens[++pos];
+    }
+
+    public int pos() {
+      return pos;
+    }
+  }
+
+  static class StringIterator {
+    private String text;
+    private int pos = -1;
+
+    static StringIterator of(String text) {
+      return new StringIterator(text);
+    }
+
+    StringIterator(String text) {
+      this.text = text;
+    }
+
+    public boolean hasNext() {
+      return pos < text.length() - 1;
+    }
+
+    public Character next() {
+      return text.charAt(++pos);
+    }
   }
 }
