@@ -38,7 +38,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 class ProxyFactory {
   private static final Objenesis OBJENESIS = new ObjenesisStd();
   private static final ElementMatcher<? super MethodDescription> METHOD_FILTER = not(
-      named("toString").or(named("hashCode").or(named("equals"))));
+      named("hashCode").or(named("equals")));
 
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated

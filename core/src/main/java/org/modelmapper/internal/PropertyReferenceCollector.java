@@ -19,7 +19,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.modelmapper.spi.NameableType;
 
 /**
@@ -34,8 +33,10 @@ class PropertyReferenceCollector {
   private List<Accessor> accessors;
   private List<Mutator> mutators;
 
+  // This field will be set with a value if the mapping is map from source
   private Class<?> sourceType;
-  private boolean mapFromSource;
+  // This field will be set with a value if the mapping is map from constant
+  private Object constant;
 
   private Errors errors;
   private Errors proxyErrors;
@@ -113,20 +114,14 @@ class PropertyReferenceCollector {
   }
 
   MappingImpl collect() {
-    if (!isSkip() && !mapFromSource && accessors.isEmpty())
-      errors.addMessage("Illegal SourceGetter defined");
     if (mutators.isEmpty())
       errors.addMessage("Illegal DestinationSetter defined");
-
     errors.throwConfigurationExceptionIfErrorsExist();
-
-    if (mapFromSource)
+    if (sourceType != null)
       return new SourceMappingImpl(sourceType, mutators, options);
+    if (accessors.isEmpty())
+      return new ConstantMappingImpl(constant, mutators, options);
     return new PropertyMappingImpl(accessors, mutators, options);
-  }
-
-  private boolean isSkip() {
-    return options.skipType > 0;
   }
 
   public Errors getErrors() {
@@ -138,7 +133,14 @@ class PropertyReferenceCollector {
   }
 
   void mapFromSource(Class<?> sourceType) {
-    this.mapFromSource = true;
     this.sourceType = sourceType;
+  }
+
+  void mapFromConstant(Object constant) {
+    this.constant = constant;
+  }
+
+  boolean isNoSourceGetter() {
+    return accessors.isEmpty();
   }
 }
