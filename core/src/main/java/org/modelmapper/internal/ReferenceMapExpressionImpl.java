@@ -24,8 +24,6 @@ import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.spi.SourceGetter;
 
-import java.lang.reflect.Modifier;
-
 /**
  * {@link ReferenceMapExpression} implementation
  *
@@ -38,11 +36,11 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   private TypeMapImpl<S, D> typeMap;
   private MappingOptions options;
 
-  public ReferenceMapExpressionImpl(TypeMapImpl<S, D> typeMap) {
+  ReferenceMapExpressionImpl(TypeMapImpl<S, D> typeMap) {
     this(typeMap, new MappingOptions());
   }
 
-  public ReferenceMapExpressionImpl(TypeMapImpl<S, D> typeMap, MappingOptions options) {
+  ReferenceMapExpressionImpl(TypeMapImpl<S, D> typeMap, MappingOptions options) {
     this.typeMap = typeMap;
     this.options = options;
   }
@@ -52,7 +50,9 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
 
     try {
       S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getProxyErrors());
-      sourceGetter.get(source);
+      Object sourceProperty = sourceGetter.get(source);
+      if (source == sourceProperty)
+        collector.mapFromSource(typeMap.getSourceType());
     } catch (NullPointerException e) {
       if (collector.getProxyErrors().hasErrors())
         throw collector.getProxyErrors().toException();

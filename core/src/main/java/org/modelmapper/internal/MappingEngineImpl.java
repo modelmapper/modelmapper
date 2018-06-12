@@ -85,7 +85,7 @@ public class MappingEngineImpl implements MappingEngine {
         return circularDest;
     }
 
-    D destination = null;
+    D destination;
     TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType(),
         context.getTypeMapName());
     if (typeMap != null) {
@@ -317,20 +317,8 @@ public class MappingEngineImpl implements MappingEngine {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
       Object source, MappingImpl mapping) {
-    Class<?> sourceType;
-    boolean cyclic = false;
-
-    if (mapping instanceof PropertyMapping) {
-      PropertyMappingImpl propertyMapping = (PropertyMappingImpl) mapping;
-      sourceType = propertyMapping.getLastSourceProperty().getType();
-      cyclic = propertyMapping.cyclic;
-    } else if (mapping instanceof ConstantMapping) {
-      Object constant = ((ConstantMapping) mapping).getConstant();
-      sourceType = constant == null ? Object.class : Types.deProxy(constant.getClass());
-    } else {
-      sourceType = ((SourceMapping) mapping).getSourceType();
-    }
-
+    Class<?> sourceType = mapping.getSourceType();
+    boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
     return new MappingContextImpl(context, source, sourceType, null, destinationType, null,
         mapping, !cyclic);

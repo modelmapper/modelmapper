@@ -96,4 +96,9 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
       List<? extends PropertyInfo> mergedMutators) {
     return new PropertyMappingImpl(this, mergedAccessors, mergedMutators);
   }
+
+  @Override
+  public Class<?> getSourceType() {
+    return getLastSourceProperty().getType();
+  }
 }
