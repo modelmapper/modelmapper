@@ -25,10 +25,12 @@ import org.modelmapper.spi.MatchingStrategy;
  * @author Jonathan Halterman
  */
 final class StrictMatchingStrategy implements MatchingStrategy {
+  @Override
   public boolean isExact() {
     return true;
   }
 
+  @Override
   public boolean matches(PropertyNameInfo propertyNameInfo) {
     List<String[]> sourceTokens = propertyNameInfo.getSourcePropertyTokens();
     List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();

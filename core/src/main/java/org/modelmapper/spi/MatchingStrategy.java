@@ -28,7 +28,7 @@ public interface MatchingStrategy {
    * Encapsulates property name information to be use for determining whether a hierarchy of source
    * and destination properties match.
    */
-  public interface PropertyNameInfo {
+  interface PropertyNameInfo {
     /**
      * Returns the destination properties.
      */
