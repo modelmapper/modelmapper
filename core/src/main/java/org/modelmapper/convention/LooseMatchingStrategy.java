@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.PropertyNameInfo;
+import org.modelmapper.spi.Tokens;
 
 /**
  * See {@link MatchingStrategies#LOOSE}.
@@ -44,16 +45,16 @@ final class LooseMatchingStrategy implements MatchingStrategy {
     }
 
     boolean match() {
-      List<String[]> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+      List<Tokens> destTokens = propertyNameInfo.getDestinationPropertyTokens();
 
       // Match the last destination property first
       for (int destIndex = destTokens.size() - 1; destIndex >= 0 && !lastSourceMatched; destIndex--) {
-        String[] tokens = destTokens.get(destIndex);
+        Tokens tokens = destTokens.get(destIndex);
 
-        for (int destTokenIndex = 0; destTokenIndex < tokens.length; destTokenIndex++) {
+        for (int destTokenIndex = 0; destTokenIndex < tokens.size(); destTokenIndex++) {
           int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
           if (destIndex == destTokens.size() - 1
-              && (matchedTokens > 0 || matchSourcePropertyType(tokens[destTokenIndex]) || matchSourceClass(tokens[destTokenIndex])))
+              && (matchedTokens > 0 || matchSourcePropertyType(tokens.token(destTokenIndex)) || matchSourceClass(tokens.token(destTokenIndex))))
             lastDestinationMatched = true;
           if (matchedTokens > 1)
             destTokenIndex += (matchedTokens - 1);
@@ -67,9 +68,9 @@ final class LooseMatchingStrategy implements MatchingStrategy {
      * Returns the number of {@code destTokens} that were matched to a source token starting at
      * {@code destStartIndex}.
      */
-    int matchSourcePropertyName(String[] destTokens, int destStartIndex) {
+    int matchSourcePropertyName(Tokens destTokens, int destStartIndex) {
       for (int sourceIndex = sourceTokens.size() - 1; sourceIndex >= 0; sourceIndex--) {
-        String[] srcTokens = sourceTokens.get(sourceIndex);
+        Tokens srcTokens = sourceTokens.get(sourceIndex);
         int matched = matchTokens(srcTokens, destTokens, destStartIndex);
         if (matched > 0) {
           if (sourceIndex == sourceTokens.size() - 1)
