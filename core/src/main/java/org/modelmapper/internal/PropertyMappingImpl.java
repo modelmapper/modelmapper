@@ -17,7 +17,6 @@ package org.modelmapper.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
@@ -29,8 +28,8 @@ import org.modelmapper.spi.PropertyMapping;
  * @author Jonathan Halterman
  */
 class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
-  protected final List<PropertyInfo> sourceAccessors;
-  protected boolean cyclic;
+  private final List<PropertyInfo> sourceAccessors;
+  boolean cyclic;
 
   /**
    * Creates an implicit PropertyMapping.
@@ -66,21 +65,22 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
   /**
    * Creates a merged PropertyMapping.
    */
-  PropertyMappingImpl(PropertyMappingImpl mapping, List<? extends PropertyInfo> mergedAccessors,
+  private PropertyMappingImpl(PropertyMappingImpl mapping, List<? extends PropertyInfo> mergedAccessors,
       List<? extends PropertyInfo> mergedMutators) {
     super(mapping, mergedMutators);
-    sourceAccessors = new ArrayList<PropertyInfo>(mapping.sourceAccessors.size()
-        + (mergedAccessors == null ? 0 : mergedAccessors.size()));
+    sourceAccessors = new ArrayList<PropertyInfo>(mapping.sourceAccessors.size() + mergedAccessors.size());
     sourceAccessors.addAll(mergedAccessors);
     sourceAccessors.addAll(mapping.sourceAccessors);
     cyclic = mapping.cyclic;
   }
 
+  @Override
   public PropertyInfo getLastSourceProperty() {
     return sourceAccessors == null || sourceAccessors.isEmpty() ? null
         : sourceAccessors.get(sourceAccessors.size() - 1);
   }
 
+  @Override
   public List<? extends PropertyInfo> getSourceProperties() {
     return sourceAccessors;
   }
@@ -88,11 +88,11 @@ class PropertyMappingImpl extends MappingImpl implements PropertyMapping {
   @Override
   public String toString() {
     return String.format("PropertyMapping[%s -> %s]", Strings.joinWithFirstType(sourceAccessors),
-        Strings.joinWithFirstType(destinationMutators));
+        Strings.joinWithFirstType(getDestinationProperties()));
   }
 
   @Override
-  MappingImpl createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
+  public InternalMapping createMergedCopy(List<? extends PropertyInfo> mergedAccessors,
       List<? extends PropertyInfo> mergedMutators) {
     return new PropertyMappingImpl(this, mergedAccessors, mergedMutators);
   }

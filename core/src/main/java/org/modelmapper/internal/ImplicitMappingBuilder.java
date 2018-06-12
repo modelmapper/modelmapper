@@ -62,9 +62,9 @@ class ImplicitMappingBuilder<S, D> {
   /** Mappings for which the source accessor type was not verified by the supported converter. */
   private final List<PropertyMappingImpl> partiallyMatchedMappings = new ArrayList<PropertyMappingImpl>();
   /** Mappings whose source and destination paths match by name, but not by type. */
-  private final Map<Accessor, PropertyMappingImpl> intermediateMappings = new HashMap<Accessor, PropertyMappingImpl>();
+  private final Map<PropertyInfo, PropertyMappingImpl> intermediateMappings = new HashMap<PropertyInfo, PropertyMappingImpl>();
   /** Mappings which are to be merged in from a pre-existing TypeMap. */
-  private final List<MappingImpl> mergedMappings = new ArrayList<MappingImpl>();
+  private final List<InternalMapping> mergedMappings = new ArrayList<InternalMapping>();
 
   static <S, D> void build(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
@@ -99,7 +99,7 @@ class ImplicitMappingBuilder<S, D> {
       Mutator mutator = entry.getValue();
 
       // Skip explicit mappings
-      MappingImpl existingMapping = typeMap.mappingFor(destPath);
+      Mapping existingMapping = typeMap.mappingFor(destPath);
       if (existingMapping == null) {
         matchSource(sourceTypeInfo, mutator);
         propertyNameInfo.clearSource();
@@ -111,7 +111,7 @@ class ImplicitMappingBuilder<S, D> {
         mappings.addAll(partiallyMatchedMappings);
 
       if (!mappings.isEmpty()) {
-        PropertyMappingImpl mapping = null;
+        PropertyMappingImpl mapping;
         if (mappings.size() == 1) {
           mapping = mappings.get(0);
         } else {
@@ -125,7 +125,7 @@ class ImplicitMappingBuilder<S, D> {
 
           // If the mapping is potentially circular, add intermediate mappings
           if (Iterables.isIterable(mapping.getLastDestinationProperty().getType())) {
-            for (PropertyInfo sourceAccessor : mapping.sourceAccessors) {
+            for (PropertyInfo sourceAccessor : mapping.getSourceProperties()) {
               PropertyMappingImpl intermediateMapping = intermediateMappings.get(sourceAccessor);
               if (intermediateMapping != null
                   && !intermediateMapping.getPath().equals(mapping.getPath()))
@@ -138,7 +138,7 @@ class ImplicitMappingBuilder<S, D> {
         partiallyMatchedMappings.clear();
         intermediateMappings.clear();
       } else if (!mergedMappings.isEmpty()) {
-        for (MappingImpl mapping : mergedMappings)
+        for (InternalMapping mapping : mergedMappings)
           typeMap.addMappingIfAbsent(mapping);
         mergedMappings.clear();
       } else if (!destinationTypes.contains(mutator.getType())
@@ -238,7 +238,7 @@ class ImplicitMappingBuilder<S, D> {
    * 
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
-  PropertyMappingImpl disambiguateMappings() {
+  private PropertyMappingImpl disambiguateMappings() {
     double maxMatchRatio = -1;
     // Whether multiple mappings have the same max ratio
     boolean multipleMax = false;
@@ -304,9 +304,11 @@ class ImplicitMappingBuilder<S, D> {
    * Merges mappings from an existing TypeMap into the type map under construction.
    */
   private void mergeMappings(TypeMap<?, ?> destinationMap) {
-    for (Mapping mapping : destinationMap.getMappings())
-      mergedMappings.add(((MappingImpl) mapping).createMergedCopy(
+    for (Mapping mapping : destinationMap.getMappings()) {
+      InternalMapping internalMapping = (InternalMapping) mapping;
+      mergedMappings.add(internalMapping.createMergedCopy(
           propertyNameInfo.getSourceProperties(), propertyNameInfo.getDestinationProperties()));
+    }
   }
 
 

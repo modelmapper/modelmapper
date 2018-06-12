@@ -21,8 +21,4 @@ package org.modelmapper.spi;
  * @author Jonathan Halterman
  */
 public interface SourceMapping extends Mapping {
-  /**
-   * Gets the source object type.
-   */
-  Class<?> getSourceType();
 }
