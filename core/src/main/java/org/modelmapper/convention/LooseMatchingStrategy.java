@@ -15,8 +15,6 @@
  */
 package org.modelmapper.convention;
 
-import java.util.List;
-
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.PropertyNameInfo;
 import org.modelmapper.spi.Tokens;
@@ -37,49 +35,35 @@ final class LooseMatchingStrategy implements MatchingStrategy {
    * iteration is done in reverse.
    */
   static class Matcher extends InexactMatcher {
-    boolean lastSourceMatched;
-    boolean lastDestinationMatched;
-
     Matcher(PropertyNameInfo propertyNameInfo) {
       super(propertyNameInfo);
     }
 
     boolean match() {
-      List<Tokens> destTokens = propertyNameInfo.getDestinationPropertyTokens();
+      if (!matchLastDestTokens())
+        return false;
 
-      // Match the last destination property first
-      for (int destIndex = destTokens.size() - 1; destIndex >= 0 && !lastSourceMatched; destIndex--) {
-        Tokens tokens = destTokens.get(destIndex);
-
-        for (int destTokenIndex = 0; destTokenIndex < tokens.size(); destTokenIndex++) {
-          int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
-          if (destIndex == destTokens.size() - 1
-              && (matchedTokens > 0 || matchSourcePropertyType(tokens.token(destTokenIndex)) || matchSourceClass(tokens.token(destTokenIndex))))
-            lastDestinationMatched = true;
-          if (matchedTokens > 1)
-            destTokenIndex += (matchedTokens - 1);
+      for (Tokens destTokens : propertyNameInfo.getDestinationPropertyTokens()) {
+        for (int destTokenIndex = 0; destTokenIndex < destTokens.size(); destTokenIndex++) {
+          DestTokensMatcher matchedTokens = matchSourcePropertyName(destTokens, destTokenIndex);
+          if (matchedTokens.match(sourceTokens.size() - 1))
+            return true;
         }
       }
 
-      return lastSourceMatched && lastDestinationMatched;
+      return false;
     }
 
-    /**
-     * Returns the number of {@code destTokens} that were matched to a source token starting at
-     * {@code destStartIndex}.
-     */
-    int matchSourcePropertyName(Tokens destTokens, int destStartIndex) {
-      for (int sourceIndex = sourceTokens.size() - 1; sourceIndex >= 0; sourceIndex--) {
-        Tokens srcTokens = sourceTokens.get(sourceIndex);
-        int matched = matchTokens(srcTokens, destTokens, destStartIndex);
-        if (matched > 0) {
-          if (sourceIndex == sourceTokens.size() - 1)
-            lastSourceMatched = true;
-          return matched;
-        }
+    boolean matchLastDestTokens() {
+      Tokens tokens = destTokens.get(destTokens.size() - 1);
+      for (int destTokenIndex = 0; destTokenIndex < tokens.size(); destTokenIndex++) {
+        DestTokensMatcher matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
+        if (matchedTokens.match())
+          return true;
+        if (matchSourcePropertyType(tokens.token(destTokenIndex)) || matchSourceClass(tokens.token(destTokenIndex)))
+          return true;
       }
-
-      return 0;
+      return false;
     }
   }
 
