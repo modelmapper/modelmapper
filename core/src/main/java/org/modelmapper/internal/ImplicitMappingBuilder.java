@@ -16,8 +16,10 @@
 package org.modelmapper.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -239,65 +241,125 @@ class ImplicitMappingBuilder<S, D> {
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
   private PropertyMappingImpl disambiguateMappings() {
-    double maxMatchRatio = -1;
-    // Whether multiple mappings have the same max ratio
-    boolean multipleMax = false;
-    PropertyMappingImpl closestMapping = null;
-
+    List<WeightPropertyMappingImpl> weightMappings = new ArrayList<WeightPropertyMappingImpl>(mappings.size());
     for (PropertyMappingImpl mapping : mappings) {
-      double matches = 0, totalSourceTokens = 0, totalDestTokens = 0;
-      String[][] allSourceTokens = new String[mapping.getSourceProperties().size()][];
-      // Tracks whether a source token has been matched
-      boolean[][] sourceMatches = new boolean[allSourceTokens.length][];
+      SourceTokensMatcher matcher = createSourceTokensMatcher(mapping);
+      DestTokenIterator destTokenIterator = new DestTokenIterator(mapping);
+      while (destTokenIterator.hasNext())
+        matcher.match(destTokenIterator.next());
 
-      // Build source tokens
-      for (int i = 0; i < mapping.getSourceProperties().size(); i++) {
-        PropertyInfo source = mapping.getSourceProperties().get(i);
-        NameableType nameableType = NameableType.forPropertyType(source.getPropertyType());
-        allSourceTokens[i] = configuration.getSourceNameTokenizer().tokenize(source.getName(),
-            nameableType);
-        sourceMatches[i] = new boolean[allSourceTokens[i].length];
-        totalSourceTokens += allSourceTokens[i].length;
-      }
-
-      for (int destIndex = 0; destIndex < mapping.getDestinationProperties().size(); destIndex++) {
-        PropertyInfo dest = mapping.getDestinationProperties().get(destIndex);
-        NameableType nameableType = NameableType.forPropertyType(dest.getPropertyType());
-        String[] destTokens = configuration.getDestinationNameTokenizer().tokenize(dest.getName(),
-            nameableType);
-        totalDestTokens += destTokens.length;
-
-        for (int destTokenIndex = 0; destTokenIndex < destTokens.length
-            && matches < totalSourceTokens; destTokenIndex++) {
-          String destToken = destTokens[destTokenIndex];
-          boolean matched = false;
-
-          for (int i = 0; i < allSourceTokens.length && !matched && matches < totalSourceTokens; i++) {
-            String[] sourceTokens = allSourceTokens[i];
-
-            for (int j = 0; j < sourceTokens.length && !matched && matches < totalSourceTokens; j++) {
-              if (!sourceMatches[i][j] && sourceTokens[j].equalsIgnoreCase(destToken)) {
-                matched = true;
-                matches++;
-                sourceMatches[i][j] = true;
-              }
-            }
-          }
-        }
-      }
-
-      double matchRatio = matches / (totalSourceTokens + totalDestTokens);
-      if (matchRatio == maxMatchRatio)
-        multipleMax = true;
-
-      if (matchRatio > maxMatchRatio) {
-        maxMatchRatio = matchRatio;
-        closestMapping = mapping;
-        multipleMax = false;
-      }
+      double matchRatio = ((double) matcher.matches()) / ((double) matcher.total() + destTokenIterator.total());
+      weightMappings.add(new WeightPropertyMappingImpl(mapping, matchRatio));
     }
 
-    return multipleMax ? null : closestMapping;
+    Collections.sort(weightMappings);
+    if (weightMappings.get(0).ratio == weightMappings.get(1).ratio)
+      return null;
+    return weightMappings.get(0).mapping;
+  }
+
+  private SourceTokensMatcher createSourceTokensMatcher(PropertyMappingImpl mapping) {
+    Map<Pair<Integer, Integer>, String> sourceTokensMap = new HashMap<Pair<Integer, Integer>, String>();
+    for (int i = 0; i < mapping.getSourceProperties().size(); i++) {
+      PropertyInfo source = mapping.getSourceProperties().get(i);
+      NameableType nameableType = NameableType.forPropertyType(source.getPropertyType());
+      String[] tokens = configuration.getSourceNameTokenizer().tokenize(source.getName(),
+          nameableType);
+      for (int j = 0; j < tokens.length; j++)
+        sourceTokensMap.put(Pair.of(i, j), tokens[j]);
+    }
+    return new SourceTokensMatcher(sourceTokensMap);
+  }
+
+  /**
+   * Creates a matcher that match each dest token and calculate the match token count.
+   */
+  static class SourceTokensMatcher {
+    private Map<Pair<Integer, Integer>, String> tokens;
+    private List<Pair<Integer, Integer>> unmatched;
+
+    SourceTokensMatcher(
+        Map<Pair<Integer, Integer>, String> tokens) {
+      this.tokens = tokens;
+      unmatched = new ArrayList<Pair<Integer, Integer>>(tokens.keySet());
+    }
+
+    void match(String token) {
+      Iterator<Pair<Integer, Integer>> iterator = unmatched.iterator();
+      while (iterator.hasNext())
+        if (tokens.get(iterator.next()).equalsIgnoreCase(token)) {
+          iterator.remove();
+          break;
+        }
+    }
+
+    int matches() {
+      return tokens.size() - unmatched.size();
+    }
+
+    int total() {
+      return tokens.size();
+    }
+  }
+
+  /**
+   * Creates a iterator to iterate each destination token.
+   */
+  class DestTokenIterator implements Iterator<String> {
+    private PropertyMappingImpl mapping;
+    private String[] destTokens = new String[0];
+    private int total = 0;
+    private int destIndex = -1;
+    private int pos = -1;
+
+    DestTokenIterator(PropertyMappingImpl mapping) {
+      this.mapping = mapping;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return destIndex < mapping.getDestinationProperties().size() - 1
+          || pos < destTokens.length - 1;
+    }
+
+    @Override
+    public String next() {
+      if (pos == destTokens.length - 1) {
+        PropertyInfo dest = mapping.getDestinationProperties().get(++destIndex);
+        NameableType nameableType = NameableType.forPropertyType(dest.getPropertyType());
+        destTokens = configuration.getDestinationNameTokenizer().tokenize(dest.getName(),
+            nameableType);
+        pos = -1;
+      }
+      total++;
+      return destTokens[++pos];
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+
+    int total() {
+      return total;
+    }
+  }
+
+  static class WeightPropertyMappingImpl implements Comparable<WeightPropertyMappingImpl> {
+    private PropertyMappingImpl mapping;
+    private double ratio;
+
+    WeightPropertyMappingImpl(PropertyMappingImpl mapping, double ratio) {
+      this.mapping = mapping;
+      this.ratio = ratio;
+    }
+
+    @Override
+    public int compareTo(WeightPropertyMappingImpl o) {
+      if (ratio == o.ratio)
+        return 0;
+      return ratio > o.ratio ? -1 : 1;
+    }
   }
 
   /**
