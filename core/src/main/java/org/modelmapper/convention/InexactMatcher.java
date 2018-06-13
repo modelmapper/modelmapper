@@ -15,6 +15,8 @@
  */
 package org.modelmapper.convention;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.modelmapper.spi.PropertyNameInfo;
 import org.modelmapper.spi.Tokens;
@@ -27,10 +29,12 @@ import org.modelmapper.spi.Tokens;
 class InexactMatcher {
   protected final PropertyNameInfo propertyNameInfo;
   protected final List<Tokens> sourceTokens;
+  protected final List<Tokens> destTokens;
 
   InexactMatcher(PropertyNameInfo propertyNameInfo) {
     this.propertyNameInfo = propertyNameInfo;
     sourceTokens = propertyNameInfo.getSourcePropertyTokens();
+    destTokens = propertyNameInfo.getDestinationPropertyTokens();
   }
 
   /**
@@ -74,14 +78,6 @@ class InexactMatcher {
     return true;
   }
 
-  static boolean anyTokenMatch(Tokens tokens1, Tokens tokens2) {
-    for (String token1: tokens1)
-      for (String token2: tokens2)
-        if (token1.equalsIgnoreCase(token2))
-          return true;
-    return false;
-  }
-
   /**
    * Returns whether the source class token is an inexact to the {@code destination}.
    */
@@ -101,6 +97,19 @@ class InexactMatcher {
         if (token.equalsIgnoreCase(destination))
           return true;
     return false;
+  }
+
+  /**
+   * Returns the numbers of match counts for each {@code sourceTokens} that were matched to{@code destTokens} starting at
+   * {@code destStartIndex}.
+   */
+  DestTokensMatcher matchSourcePropertyName(Tokens destTokens, int destStartIndex) {
+    int[] matchedTokens = new int[sourceTokens.size()];
+    for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
+      Tokens srcTokens = sourceTokens.get(sourceIndex);
+      matchedTokens[sourceIndex] = matchTokens(srcTokens, destTokens, destStartIndex);
+    }
+    return new DestTokensMatcher(matchedTokens);
   }
 
   static class TokensIterator {
@@ -147,6 +156,41 @@ class InexactMatcher {
 
     public Character next() {
       return text.charAt(++pos);
+    }
+  }
+
+  static class DestTokensMatcher {
+    int[] counts;
+
+    DestTokensMatcher(int[] counts) {
+      this.counts = counts;
+    }
+
+    boolean match() {
+      for (int count : counts)
+        if (count > 0)
+          return true;
+      return false;
+    }
+
+    boolean match(int index) {
+      return counts[index] > 0;
+    }
+
+    int maxMatchTokens() {
+      int maxIndex = 0;
+      for (int i = 1; i < counts.length; i++)
+        if (counts[i] > counts[maxIndex])
+          maxIndex = i;
+      return counts[maxIndex];
+    }
+
+    Collection<Integer> matchSources() {
+      List<Integer> indexes = new ArrayList<Integer>();
+      for (int i = 0; i < counts.length; i++)
+        if (counts[i] > 0)
+          indexes.add(i);
+      return indexes;
     }
   }
 }

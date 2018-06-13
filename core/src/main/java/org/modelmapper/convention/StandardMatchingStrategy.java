@@ -15,7 +15,8 @@
  */
 package org.modelmapper.convention;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.PropertyNameInfo;
@@ -33,71 +34,27 @@ final class StandardMatchingStrategy implements MatchingStrategy {
   }
 
   static class Matcher extends InexactMatcher {
-    private final boolean[] sourceMatches;
-
     Matcher(PropertyNameInfo propertyNameInfo) {
       super(propertyNameInfo);
-      sourceMatches = new boolean[sourceTokens.size()];
     }
 
     boolean match() {
-      List<Tokens> destTokens = propertyNameInfo.getDestinationPropertyTokens();
-      for (Tokens tokens: destTokens) {
-        for (int destTokenIndex = 0; destTokenIndex < tokens.size();) {
-          int matchedTokens = matchSourcePropertyName(tokens, destTokenIndex);
-          if (matchedTokens == 0)
-            if (matchSourcePropertyType(tokens.token(destTokenIndex))
-                || matchSourceClass(tokens.token(destTokenIndex)))
-              destTokenIndex += 1;
-            else
-              return false;
+      Set<Integer> matchSources = new HashSet<Integer>();
+      for (Tokens destTokens : propertyNameInfo.getDestinationPropertyTokens()) {
+        for (int destTokenIndex = 0; destTokenIndex < destTokens.size();) {
+          DestTokensMatcher matchedTokens = matchSourcePropertyName(destTokens, destTokenIndex);
+          if (matchedTokens.match()) {
+            destTokenIndex += matchedTokens.maxMatchTokens();
+            matchSources.addAll(matchedTokens.matchSources());
+          } else if (matchSourcePropertyType(destTokens.token(destTokenIndex))
+              || matchSourceClass(destTokens.token(destTokenIndex)))
+            destTokenIndex++;
           else
-            destTokenIndex += matchedTokens;
+            return false;
         }
       }
 
-      // Ensure that each source property has at least one token matched
-      for (int i = 0; i < sourceMatches.length; i++)
-        if (!sourceMatches[i] && !matchedPreviously(i))
-          return false;
-
-      return true;
-    }
-
-    /**
-     * Returns the number of {@code destTokens} that were matched to a source token starting at
-     * {@code destStartIndex}.
-     */
-    int matchSourcePropertyName(Tokens destTokens, int destStartIndex) {
-      for (int sourceIndex = 0; sourceIndex < sourceTokens.size(); sourceIndex++) {
-        Tokens srcTokens = sourceTokens.get(sourceIndex);
-        int matchCount = matchTokens(srcTokens, destTokens, destStartIndex);
-        if (matchCount > 0) {
-          sourceMatches[sourceIndex] = true;
-          return matchCount;
-        }
-      }
-
-      return 0;
-    }
-
-    /**
-     * Checks to see whether an unmatched source property contains any tokens that were matched by a
-     * previous property in the source hierarchy.
-     * 
-     * @param index of unmatched source property
-     */
-    boolean matchedPreviously(int index) {
-      Tokens current = sourceTokens.get(index);
-      for (int sourceIndex = 0; sourceIndex < index; sourceIndex++) {
-        if (sourceMatches[sourceIndex]) {
-          Tokens previous = sourceTokens.get(sourceIndex);
-          if (anyTokenMatch(current, previous))
-            return true;
-        }
-      }
-
-      return false;
+      return matchSources.size() == sourceTokens.size();
     }
   }
 
