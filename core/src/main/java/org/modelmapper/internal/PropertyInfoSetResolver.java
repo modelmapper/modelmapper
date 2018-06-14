@@ -35,12 +35,11 @@ import org.modelmapper.spi.ValueReader;
  * 
  * @author Jonathan Halterman
  */
-final class PropertyInfoSetResolver<T> {
+final class PropertyInfoSetResolver {
   private PropertyInfoSetResolver() {
   }
 
   private static class ResolveRequest<M extends AccessibleObject & Member, PI extends PropertyInfo> {
-    Map<String, PI> propertyInfo;
     PropertyInfoResolver<M, PI> propertyResolver;
     PropertyType propertyType;
     Configuration config;
@@ -66,60 +65,38 @@ final class PropertyInfoSetResolver<T> {
 
   static <T> Map<String, Accessor> resolveAccessors(T source, Class<T> type,
       InheritingConfiguration configuration) {
+    ValueReader<T> valueReader = configuration.valueAccessStore.getFirstSupportedReader(type);
+    if (source != null && valueReader != null)
+      return resolveAccessorsFromValueReader(source, configuration, valueReader);
+    else
+      return resolveProperties(type, true, configuration);
+  }
+  static <T> Map<String, Accessor> resolveAccessorsFromValueReader(T source,
+      InheritingConfiguration configuration, ValueReader<T> valueReader) {
     Map<String, Accessor> accessors = new LinkedHashMap<String, Accessor>();
-    ValueReader<T> valueReader = null;
-
-    if (source != null)
-      valueReader = configuration.valueAccessStore.getFirstSupportedReader(type);
-    if (valueReader == null)
-      resolveProperties(type, true, configuration, accessors);
-    else {
-      NameTransformer nameTransformer = configuration.getSourceNameTransformer();
-      for (String memberName : valueReader.memberNames(source)) {
-        ValueReader.Member<?> member = valueReader.getMember(source, memberName);
-        if (member != null)
-          accessors.put(nameTransformer.transform(memberName, NameableType.GENERIC),
-              PropertyInfoImpl.ValueReaderPropertyInfo.fromMember(member, memberName));
-      }
+    NameTransformer nameTransformer = configuration.getSourceNameTransformer();
+    for (String memberName : valueReader.memberNames(source)) {
+      ValueReader.Member<?> member = valueReader.getMember(source, memberName);
+      if (member != null)
+        accessors.put(nameTransformer.transform(memberName, NameableType.GENERIC),
+            PropertyInfoImpl.ValueReaderPropertyInfo.fromMember(member, memberName));
     }
     return accessors;
   }
 
   static Map<String, Mutator> resolveMutators(Class<?> type, InheritingConfiguration configuration) {
-    Map<String, Mutator> mutators = new LinkedHashMap<String, Mutator>();
-    resolveProperties(type, false, configuration, mutators);
-    return mutators;
+    return resolveProperties(type, false, configuration);
   }
 
   @SuppressWarnings({ "unchecked" })
-  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> void resolveProperties(
-      Class<?> type, boolean access, Configuration configuration, Map<String, PI> propertyInfo) {
-    ResolveRequest<M, PI> resolveRequest = new ResolveRequest<M, PI>();
-    resolveRequest.config = configuration;
-    resolveRequest.propertyInfo = propertyInfo;
-
-    if (access) {
-      resolveRequest.namingConvention = configuration.getSourceNamingConvention();
-      resolveRequest.nameTransformer = configuration.getSourceNameTransformer();
-    } else {
-      resolveRequest.namingConvention = configuration.getDestinationNamingConvention();
-      resolveRequest.nameTransformer = configuration.getDestinationNameTransformer();
-    }
-
-    // Resolve fields
+  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
+      Class<?> type, boolean access, Configuration configuration) {
+    Map<String, PI> properties = new LinkedHashMap<String, PI>();
     if (configuration.isFieldMatchingEnabled()) {
-      resolveRequest.propertyType = PropertyType.FIELD;
-      resolveRequest.accessLevel = configuration.getFieldAccessLevel();
-      resolveRequest.propertyResolver = (PropertyInfoResolver<M, PI>) PropertyInfoResolver.FIELDS;
-      resolveProperties(type, type, resolveRequest);
+      properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, true)));
     }
-
-    // Resolve methods
-    resolveRequest.propertyType = PropertyType.METHOD;
-    resolveRequest.accessLevel = configuration.getMethodAccessLevel();
-    resolveRequest.propertyResolver = (PropertyInfoResolver<M, PI>) (access ? PropertyInfoResolver.ACCESSORS
-        : PropertyInfoResolver.MUTATORS);
-    resolveProperties(type, type, resolveRequest);
+    properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, false)));
+    return properties;
   }
 
   /**
@@ -128,23 +105,23 @@ final class PropertyInfoSetResolver<T> {
    * {@code resolveRequest.accessLevel} and satisfy the {@code resolveRequest.namingConvention}.
    * Uses a depth-first search so that child properties of the same name override parents.
    */
-  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> void resolveProperties(
+  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
       Class<?> initialType, Class<?> type, ResolveRequest<M, PI> resolveRequest) {
+    Map<String, PI> properties = new LinkedHashMap<String, PI>();
     Class<?> superType = type.getSuperclass();
     if (superType != null && superType != Object.class && superType != Enum.class)
-      resolveProperties(initialType, superType, resolveRequest);
+      properties.putAll(resolveProperties(initialType, superType, resolveRequest));
 
     for (M member : resolveRequest.propertyResolver.membersFor(type)) {
       if (canAccessMember(member, resolveRequest.accessLevel)
           && resolveRequest.propertyResolver.isValid(member)
           && resolveRequest.namingConvention.applies(member.getName(), resolveRequest.propertyType)) {
-
         String name = resolveRequest.nameTransformer.transform(member.getName(),
             PropertyType.FIELD.equals(resolveRequest.propertyType) ? NameableType.FIELD
                 : NameableType.METHOD);
         PI info = resolveRequest.propertyResolver.propertyInfoFor(initialType, member,
             resolveRequest.config, name);
-        resolveRequest.propertyInfo.put(name, info);
+        properties.put(name, info);
 
         if (!Modifier.isPublic(member.getModifiers())
             || !Modifier.isPublic(member.getDeclaringClass().getModifiers()))
@@ -155,5 +132,33 @@ final class PropertyInfoSetResolver<T> {
           }
       }
     }
+
+    return properties;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> ResolveRequest<M, PI> resolveRequest(
+      Configuration configuration, boolean access, boolean field) {
+    ResolveRequest<M, PI> resolveRequest = new ResolveRequest<M, PI>();
+    resolveRequest.config = configuration;
+    if (access) {
+      resolveRequest.namingConvention = configuration.getSourceNamingConvention();
+      resolveRequest.nameTransformer = configuration.getSourceNameTransformer();
+    } else {
+      resolveRequest.namingConvention = configuration.getDestinationNamingConvention();
+      resolveRequest.nameTransformer = configuration.getDestinationNameTransformer();
+    }
+
+    if (field) {
+      resolveRequest.propertyType = PropertyType.FIELD;
+      resolveRequest.accessLevel = configuration.getFieldAccessLevel();
+      resolveRequest.propertyResolver = (PropertyInfoResolver<M, PI>) PropertyInfoResolver.FIELDS;
+    } else {
+      resolveRequest.propertyType = PropertyType.METHOD;
+      resolveRequest.accessLevel = configuration.getMethodAccessLevel();
+      resolveRequest.propertyResolver = (PropertyInfoResolver<M, PI>) (access ? PropertyInfoResolver.ACCESSORS
+          : PropertyInfoResolver.MUTATORS);
+    }
+    return resolveRequest;
   }
 }
