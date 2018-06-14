@@ -20,6 +20,7 @@
     <module>jackson</module>
     <module>gson</module>
     <module>jooq</module>
+    <module>protobuf</module>
   </modules>
 
   <dependencies>
