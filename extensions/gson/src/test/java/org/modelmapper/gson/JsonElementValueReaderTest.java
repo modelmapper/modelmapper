@@ -3,6 +3,7 @@ package org.modelmapper.gson;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -118,7 +119,7 @@ public class JsonElementValueReaderTest {
     assertEquals(Arrays.asList(arrayElem.get(0).getAsString(), arrayElem.get(1).getAsString()),
         Arrays.asList("elem1", "elem2"));
 
-    assertEquals(valueReader.get(element, "boolean"), true);
+    assertTrue((Boolean) valueReader.get(element, "boolean"));
     assertEquals(((Number) valueReader.get(element, "number")).intValue(), 55);
     assertEquals(valueReader.get(element, "string"), "foo");
     assertNull(valueReader.get(element, "null"));
@@ -144,7 +145,7 @@ public class JsonElementValueReaderTest {
     assertEquals(order2.customer.id, 789);
     assertEquals(order2.customer.address.street, "123 Main Street");
     assertNull(order2.customer.address.city);
-    assertNull(modelMapper.getTypeMap(JsonObject.class, Order.class));
+    assertNotNull(modelMapper.getTypeMap(JsonObject.class, Order.class));
 
     String orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":\"SF\"}}";
     JsonElement element3 = jsonParser.parse(orderJson);

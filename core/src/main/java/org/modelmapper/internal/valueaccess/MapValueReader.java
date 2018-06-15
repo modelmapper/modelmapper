@@ -26,26 +26,31 @@ import org.modelmapper.spi.ValueReader;
  * @author Jonathan Halterman
  */
 public class MapValueReader implements ValueReader<Map<String, Object>> {
+  @Override
   public Object get(Map<String, Object> source, String memberName) {
-    if (!source.containsKey(memberName))
-      return null;
     return source.get(memberName);
   }
 
   @SuppressWarnings("unchecked")
+  @Override
   public Member<Map<String, Object>> getMember(Map<String, Object> source, String memberName) {
     final Object value = get(source, memberName);
+    return new Member<Map<String, Object>>(Map.class) {
+      @Override
+      public Map<String, Object> getOrigin() {
+        if (value instanceof Map)
+          return (Map<String, Object>) value;
+        return null;
+      }
 
-    if (value == null) {
-      return null;
-    }
-    if (value instanceof Map) {
-      return new Member<Map<String, Object>>(this, Map.class, (Map<String, Object>) value);
-    }
-
-    return new Member<Map<String, Object>>(this, value.getClass());
+      @Override
+      public Object get(Map<String, Object> source, String memberName) {
+        return MapValueReader.this.get(source, memberName);
+      }
+    };
   }
 
+  @Override
   public Collection<String> memberNames(Map<String, Object> source) {
     return source.keySet();
   }

@@ -33,13 +33,11 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
   public Object get(JsonNode source, String memberName) {
     JsonNode propertyNode = source.get(memberName);
     if (propertyNode == null)
-      throw null;
+      return null;
 
     switch (propertyNode.getNodeType()) {
       case BOOLEAN:
         return propertyNode.asBoolean();
-      case NULL:
-        return null;
       case NUMBER:
         return propertyNode.numberValue();
       case POJO:
@@ -52,33 +50,31 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
         } catch (IOException ignore) {
           return null;
         }
-
+      case NULL:
+      case MISSING:
+        return null;
       case ARRAY:
       case OBJECT:
-      case MISSING:
       default:
         return propertyNode;
     }
   }
 
   public Member<JsonNode> getMember(JsonNode source, String memberName) {
-    Object value = get(source, memberName);
-
-    if (value == null) {
-      return null;
-    } else if (value instanceof JsonNode) {
-      final JsonNode jsonNode = (JsonNode) value;
-      if (jsonNode.isMissingNode()) {
+    final Object value = get(source, memberName);
+    return new Member<JsonNode>(JsonNode.class) {
+      @Override
+      public JsonNode getOrigin() {
+        if (value instanceof JsonNode)
+          return (JsonNode) value;
         return null;
-      } else if (jsonNode.isContainerNode()) {
-        return new Member<JsonNode>(this, JsonNode.class, jsonNode);
-      } else {
-        // Should not be here
-        throw new IllegalArgumentException();
       }
-    } else {
-      return new Member<JsonNode>(this, value.getClass());
-    }
+
+      @Override
+      public Object get(JsonNode source, String memberName) {
+        return JsonNodeValueReader.this.get(source, memberName);
+      }
+    };
   }
 
   public Collection<String> memberNames(JsonNode source) {

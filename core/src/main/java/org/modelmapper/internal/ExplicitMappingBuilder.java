@@ -146,7 +146,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     ValueReader<?> valueReader = configuration.valueAccessStore.getFirstSupportedReader(sourceType);
     if (valueReader != null)
       for (String propertyName : propertyNames)
-        sourceAccessors.add(new ValueReaderPropertyInfo(valueReader, Object.class, propertyName));
+        sourceAccessors.add(ValueReaderPropertyInfo.create(valueReader, propertyName));
     else {
       Accessor accessor = null;
       for (String propertyName : propertyNames) {

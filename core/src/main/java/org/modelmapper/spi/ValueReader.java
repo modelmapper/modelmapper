@@ -51,45 +51,39 @@ public interface ValueReader<T> {
    *
    * @param <T> source type
    */
-  class Member<T> {
-    private ValueReader<T> valueReader;
+  abstract class Member<T> {
     private Class<Object> valueType;
-    private T nestedValue;
-
-    /**
-     * Creates a member doesn't contain nested value
-     *
-     * @param valueReader the ValueReader itself
-     * @param valueType the value type
-     */
-    public Member(ValueReader<T> valueReader, Class<?> valueType) {
-      this(valueReader, valueType, null);
-    }
 
     /**
      * Creates a member contains nested value
      *
-     * @param valueReader the ValueReader itself
      * @param valueType the value type
-     * @param nestedValue the nested value
      */
     @SuppressWarnings("unchecked")
-    public Member(ValueReader<T> valueReader, Class<?> valueType, T nestedValue) {
-      this.valueReader = valueReader;
+    public Member(Class<?> valueType) {
       this.valueType = (Class<Object>) valueType;
-      this.nestedValue = nestedValue;
-    }
-
-    public ValueReader<T> getValueReader() {
-      return valueReader;
     }
 
     public Class<Object> getValueType() {
       return valueType;
     }
 
-    public T getNestedValue() {
-      return nestedValue;
+    /**
+     * The origin value of this member
+     *
+     * @return the origin value
+     */
+    public T getOrigin() {
+      return null;
     }
+
+    /**
+     * Get the member from the source with given member name.
+     *
+     * @param source the source
+     * @param memberName the member name
+     * @return the member of the source
+     */
+    public abstract Object get(T source, String memberName);
   }
 }
