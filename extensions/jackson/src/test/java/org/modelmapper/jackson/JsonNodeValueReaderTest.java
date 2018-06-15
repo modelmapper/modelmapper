@@ -146,7 +146,7 @@ public class JsonNodeValueReaderTest {
     assertEquals(order.customer.id, 789);
     assertEquals(order.customer.address.street, "123 Main Street");
     assertNull(order.customer.address.city);
-    assertNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
+    assertNotNull(modelMapper.getTypeMap(ObjectNode.class, Order.class));
 
     orderJson = "{\"id\":456, \"customer\":{\"id\":789, \"street_address\":\"123 Main Street\", \"address_city\":\"LA\"}}";
     node = objectMapper.readTree(orderJson);

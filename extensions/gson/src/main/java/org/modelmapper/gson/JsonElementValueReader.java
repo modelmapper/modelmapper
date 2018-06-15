@@ -31,6 +31,7 @@ import com.google.gson.JsonPrimitive;
  * @author Jonathan Halterman
  */
 public class JsonElementValueReader implements ValueReader<JsonElement> {
+  @Override
   public Object get(JsonElement source, String memberName) {
     if (source.isJsonObject()) {
       JsonObject subjObj = source.getAsJsonObject();
@@ -56,18 +57,25 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
     return null;
   }
 
+  @Override
   public Member<JsonElement> getMember(JsonElement source, String memberName) {
     final Object value = get(source, memberName);
-    if (value == null)
-      return null;
+    return new Member<JsonElement>(JsonElement.class) {
+      @Override
+      public JsonElement getOrigin() {
+        if (value instanceof JsonElement)
+          return (JsonElement) value;
+        return null;
+      }
 
-    if (value instanceof JsonElement) {
-      return new Member<JsonElement>(this, JsonElement.class, (JsonElement) value);
-    }
-
-    return new Member<JsonElement>(this, value.getClass());
+      @Override
+      public Object get(JsonElement source, String memberName) {
+        return JsonElementValueReader.this.get(source, memberName);
+      }
+    };
   }
 
+  @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Collection<String> memberNames(JsonElement source) {
     if (source.isJsonObject())

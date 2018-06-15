@@ -134,12 +134,12 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   }
 
   static class ValueReaderPropertyInfo extends PropertyInfoImpl<Member> implements Accessor {
-    private ValueReader<Object> valueReader;
+    private ValueReader.Member<Object> valueReaderMember;
 
     @SuppressWarnings("unchecked")
-    ValueReaderPropertyInfo(ValueReader<?> valueReader, Class<?> initialType, String name) {
+    ValueReaderPropertyInfo(ValueReader.Member<?> valueReaderMember, Class<?> initialType, String name) {
       super(initialType, null, PropertyType.GENERIC, name);
-      this.valueReader = (ValueReader<Object>) valueReader;
+      this.valueReaderMember = (ValueReader.Member<Object>) valueReaderMember;
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
@@ -152,7 +152,7 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
 
     @SuppressWarnings("unchecked")
     public Object getValue(Object subject) {
-      return valueReader.get(subject, name);
+      return valueReaderMember.get(subject, name);
     }
 
     public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
@@ -160,16 +160,28 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     }
 
     static ValueReaderPropertyInfo fromMember(final ValueReader.Member<?> valueReaderMember, String memberName) {
-      if (valueReaderMember.getNestedValue() != null) {
-        return new ValueReaderPropertyInfo(valueReaderMember.getValueReader(), valueReaderMember.getValueType(), memberName) {
+      if (valueReaderMember.getOrigin() != null) {
+        return new ValueReaderPropertyInfo(valueReaderMember, valueReaderMember.getValueType(), memberName) {
           @Override
           public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
-            return TypeInfoRegistry.typeInfoFor(valueReaderMember.getNestedValue(),
+            return TypeInfoRegistry.typeInfoFor(valueReaderMember.getOrigin(),
                 valueReaderMember.getValueType(), configuration);
           }
         };
       }
-      return new ValueReaderPropertyInfo(valueReaderMember.getValueReader(), valueReaderMember.getValueType(), memberName);
+      return new ValueReaderPropertyInfo(valueReaderMember, valueReaderMember.getValueType(), memberName);
+    }
+
+    @SuppressWarnings("unchecked")
+    static ValueReaderPropertyInfo create(final ValueReader<?> valueReader, String memberName) {
+      final ValueReader<Object> uncheckedValueReader = (ValueReader<Object>) valueReader;
+      ValueReader.Member<?> valueReaderMember = new ValueReader.Member<Object>(Object.class) {
+        @Override
+        public Object get(Object source, String memberName) {
+          return uncheckedValueReader.get(source, memberName);
+        }
+      };
+      return new ValueReaderPropertyInfo(valueReaderMember, valueReaderMember.getValueType(), memberName);
     }
   }
 

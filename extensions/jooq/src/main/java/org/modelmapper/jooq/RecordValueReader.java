@@ -38,12 +38,12 @@ public class RecordValueReader implements ValueReader<Record> {
   }
 
   public Member<Record> getMember(Record source, String memberName) {
-    Field<?> field = matchField(source, memberName);
-    if (field != null) {
-      return new Member<Record>(this, field.getType());
-    }
-
-    return null;
+    return new Member<Record>(Record.class) {
+      @Override
+      public Object get(Record source, String memberName) {
+        return RecordValueReader.this.get(source, memberName);
+      }
+    };
   }
 
   private Field<?> matchField(Record source, String memberName) {
