@@ -317,6 +317,12 @@ public final class Errors {
         unresolveableType, unresolveableProperty);
   }
 
+  Errors errorInvalidDestinationPath(String destinationPath, Class<?> unresolveableType,
+      String unresolveableProperty) {
+    return addMessage("The destination path %s is invalid: %s.%s cannot be resolved.", destinationPath,
+        unresolveableType, unresolveableProperty);
+  }
+
   Errors errorNullArgument(String parameter) {
     return addMessage("The %s cannot be null", parameter);
   }

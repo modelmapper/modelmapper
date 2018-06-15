@@ -113,4 +113,23 @@ public class DeepMappingTest1 extends AbstractTest {
     modelMapper.validate();
     assertEquals(a2.bb.cc.dd.dest, "src");
   }
+
+  public void testMappingWithPropNames() {
+    modelMapper.addMappings(new PropertyMap<A1, A2>() {
+      protected void configure() {
+        map(source("b.c.d.value"), destination("bb.cc.dd.dest"));
+      }
+    });
+
+    A1 a1 = new A1();
+    a1.b = new B1();
+    a1.b.c = new C1();
+    a1.b.c.d = new D1();
+    a1.b.c.d.value = "src";
+
+    A2 a2 = modelMapper.map(a1, A2.class);
+
+    modelMapper.validate();
+    assertEquals(a2.bb.cc.dd.dest, "src");
+  }
 }

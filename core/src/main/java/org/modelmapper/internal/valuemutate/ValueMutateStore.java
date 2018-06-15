@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.modelmapper.internal.valueaccess;
+package org.modelmapper.internal.valuemutate;
 
 import java.util.List;
 import org.modelmapper.internal.TypeResolvingList;
-import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 
 /**
  * Store for ValueReaders.
  * 
  * @author Jonathan Halterman
  */
-public final class ValueAccessStore {
-  private final TypeResolvingList<ValueReader<?>> valueReaders = new TypeResolvingList<ValueReader<?>>(
-      ValueReader.class);
+public final class ValueMutateStore {
+  private final TypeResolvingList<ValueWriter<?>> valueWriters = new TypeResolvingList<ValueWriter<?>>(
+      ValueWriter.class);
 
-  public ValueAccessStore() {
+  public ValueMutateStore() {
     // Register defaults
-    valueReaders.add(new MapValueReader());
+    valueWriters.add(new MapValueWriter());
   }
 
   /**
@@ -38,11 +38,11 @@ public final class ValueAccessStore {
    * {@code null} if none is found.
    */
   @SuppressWarnings("unchecked")
-  public <T> ValueReader<T> getFirstSupportedReader(Class<T> type) {
-    return (ValueReader<T>) valueReaders.first(type);
+  public <T> ValueWriter<T> getFirstSupportedWriter(Class<T> type) {
+    return (ValueWriter<T>) valueWriters.first(type);
   }
 
-  public List<ValueReader<?>> getValueReaders() {
-    return valueReaders;
+  public List<ValueWriter<?>> getValueWriters() {
+    return valueWriters;
   }
 }

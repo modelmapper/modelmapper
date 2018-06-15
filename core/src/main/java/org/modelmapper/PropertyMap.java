@@ -328,6 +328,10 @@ public abstract class PropertyMap<S, D> {
     return builder.source(sourcePropertyPath);
   }
 
+  protected Object destination(String destinationPropertyPath) {
+    assertBuilder();
+    return builder.destination(destinationPropertyPath);
+  }
   /**
    * Specifies the {@code converter} to use for converting to the destination property hierarchy.
    * When used with deep mapping the {@code converter} should convert to an instance of the

@@ -48,8 +48,14 @@ class PropertyInfoRegistry {
   /**
    * Returns an accessor for the {@code accessorName}, else {@code null} if none exists.
    */
-  static Accessor accessorFor(Class<?> type, String accessorName, Configuration configuration) {
+  static Accessor accessorFor(Class<?> type, String accessorName, InheritingConfiguration configuration) {
     Integer hashCode = hashCodeFor(type, accessorName, configuration);
+    if (!ACCESSOR_CACHE.containsKey(hashCode) || !FIELD_CACHE.containsKey(hashCode)) {
+      @SuppressWarnings("unchecked")
+      Class<Object> uncheckedType = (Class<Object>) type;
+      TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors();
+    }
+
     if (ACCESSOR_CACHE.containsKey(hashCode))
       return ACCESSOR_CACHE.get(hashCode);
     return FIELD_CACHE.get(hashCode);
@@ -84,6 +90,24 @@ class PropertyInfoRegistry {
     }
 
     return fieldPropertyInfo;
+  }
+
+  /**
+   * Returns an mutator for the {@code accessorName}, else {@code null} if none exists.
+   * Returns a Mutator instance for the given mutator method. The method must be externally
+   * validated to ensure that it accepts one argument and returns void.class.
+   */
+  static synchronized Mutator mutatorFor(Class<?> type, String methodName, InheritingConfiguration configuration) {
+    Integer hashCode = hashCodeFor(type, methodName, configuration);
+    if (!MUTATOR_CACHE.containsKey(hashCode) || !FIELD_CACHE.containsKey(hashCode)) {
+      @SuppressWarnings("unchecked")
+      Class<Object> uncheckedType = (Class<Object>) type;
+      TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors();
+    }
+
+    if (MUTATOR_CACHE.containsKey(hashCode))
+      return MUTATOR_CACHE.get(hashCode);
+    return FIELD_CACHE.get(hashCode);
   }
 
   /**

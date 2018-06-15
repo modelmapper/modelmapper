@@ -27,6 +27,7 @@ import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NamingConvention;
 import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 
 /**
  * Configures conventions used during the matching process.
@@ -60,6 +61,19 @@ public interface Configuration {
    *           is not declared for the {@code valueReader}
    */
   <T> Configuration addValueReader(ValueReader<T> valueReader);
+
+  /**
+   * Registers the {@code valueWriter} to use when mapping property to instances of types {@code T}.
+   *
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   *
+   * @param <T> source type
+   * @param valueWriter to register
+   * @throws IllegalArgumentException if {@code valueWriter} is null or if type argument {@code T}
+   *           is not declared for the {@code valueWriter}
+   */
+  <T> Configuration addValueWriter(ValueWriter<T> valueWriter);
 
   /**
    * Returns a copy of the Configuration.
@@ -169,6 +183,21 @@ public interface Configuration {
    * This method is part of the ModelMapper SPI.
    */
   List<ValueReader<?>> getValueReaders();
+
+  /**
+   * Gets a thread-safe, mutable, ordered list of internal and user-defined ValueWriters that are
+   * used to write destination object values during mapping. This list is may be modified to control which
+   * ValueWriters are used to along with the order in which ValueWriters are selected for a destination
+   * type.
+   *
+   * <p>
+   * The returned List throws an IllegalArgumentException when attempting to add or set a
+   * ValueWriter for which the type argument {@code T} has not been defined.
+   *
+   * <p>
+   * This method is part of the ModelMapper SPI.
+   */
+  List<ValueWriter<?>> getValueWriters();
 
   /**
    * Returns {@code true} if ambiguous properties are ignored or {@code false} if they will result

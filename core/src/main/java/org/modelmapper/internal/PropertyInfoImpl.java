@@ -26,6 +26,7 @@ import java.lang.reflect.Type;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 
 /**
  * Abstract PropertyInfo implementation that provides {@link #equals(Object)} and
@@ -142,19 +143,23 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       this.valueReaderMember = (ValueReader.Member<Object>) valueReaderMember;
     }
 
+    @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
       return null;
     }
 
+    @Override
     public Type getGenericType() {
       return type;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Object getValue(Object subject) {
       return valueReaderMember.get(subject, name);
     }
 
+    @Override
     public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
       return TypeInfoRegistry.typeInfoFor(type, configuration);
     }
@@ -182,6 +187,60 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
         }
       };
       return new ValueReaderPropertyInfo(valueReaderMember, valueReaderMember.getValueType(), memberName);
+    }
+  }
+  static class ValueWriterPropertyInfo extends PropertyInfoImpl<Member> implements Mutator {
+    private ValueWriter.Member<Object> valueWriterMember;
+
+    @SuppressWarnings("unchecked")
+    ValueWriterPropertyInfo(ValueWriter.Member<?> valueWriterMember, Class<?> initialType, String name) {
+      super(initialType, null, PropertyType.GENERIC, name);
+      this.valueWriterMember = (ValueWriter.Member<Object>) valueWriterMember;
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+      return null;
+    }
+
+    @Override
+    public Type getGenericType() {
+      return type;
+    }
+
+    @Override
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(type, configuration);
+    }
+
+    @Override
+    public void setValue(Object subject, Object value) {
+      valueWriterMember.setValue(subject, value);
+    }
+
+    static ValueWriterPropertyInfo fromMember(final ValueWriter.Member<?> valueWriterMember, String memberName) {
+      if (valueWriterMember.getOrigin() != null) {
+        return new ValueWriterPropertyInfo(valueWriterMember, valueWriterMember.getValueType(), memberName) {
+          @Override
+          public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+            return TypeInfoRegistry.typeInfoFor(valueWriterMember.getOrigin(),
+                valueWriterMember.getValueType(), configuration);
+          }
+        };
+      }
+      return new ValueWriterPropertyInfo(valueWriterMember, valueWriterMember.getValueType(), memberName);
+    }
+
+    @SuppressWarnings("unchecked")
+    static ValueWriterPropertyInfo create(final ValueWriter<?> valueWriter, final String memberName) {
+      final ValueWriter<Object> uncheckedValueWriter = (ValueWriter<Object>) valueWriter;
+      ValueWriter.Member<?> valueWriterMember = new ValueWriter.Member<Object>(Object.class) {
+        @Override
+        public void setValue(Object source, Object value) {
+          uncheckedValueWriter.setValue(source, value, memberName);
+        }
+      };
+      return new ValueWriterPropertyInfo(valueWriterMember, valueWriterMember.getValueType(), memberName);
     }
   }
 
