@@ -29,6 +29,7 @@ import org.modelmapper.spi.NamingConvention;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 
 /**
  * Resolves sets of PropertyInfo for a type's accessors or mutators.
@@ -71,6 +72,7 @@ final class PropertyInfoSetResolver {
     else
       return resolveProperties(type, true, configuration);
   }
+
   static <T> Map<String, Accessor> resolveAccessorsFromValueReader(T source,
       InheritingConfiguration configuration, ValueReader<T> valueReader) {
     Map<String, Accessor> accessors = new LinkedHashMap<String, Accessor>();
@@ -84,8 +86,23 @@ final class PropertyInfoSetResolver {
     return accessors;
   }
 
-  static Map<String, Mutator> resolveMutators(Class<?> type, InheritingConfiguration configuration) {
+  static <T> Map<String, Mutator> resolveMutators(Class<T> type, InheritingConfiguration configuration) {
+    ValueWriter<T> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(type);
+    if (valueWriter != null && valueWriter.isResolveMembersSupport())
+      return resolveMutatorsFromValueWriter(type, configuration, valueWriter);
     return resolveProperties(type, false, configuration);
+  }
+  static <T> Map<String, Mutator> resolveMutatorsFromValueWriter(Class<T> type,
+      InheritingConfiguration configuration, ValueWriter<T> valueWriter) {
+    Map<String, Mutator> mutators = new LinkedHashMap<String, Mutator>();
+    NameTransformer nameTransformer = configuration.getSourceNameTransformer();
+    for (String memberName : valueWriter.memberNames(type)) {
+      ValueWriter.Member<?> member = valueWriter.getMember(type, memberName);
+      if (member != null)
+        mutators.put(nameTransformer.transform(memberName, NameableType.GENERIC),
+            PropertyInfoImpl.ValueWriterPropertyInfo.fromMember(member, memberName));
+    }
+    return mutators;
   }
 
   @SuppressWarnings({ "unchecked" })

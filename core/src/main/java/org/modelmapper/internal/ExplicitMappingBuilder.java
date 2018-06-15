@@ -39,11 +39,13 @@ import org.modelmapper.internal.ExplicitMappingVisitor.VisitedMapping;
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
 import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
+import org.modelmapper.internal.PropertyInfoImpl.ValueWriterPropertyInfo;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Members;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 import org.objectweb.asm.ClassReader;
 
 /**
@@ -71,6 +73,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private VisitedMapping currentMapping;
   private MappingOptions options = new MappingOptions();
   private List<Accessor> sourceAccessors;
+  private List<Mutator> destinationMutators;
   private Object sourceConstant;
 
   static {
@@ -151,7 +154,6 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
       Accessor accessor = null;
       for (String propertyName : propertyNames) {
         Class<?> propertyType = accessor == null ? sourceType : accessor.getType();
-        TypeInfoRegistry.typeInfoFor(propertyType, configuration).getAccessors();
         accessor = PropertyInfoRegistry.accessorFor(propertyType, propertyName, configuration);
         if (accessor == null) {
           errors.errorInvalidSourcePath(sourcePropertyPath, propertyType, propertyName);
@@ -162,6 +164,31 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
       }
     }
 
+    return null;
+  }
+
+  public Object destination(String destPropertyPath) {
+    if (destPropertyPath == null)
+      errors.errorNullArgument("destPropertyPath");
+
+    String[] propertyNames = DOT_PATTERN.split(destPropertyPath);
+    destinationMutators = new ArrayList<Mutator>(propertyNames.length);
+    ValueWriter<?> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(destinationType);
+    if (valueWriter != null)
+      for (String propertyName : propertyNames)
+        destinationMutators.add(ValueWriterPropertyInfo.create(valueWriter, propertyName));
+    else {
+      Mutator mutator = null;
+      for (String propertyName : propertyNames) {
+        Class<?> propertyType = mutator == null ? destinationType : mutator.getType();
+        mutator = PropertyInfoRegistry.mutatorFor(propertyType, propertyName, configuration);
+        if (mutator == null) {
+          errors.errorInvalidDestinationPath(destPropertyPath, propertyType, propertyName);
+          return null;
+        }
+        destinationMutators.add(mutator);
+      }
+    }
     return null;
   }
 
@@ -235,19 +262,8 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
       errors.errorReadingClass(e, propertyMapClassName);
     }
 
-    validateVisitedMappings();
     errors.throwConfigurationExceptionIfErrorsExist();
     createProxies();
-  }
-
-  /**
-   * Validates mappings that were visited by ExplicitMappingVisitor.
-   */
-  private void validateVisitedMappings() {
-    for (VisitedMapping mapping : visitedMappings) {
-      if (mapping.destinationMutators.isEmpty())
-        errors.missingDestination();
-    }
   }
 
   /**
@@ -329,8 +345,10 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
    * Validates the current mapping that was recorded via a MapExpression.
    */
   private void validateRecordedMapping() {
+    if (currentMapping.destinationMutators == null || currentMapping.destinationMutators.isEmpty())
+      errors.missingDestination();
     // If mapping a field without a source
-    if (options.skipType == 0
+    else if (options.skipType == 0
         && (currentMapping.sourceAccessors == null || currentMapping.sourceAccessors.isEmpty())
         && currentMapping.destinationMutators.get(currentMapping.destinationMutators.size() - 1)
             .getPropertyType()
@@ -347,19 +365,24 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
         MappingImpl mapping;
         if (currentMapping.sourceAccessors.isEmpty())
           currentMapping.sourceAccessors = sourceAccessors;
+        if (currentMapping.destinationMutators.isEmpty())
+          currentMapping.destinationMutators = destinationMutators;
+
         validateRecordedMapping();
+        if (!errors.hasErrors()) {
+          if (options.mapFromSource)
+            mapping = new SourceMappingImpl(sourceType, currentMapping.destinationMutators,
+                options);
+          else if (currentMapping.sourceAccessors == null)
+            mapping = new ConstantMappingImpl(sourceConstant, currentMapping.destinationMutators,
+                options);
+          else
+            mapping = new PropertyMappingImpl(currentMapping.sourceAccessors,
+                currentMapping.destinationMutators, options);
 
-        if (options.mapFromSource)
-          mapping = new SourceMappingImpl(sourceType, currentMapping.destinationMutators, options);
-        else if (currentMapping.sourceAccessors == null)
-          mapping = new ConstantMappingImpl(sourceConstant, currentMapping.destinationMutators,
-              options);
-        else
-          mapping = new PropertyMappingImpl(currentMapping.sourceAccessors,
-              currentMapping.destinationMutators, options);
-
-        if (!propertyMappings.add(mapping))
-          errors.duplicateMapping(mapping.getLastDestinationProperty());
+          if (!propertyMappings.add(mapping))
+            errors.duplicateMapping(mapping.getLastDestinationProperty());
+        }
       } finally {
         currentMapping = null;
         options = new MappingOptions();

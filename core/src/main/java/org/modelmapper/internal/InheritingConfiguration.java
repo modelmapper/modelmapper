@@ -28,12 +28,14 @@ import org.modelmapper.internal.converter.AssignableConverter;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.valueaccess.ValueAccessStore;
+import org.modelmapper.internal.valuemutate.ValueMutateStore;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MatchingStrategy;
 import org.modelmapper.spi.NameTokenizer;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NamingConvention;
 import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 
 /**
  * Inheritable mapping configuration implementation.
@@ -45,6 +47,7 @@ public class InheritingConfiguration implements Configuration {
   public final TypeMapStore typeMapStore;
   public final ConverterStore converterStore;
   public final ValueAccessStore valueAccessStore;
+  public final ValueMutateStore valueMutateStore;
   private NameTokenizer destinationNameTokenizer;
   private NameTransformer destinationNameTransformer;
   private NamingConvention destinationNamingConvention;
@@ -71,6 +74,7 @@ public class InheritingConfiguration implements Configuration {
     typeMapStore = new TypeMapStore(this);
     converterStore = new ConverterStore();
     valueAccessStore = new ValueAccessStore();
+    valueMutateStore = new ValueMutateStore();
     sourceNameTokenizer = NameTokenizers.CAMEL_CASE;
     destinationNameTokenizer = NameTokenizers.CAMEL_CASE;
     sourceNamingConvention = NamingConventions.JAVABEANS_ACCESSOR;
@@ -96,6 +100,7 @@ public class InheritingConfiguration implements Configuration {
     typeMapStore = source.typeMapStore;
     converterStore = source.converterStore;
     valueAccessStore = source.valueAccessStore;
+    valueMutateStore = source.valueMutateStore;
 
     if (inherit) {
       this.parent = source;
@@ -123,6 +128,12 @@ public class InheritingConfiguration implements Configuration {
   @Override
   public <T> Configuration addValueReader(ValueReader<T> valueReader) {
     getValueReaders().add(valueReader);
+    return this;
+  }
+
+  @Override
+  public <T> Configuration addValueWriter(ValueWriter<T> valueWriter) {
+    getValueWriters().add(valueWriter);
     return this;
   }
 
@@ -223,6 +234,11 @@ public class InheritingConfiguration implements Configuration {
   @Override
   public List<ValueReader<?>> getValueReaders() {
     return valueAccessStore.getValueReaders();
+  }
+
+  @Override
+  public List<ValueWriter<?>> getValueWriters() {
+    return valueMutateStore.getValueWriters();
   }
 
   /**
