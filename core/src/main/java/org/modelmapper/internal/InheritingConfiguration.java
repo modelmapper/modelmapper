@@ -146,6 +146,7 @@ public class InheritingConfiguration implements Configuration {
    * Determines equality from the name transformers, access levels and field matching configuration.
    */
   @Override
+  @SuppressWarnings("all")
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
@@ -173,61 +174,82 @@ public class InheritingConfiguration implements Configuration {
 
   @Override
   public NameTokenizer getDestinationNameTokenizer() {
-    return destinationNameTokenizer == null ? parent.getDestinationNameTokenizer()
+    return destinationNameTokenizer == null
+        ? Assert.notNull(parent).getDestinationNameTokenizer()
         : destinationNameTokenizer;
   }
 
   @Override
   public NameTransformer getDestinationNameTransformer() {
-    return destinationNameTransformer == null ? parent.getDestinationNameTransformer()
+    return destinationNameTransformer == null
+        ? Assert.notNull(parent).getDestinationNameTransformer()
         : destinationNameTransformer;
   }
 
   @Override
   public NamingConvention getDestinationNamingConvention() {
-    return destinationNamingConvention == null ? parent.getDestinationNamingConvention()
+    return destinationNamingConvention == null
+        ? Assert.notNull(parent).getDestinationNamingConvention()
         : destinationNamingConvention;
   }
 
   @Override
   public AccessLevel getFieldAccessLevel() {
-    return fieldAccessLevel == null ? parent.getFieldAccessLevel() : fieldAccessLevel;
+    return fieldAccessLevel == null
+        ? Assert.notNull(parent).getFieldAccessLevel()
+        : fieldAccessLevel;
   }
 
   @Override
   public MatchingStrategy getMatchingStrategy() {
-    return matchingStrategy == null ? parent.getMatchingStrategy() : matchingStrategy;
+    return matchingStrategy == null
+        ? Assert.notNull(parent).getMatchingStrategy()
+        : matchingStrategy;
   }
 
   @Override
   public AccessLevel getMethodAccessLevel() {
-    return methodAccessLevel == null ? parent.getMethodAccessLevel() : methodAccessLevel;
+    return methodAccessLevel == null
+        ? Assert.notNull(parent).getMethodAccessLevel()
+        : methodAccessLevel;
   }
 
   @Override
   public Condition<?, ?> getPropertyCondition() {
+    if (parent != null)
+      return propertyCondition == null
+          ? parent.getPropertyCondition()
+          : propertyCondition;
     return propertyCondition;
   }
 
   @Override
   public Provider<?> getProvider() {
+    if (parent != null)
+      return provider == null
+          ? Assert.notNull(parent).getProvider()
+          : provider;
     return provider;
   }
 
   @Override
   public NameTokenizer getSourceNameTokenizer() {
-    return sourceNameTokenizer == null ? parent.getSourceNameTokenizer() : sourceNameTokenizer;
+    return sourceNameTokenizer == null
+        ? Assert.notNull(parent).getSourceNameTokenizer()
+        : sourceNameTokenizer;
   }
 
   @Override
   public NameTransformer getSourceNameTransformer() {
-    return sourceNameTransformer == null ? parent.getSourceNameTransformer()
+    return sourceNameTransformer == null
+        ? Assert.notNull(parent).getSourceNameTransformer()
         : sourceNameTransformer;
   }
 
   @Override
   public NamingConvention getSourceNamingConvention() {
-    return sourceNamingConvention == null ? parent.getSourceNamingConvention()
+    return sourceNamingConvention == null
+        ? Assert.notNull(parent).getSourceNamingConvention()
         : sourceNamingConvention;
   }
 
@@ -259,35 +281,43 @@ public class InheritingConfiguration implements Configuration {
 
   @Override
   public boolean isAmbiguityIgnored() {
-    return ambiguityIgnored == null ? parent.isAmbiguityIgnored() : ambiguityIgnored;
+    return ambiguityIgnored == null
+        ? Assert.notNull(parent).isAmbiguityIgnored()
+        : ambiguityIgnored;
   }
 
   @Override
   public boolean isFieldMatchingEnabled() {
-    return fieldMatchingEnabled == null ? parent.isFieldMatchingEnabled() : fieldMatchingEnabled;
+    return fieldMatchingEnabled == null
+        ? Assert.notNull(parent).isFieldMatchingEnabled()
+        : fieldMatchingEnabled;
   }
 
   @Override
   public boolean isFullTypeMatchingRequired() {
-    return fullTypeMatchingRequired == null ? parent.isFullTypeMatchingRequired()
+    return fullTypeMatchingRequired == null
+        ? Assert.notNull(parent).isFullTypeMatchingRequired()
         : fullTypeMatchingRequired;
   }
 
   @Override
   public boolean isImplicitMappingEnabled() {
-    return implicitMatchingEnabled == null ? parent.isImplicitMappingEnabled()
+    return implicitMatchingEnabled == null
+        ? Assert.notNull(parent).isImplicitMappingEnabled()
         : implicitMatchingEnabled;
   }
 
   @Override
   public boolean isSkipNullEnabled() {
-    return skipNullEnabled == null ? parent.isSkipNullEnabled()
+    return skipNullEnabled == null
+        ? Assert.notNull(parent).isSkipNullEnabled()
         : skipNullEnabled;
   }
 
   @Override
   public boolean isUseOSGiClassLoaderBridging() {
-    return useOSGiClassLoaderBridging == null ? parent.isUseOSGiClassLoaderBridging()
+    return useOSGiClassLoaderBridging == null
+        ? Assert.notNull(parent).isUseOSGiClassLoaderBridging()
         : useOSGiClassLoaderBridging;
   }
 
