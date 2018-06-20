@@ -15,27 +15,91 @@
  */
 package org.modelmapper.protobuf;
 
+import com.google.protobuf.Message;
+import com.google.protobuf.MessageOrBuilder;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import org.modelmapper.internal.Errors;
 import org.modelmapper.spi.ValueReader;
 
 /**
- * Record ValueReader implementation.
+ * Protocol buffer ValueReader implementation.
  *
  * @author Edward Hsiao
  */
-public class ProtobufValueReader implements ValueReader<Object> {
+public class ProtobufValueReader implements ValueReader<MessageOrBuilder> {
   @Override
-  public Object get(Object source, String memberName) {
-    return null;
+  public Object get(MessageOrBuilder source, String memberName) {
+    try {
+      Method method = ProtobufHelper.getter(source.getClass(), memberName);
+      return method.invoke(source);
+    } catch (NoSuchMethodException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+    } catch (IllegalAccessException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+    } catch (InvocationTargetException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+    }
   }
 
   @Override
-  public Member<Object> getMember(Object source, String memberName) {
-    return null;
+  public Member<MessageOrBuilder> getMember(MessageOrBuilder source, String memberName) {
+    try {
+      final Method getter = ProtobufHelper.getter(source.getClass(), memberName);
+      final Object value = getter.invoke(source);
+      if (Message.class.isAssignableFrom(getter.getReturnType())) {
+        final Method hasMethod = ProtobufHelper.hasMethod(source.getClass(), memberName);
+        return new Member<MessageOrBuilder>(getter.getReturnType()) {
+          @Override
+          public MessageOrBuilder getOrigin() {
+            return MessageOrBuilder.class.isAssignableFrom(value.getClass())
+                ? (MessageOrBuilder) value : null;
+          }
+
+          @Override
+          public Object get(MessageOrBuilder source, String memberName) {
+            try {
+              if (Boolean.TRUE.equals(hasMethod.invoke(source)))
+                return getter.invoke(source);
+              return null;
+            } catch (IllegalAccessException e) {
+              throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+            } catch (InvocationTargetException e) {
+              throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+            }
+          }
+        };
+      } else
+        return new Member<MessageOrBuilder>(getter.getReturnType()) {
+          @Override
+          public MessageOrBuilder getOrigin() {
+            return MessageOrBuilder.class.isAssignableFrom(value.getClass())
+                ? (MessageOrBuilder) value : null;
+          }
+
+          @Override
+          public Object get(MessageOrBuilder source, String memberName) {
+            try {
+              return getter.invoke(source);
+            } catch (IllegalAccessException e) {
+              throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+            } catch (InvocationTargetException e) {
+              throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+            }
+          }
+        };
+    } catch (NoSuchMethodException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toConfigurationException();
+    } catch (IllegalAccessException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toConfigurationException();
+    } catch (InvocationTargetException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toConfigurationException();
+    }
   }
 
   @Override
-  public Collection<String> memberNames(Object source) {
-    return null;
+  public Collection<String> memberNames(MessageOrBuilder source) {
+    return ProtobufHelper.fields(source.getClass());
   }
 }

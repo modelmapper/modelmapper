@@ -80,7 +80,7 @@ public interface ValueWriter<T> {
      *
      * @return the origin value
      */
-    public T getOrigin() {
+    public Class<T> getOrigin() {
       return null;
     }
 
