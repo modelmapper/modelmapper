@@ -18,6 +18,9 @@ package org.modelmapper.protobuf;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.Module;
 import org.modelmapper.protobuf.primitive.BoolConverters;
+import org.modelmapper.protobuf.primitive.DoubleConverters;
+import org.modelmapper.protobuf.primitive.IntConverters;
+import org.modelmapper.protobuf.primitive.StringConverters;
 
 public class ProtobufModule implements Module {
   @Override
@@ -31,5 +34,25 @@ public class ProtobufModule implements Module {
     modelMapper.addConverter(BoolConverters.BOOL_VALUE_TO_BOOL);
     modelMapper.addConverter(BoolConverters.BOOL_TO_BUILDER);
     modelMapper.addConverter(BoolConverters.BUILDER_TO_BOOL);
+
+    modelMapper.addConverter(IntConverters.LONG_TO_LONG_VALUE);
+    modelMapper.addConverter(IntConverters.LONG_VALUE_TO_LONG);
+    modelMapper.addConverter(IntConverters.LONG_TO_BUILDER);
+    modelMapper.addConverter(IntConverters.BUILDER_TO_LONG);
+
+    modelMapper.addConverter(IntConverters.INT_TO_INT_VALUE);
+    modelMapper.addConverter(IntConverters.INT_VALUE_TO_INT);
+    modelMapper.addConverter(IntConverters.INT_TO_BUILDER);
+    modelMapper.addConverter(IntConverters.BUILDER_TO_INT);
+
+    modelMapper.addConverter(DoubleConverters.DOUBLE_TO_DOUBLE_VALUE);
+    modelMapper.addConverter(DoubleConverters.DOUBLE_VALUE_TO_DOUBLE);
+    modelMapper.addConverter(DoubleConverters.DOUBLE_TO_BUILDER);
+    modelMapper.addConverter(DoubleConverters.BUILDER_TO_DOUBLE);
+
+    modelMapper.addConverter(StringConverters.STRING_TO_STRING_VALUE);
+    modelMapper.addConverter(StringConverters.STRING_VALUE_TO_STRING);
+    modelMapper.addConverter(StringConverters.STRING_TO_BUILDER);
+    modelMapper.addConverter(StringConverters.BUILDER_TO_STRING);
   }
 }
