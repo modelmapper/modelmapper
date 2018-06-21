@@ -20,6 +20,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import org.modelmapper.spi.NameableType;
+import org.modelmapper.spi.SourceGetter;
+import org.modelmapper.spi.TypeSafeSourceGetter;
 
 /**
  * Produces method interceptors that collect getters/setters invoke of the
@@ -40,6 +42,25 @@ class PropertyReferenceCollector {
 
   private Errors errors;
   private Errors proxyErrors;
+
+  public static <S, D> List<Accessor> collect(TypeMapImpl<S, D> typeMap, TypeSafeSourceGetter<S, ?> sourceGetter) {
+    PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, null);
+    try {
+      S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getProxyErrors());
+      Object sourceProperty = sourceGetter.get(source);
+      if (source == sourceProperty)
+        collector.mapFromSource(typeMap.getSourceType());
+      if (collector.isNoSourceGetter())
+        collector.mapFromConstant(sourceProperty);
+    } catch (NullPointerException e) {
+      if (collector.getProxyErrors().hasErrors())
+        throw collector.getProxyErrors().toException();
+      throw e;
+    } catch (ErrorsException e) {
+      throw e.getErrors().toConfigurationException();
+    }
+    return collector.accessors;
+  }
 
   PropertyReferenceCollector(InheritingConfiguration config, ExplicitMappingBuilder.MappingOptions options) {
     this.config = config;

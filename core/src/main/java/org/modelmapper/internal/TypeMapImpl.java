@@ -16,6 +16,7 @@
 package org.modelmapper.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceGetter;
+import org.modelmapper.spi.TypeSafeSourceGetter;
 
 /**
  * TypeMap implementation.
@@ -80,6 +82,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     }
   }
 
+  @Override
   public TypeMap<S, D> addMappings(PropertyMap<S, D> propertyMap) {
     if (sourceType.isEnum() || destinationType.isEnum())
       throw new Errors().mappingForEnum().toConfigurationException();
@@ -96,56 +99,69 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return this;
   }
 
+  @Override
   public Condition<?, ?> getCondition() {
     return condition;
   }
 
+  @Override
   public Converter<S, D> getConverter() {
     return converter;
   }
 
+  @Override
   public Class<D> getDestinationType() {
     return destinationType;
   }
 
+  @Override
   public List<Mapping> getMappings() {
     synchronized (mappings) {
       return new ArrayList<Mapping>(mappings.values());
     }
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public Converter<S, D> getPostConverter() {
     return postConverter;
   }
 
+  @Override
   public Converter<S, D> getPreConverter() {
     return preConverter;
   }
 
+  @Override
   public Condition<?, ?> getPropertyCondition() {
     return propertyCondition;
   }
 
+  @Override
   public Converter<?, ?> getPropertyConverter() {
     return propertyConverter;
   }
 
+  @Override
   public Provider<?> getPropertyProvider() {
     return propertyProvider;
   }
 
+  @Override
   public Provider<D> getProvider() {
     return provider;
   }
 
+  @Override
   public Class<S> getSourceType() {
     return sourceType;
   }
 
+  @Override
   public List<PropertyInfo> getUnmappedProperties() {
     PathProperties pathProperties = getDestinationProperties();
 
@@ -158,8 +174,9 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return pathProperties.get();
   }
 
+  @Override
   public D map(S source) {
-    Class<S> sourceType = Types.<S>deProxy(source.getClass());
+    Class<S> sourceType = Types.deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, null,
         destinationType, null, name, engine);
     D result = null;
@@ -174,8 +191,9 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return result;
   }
 
+  @Override
   public void map(S source, D destination) {
-    Class<S> sourceType = Types.<S>deProxy(source.getClass());
+    Class<S> sourceType = Types.deProxy(source.getClass());
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
         destination, destinationType, null, name, engine);
 
@@ -188,51 +206,61 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     context.errors.throwMappingExceptionIfErrorsExist();
   }
 
+  @Override
   public TypeMap<S, D> setCondition(Condition<?, ?> condition) {
     this.condition = Assert.notNull(condition, "condition");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setConverter(Converter<S, D> converter) {
     this.converter = Assert.notNull(converter, "converter");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setPostConverter(Converter<S, D> converter) {
     this.postConverter = Assert.notNull(converter, "converter");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setPreConverter(Converter<S, D> converter) {
     this.preConverter = Assert.notNull(converter, "converter");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setPropertyCondition(Condition<?, ?> condition) {
     propertyCondition = Assert.notNull(condition, "condition");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setPropertyConverter(Converter<?, ?> converter) {
     propertyConverter = Assert.notNull(converter, "converter");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setPropertyProvider(Provider<?> provider) {
     propertyProvider = Assert.notNull(provider, "provider");
     return this;
   }
 
+  @Override
   public TypeMap<S, D> setProvider(Provider<D> provider) {
     this.provider = Assert.notNull(provider, "provider");
     return this;
   }
 
+  @Override
   public <V> TypeMap<S, D> addMapping(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     new ReferenceMapExpressionImpl<S, D>(this).map(sourceGetter, destinationSetter);
     return this;
   }
 
+  @Override
   public TypeMap<S, D> addMappings(ExpressionMap<S, D> mapper) {
     mapper.configure(new ConfigurableMapExpressionImpl<S, D>(this));
     return this;
@@ -250,6 +278,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return b.append(']').toString();
   }
 
+  @Override
   public void validate() {
     if (converter != null || preConverter != null || postConverter != null)
       return;
@@ -262,12 +291,14 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     errors.throwValidationExceptionIfErrorsExist();
   }
 
+  @Override
   public <DS extends S, DD extends D> TypeMap<S, D> include(Class<DS> sourceType, Class<DD> destinationType) {
     TypeMapImpl<DS, DD> derivedTypeMap = new TypeMapImpl<DS, DD>(this, sourceType, destinationType);
     configuration.typeMapStore.put(derivedTypeMap);
     return this;
   }
 
+  @Override
   public TypeMap<S, D> includeBase(Class<? super S> sourceType, Class<? super D> destinationType) {
     @SuppressWarnings("unchecked")
     TypeMapImpl<? super S, ? super D> baseTypeMap = (TypeMapImpl<? super S, ? super D>)
@@ -284,6 +315,22 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     return this;
   }
 
+  @Override
+  public <P> TypeMap<S, D> include(TypeSafeSourceGetter<S, P> sourceGetter, Class<P> propertyType) {
+    @SuppressWarnings("unchecked")
+    TypeMapImpl<? super S, ? super D> childTypeMap = (TypeMapImpl<? super S, ? super D>)
+        configuration.typeMapStore.get(propertyType, destinationType, name);
+    Assert.notNull(childTypeMap, "Cannot find child TypeMap");
+
+    List<Accessor> accessors = PropertyReferenceCollector.collect(this, sourceGetter);
+    for (Mapping mapping : childTypeMap.getMappings()) {
+      InternalMapping internalMapping = (InternalMapping) mapping;
+      addMapping(internalMapping.createMergedCopy(accessors, Collections.<PropertyInfo>emptyList()));
+    }
+    return this;
+  }
+
+  @Override
   public TypeMap<S, D> implicitMappings() {
     ImplicitMappingBuilder.build(null, this, configuration.typeMapStore, configuration.converterStore);
     return this;
