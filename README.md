@@ -10,9 +10,10 @@ Visit [modelmapper.org](http://modelmapper.org) to learn more.
 
 ## Modules
 
-In v2.0, ModelMapper provides modules for 3rd library integration you can easily register by ```modelMapper.registerModule(TheModule())```.
+In v2.0, ModelMapper provides modules for 3rd library integration you can easily register by ```modelMapper.registerModule(new TheModule())```.
 
 - [Java 8](https://github.com/chhsiao90/modelmapper-module-java8)
+- [Protocol Buffer](https://github.com/modelmapper/modelmapper/tree/master/extensions/protobuf)
 
 ## Contributing
 
