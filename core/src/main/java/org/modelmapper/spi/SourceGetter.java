@@ -22,12 +22,5 @@ package org.modelmapper.spi;
  *
  * @author Chun Han Hsiao
  */
-public interface SourceGetter<S> {
-  /**
-   * Performs this operation to get a value from source
-   *
-   * @param source the source instance
-   * @return the property from source
-   */
-  Object get(S source);
+public interface SourceGetter<S> extends TypeSafeSourceGetter<S, Object> {
 }

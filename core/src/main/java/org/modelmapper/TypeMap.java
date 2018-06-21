@@ -21,6 +21,7 @@ import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceGetter;
+import org.modelmapper.spi.TypeSafeSourceGetter;
 
 /**
  * Encapsulates mapping configuration for a source and destination type pair.
@@ -307,7 +308,18 @@ public interface TypeMap<S, D> {
   TypeMap<S, D> includeBase(Class<? super S> sourceType, Class<? super D> destinationType);
 
   /**
-   * Performs implicit mapping
+   * Includes {@code mappings} from property's TypeMap. If we want to map Source to Destination and we already have
+   * a TypeMap map a property of the source to destination, then we can include this property's TypeMap by
+   * {@code include(Source::getProperty, Property.class)}.
+   *
+   * @param sourceGetter the source getter
+   * @param propertyType  the property type
+   * @return this type map
+   */
+  <P> TypeMap<S, D> include(TypeSafeSourceGetter<S, P> sourceGetter, Class<P> propertyType);
+
+  /**
+   * Performs implicit mapping.
    *
    * @return this type map
    */
