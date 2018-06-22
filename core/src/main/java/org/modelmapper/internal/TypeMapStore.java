@@ -51,8 +51,21 @@ public final class TypeMapStore {
       if (configuration.isImplicitMappingEnabled()
           && Types.mightContainsProperties(typeMap.getSourceType())
           && Types.mightContainsProperties(typeMap.getDestinationType()))
-        new ImplicitMappingBuilder<S, D>(source, typeMap, config.typeMapStore,
-            config.converterStore).build();
+        ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore);
+      typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
+      return typeMap;
+    }
+  }
+
+  /**
+   * Creates a  empty TypeMap. If {@code converter} is null, the TypeMap is configured with implicit
+   * mappings, else the {@code converter} is set against the TypeMap.
+   */
+  public <S, D> TypeMap<S, D> createEmptyTypeMap(S source, Class<S> sourceType, Class<D> destinationType,
+      String typeMapName, InheritingConfiguration configuration, MappingEngineImpl engine) {
+    synchronized (lock) {
+      TypeMapImpl<S, D> typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName,
+          configuration, engine);
       typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
       return typeMap;
     }
