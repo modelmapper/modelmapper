@@ -74,11 +74,10 @@ public class GH336 {
   }
 
   public void shouldMap() {
-    modelMapper.getConfiguration().setImplicitMappingEnabled(false);
-    modelMapper.typeMap(Husband.class, Husband.class)
+    modelMapper.emptyTypeMap(Husband.class, Husband.class)
         .addMappings(husbandPropertyMap)
         .implicitMappings();
-    modelMapper.typeMap(Wife.class, Wife.class)
+    modelMapper.emptyTypeMap(Wife.class, Wife.class)
         .addMappings(wifePropertyMap)
         .implicitMappings();
 
