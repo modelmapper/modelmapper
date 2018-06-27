@@ -45,6 +45,7 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
 
   @Override
   protected void setElement(Collection<Object> destination, Object element, int index) {
-    destination.add(element);
+    if (destination.size() < index + 1)
+      destination.add(element);
   }
 }
