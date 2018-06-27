@@ -18,6 +18,7 @@ package org.modelmapper.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.modelmapper.config.Configuration;
@@ -53,7 +54,12 @@ class PropertyInfoRegistry {
     if (!ACCESSOR_CACHE.containsKey(hashCode) || !FIELD_CACHE.containsKey(hashCode)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
-      TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors();
+      for (Entry<String, Accessor> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors().entrySet()) {
+        if (entry.getValue().getMember() instanceof Method)
+          accessorFor(type, (Method) entry.getValue().getMember(), configuration, entry.getKey());
+        else if (entry.getValue().getMember() instanceof Field)
+          fieldPropertyFor(type, (Field) entry.getValue().getMember(), configuration, entry.getKey());
+      }
     }
 
     if (ACCESSOR_CACHE.containsKey(hashCode))
@@ -67,7 +73,7 @@ class PropertyInfoRegistry {
    */
   static synchronized Accessor accessorFor(Class<?> type, Method method,
       Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(type, method.getName(), configuration);
+    Integer hashCode = hashCodeFor(type, name, configuration);
     Accessor accessor = ACCESSOR_CACHE.get(hashCode);
     if (accessor == null) {
       accessor = new MethodAccessor(type, method, name);
@@ -82,7 +88,7 @@ class PropertyInfoRegistry {
    */
   static synchronized FieldPropertyInfo fieldPropertyFor(Class<?> type, Field field,
       Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(type, field.getName(), configuration);
+    Integer hashCode = hashCodeFor(type, name, configuration);
     FieldPropertyInfo fieldPropertyInfo = FIELD_CACHE.get(hashCode);
     if (fieldPropertyInfo == null) {
       fieldPropertyInfo = new FieldPropertyInfo(type, field, name);
@@ -97,12 +103,17 @@ class PropertyInfoRegistry {
    * Returns a Mutator instance for the given mutator method. The method must be externally
    * validated to ensure that it accepts one argument and returns void.class.
    */
-  static synchronized Mutator mutatorFor(Class<?> type, String methodName, InheritingConfiguration configuration) {
-    Integer hashCode = hashCodeFor(type, methodName, configuration);
+  static synchronized Mutator mutatorFor(Class<?> type, String name, InheritingConfiguration configuration) {
+    Integer hashCode = hashCodeFor(type, name, configuration);
     if (!MUTATOR_CACHE.containsKey(hashCode) || !FIELD_CACHE.containsKey(hashCode)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
-      TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors();
+      for (Entry<String, Mutator> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getMutators().entrySet()) {
+        if (entry.getValue().getMember() instanceof Method)
+          mutatorFor(type, (Method) entry.getValue().getMember(), configuration, entry.getKey());
+        else if (entry.getValue().getMember() instanceof Field)
+          fieldPropertyFor(type, (Field) entry.getValue().getMember(), configuration, entry.getKey());
+      }
     }
 
     if (MUTATOR_CACHE.containsKey(hashCode))
@@ -116,7 +127,7 @@ class PropertyInfoRegistry {
    */
   static synchronized Mutator mutatorFor(Class<?> type, Method method, Configuration configuration,
       String name) {
-    Integer hashCode = hashCodeFor(type, method.getName(), configuration);
+    Integer hashCode = hashCodeFor(type, name, configuration);
     Mutator mutator = MUTATOR_CACHE.get(hashCode);
     if (mutator == null) {
       mutator = new MethodMutator(type, method, name);

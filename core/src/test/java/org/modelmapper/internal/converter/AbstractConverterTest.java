@@ -44,7 +44,7 @@ public abstract class AbstractConverterTest {
   @SuppressWarnings("unchecked")
   protected Object convert(Object source) {
     return converter.convert(new MappingContextImpl<Object, Object>(source,
-        (Class<Object>) source.getClass(), null, destinationType, null, null, engine));
+        (Class<Object>) source.getClass(), null, destinationType, null, null, (MappingEngineImpl) engine));
   }
 
   /**
@@ -55,7 +55,7 @@ public abstract class AbstractConverterTest {
   protected Object convert(Object source, Class<?> destinationType) {
     return converter.convert(new MappingContextImpl<Object, Object>(source,
         (Class<Object>) source.getClass(), null, (Class<Object>) destinationType, null, null,
-        engine));
+        (MappingEngineImpl) engine));
   }
 
   protected void assertInvalid(Object source, Class<?> destinationType) {

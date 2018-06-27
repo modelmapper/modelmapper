@@ -22,10 +22,13 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.modelmapper.Provider;
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
 import org.modelmapper.internal.util.Assert;
+import org.modelmapper.internal.util.Callable;
+import org.modelmapper.internal.util.Objects;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.Mapping;
@@ -54,9 +57,9 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   private final Type genericDestinationType;
   private final String typeMapName;
   /** Whether requested mapping is to a provided destination object */
-  final boolean providedDestination;
+  private boolean providedDestination;
   private MappingImpl mapping;
-  private final MappingEngine mappingEngine;
+  private final MappingEngineImpl mappingEngine;
   private final S source;
   private final Class<S> sourceType;
   private Object parentSource;
@@ -68,7 +71,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    * Create initial MappingContext.
    */
   public MappingContextImpl(S source, Class<S> sourceType, D destination, Class<D> destinationType,
-      Type genericDestinationType, String typeMapName, MappingEngine mappingEngine) {
+      Type genericDestinationType, String typeMapName, MappingEngineImpl mappingEngine) {
     parent = null;
     this.source = source;
     this.sourceType = sourceType;
@@ -89,7 +92,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   /**
    * Create derived MappingContext.
-   * 
+   *
    * @param inheritValues whether values from the source {@code context} should be inherited
    */
   MappingContextImpl(MappingContextImpl<?, ?> context, S source, Class<S> sourceType,
@@ -117,6 +120,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     intermediateDestinations = new ArrayList<Object>();
   }
 
+
+  @Override
   public <CS, CD> MappingContext<CS, CD> create(CS source, CD destination) {
     Assert.notNull(source, "source");
     Assert.notNull(destination, "destination");
@@ -126,6 +131,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
+  @Override
   public <CS, CD> MappingContext<CS, CD> create(CS source, Class<CD> destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
@@ -135,6 +141,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
+  @Override
   public <CS, CD> MappingContext<CS, CD> create(CS source, Type destinationType) {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
@@ -161,46 +168,57 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     return true;
   }
 
+  @Override
   public D getDestination() {
     return destination;
   }
 
+  @Override
   public Class<D> getDestinationType() {
     return destinationType;
   }
 
+  @Override
   public Type getGenericDestinationType() {
     return genericDestinationType;
   }
 
+  @Override
   public Mapping getMapping() {
     return mapping;
   }
 
+  @Override
   public MappingEngine getMappingEngine() {
     return mappingEngine;
   }
 
+  @Override
   public MappingContext<?, ?> getParent() {
     return parent;
   }
 
+  @Override
   public Class<D> getRequestedType() {
     return destinationType;
   }
 
+  @Override
   public S getSource() {
     return source;
   }
 
+  @Override
   public Class<S> getSourceType() {
     return sourceType;
   }
 
+  @Override
   public TypeMap<S, D> getTypeMap() {
     return typeMap;
   }
 
+  @Override
   public String getTypeMapName() {
     return typeMapName;
   }
@@ -227,17 +245,13 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   /**
-   * Determines whether the {@code subpath} is shaded.
+   * Determines whether the {@code subPath} is shaded.
    */
-  boolean isShaded(String subpath) {
+  boolean isShaded(String subPath) {
     for (String shadedPath : shadedPaths)
-      if (subpath.startsWith(shadedPath))
+      if (subPath.startsWith(shadedPath))
         return true;
     return false;
-  }
-
-  Object parentSource() {
-    return parentSource;
   }
 
   TypeMap<?, ?> parentTypeMap() {
@@ -264,5 +278,94 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    */
   void shadePath(String path) {
     shadedPaths.add(path);
+  }
+
+  @SuppressWarnings("all")
+  <S, D> Object getParentDestination() {
+    List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
+    StringBuilder destPathBuilder = new StringBuilder().append(parent.destinationPath);
+    Object current = parent.destination;
+    for (int i = 0; i < mutatorChain.size() - 1; i++) {
+      if (current == null)
+        break;
+      Mutator mutator = mutatorChain.get(i);
+      String destPath = destPathBuilder.append(mutator.getName()).append('.').toString();
+      // Obtain from cache
+      Object next = Objects.firstNonNull(
+          Objects.callable(parent.destinationCache.get(destPath)),
+          parent.getDestinationValueByType(mutator.getType()),
+          parent.getDestinationValueByMemberName(current, mutator.getName()));
+      if (next == null && source != null)
+        next = mappingEngine.createDestinationViaGlobalProvider(parent.parentSource, mutator.getType(), parent.errors);
+
+      if (next != null) {
+        mutator.setValue(current, next);
+        parent.destinationCache.put(destPath, next);
+      }
+      current = next;
+    }
+    return current;
+  }
+
+  private Callable<Object> getDestinationValueByMemberName(final Object current, final String memberName) {
+    return new Callable<Object>() {
+      @Override
+      public Object call() {
+        if (providedDestination) {
+          Accessor accessor = TypeInfoRegistry
+              .typeInfoFor(current.getClass(), mappingEngine.getConfiguration())
+              .getAccessors()
+              .get(memberName);
+          if (accessor != null)
+            return accessor.getValue(current);
+        }
+        return null;
+      }
+    };
+  }
+
+  Callable<Object> getDestinationValueByType(final Class<?> type) {
+    return new Callable<Object>() {
+      @Override
+      public Object call() {
+        for (Object intermediateDestination : intermediateDestinations) {
+          // Match intermediate destinations to mutator by type
+          if (intermediateDestination.getClass().equals(type)) {
+            return intermediateDestination;
+          }
+        }
+        return null;
+      }
+    };
+  }
+
+  /**
+   * Returns a new MappingContext  with destination object  creating via a provider . The provider will
+   * be Mapping's provider used first, else the TypeMap's property provider, else the TypeMap's provider,
+   * else the configuration's  provider. Returns {@code this} if there is no provider.
+   */
+  @SuppressWarnings("unchecked")
+  D createDestinationViaProvider() {
+    Provider<D> provider = null;
+    if (getMapping() != null) {
+      provider = (Provider<D>) getMapping().getProvider();
+      if (provider == null && parentTypeMap() != null)
+        provider = (Provider<D>) parentTypeMap().getPropertyProvider();
+    }
+    if (provider == null && getTypeMap() != null)
+      provider = getTypeMap().getProvider();
+    if (provider == null && mappingEngine.getConfiguration().getProvider() != null)
+      provider = (Provider<D>) mappingEngine.getConfiguration().getProvider();
+    if (provider == null)
+      return null;
+
+    D destination = provider.get(this);
+    mappingEngine.validateDestination(destinationType, destination, errors);
+    setDestination(destination, false);
+    return destination;
+  }
+
+  public boolean isProvidedDestination() {
+    return providedDestination;
   }
 }

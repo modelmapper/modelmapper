@@ -15,6 +15,8 @@
  */
 package org.modelmapper.internal.converter;
 
+import org.modelmapper.internal.MappingContextImpl;
+import org.modelmapper.internal.util.Objects;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
@@ -25,7 +27,8 @@ import org.modelmapper.spi.MappingContext;
  */
 public class AssignableConverter implements ConditionalConverter<Object, Object> {
   public Object convert(MappingContext<Object, Object> context) {
-    return context.getDestination() == null ? context.getSource() : context.getDestination();
+    MappingContextImpl<Object, Object> contextImpl = (MappingContextImpl<Object, Object>) context;
+    return (!contextImpl.isProvidedDestination() && context.getDestination() != null) ? context.getDestination() : context.getSource();
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {

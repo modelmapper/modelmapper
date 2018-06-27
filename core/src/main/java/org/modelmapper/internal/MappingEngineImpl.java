@@ -15,12 +15,22 @@
  */
 package org.modelmapper.internal;
 
-import org.modelmapper.*;
+import org.modelmapper.Condition;
+import org.modelmapper.ConfigurationException;
+import org.modelmapper.Converter;
+import org.modelmapper.Provider;
+import org.modelmapper.TypeMap;
+import org.modelmapper.TypeToken;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
+import org.modelmapper.internal.util.Objects;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
-import org.modelmapper.spi.*;
+import org.modelmapper.spi.ConstantMapping;
+import org.modelmapper.spi.Mapping;
+import org.modelmapper.spi.MappingContext;
+import org.modelmapper.spi.MappingEngine;
+import org.modelmapper.spi.PropertyMapping;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -74,6 +84,8 @@ public class MappingEngineImpl implements MappingEngine {
    * Performs mapping using a TypeMap if one exists, else a converter if one applies, else a newly
    * created TypeMap. Recursive entry point.
    */
+  @Override
+  @SuppressWarnings("unchecked")
   public <S, D> D map(MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
     Class<D> destinationType = context.getDestinationType();
@@ -85,21 +97,22 @@ public class MappingEngineImpl implements MappingEngine {
         return circularDest;
     }
 
-    D destination;
+    D destination = null;
     TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType(),
         context.getTypeMapName());
     if (typeMap != null) {
       destination = typeMap(contextImpl, typeMap);
     } else {
       Converter<S, D> converter = converterFor(context);
-      if (converter != null && (context.getDestination() == null || context.getParent() != null)) {
+      if (converter != null && (context.getDestination() == null || context.getParent() != null))
         destination = convert(context, converter);
-      } else {
+      else if (!Primitives.isPrimitive(context.getSourceType()) && !Primitives.isPrimitive(context.getDestinationType())) {
         // Call getOrCreate in case TypeMap was created concurrently
         typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(),
             context.getDestinationType(), context.getTypeMapName(), this);
         destination = typeMap(contextImpl, typeMap);
-      }
+      } else if (context.getDestinationType().isAssignableFrom(context.getSourceType()))
+        destination = (D) context.getSource();
     }
 
     contextImpl.setDestination(destination, true);
@@ -148,43 +161,27 @@ public class MappingEngineImpl implements MappingEngine {
     String propertyPath = context.destinationPath + mappingImpl.getPath();
     if (context.isShaded(propertyPath))
       return;
-
-    if (mapping.getCondition() == null && mapping.isSkipped())
+    if (mapping.getCondition() == null && mapping.isSkipped()) // skip()
       return;
-
-    Condition<Object, Object> condition = (Condition<Object, Object>) mapping.getCondition();
-    if (condition == null)
-      condition = (Condition<Object, Object>) context.getTypeMap().getPropertyCondition();
-    if (condition == null)
-      condition = (Condition<Object, Object>) configuration.getPropertyCondition();
 
     Object source = resolveSourceValue(context, mapping);
     MappingContextImpl<Object, Object> propertyContext = propertyContextFor(context, source,
         mappingImpl);
 
+    Condition<Object, Object> condition = (Condition<Object, Object>) Objects.firstNonNull(
+        mapping.getCondition(),
+        context.getTypeMap().getPropertyCondition(),
+        configuration.getPropertyCondition());
     if (condition != null) {
-      if (!condition.applies(propertyContext)) {
-        if (!mapping.isSkipped()) {
-          context.shadePath(propertyPath);
-          return;
-        }
-      } else if (mapping.isSkipped())
+      boolean conditionIsTrue = condition.applies(propertyContext);
+      if (conditionIsTrue && mapping.isSkipped()) // when(condition).skip()
         return;
+      else if (!conditionIsTrue && !mapping.isSkipped()) { // when(condition)
+        context.shadePath(propertyPath);
+        return;
+      }
     }
-
-    Converter<Object, Object> converter = (Converter<Object, Object>) mapping.getConverter();
-    if (converter == null)
-      converter = (Converter<Object, Object>) context.getTypeMap().getPropertyConverter();
-    if (converter != null)
-      context.shadePath(propertyPath);
-    else if (mapping instanceof SourceMapping)
-      return;
-
-    // Create destination for property context prior to mapping/conversion
-    createDestinationViaProvider(propertyContext);
-
-    // Set mapped/converted destination value
-    setDestinationValue(context, propertyContext, mappingImpl, converter);
+    setDestinationValue(context, propertyContext, mappingImpl);
   }
 
   @SuppressWarnings("unchecked")
@@ -214,101 +211,44 @@ public class MappingEngineImpl implements MappingEngine {
    * corresponding accessor, from a provider, or by instantiation, in that order.
    */
   @SuppressWarnings("unchecked")
-  private void setDestinationValue(MappingContextImpl<?, ?> context,
-      MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping,
-      Converter<Object, Object> converter) {
-    Object destination = context.getDestination();
-    List<Mutator> mutatorChain = (List<Mutator>) mapping.getDestinationProperties();
-    StringBuilder destPathBuilder = new StringBuilder();
-    destPathBuilder.append(context.destinationPath);
+  private <S, D> void setDestinationValue(MappingContextImpl<S, D> context,
+      MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping) {
+    String destPath = context.destinationPath + mapping.getPath();
+    Converter<Object, Object> converter = (Converter<Object, Object>) Objects.firstNonNull(
+        mapping.getConverter(),
+        context.getTypeMap().getPropertyConverter());
+    if (converter != null)
+      context.shadePath(destPath);
 
-    for (int i = 0; i < mutatorChain.size(); i++) {
-      Mutator mutator = mutatorChain.get(i);
-      destPathBuilder.append(mutator.getName()).append('.');
-      String destPath = destPathBuilder.toString();
+    Object destination = propertyContext.getParentDestination();
+    if (destination == null)
+      return;
 
-      // Handle last mutator in chain
-      if (i == mutatorChain.size() - 1) {
-        // Final destination value
-        Object destinationValue = null;
-
-        if (converter != null) {
-          // Obtain from accessor on provided destination
-          if (context.providedDestination) {
-            Accessor accessor = TypeInfoRegistry.typeInfoFor(destination.getClass(), configuration)
-                .getAccessors()
-                .get(mutator.getName());
-            if (accessor != null) {
-              Object intermediateDest = accessor.getValue(destination);
-              propertyContext.setDestination(intermediateDest, true);
-            }
-          }
-
-          destinationValue = convert(propertyContext, converter);
-        } else if (propertyContext.getSource() == null) {
-          converter = converterFor(propertyContext);
-          if (converter != null)
-            destinationValue = convert(propertyContext, converter);
-        } else
-          destinationValue = map(propertyContext);
-
-        context.destinationCache.put(destPath, destinationValue);
-        if (destinationValue != null || !configuration.isSkipNullEnabled())
-          mutator.setValue(destination,
-              destinationValue == null ? Primitives.defaultValue(mutator.getType())
-                  : destinationValue);
-        if (destinationValue == null)
-          context.shadePath(propertyContext.destinationPath);
-      } else {
-        // Obtain from cache
-        Object intermediateDest = context.destinationCache.get(destPath);
-
-        if (intermediateDest != null) {
-          mutator.setValue(destination, intermediateDest);
-        } else {
-          // Obtain from circular destinations
-          if (!context.intermediateDestinations.isEmpty()) {
-            for (Object intermediateDestination : context.intermediateDestinations) {
-              // Match intermediate destinations to mutator by type
-              if (intermediateDestination.getClass().equals(mutator.getType())) {
-                intermediateDest = intermediateDestination;
-                mutator.setValue(destination, intermediateDest);
-                break;
-              }
-            }
-          }
-
-          if (intermediateDest == null) {
-            // Obtain from accessor on provided destination
-            if (context.providedDestination) {
-              Accessor accessor = TypeInfoRegistry.typeInfoFor(destination.getClass(),
-                  configuration)
-                  .getAccessors()
-                  .get(mutator.getName());
-              if (accessor != null)
-                intermediateDest = accessor.getValue(destination);
-            }
-
-            // Obtain from new instance
-            if (intermediateDest == null) {
-              if (propertyContext.getSource() == null)
-                return;
-
-              intermediateDest = createDestinationViaGlobalProvider(context.parentSource(),
-                  mutator.getType(), context.errors);
-              if (intermediateDest == null)
-                return;
-
-              mutator.setValue(destination, intermediateDest);
-            }
-          }
-
-          context.destinationCache.put(destPath, intermediateDest);
-        }
-
-        destination = intermediateDest;
-      }
+    Mutator mutator = (Mutator) mapping.getLastDestinationProperty();
+    Accessor accessor = PropertyInfoRegistry.accessorFor(mutator.getInitialType(), mutator.getName(), configuration);
+    Object destinationValue = propertyContext.createDestinationViaProvider();
+    if (destinationValue == null && propertyContext.isProvidedDestination() && accessor != null) {
+      destinationValue = accessor.getValue(destination);
+      propertyContext.setDestination(destinationValue, false);
     }
+
+    if (converter != null)
+      destinationValue = convert(propertyContext, converter);
+    else if (propertyContext.getSource() != null)
+      destinationValue = map(propertyContext);
+    else {
+      converter = converterFor(propertyContext);
+      if (converter != null)
+        destinationValue = convert(propertyContext, converter);
+    }
+
+    context.destinationCache.put(destPath, destinationValue);
+    if (destinationValue != null || !configuration.isSkipNullEnabled())
+      mutator.setValue(destination,
+          destinationValue == null ? Primitives.defaultValue(mutator.getType())
+              : destinationValue);
+    if (destinationValue == null)
+      context.shadePath(propertyContext.destinationPath);
   }
 
   /**
@@ -325,7 +265,7 @@ public class MappingEngineImpl implements MappingEngine {
   }
 
   private <S, D> D destinationProperty(MappingContextImpl<S, D> context) {
-    if (!context.providedDestination || context.getMapping() == null)
+    if (!context.isProvidedDestination() || context.getMapping() == null)
       return null;
 
     Object intermediateDest = context.getParent().getDestination();
@@ -393,45 +333,23 @@ public class MappingEngineImpl implements MappingEngine {
     }
   }
 
+  @Override
   public <S, D> D createDestination(MappingContext<S, D> context) {
     MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
-    D destination = createDestinationViaProvider(contextImpl);
-    if (destination != null)
-      return destination;
+    D destination = contextImpl.createDestinationViaProvider();
+    if (destination == null)
+      destination = instantiate(context.getDestinationType(), contextImpl.errors);
 
-    destination = instantiate(context.getDestinationType(), contextImpl.errors);
     contextImpl.setDestination(destination, true);
     return destination;
   }
 
-  /**
-   * Returns a destination object via a provider with the current Mapping's provider used first,
-   * else the TypeMap's property provider, else the TypeMap's provider, else the configuration's
-   * provider.
-   */
-  @SuppressWarnings("unchecked")
-  private <S, D> D createDestinationViaProvider(MappingContextImpl<S, D> context) {
-    Provider<D> provider = null;
-    if (context.getMapping() != null) {
-      provider = (Provider<D>) context.getMapping().getProvider();
-      if (provider == null && context.parentTypeMap() != null)
-        provider = (Provider<D>) context.parentTypeMap().getPropertyProvider();
-    }
-    if (provider == null && context.getTypeMap() != null)
-      provider = context.getTypeMap().getProvider();
-    if (provider == null && configuration.getProvider() != null)
-      provider = (Provider<D>) configuration.getProvider();
-    if (provider == null)
-      return null;
-
-    D destination = provider.get(context);
-    validateDestination(context.getDestinationType(), destination, context.errors);
-    context.setDestination(destination, false);
-    return destination;
+  InheritingConfiguration getConfiguration() {
+    return configuration;
   }
 
   @SuppressWarnings("unchecked")
-  private <S, D> D createDestinationViaGlobalProvider(S source, Class<D> requestedType,
+  <S, D> D createDestinationViaGlobalProvider(S source, Class<D> requestedType,
       Errors errors) {
     D destination = null;
     Provider<D> provider = (Provider<D>) configuration.getProvider();
@@ -445,7 +363,7 @@ public class MappingEngineImpl implements MappingEngine {
     return destination;
   }
 
-  private void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
+  void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
     if (destination != null && !destinationType.isAssignableFrom(destination.getClass()))
       errors.invalidProvidedDestinationInstance(destination, destinationType);
   }
