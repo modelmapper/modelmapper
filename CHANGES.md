@@ -1,3 +1,17 @@
+# 2.1.0
+
+### New Features
+
+* Provided Jackson module
+* Provided TypeMap::addImplicitMappings and ModelMapper::emptyTypeMap
+* Provided deepCopy configuration
+* Lambda api improvement: mapping from source
+* Inhert TypeMap from source's property
+
+### Bug Fixes
+
+* Fixed #360: only assign the destination value if it was created by provider
+
 # 2.0.0
 
 ### New Features
