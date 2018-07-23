@@ -19,6 +19,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.modelmapper.config.Configuration;
+import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.SourceGetter;
 import org.modelmapper.spi.TypeSafeSourceGetter;
@@ -78,7 +80,7 @@ class PropertyReferenceCollector {
       if (Void.class.isAssignableFrom(method.getReturnType()))
         return null;
       try {
-        return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+        return ProxyFactory.proxyFor(resolveReturnType(method), this, proxyErrors);
       } catch (ErrorsException e) {
         return null;
       }
@@ -92,11 +94,16 @@ class PropertyReferenceCollector {
       if (Void.class.isAssignableFrom(method.getReturnType()))
         return null;
       try {
-        return ProxyFactory.proxyFor(method.getReturnType(), this, proxyErrors);
+        return ProxyFactory.proxyFor(resolveReturnType(method), this, proxyErrors);
       } catch (ErrorsException e) {
         return null;
       }
     }
+  }
+
+  private static Class<?> resolveReturnType(Method method) {
+    Accessor accessor = new MethodAccessor(method.getDeclaringClass(), method, method.getName());
+    return accessor.getType();
   }
 
   SourceInterceptor newSourceInterceptor() {
