@@ -36,6 +36,11 @@
       <version>${asm.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-commons</artifactId>
+      <version>${asm.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.objenesis</groupId>
       <artifactId>objenesis</artifactId>
       <version>${objenesis.version}</version>
@@ -170,7 +175,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.3.7</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>bundle-manifest</id>
@@ -184,17 +189,25 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
-              org.modelmapper.internal.cglib.proxy;version=${cglib.version},
-              org.modelmapper.internal.cglib.core;version=${cglib.version},
-              org.modelmapper.internal.cglib.transform;version=${cglib.version},
               org.modelmapper,
               org.modelmapper.builder,
               org.modelmapper.config,
               org.modelmapper.convention,
               org.modelmapper.spi
             </Export-Package>
+            <Import-Package>
+              javax.xml.datatype
+            </Import-Package>
             <Private-Package>
-              org.modelmapper.internal.**
+              org.modelmapper.internal,
+              org.modelmapper.internal.converter,
+              org.modelmapper.internal.util,
+              org.modelmapper.internal.valueaccess,
+              org.modelmapper.internal.valuemutate,
+              org.modelmapper.internal.asm,
+              org.modelmapper.internal.bytebuddy,
+              org.modelmapper.internal.objenesis,
+              org.modelmapper.internal.typetools
             </Private-Package>
           </instructions>
         </configuration>
