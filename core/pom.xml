@@ -164,7 +164,6 @@
         <version>2.9.1</version>
         <configuration>
           <author>false</author>
-          <protected>true</protected>
           <excludePackageNames>*.internal</excludePackageNames>
         </configuration>
       </plugin>

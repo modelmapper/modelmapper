@@ -96,7 +96,6 @@
         <version>2.8.1</version>
         <configuration>
           <author>false</author>
-          <protected>true</protected>
           <excludePackageNames>*.internal</excludePackageNames>
           <additionalparam>
             -Xdoclint:none
