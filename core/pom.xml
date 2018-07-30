@@ -36,6 +36,11 @@
       <version>${asm.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-commons</artifactId>
+      <version>${asm.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.objenesis</groupId>
       <artifactId>objenesis</artifactId>
       <version>${objenesis.version}</version>
@@ -169,36 +174,12 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-shade</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>${project.groupId}</groupId>
-                  <artifactId>${project.artifactId}</artifactId>
-                  <version>${project.version}</version>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/classes</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.3.7</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
-            <id>bundle-manifest</id>
-            <phase>package</phase>
+            <phase>process-classes</phase>
             <goals>
               <goal>manifest</goal>
             </goals>
@@ -208,44 +189,28 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
-              org.modelmapper.internal.cglib.proxy;version=${cglib.version},
-              org.modelmapper.internal.cglib.core;version=${cglib.version},
-              org.modelmapper.internal.cglib.transform;version=${cglib.version},
               org.modelmapper,
               org.modelmapper.builder,
               org.modelmapper.config,
               org.modelmapper.convention,
               org.modelmapper.spi
             </Export-Package>
+            <Import-Package>
+              javax.xml.datatype
+            </Import-Package>
             <Private-Package>
-              org.modelmapper.internal.**
+              org.modelmapper.internal.*
             </Private-Package>
           </instructions>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>package-pre-shaded</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>package-bundle</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
