@@ -35,11 +35,22 @@ public class MapValueReader implements ValueReader<Map<String, Object>> {
   @Override
   public Member<Map<String, Object>> getMember(Map<String, Object> source, String memberName) {
     final Object value = get(source, memberName);
-    return new Member<Map<String, Object>>(Map.class) {
+    if (value instanceof Map)
+      return new Member<Map<String, Object>>(Map.class) {
+        @Override
+        public Map<String, Object> getOrigin() {
+          return (Map<String, Object>) value;
+        }
+
+        @Override
+        public Object get(Map<String, Object> source, String memberName) {
+          return MapValueReader.this.get(source, memberName);
+        }
+      };
+    Class<?> memberType = value != null ? value.getClass() : Object.class;
+    return new Member<Map<String, Object>>(memberType) {
       @Override
       public Map<String, Object> getOrigin() {
-        if (value instanceof Map)
-          return (Map<String, Object>) value;
         return null;
       }
 
