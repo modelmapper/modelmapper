@@ -22,6 +22,11 @@ import org.modelmapper.protobuf.primitive.DoubleConverters;
 import org.modelmapper.protobuf.primitive.IntConverters;
 import org.modelmapper.protobuf.primitive.StringConverters;
 
+/**
+ * Module to support protocol buffer with ModelMapper..
+ *
+ * @author Chun Han Hsiao
+ */
 public class ProtobufModule implements Module {
   @Override
   public void setupModule(ModelMapper modelMapper) {

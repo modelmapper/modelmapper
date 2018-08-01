@@ -20,6 +20,11 @@ import com.google.protobuf.Message.Builder;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
+/**
+ * Converts {@link Message} to {@link Builder}
+ *
+ * @author Chun Han Hsiao
+ */
 public class MessageToBuilderConverter implements ConditionalConverter<Message, Builder> {
   @Override
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {

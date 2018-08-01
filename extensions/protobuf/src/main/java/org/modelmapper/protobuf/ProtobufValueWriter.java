@@ -25,7 +25,7 @@ import org.modelmapper.spi.ValueWriter;
 /**
  * Protocol buffer ValueReader implementation.
  *
- * @author Edward Hsiao
+ * @author Chun Han Hsiao
  */
 public class ProtobufValueWriter implements ValueWriter<Builder> {
   @Override

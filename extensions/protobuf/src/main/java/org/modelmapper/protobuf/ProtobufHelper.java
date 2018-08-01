@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.modelmapper.internal.Errors;
 
+/**
+ * Helper class  that  provides methods for handling protocol buffer classes.
+ *
+ * @author Chun Han Hsiao
+ */
 public class ProtobufHelper {
   private ProtobufHelper() {
   }
