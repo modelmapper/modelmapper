@@ -33,7 +33,7 @@ public final class MappingContextHelper {
       return context.getMappingEngine().createDestination(context);
   }
 
-  public static <T> Class<?> resolveCollectionElementType(MappingContext<?, Collection<T>> context) {
+  public static Class<?> resolveDestinationGenericType(MappingContext<?, ?> context) {
     Mapping mapping = context.getMapping();
     if (mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = mapping.getLastDestinationProperty();

@@ -40,7 +40,7 @@ class CollectionConverter extends IterableConverter<Object, Collection<Object>> 
 
   @Override
   protected Class<?> getElementType(MappingContext<Object, Collection<Object>> context) {
-    return MappingContextHelper.resolveCollectionElementType(context);
+    return MappingContextHelper.resolveDestinationGenericType(context);
   }
 
   @Override
