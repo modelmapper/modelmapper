@@ -258,6 +258,8 @@ public class MappingEngineImpl implements MappingEngine {
   private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
       Object source, MappingImpl mapping) {
     Class<?> sourceType = mapping.getSourceType();
+    if (Object.class.equals(sourceType) && source != null)
+      sourceType = source.getClass();
     boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
     return new MappingContextImpl(context, source, sourceType, null, destinationType, null,
