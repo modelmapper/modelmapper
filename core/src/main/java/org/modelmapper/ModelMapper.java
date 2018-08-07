@@ -77,6 +77,25 @@ public class ModelMapper {
   }
 
   /**
+   * Registers the {@code converter} to use when mapping instances of types {@code S} to {@code D}.
+   * The {@code converter} will be {@link TypeMap#setConverter(Converter) set} against TypeMap
+   * corresponding to the {@code converter}'s type arguments {@code S} and {@code D}.
+   *
+   * @param <S> source type
+   * @param <D> destination type
+   * @param converter to register
+   * @throws IllegalArgumentException if {@code converter} is null or if type arguments {@code S}
+   *           and {@code D} are not declared for the {@code converter}
+   * @see TypeMap#setConverter(Converter)
+   */
+  @SuppressWarnings("unchecked")
+  public <S, D> void addConverter(Converter<S, D> converter, Class<S> sourceType, Class<D> destinationType) {
+    Assert.notNull(converter, "converter");
+    config.typeMapStore.<S, D>getOrCreate(null, sourceType,
+            destinationType, null, null, converter, engine);
+  }
+
+  /**
    * Adds mappings from the {@code propertyMap} into the TypeMap corresponding to source type
    * {@code S} and destination type {@code D}. Explicit mappings defined in the {@code propertyMap}
    * will override any implicit mappings for the same properties.
