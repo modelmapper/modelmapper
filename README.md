@@ -14,6 +14,7 @@ In v2.0, ModelMapper provides modules for 3rd library integration you can easily
 
 - [Java 8](https://github.com/chhsiao90/modelmapper-module-java8)
 - [Protocol Buffer](https://github.com/modelmapper/modelmapper/tree/master/extensions/protobuf)
+- [Vavr](https://github.com/julianps/modelmapper-module-vavr)
 
 ## Contributing
 
