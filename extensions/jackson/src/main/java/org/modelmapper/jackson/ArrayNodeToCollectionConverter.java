@@ -24,8 +24,8 @@ public class ArrayNodeToCollectionConverter implements ConditionalConverter<Arra
     if (source == null)
       return null;
 
-    int sourceLength = source.size();
-    Collection<Object> destination = context.getDestination() == null ? createDestination(context, sourceLength)
+    Collection<Object> destination = context.getDestination() == null
+        ? MappingContextHelper.createCollection(context)
         : context.getDestination();
     Class<?> elementType = MappingContextHelper.resolveDestinationGenericType(context);
 
@@ -39,10 +39,5 @@ public class ArrayNodeToCollectionConverter implements ConditionalConverter<Arra
     }
 
     return destination;
-  }
-
-  private Collection<Object> createDestination(
-      MappingContext<ArrayNode, Collection<Object>> context, int length) {
-    return MappingContextHelper.createCollection(context, length);
   }
 }

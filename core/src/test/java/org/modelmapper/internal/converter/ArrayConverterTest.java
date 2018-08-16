@@ -34,14 +34,14 @@ public class ArrayConverterTest extends AbstractConverterTest {
 
   public void shouldConvertNestedElements() {
     Object[] source = new Object[] { Arrays.asList(1, 2, 3), new int[] { 4, 5, 6 } };
-    Object[] dest = (Object[]) modelMapper.map(source, Object[].class);
+    Object[] dest = modelMapper.map(source, Object[].class);
     assertEquals(dest[0], Arrays.asList(1, 2, 3));
     assertEquals(dest[1], new int[] { 4, 5, 6 });
   }
 
   public void shouldConvertElementsFromArray() {
     int[] source = new int[] { 1, 2, 3 };
-    String[] dest = (String[]) modelMapper.map(source, String[].class);
+    String[] dest = modelMapper.map(source, String[].class);
     assertEquals(dest, new String[] { "1", "2", "3" });
   }
 
@@ -53,7 +53,7 @@ public class ArrayConverterTest extends AbstractConverterTest {
   public void shouldConvertFromSet() {
     Set<Integer> source = new HashSet<Integer>(Arrays.asList(3, 4, 5));
     String[] dest = (String[]) convert(source, String[].class);
-    assertEquals(Arrays.<String>asList(dest), Arrays.asList("3", "4", "5"));
+    assertEquals(Arrays.asList(dest), Arrays.asList("3", "4", "5"));
   }
 
   public void shouldConvertFromList() {
@@ -71,6 +71,25 @@ public class ArrayConverterTest extends AbstractConverterTest {
   public void shouldConvertFromArray() {
     String[] source = new String[] { "a", "b", "c" };
     assertEquals((String[]) convert(source, String[].class), source);
+  }
+
+  public void shouldConvertAndOverwrite() {
+    String[] source = new String[] { "a", "b", "c" };
+    String[] destination = new String[] { "d", "e", "f" };
+    assertEquals((String[]) convert(source, destination, String[].class), source);
+  }
+
+  public void shouldConvertAndOverwriteExist() {
+    String[] source = new String[] { "a", "b", "c" };
+    String[] destination = new String[] { "d", "e", "f", "g" };
+    assertEquals((String[]) convert(source, destination, String[].class),
+        new String[] { "a", "b", "c", "g" });
+  }
+
+  public void shouldConvertAndOverwriteExpand() {
+    String[] source = new String[] { "a", "b", "c" };
+    String[] destination = new String[] { "d", "e" };
+    assertEquals((String[]) convert(source, destination, String[].class), source);
   }
 
   public void testMatches() {

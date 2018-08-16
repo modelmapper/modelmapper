@@ -16,14 +16,14 @@ import org.testng.annotations.BeforeMethod;
  */
 public abstract class AbstractConverterTest {
   protected final ConditionalConverter<Object, Object> converter;
-  protected Class<Object> destinationType;
+  private Class<Object> destinationType;
   protected ModelMapper modelMapper;
   protected InheritingConfiguration config = new InheritingConfiguration();
-  protected MappingEngine engine = new MappingEngineImpl(config);
+  private MappingEngine engine = new MappingEngineImpl(config);
 
   @SuppressWarnings("unchecked")
   AbstractConverterTest(ConditionalConverter<?, ?> converter) {
-    this.converter = (ConditionalConverter<Object, Object>) converter;
+    this(converter, Object.class);
   }
 
   @BeforeMethod
@@ -32,7 +32,7 @@ public abstract class AbstractConverterTest {
   }
 
   @SuppressWarnings("unchecked")
-  public AbstractConverterTest(ConditionalConverter<?, ?> converter, Class<?> destinationType) {
+  AbstractConverterTest(ConditionalConverter<?, ?> converter, Class<?> destinationType) {
     this.converter = (ConditionalConverter<Object, Object>) converter;
     this.destinationType = (Class<Object>) destinationType;
   }
@@ -58,11 +58,34 @@ public abstract class AbstractConverterTest {
         (MappingEngineImpl) engine));
   }
 
+  /**
+   * Converts {@code source} from {@code source.getClass()} to {@code destination} using
+   * {@link #converter}.
+   */
+  @SuppressWarnings("unchecked")
+  protected Object convert(Object source, Object destination) {
+    return converter.convert(new MappingContextImpl<Object, Object>(source,
+        (Class<Object>) source.getClass(), destination, destinationType,
+        null, null, (MappingEngineImpl) engine));
+  }
+
+  /**
+   * Converts {@code source} from {@code source.getClass()} to {@code destination} using
+   * {@link #converter}.
+   */
+  @SuppressWarnings("unchecked")
+  protected Object convert(Object source, Object destination, Class<?> destinationType) {
+    return converter.convert(new MappingContextImpl<Object, Object>(source,
+        (Class<Object>) source.getClass(), destination, (Class<Object>) destinationType,
+        null, null, (MappingEngineImpl) engine));
+  }
+
   protected void assertInvalid(Object source, Class<?> destinationType) {
     try {
       convert(source, destinationType);
       fail();
     } catch (Exception expected) {
+      // DO Nothing
     }
   }
 }

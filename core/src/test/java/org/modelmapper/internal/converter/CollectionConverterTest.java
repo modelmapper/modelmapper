@@ -1,6 +1,7 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class CollectionConverterTest extends AbstractConverterTest {
   static class S {
  //   List<Integer> a = Arrays.asList(1, 2, 3);
  //   int[] b = new int[] { 4, 5, 6 };
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unused" })
     List rawlist = Arrays.asList(7, 8, 9);
   }
 
@@ -74,15 +75,16 @@ public class CollectionConverterTest extends AbstractConverterTest {
   public void shouldConvertPrimitiveArrayToCollection() {
     int[] source = new int[] { 1, 2, 3 };
     Collection<Integer> dest = (Collection<Integer>) convert(source, Collection.class);
-    assertEquals(dest.toArray(), source);
+    assertEquals(dest, Arrays.asList(1, 2, 3));
   }
 
   @SuppressWarnings("unchecked")
   public void shouldConvertListToSet() {
     List<String> source = Arrays.asList("a", "b", "c");
     Set<String> dest = (Set<String>) convert(source, Set.class);
-    assertTrue(dest instanceof Set);
-    Asserts.assertEquals(source, dest);
+    assertNotNull(dest);
+    assertEquals(dest.size(), 3);
+    assertTrue(dest.containsAll(source));
   }
 
   public void shouldConvertArrayToCollection() {
@@ -95,15 +97,42 @@ public class CollectionConverterTest extends AbstractConverterTest {
     List<String> source = Arrays.asList("a", "b", "c");
     Set<String> dest = (Set<String>) convert(source, Set.class);
     assertTrue(dest instanceof HashSet);
-    Asserts.assertEquals(source, dest);
+    assertEquals(dest.size(), 3);
+    assertTrue(dest.containsAll(source));
   }
 
   @SuppressWarnings("unchecked")
   public void shouldConvertListToSortedSet() {
     List<String> source = Arrays.asList("a", "b", "c");
     SortedSet<String> dest = (SortedSet<String>) convert(source, SortedSet.class);
-    assertTrue(dest instanceof SortedSet);
-    Asserts.assertEquals(source, dest);
+    assertNotNull(dest);
+    assertEquals(source, dest);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertListToListOverwrite() {
+    List<String> source = Arrays.asList("a", "b", "c");
+    List<String> destination = Arrays.asList("d", "e", "f");
+    Class<?> destinationType = List.class;
+    assertEquals(convert(source, destination, (Class<Object>) destinationType), source);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertListToListOverwriteExist() {
+    List<String> source = Arrays.asList("a", "b", "c");
+    List<String> destination = Arrays.asList("d", "e", "f", "g");
+    Class<?> destinationType = List.class;
+    assertEquals(convert(source, destination, destinationType),
+        Arrays.asList("a", "b", "c", "g"));
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertListToListOverwriteExpand() {
+    List<String> source = Arrays.asList("a", "b", "c");
+    List<String> destination = Arrays.asList("d", "e");
+    Class<?> destinationType = List.class;
+    assertEquals(convert(source, destination, destinationType),
+        Arrays.asList("a", "b", "c"));
   }
 
   public void testMatches() {

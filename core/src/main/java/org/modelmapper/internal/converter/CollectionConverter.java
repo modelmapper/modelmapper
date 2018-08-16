@@ -16,9 +16,10 @@
 package org.modelmapper.internal.converter;
 
 import java.util.Collection;
-
+import java.util.Iterator;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.MappingContextHelper;
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -26,26 +27,41 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class CollectionConverter extends IterableConverter<Object, Collection<Object>> {
+class CollectionConverter implements ConditionalConverter<Object, Collection<Object>> {
+  @Override
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Iterables.isIterable(sourceType) && Collection.class.isAssignableFrom(destinationType) ? MatchResult.FULL
         : MatchResult.NONE;
   }
 
   @Override
-  protected Collection<Object> createDestination(
-      MappingContext<Object, Collection<Object>> context, int length) {
-    return MappingContextHelper.createCollection(context, length);
-  }
+  public Collection<Object> convert(MappingContext<Object, Collection<Object>> context) {
+    Object source = context.getSource();
+    if (source == null)
+      return null;
 
-  @Override
-  protected Class<?> getElementType(MappingContext<Object, Collection<Object>> context) {
-    return MappingContextHelper.resolveDestinationGenericType(context);
-  }
+    int sourceLength = Iterables.getLength(source);
+    Collection<Object> originalDestination = context.getDestination();
+    Collection<Object> destination = MappingContextHelper.createCollection(context);
+    Class<?> elementType = MappingContextHelper.resolveDestinationGenericType(context);
 
-  @Override
-  protected void setElement(Collection<Object> destination, Object element, int index) {
-    if (destination.size() < index + 1)
+    int index = 0;
+    for (Iterator<Object> iterator = Iterables.iterator(source); iterator.hasNext(); index++) {
+      Object sourceElement = iterator.next();
+      Object element = null;
+      if (originalDestination != null)
+        element = Iterables.getElement(originalDestination, index);
+      if (sourceElement != null) {
+        MappingContext<?, ?> elementContext = element == null
+            ? context.create(sourceElement, elementType)
+            : context.create(sourceElement, element);
+        element = context.getMappingEngine().map(elementContext);
+      }
       destination.add(element);
+    }
+    for (Object element : Iterables.subIterable(originalDestination, sourceLength))
+      destination.add(element);
+
+    return destination;
   }
 }
