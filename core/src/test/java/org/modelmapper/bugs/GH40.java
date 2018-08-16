@@ -98,28 +98,28 @@ public class GH40 extends AbstractTest {
     modelMapper.createTypeMap(CustomerEntity.class, CustomerDTO.class).setConverter(
         new Converter<CustomerEntity, CustomerDTO>() {
           public CustomerDTO convert(MappingContext<CustomerEntity, CustomerDTO> ctx) {
-            List<BaseInsuranceInterface> insurances = new ArrayList<BaseInsuranceInterface>();
-            ctx.getDestination().insurances = insurances;
+            CustomerDTO destination = new CustomerDTO();
+            destination.insurances = new ArrayList<BaseInsuranceInterface>();
 
             // Map and populate concrete insurance 1 list
             MappingContext<List<ConcreteInsurance1Entity>, List<ConcreteInsurance1DTO>> c1 = ctx.create(
                 ctx.getSource().concreteInsurance1, new TypeToken<List<ConcreteInsurance1DTO>>() {
                 }.getType());
-            insurances.addAll(ctx.getMappingEngine().map(c1));
+            destination.insurances.addAll(ctx.getMappingEngine().map(c1));
 
             // Map and populate concrete insurance 2 list
             MappingContext<List<ConcreteInsurance2Entity>, List<ConcreteInsurance2DTO>> c2 = ctx.create(
                 ctx.getSource().concreteInsurance2, new TypeToken<List<ConcreteInsurance2DTO>>() {
                 }.getType());
-            insurances.addAll(ctx.getMappingEngine().map(c2));
+            destination.insurances.addAll(ctx.getMappingEngine().map(c2));
 
             // Map and populate special insurance list list
             MappingContext<List<SpecialInsuranceContainer>, List<ConcreteSpecialInsuranceDTO>> c3 = ctx.create(
                 ctx.getSource().specials, new TypeToken<List<ConcreteSpecialInsuranceDTO>>() {
                 }.getType());
-            insurances.addAll(ctx.getMappingEngine().map(c3));
+            destination.insurances.addAll(ctx.getMappingEngine().map(c3));
 
-            return ctx.getDestination();
+            return destination;
           }
         });
 
