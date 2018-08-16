@@ -25,7 +25,7 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-public abstract interface Converter<S, D> {
+public interface Converter<S, D> {
   /**
    * Converts the {@link MappingContext#getSource()} to an instance of
    * {@link MappingContext#getDestinationType()}.
