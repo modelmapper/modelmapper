@@ -22,14 +22,27 @@ public final class MappingContextHelper {
   private MappingContextHelper() {
   }
 
-  public static <T> Collection<T> createCollection(MappingContext<?, Collection<T>> context, int length) {
+  /**
+   * Creates a collection based on the destination type.
+   *
+   * <ul>
+   *   <li>Creates {@code TreeSet} for {@code SortedSet}</li>
+   *   <li>Creates {@code HashSet} for {@code Set}</li>
+   *   <li>Creates {@code ArrayList} for {@code List}</li>
+   * </ul>
+   *
+   * @param context the mapping context
+   * @param <T> the element type of the collection
+   * @return an empty collection
+   */
+  public static <T> Collection<T> createCollection(MappingContext<?, Collection<T>> context) {
       if (context.getDestinationType().isInterface())
         if (SortedSet.class.isAssignableFrom(context.getDestinationType()))
           return new TreeSet<T>();
         else if (Set.class.isAssignableFrom(context.getDestinationType()))
           return new HashSet<T>();
         else
-          return new ArrayList<T>(length);
+          return new ArrayList<T>();
       return context.getMappingEngine().createDestination(context);
   }
 

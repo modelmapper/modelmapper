@@ -232,9 +232,9 @@ public class NumberConverterTest extends AbstractConverterTest {
     convert(new Date(), Integer.class);
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test(expectedExceptions = MappingException.class)
   public void shouldThrowOnNotANumber() {
-    convert("XXXX");
+    convert("XXXX", Integer.class);
   }
 
   @Test(dataProvider = "typesProvider")

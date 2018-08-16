@@ -19,8 +19,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.util.Collection;
 
+import java.util.Iterator;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Types;
+import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 /**
@@ -28,28 +30,59 @@ import org.modelmapper.spi.MappingContext;
  * 
  * @author Jonathan Halterman
  */
-class ArrayConverter extends IterableConverter<Object, Object> {
+class ArrayConverter implements ConditionalConverter<Object, Object> {
+  @Override
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Iterables.isIterable(sourceType) && destinationType.isArray() ? MatchResult.FULL
         : MatchResult.NONE;
   }
 
   @Override
-  protected void setElement(Object destination, Object element, int index) {
-    Array.set(destination, index, element);
+  public Object convert(MappingContext<Object, Object> context) {
+    Object source = context.getSource();
+    if (source == null)
+      return null;
+
+    boolean destinationProvided = context.getDestination() != null;
+    Object destination = createDestination(context);
+
+    Class<?> elementType = getElementType(context);
+    int index = 0;
+    for (Iterator<Object> iterator = Iterables.iterator(source); iterator.hasNext(); index++) {
+      Object sourceElement = iterator.next();
+      Object element = null;
+      if (destinationProvided)
+        element = Iterables.getElement(destination, index);
+      if (sourceElement != null) {
+        MappingContext<?, ?> elementContext = element == null
+            ? context.create(sourceElement, elementType)
+            : context.create(sourceElement, element);
+        element = context.getMappingEngine().map(elementContext);
+      }
+      Array.set(destination, index, element);
+    }
+
+    return destination;
   }
 
-  @Override
-  protected Class<?> getElementType(MappingContext<Object, Object> context) {
+  @SuppressWarnings("all")
+  private Object createDestination(MappingContext<Object, Object> context) {
+    int sourceLength = Iterables.getLength(context.getSource());
+    int destinationLength = context.getDestination() != null ? Iterables.getLength(context.getDestination()) : 0;
+    int newLength = Math.max(sourceLength, destinationLength);
+    Object originalDestination = context.getDestination();
+
+    Class<?> destType = context.getDestinationType();
+    Object destination = Array.newInstance(destType.isArray() ? destType.getComponentType() : destType, newLength);
+    if (originalDestination != null)
+      System.arraycopy(originalDestination, 0, destination, 0, destinationLength);
+    return destination;
+  }
+
+  private Class<?> getElementType(MappingContext<Object, Object> context) {
     if (context.getGenericDestinationType() instanceof GenericArrayType)
-      return Types.rawTypeFor((GenericArrayType) context.getGenericDestinationType())
+      return Types.rawTypeFor(context.getGenericDestinationType())
           .getComponentType();
     return context.getDestinationType().getComponentType();
-  }
-
-  @Override
-  protected Object createDestination(MappingContext<Object, Object> context, int length) {
-    Class<?> destType = context.getDestinationType();
-    return Array.newInstance(destType.isArray() ? destType.getComponentType() : destType, length);
   }
 }

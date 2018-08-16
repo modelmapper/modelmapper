@@ -81,7 +81,7 @@ public class Converters {
       if (context.getSource() == null)
         return null;
 
-      java.util.Collection<D> destination = MappingContextHelper.createCollection(context, context.getSource().size());
+      java.util.Collection<D> destination = MappingContextHelper.createCollection(context);
       for (S element : context.getSource()) {
         destination.add(converter.convert(element));
       }

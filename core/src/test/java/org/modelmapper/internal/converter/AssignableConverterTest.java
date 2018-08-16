@@ -20,7 +20,7 @@ public class AssignableConverterTest extends AbstractConverterTest {
   }
 
   public void testConvert() {
-    assertEquals(convert("123"), "123");
+    assertEquals(convert("123", String.class), "123");
   }
 
   public void testMatches() {
