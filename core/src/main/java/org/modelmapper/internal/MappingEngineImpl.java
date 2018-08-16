@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.lang.reflect.Type;
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
@@ -262,7 +263,8 @@ public class MappingEngineImpl implements MappingEngine {
       sourceType = source.getClass();
     boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
-    return new MappingContextImpl(context, source, sourceType, null, destinationType, null,
+    Type genericDestinationType = context.genericDestinationPropertyType(mapping.getLastDestinationProperty().getGenericType());
+    return new MappingContextImpl(context, source, sourceType, null, destinationType, genericDestinationType,
         mapping, !cyclic);
   }
 

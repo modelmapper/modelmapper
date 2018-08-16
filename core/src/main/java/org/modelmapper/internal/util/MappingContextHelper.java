@@ -35,12 +35,16 @@ public final class MappingContextHelper {
 
   public static Class<?> resolveDestinationGenericType(MappingContext<?, ?> context) {
     Mapping mapping = context.getMapping();
+
     if (mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = mapping.getLastDestinationProperty();
       Class<?> elementType = TypeResolver.resolveRawArgument(destInfo.getGenericType(),
           destInfo.getInitialType());
-      return elementType == TypeResolver.Unknown.class ? Object.class : elementType;
-    } else if (context.getGenericDestinationType() instanceof ParameterizedType)
+      if (elementType != TypeResolver.Unknown.class)
+        return elementType;
+    }
+
+    if (context.getGenericDestinationType() instanceof ParameterizedType)
       return Types.rawTypeFor(((ParameterizedType) context.getGenericDestinationType()).getActualTypeArguments()[0]);
 
     return Object.class;

@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -278,6 +279,22 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
    */
   void shadePath(String path) {
     shadedPaths.add(path);
+  }
+
+  Type genericDestinationPropertyType(Type type) {
+    if (type == null
+        || !(type instanceof ParameterizedType)
+        || genericDestinationType == null
+        || destinationType.getTypeParameters().length == 0)
+      return null;
+
+    ParameterizedType parameterizedType = (ParameterizedType) type;
+    if (parameterizedType.getActualTypeArguments().length == 0)
+      return null;
+
+    if (destinationType.getTypeParameters()[0] == parameterizedType.getActualTypeArguments()[0])
+      return genericDestinationType;
+    return null;
   }
 
   @SuppressWarnings("all")
