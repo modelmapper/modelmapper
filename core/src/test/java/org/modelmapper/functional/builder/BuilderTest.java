@@ -41,9 +41,9 @@ public class BuilderTest {
     private final String foo;
     private final String bar;
 
-    public Destination(Builder builder) {
-      foo = builder.foo;
-      bar = builder.bar;
+    public Destination(String foo, String bar) {
+      this.foo = foo;
+      this.bar = bar;
     }
 
     static class Builder {
@@ -61,7 +61,26 @@ public class BuilderTest {
       }
 
       Destination build() {
-        return new Destination(this);
+        return new Destination(foo, bar);
+      }
+    }
+
+    static class BuilderWith {
+      private String foo;
+      private String bar;
+
+      public BuilderWith withFoo(String foo) {
+        this.foo = foo;
+        return this;
+      }
+
+      public BuilderWith withBar(String bar) {
+        this.bar = bar;
+        return this;
+      }
+
+      Destination build() {
+        return new Destination(foo, bar);
       }
     }
   }
@@ -71,15 +90,28 @@ public class BuilderTest {
   @BeforeMethod
   public void setUp() {
     modelMapper = new ModelMapper();
-    Configuration builderConfiguration = modelMapper.getConfiguration().copy()
-        .setDestinationNameTransformer(NameTransformers.BUILDER)
-        .setDestinationNamingConvention(NamingConventions.BUILDER);
-    modelMapper.createTypeMap(Source.class, Destination.Builder.class, builderConfiguration);
   }
 
   public void shouldMap() {
+    Configuration builderConfiguration = modelMapper.getConfiguration().copy()
+        .setDestinationNameTransformer(NameTransformers.builder())
+        .setDestinationNamingConvention(NamingConventions.builder());
+    modelMapper.createTypeMap(Source.class, Destination.Builder.class, builderConfiguration);
+
     Source source = new Source("foo", "bar");
     Destination destination = modelMapper.map(source, Destination.Builder.class).build();
+    assertEquals("foo", destination.foo);
+    assertEquals("bar", destination.bar);
+  }
+
+  public void shouldMapWithDifferentPrefix() {
+    Configuration builderConfiguration = modelMapper.getConfiguration().copy()
+        .setDestinationNameTransformer(NameTransformers.builder("with"))
+        .setDestinationNamingConvention(NamingConventions.builder("with"));
+    modelMapper.createTypeMap(Source.class, Destination.BuilderWith.class, builderConfiguration);
+
+    Source source = new Source("foo", "bar");
+    Destination destination = modelMapper.map(source, Destination.BuilderWith.class).build();
     assertEquals("foo", destination.foo);
     assertEquals("bar", destination.bar);
   }

@@ -65,17 +65,45 @@ public class NameTransformers {
   };
 
   /**
+   * Creates NameTransformer for builder.
+   * @return a NameTransformer
+   */
+  public static NameTransformer builder() {
+    return builder("");
+  }
+
+  /**
+   * Creates NameTransformer for builder.
+   *
+   * @param prefix the prefix for the setter of the builder
+   * @return a NameTransformer
+   */
+  public static NameTransformer builder(String prefix) {
+    return new BuilderNameTransformer(prefix);
+  }
+
+  /**
    * Transforms the names to their simple property name according to the builder convention.
    * Class and field names are unchanged.
    */
-  public static final NameTransformer BUILDER = new NameTransformer() {
+  private static class BuilderNameTransformer implements NameTransformer {
+    private String prefix;
+
+    private BuilderNameTransformer(String prefix) {
+      this.prefix = prefix;
+    }
+
     public String transform(String name, NameableType nameableType) {
+      if (prefix.isEmpty())
+        return name;
+      if (name.startsWith(prefix))
+        return Strings.decapitalize(name.substring(prefix.length()));
       return name;
     }
 
     @Override
     public String toString() {
-      return "Builder";
+      return "Builder(prefix=" + prefix + ")";
     }
-  };
+  }
 }
