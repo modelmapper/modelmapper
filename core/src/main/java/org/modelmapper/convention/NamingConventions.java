@@ -56,6 +56,20 @@ public class NamingConventions {
   };
 
   /**
+   * Naming convention for builder.
+   */
+  public static final NamingConvention BUILDER = new NamingConvention() {
+    public boolean applies(String propertyName, PropertyType propertyType) {
+      return true;
+    }
+
+    @Override
+    public String toString() {
+      return "Builder";
+    }
+  };
+
+  /**
    * Represents no naming convention. This convention
    * {@link NamingConvention#applies(String, PropertyType) applies} to all property names, allowing
    * all properties to be eligible for matching.
