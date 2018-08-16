@@ -63,4 +63,19 @@ public class NameTransformers {
       return "Javabeans Mutator";
     }
   };
+
+  /**
+   * Transforms the names to their simple property name according to the builder convention.
+   * Class and field names are unchanged.
+   */
+  public static final NameTransformer BUILDER = new NameTransformer() {
+    public String transform(String name, NameableType nameableType) {
+      return name;
+    }
+
+    @Override
+    public String toString() {
+      return "Builder";
+    }
+  };
 }
