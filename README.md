@@ -16,6 +16,10 @@ In v2.0, ModelMapper provides modules for 3rd library integration you can easily
 - [Protocol Buffer](https://github.com/modelmapper/modelmapper/tree/master/extensions/protobuf)
 - [Vavr](https://github.com/julianps/modelmapper-module-vavr)
 
+## Related Projects
+
+- [Spring Boot ModelMapper Starter](https://github.com/jmnarloch/modelmapper-spring-boot-starter)
+
 ## Contributing
 
 Bug reports and feature requests are welcome via the [issue tracker](https://github.com/modelmapper/modelmapper/issues). Fixes and enhancements are also welcome via pull requests. If you're unsure about a contribution idea, feel free to [contact me][me].
