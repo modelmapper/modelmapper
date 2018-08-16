@@ -128,20 +128,22 @@ public class MappingEngineImpl implements MappingEngine {
       context.setDestination(destinationProperty(context), false);
 
     context.setTypeMap(typeMap);
+
+    @SuppressWarnings("unchecked")
+    Condition<S, D> condition = (Condition<S, D>) typeMap.getCondition();
+    boolean noSkip = condition == null || condition.applies(context);
+
+    if (noSkip && typeMap.getConverter() != null)
+      return convert(context, typeMap.getConverter());
+
     if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
       D destination = createDestination(context);
       if (destination == null)
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    Condition<S, D> condition = (Condition<S, D>) typeMap.getCondition();
-    Converter<S, D> converter = typeMap.getConverter();
-    if (condition == null || condition.applies(context)) {
-      if (converter != null)
-        return convert(context, converter);
-
-      converter = typeMap.getPreConverter();
+    if (noSkip) {
+      Converter<S, D> converter = typeMap.getPreConverter();
       if (converter != null)
         context.setDestination(convert(context, converter), true);
 

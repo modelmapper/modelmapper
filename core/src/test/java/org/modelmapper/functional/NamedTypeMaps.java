@@ -27,8 +27,9 @@ public class NamedTypeMaps extends AbstractTest {
     modelMapper.createTypeMap(Source.class, Dest.class, "converted").setConverter(
         new Converter<Source, Dest>() {
           public Dest convert(MappingContext<Source, Dest> context) {
-            context.getDestination().value = "bar";
-            return context.getDestination();
+            Dest dest = new Dest();
+            dest.value = "bar";
+            return dest;
           }
         });
 

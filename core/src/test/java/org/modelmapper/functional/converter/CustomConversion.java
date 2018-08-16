@@ -198,8 +198,11 @@ public class CustomConversion {
 
     Converter<Source, Destination> customConverter = new Converter<Source, Destination>() {
       public Destination convert(MappingContext<Source, Destination> context) {
-        context.getDestination().value = context.getSource().value + 10;
-        return context.getDestination();
+        Destination dest = context.getDestination() != null
+            ? context.getDestination()
+            : new Destination();
+        dest.value = context.getSource().value + 10;
+        return dest;
       }
     };
 
