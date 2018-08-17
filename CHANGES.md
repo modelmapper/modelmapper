@@ -1,3 +1,17 @@
+# 2.2.0
+
+### New Features
+
+* Provides ModelMapper.addConverter(sourceType, destinationType, converter)
+* Provides Converters.Collection.map() to create converter for collection
+* Provides builder pattern support
+
+### Bug Fixes
+
+* Fixed #379: Mapping generic types not working
+* Fixed #151: Converter not working properly
+* Fixed #386: Mapping Source object to Destination object for iterable correctly
+
 # 2.1.1
 
 ### New Features
