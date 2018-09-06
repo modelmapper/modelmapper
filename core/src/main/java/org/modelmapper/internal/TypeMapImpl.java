@@ -32,6 +32,7 @@ import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.internal.util.Assert;
+import org.modelmapper.internal.util.Objects;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
@@ -295,6 +296,20 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
   public <DS extends S, DD extends D> TypeMap<S, D> include(Class<DS> sourceType, Class<DD> destinationType) {
     TypeMapImpl<DS, DD> derivedTypeMap = new TypeMapImpl<DS, DD>(this, sourceType, destinationType);
     configuration.typeMapStore.put(derivedTypeMap);
+    return this;
+  }
+
+  @Override
+  public TypeMap<S, D> include(Class<? super D> baseDestinationType) {
+    if (provider == null)
+      provider = new Provider<D>() {
+        @Override
+        public D get(ProvisionRequest<D> request) {
+          return Objects.instantiate(destinationType);
+        }
+      };
+
+    configuration.typeMapStore.put(sourceType, baseDestinationType, this);
     return this;
   }
 

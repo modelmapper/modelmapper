@@ -15,6 +15,8 @@
  */
 package org.modelmapper.internal.util;
 
+import java.lang.reflect.Constructor;
+
 /**
  *  An utility class that provides methods for objects manipulation.
  */
@@ -45,5 +47,16 @@ public class Objects {
         return obj;
       }
     };
+  }
+
+  public static <T> T instantiate(Class<T> type) {
+    try {
+      Constructor<T> constructor = type.getDeclaredConstructor();
+      if (!constructor.isAccessible())
+        constructor.setAccessible(true);
+      return constructor.newInstance();
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

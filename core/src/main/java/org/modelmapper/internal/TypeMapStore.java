@@ -148,11 +148,24 @@ public final class TypeMapStore {
   public void put(TypeMap<?, ?> typeMap) {
     TypePair<?, ?> typePair = TypePair.of(typeMap.getSourceType(),
         typeMap.getDestinationType(), typeMap.getName());
-
     synchronized (lock) {
-      if (typeMaps.containsKey(typePair)) {
+      if (typeMaps.containsKey(typePair))
         throw new IllegalArgumentException("TypeMap exists in the store: " + typePair.toString());
-      }
+      typeMaps.put(typePair, typeMap);
+    }
+  }
+
+  /**
+   * Puts a typeMap into store
+   *
+   * @throws IllegalArgumentException if {@link TypePair} of typeMap is already exists in the store
+   */
+  public <S, D> void put(Class<S> sourceType, Class<D> destinationType, TypeMap<S, ? extends D> typeMap) {
+    TypePair<S, D> typePair = TypePair.of(sourceType, destinationType,
+        typeMap.getName());
+    synchronized (lock) {
+      if (typeMaps.containsKey(typePair))
+        throw new IllegalArgumentException("TypeMap exists in the store: " + typePair.toString());
       typeMaps.put(typePair, typeMap);
     }
   }
