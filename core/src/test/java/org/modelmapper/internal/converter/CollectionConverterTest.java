@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.modelmapper.Asserts;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
@@ -133,6 +134,35 @@ public class CollectionConverterTest extends AbstractConverterTest {
     Class<?> destinationType = List.class;
     assertEquals(convert(source, destination, destinationType),
         Arrays.asList("a", "b", "c"));
+  }
+
+  static class SrcSortedSet {
+    SortedSet<Integer> genericSet = new TreeSet<Integer>(Arrays.asList(3, 1, 2));
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    SortedSet rawset = new TreeSet(Arrays.asList(9, 7, 8));
+  }
+
+  static class DestSortedSet {
+    SortedSet<Integer> genericSet;
+    @SuppressWarnings("rawtypes")
+    SortedSet rawset;
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertElementsFromSortedSet() {
+    SortedSet<Integer> s = new TreeSet<Integer>(Arrays.asList(3, 1, 2));
+    SortedSet<Object> d = modelMapper.map(s, SortedSet.class);
+    assertEquals(d, s);
+    assertTrue(d instanceof SortedSet);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void shouldConvertElementsFromSortedSetModel() {
+    DestSortedSet d = modelMapper.map(new SrcSortedSet(), DestSortedSet.class);
+    assertEquals(d.genericSet, new TreeSet<Integer>(Arrays.asList(1, 2, 3)));
+    assertEquals(d.rawset, new TreeSet(Arrays.asList(7, 8, 9)));
+    assertTrue(d.genericSet instanceof SortedSet);
+    assertTrue(d.rawset instanceof SortedSet);
   }
 
   public void testMatches() {
