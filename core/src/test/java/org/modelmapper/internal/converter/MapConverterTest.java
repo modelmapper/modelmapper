@@ -1,10 +1,12 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
@@ -73,6 +75,69 @@ public class MapConverterTest extends AbstractConverterTest {
     assertEquals(d.a, expectedA);
     assertEquals(d.b, expectedB);
     assertEquals(d.rawmap, expectedRaw);
+  }
+
+  @SuppressWarnings("unchecked")
+  static class SrcSortedMap {
+    SortedMap<String, Integer> a = new TreeMap<String, Integer>();
+    SortedMap<Integer, String> b = new TreeMap<Integer, String>();
+    @SuppressWarnings("rawtypes")
+    SortedMap rawmap = new TreeMap();
+    {
+      a.put("3", 3);
+      a.put("1", 1);
+      a.put("2", 2);
+      b.put(6, "6");
+      b.put(4, "4");
+      b.put(5, "5");
+      rawmap.put(9, "9");
+      rawmap.put(7, "7");
+      rawmap.put(8, "8");
+    }
+  }
+
+  static class DestSortedMap {
+    SortedMap<String, String> a;
+    SortedMap<Integer, Integer> b;
+    @SuppressWarnings("rawtypes")
+    SortedMap rawmap;
+  }
+
+  @SuppressWarnings("unchecked")
+  public void shouldConvertElementsFromSortedMap() {
+    SortedMap<String, Integer> map = new TreeMap<String, Integer>();
+    map.put("3", 3);
+    map.put("1", 1);
+    map.put("2", 2);
+
+    Map<String, Integer> dest = modelMapper.map(map, SortedMap.class);
+
+    assertEquals(dest, map);
+    assertTrue(dest instanceof SortedMap);
+  }
+
+  public void shouldConvertElementsFromSortedMapModel() {
+    SortedMap<String, String> expectedA = new TreeMap<String, String>();
+    expectedA.put("1", "1");
+    expectedA.put("2", "2");
+    expectedA.put("3", "3");
+    SortedMap<Integer, Integer> expectedB = new TreeMap<Integer, Integer>();
+    expectedB.put(4, 4);
+    expectedB.put(5, 5);
+    expectedB.put(6, 6);
+    SortedMap<Object, Object> expectedRaw = new TreeMap<Object, Object>();
+    expectedRaw.put(7, "7");
+    expectedRaw.put(8, "8");
+    expectedRaw.put(9, "9");
+
+    DestSortedMap d = modelMapper.map(new SrcSortedMap(), DestSortedMap.class);
+
+    assertEquals(d.a, expectedA);
+    assertEquals(d.b, expectedB);
+    assertEquals(d.rawmap, expectedRaw);
+    assertTrue(d.a instanceof SortedMap);
+    assertTrue(d.b instanceof SortedMap);
+    assertTrue(d.rawmap instanceof SortedMap);
   }
 
   public void testMatches() {

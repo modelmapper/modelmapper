@@ -17,6 +17,8 @@ package org.modelmapper.internal.converter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import net.jodah.typetools.TypeResolver;
@@ -80,9 +82,10 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
 
   protected Map<Object, Object> createDestination(
       MappingContext<Map<?, ?>, Map<Object, Object>> context) {
-    if (context.getDestinationType().isInterface())
-      return new HashMap<Object, Object>();
-
-    return context.getMappingEngine().createDestination(context);
+    if (!context.getDestinationType().isInterface())
+      return context.getMappingEngine().createDestination(context);
+    if (SortedMap.class.isAssignableFrom(context.getDestinationType()))
+      return new TreeMap<Object, Object>();
+    return new HashMap<Object, Object>();
   }
 }
