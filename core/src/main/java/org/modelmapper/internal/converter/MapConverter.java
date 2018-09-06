@@ -82,13 +82,10 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
 
   protected Map<Object, Object> createDestination(
       MappingContext<Map<?, ?>, Map<Object, Object>> context) {
-    if (context.getDestinationType().isInterface()) {
-      if (SortedMap.class.isAssignableFrom(context.getDestinationType())) {
-        return new TreeMap<Object, Object>();
-      }
-      return new HashMap<Object, Object>();
-    }
-
-    return context.getMappingEngine().createDestination(context);
+    if (!context.getDestinationType().isInterface())
+      return context.getMappingEngine().createDestination(context);
+    if (SortedMap.class.isAssignableFrom(context.getDestinationType()))
+      return new TreeMap<Object, Object>();
+    return new HashMap<Object, Object>();
   }
 }
