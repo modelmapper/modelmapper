@@ -376,7 +376,7 @@ public class ModelMapper {
     Assert.notNull(sourceType, "sourceType");
     Assert.notNull(destinationType, "destinationType");
     Assert.isNull(config.typeMapStore.get(sourceType, destinationType, null), "TypeMap already defined");
-    return config.typeMapStore.createEmptyTypeMap(null, sourceType, destinationType, null, config, engine);
+    return config.typeMapStore.createEmptyTypeMap(sourceType, destinationType, null, config, engine);
   }
 
   /**
