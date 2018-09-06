@@ -296,6 +296,17 @@ public interface TypeMap<S, D> {
   <DS extends S, DD extends D> TypeMap<S, D> include(Class<DS> sourceType, Class<DD> destinationType);
 
   /**
+   * Makes this TypeMap is also supporting on the mapping from {@code sourceType} to {@code baseDestinationType}.
+   *
+   * @param baseDestinationType the base destination type
+   * @return this type map.
+   *
+   * @throws IllegalArgumentException if {@code TypePair.of(sourceType, baseDestinationType)} already defined
+   *         in {@code modelMapper.getTypeMaps()}
+   */
+  TypeMap<S, D> include(Class<? super D> baseDestinationType);
+
+  /**
    * Includes {@code mappings} from a base {@link TypeMap}.
    *
    * @param sourceType source type
