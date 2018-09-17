@@ -12,11 +12,11 @@
   <name>ModelMapper</name>
 
   <properties>
-    <cglib.version>3.2.6</cglib.version>
-    <asm.version>6.1.1</asm.version>
+    <cglib.version>3.2.8</cglib.version>
+    <asm.version>6.2.1</asm.version>
     <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.5.0</typetools.version>
-    <bytebuddy.version>1.8.3</bytebuddy.version>
+    <bytebuddy.version>1.8.22</bytebuddy.version>
   </properties>
 
   <dependencyManagement>

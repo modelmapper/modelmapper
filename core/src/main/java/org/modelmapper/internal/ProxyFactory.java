@@ -19,16 +19,19 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassInjector;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.InvocationHandlerAdapter;
+import net.bytebuddy.matcher.ElementMatcher;
 import org.modelmapper.internal.util.Primitives;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
-
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.implementation.InvocationHandlerAdapter;
-import net.bytebuddy.matcher.ElementMatcher;
 
 /**
  * Produces proxied instances of mappable types that participate in mapping creation.
@@ -39,6 +42,27 @@ class ProxyFactory {
   private static final Objenesis OBJENESIS = new ObjenesisStd();
   private static final ElementMatcher<? super MethodDescription> METHOD_FILTER = not(
       named("hashCode").or(named("equals")));
+  private static final Method PRIVATE_LOOKUP_IN;
+  private static final Object LOOKUP;
+
+  static {
+    Method privateLookupIn;
+    Object lookup;
+    try {
+      Class<?> methodHandles = Class.forName("java.lang.invoke.MethodHandles");
+      lookup = methodHandles.getMethod("lookup").invoke(null);
+      privateLookupIn = methodHandles.getMethod(
+          "privateLookupIn",
+          Class.class,
+          Class.forName("java.lang.invoke.MethodHandles$Lookup")
+      );
+    } catch (Exception e) {
+      privateLookupIn = null;
+      lookup = null;
+    }
+    PRIVATE_LOOKUP_IN = privateLookupIn;
+    LOOKUP = lookup;
+  }
 
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
@@ -62,15 +86,42 @@ class ProxyFactory {
       throw errors.invocationAgainstFinalClass(type).toException();
 
     try {
-      return OBJENESIS.newInstance(new ByteBuddy()
+      final DynamicType.Unloaded<T> unloaded = new ByteBuddy()
           .subclass(type)
           .method(METHOD_FILTER)
           .intercept(InvocationHandlerAdapter.of(interceptor))
-          .make()
-          .load(useOSGiClassLoaderBridging ? BridgeClassLoaderFactory.getClassLoader(type) : type.getClassLoader())
-          .getLoaded());
+          .make();
+      final ClassLoadingStrategy<ClassLoader> classLoadingStrategy = chooseClassLoadingStrategy(type);
+      if (classLoadingStrategy != null) {
+        return OBJENESIS.newInstance(unloaded
+            .load(useOSGiClassLoaderBridging ? BridgeClassLoaderFactory.getClassLoader(type) : type.getClassLoader(), classLoadingStrategy)
+            .getLoaded());
+      } else {
+        return OBJENESIS.newInstance(unloaded
+            .load(useOSGiClassLoaderBridging ? BridgeClassLoaderFactory.getClassLoader(type) : type.getClassLoader())
+            .getLoaded());
+      }
     } catch (Throwable t) {
       throw errors.errorInstantiatingProxy(type, t).toException();
+    }
+  }
+
+  private static <T> ClassLoadingStrategy<ClassLoader> chooseClassLoadingStrategy(Class<T> type) {
+    try {
+      final ClassLoadingStrategy<ClassLoader> strategy;
+      if (ClassInjector.UsingLookup.isAvailable() && PRIVATE_LOOKUP_IN != null && LOOKUP != null) {
+        Object privateLookup = PRIVATE_LOOKUP_IN.invoke(null, type, LOOKUP);
+        strategy = ClassLoadingStrategy.UsingLookup.of(privateLookup);
+      } else if (ClassInjector.UsingReflection.isAvailable()) {
+        strategy = ClassLoadingStrategy.Default.INJECTION;
+      } else {
+        throw new IllegalStateException("No code generation strategy available");
+      }
+      return strategy;
+    } catch (InvocationTargetException e) {
+      throw new IllegalStateException("Failed to invoke 'privateLookupIn' method from java.lang.invoke.MethodHandles$Lookup.", e);
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException("Failed to invoke 'privateLookupIn' method from java.lang.invoke.MethodHandles$Lookup.", e);
     }
   }
 }
