@@ -1,3 +1,14 @@
+# 2.3.0
+
+### New Features
+
+* Support Java 11
+
+### Bug Fixes
+
+* Fixed #389: Provides helper function for collection mapping
+* Fixed #397: SortedMap support
+
 # 2.2.0
 
 ### New Features
