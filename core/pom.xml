@@ -26,6 +26,11 @@
         <artifactId>asm</artifactId>
         <version>${asm.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -33,11 +38,6 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-tree</artifactId>
-      <version>${asm.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm-commons</artifactId>
       <version>${asm.version}</version>
     </dependency>
     <dependency>
@@ -54,16 +54,6 @@
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy-dep</artifactId>
       <version>${bytebuddy.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.ow2.asm</groupId>
-          <artifactId>asm</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.ow2.asm</groupId>
-          <artifactId>asm-commons</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -124,10 +114,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
@@ -173,36 +162,12 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-shade</id>
-            <phase>package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>${project.groupId}</groupId>
-                  <artifactId>${project.artifactId}</artifactId>
-                  <version>${project.version}</version>
-                </artifactItem>
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/classes</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <version>3.5.0</version>
         <executions>
           <execution>
             <id>bundle-manifest</id>
-            <phase>package</phase>
             <goals>
               <goal>manifest</goal>
             </goals>
@@ -211,42 +176,32 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <!-- do not export internal packages, remove autoimport -->
             <Export-Package>
-              org.modelmapper,
-              org.modelmapper.builder,
-              org.modelmapper.config,
-              org.modelmapper.convention,
-              org.modelmapper.spi
+              !org.modelmapper.internal.*,
+              org.modelmapper*;-noimport:=true
             </Export-Package>
-            <Private-Package>
-              org.modelmapper.internal.**
-            </Private-Package>
+            <!-- this directive allow to calculate imports also of dependencies -->
+            <Embed-Dependency>*;scope=runtime;inline=true</Embed-Dependency>
+            <!-- filter out package of shaded dependencies -->
+            <Import-Package>
+              !net.bytebuddy*,
+              !org.objectweb*,
+              !net.jodah*,
+              !org.objenesis*,
+              sun.misc;resolution:=optional,
+              *
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>package-pre-shaded</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>package-bundle</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifestFile>${project.build.directory}/classes/META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
