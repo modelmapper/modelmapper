@@ -110,7 +110,7 @@ public final class Iterables {
       return ((List<Object>) collection).get(index);
 
     Iterator<Object> iterator = collection.iterator();
-    for (int i = 0; i <= index; i++) {
+    for (int i = 0; i < index; i++) {
       iterator.next();
     }
     return iterator.next();
