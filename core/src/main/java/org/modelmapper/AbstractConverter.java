@@ -31,37 +31,37 @@ import org.modelmapper.spi.MappingContext;
  */
 public abstract class AbstractConverter<S, D> implements Converter<S, D> {
 
-    private MappingEngineImpl mappingEngine;
+  private MappingEngineImpl mappingEngine;
 
-    /**
-     * Delegates conversion to {@link #convert(Object)}.
-     */
-    public D convert(MappingContext<S, D> context) {
-        if (mappingEngine == null) {
-            mappingEngine = (MappingEngineImpl) context.getMappingEngine();
-        }
-        return convert(context.getSource());
+  /**
+   * Delegates conversion to {@link #convert(Object)}.
+   */
+  public D convert(MappingContext<S, D> context) {
+    if (mappingEngine == null) {
+      mappingEngine = (MappingEngineImpl) context.getMappingEngine();
     }
+    return convert(context.getSource());
+  }
 
-    @Override
-    public String toString() {
-        return String.format("Converter<%s, %s>",
-                (Object[]) TypeResolver.resolveRawArguments(Converter.class, getClass()));
-    }
+  @Override
+  public String toString() {
+    return String.format("Converter<%s, %s>",
+            (Object[]) TypeResolver.resolveRawArguments(Converter.class, getClass()));
+  }
 
-    /**
-     * Converts {@code source} to an instance of type {@code D}.
-     */
-    protected abstract D convert(S source);
+  /**
+   * Converts {@code source} to an instance of type {@code D}.
+   */
+  protected abstract D convert(S source);
 
-    /**
-     * @param source          - source object
-     * @param destinationType - destination class
-     */
-    protected <Destination> Destination map(Object source, Class<Destination> destinationType) {
-        Assert.notNull(source, "source");
-        Assert.notNull(destinationType, "destinationType");
-        Assert.notNull(mappingEngine, "mappingEngine");
-        return this.mappingEngine.map(source, Types.deProxy(source.getClass()), null, TypeToken.<Destination>of(destinationType), null);
-    }
+  /**
+   * @param source          - source object
+   * @param destinationType - destination class
+   */
+  protected <Destination> Destination map(Object source, Class<Destination> destinationType) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(mappingEngine, "mappingEngine");
+    return this.mappingEngine.map(source, Types.deProxy(source.getClass()), null, TypeToken.<Destination>of(destinationType), null);
+  }
 }
