@@ -1,3 +1,14 @@
+# 2.3.2
+
+* #416: asm7.0 support
+
+# 2.3.1
+
+### Bug Fixes
+
+* #411: Fix NoSuchElementException when iterating through Collection interface using iterator
+* #407: OSGi issue
+
 # 2.3.0
 
 ### New Features
