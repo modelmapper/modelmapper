@@ -59,8 +59,11 @@ class CollectionConverter implements ConditionalConverter<Object, Collection<Obj
       }
       destination.add(element);
     }
-    for (Object element : Iterables.subIterable(originalDestination, sourceLength))
-      destination.add(element);
+
+    if (context.getParent() == null) {
+      for (Object element : Iterables.subIterable(originalDestination, sourceLength))
+        destination.add(element);
+    }
 
     return destination;
   }

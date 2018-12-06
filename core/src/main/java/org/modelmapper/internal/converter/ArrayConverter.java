@@ -69,12 +69,12 @@ class ArrayConverter implements ConditionalConverter<Object, Object> {
   private Object createDestination(MappingContext<Object, Object> context) {
     int sourceLength = Iterables.getLength(context.getSource());
     int destinationLength = context.getDestination() != null ? Iterables.getLength(context.getDestination()) : 0;
-    int newLength = Math.max(sourceLength, destinationLength);
+    int newLength = context.getParent() == null ? Math.max(sourceLength, destinationLength) : sourceLength;
     Object originalDestination = context.getDestination();
 
     Class<?> destType = context.getDestinationType();
     Object destination = Array.newInstance(destType.isArray() ? destType.getComponentType() : destType, newLength);
-    if (originalDestination != null)
+    if (originalDestination != null && context.getParent() == null)
       System.arraycopy(originalDestination, 0, destination, 0, destinationLength);
     return destination;
   }
