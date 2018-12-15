@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,7 +104,7 @@ class ImplicitMappingBuilder<S, D> {
       // Skip explicit mappings
       Mapping existingMapping = typeMap.mappingFor(destPath);
       if (existingMapping == null) {
-        matchSource(sourceTypeInfo, mutator);
+        matchSource(sourceTypeInfo, mutator, false);
         propertyNameInfo.clearSource();
         sourceTypes.clear();
       }
@@ -162,7 +163,7 @@ class ImplicitMappingBuilder<S, D> {
    * {@code typeMapStore} for any existing TypeMaps and merging the mappings if one exists, else by
    * running the {@code matchingStrategy} against all accessors for the {@code sourceTypeInfo}.
    */
-  private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator) {
+  private void matchSource(TypeInfo<?> sourceTypeInfo, Mutator destinationMutator, boolean hitSameSourceType) {
     sourceTypes.add(sourceTypeInfo.getType());
 
     for (Map.Entry<String, Accessor> entry : sourceTypeInfo.getAccessors().entrySet()) {
@@ -219,9 +220,15 @@ class ImplicitMappingBuilder<S, D> {
       }
 
       if (!doneMatching
-          && Types.mightContainsProperties(accessor.getType())
-          && (!sourceTypes.contains(accessor.getType()) || accessor instanceof ValueReaderPropertyInfo))
-        matchSource(accessor.getTypeInfo(configuration), destinationMutator);
+          && !hitSameSourceType
+          && Types.mightContainsProperties(accessor.getType())) {
+        if (accessor instanceof ValueReaderPropertyInfo)
+          matchSource(accessor.getTypeInfo(configuration), destinationMutator, false);
+        else if (!sourceTypes.contains(accessor.getType()))
+          matchSource(accessor.getTypeInfo(configuration), destinationMutator, false);
+        else
+          matchSource(accessor.getTypeInfo(configuration), destinationMutator, true);
+      }
 
       propertyNameInfo.popSource();
 
@@ -229,14 +236,16 @@ class ImplicitMappingBuilder<S, D> {
         break;
     }
 
-    sourceTypes.remove(sourceTypeInfo.getType());
+    if (!hitSameSourceType)
+      sourceTypes.remove(sourceTypeInfo.getType());
   }
 
   /**
    * Disambiguates the captured mappings by looking for the mapping with property tokens that most
    * closely match the destination. Match closeness is calculated as the total number of matched
-   * source to destination tokens / the total number of source and destination tokens. Currently
-   * this algorithm does not consider class name tokens.
+   * source to destination tokens * the weight that the order of properties are matched /
+   * the total number of source and destination tokens. Currently this algorithm does not consider
+   * class name tokens.
    * 
    * @return closest matching mapping, else {@code null} if one could not be determined
    */
@@ -248,7 +257,8 @@ class ImplicitMappingBuilder<S, D> {
       while (destTokenIterator.hasNext())
         matcher.match(destTokenIterator.next());
 
-      double matchRatio = ((double) matcher.matches()) / ((double) matcher.total() + destTokenIterator.total());
+      double matchRatio = (((double) matcher.matches()) * matcher.orderMatchWeight())
+          / ((double) matcher.total() + destTokenIterator.total());
       weightMappings.add(new WeightPropertyMappingImpl(mapping, matchRatio));
     }
 
@@ -259,7 +269,7 @@ class ImplicitMappingBuilder<S, D> {
   }
 
   private SourceTokensMatcher createSourceTokensMatcher(PropertyMappingImpl mapping) {
-    Map<Pair<Integer, Integer>, String> sourceTokensMap = new HashMap<Pair<Integer, Integer>, String>();
+    Map<Pair<Integer, Integer>, String> sourceTokensMap = new LinkedHashMap<Pair<Integer, Integer>, String>();
     for (int i = 0; i < mapping.getSourceProperties().size(); i++) {
       PropertyInfo source = mapping.getSourceProperties().get(i);
       NameableType nameableType = NameableType.forPropertyType(source.getPropertyType());
@@ -277,6 +287,7 @@ class ImplicitMappingBuilder<S, D> {
   static class SourceTokensMatcher {
     private Map<Pair<Integer, Integer>, String> tokens;
     private List<Pair<Integer, Integer>> unmatched;
+    private int orderMatches = 0;
 
     SourceTokensMatcher(
         Map<Pair<Integer, Integer>, String> tokens) {
@@ -286,11 +297,17 @@ class ImplicitMappingBuilder<S, D> {
 
     void match(String token) {
       Iterator<Pair<Integer, Integer>> iterator = unmatched.iterator();
-      while (iterator.hasNext())
+
+      boolean first = true;
+      while (iterator.hasNext()) {
         if (tokens.get(iterator.next()).equalsIgnoreCase(token)) {
           iterator.remove();
+          if (first)
+            orderMatches++;
           break;
         }
+        first = false;
+      }
     }
 
     int matches() {
@@ -299,6 +316,10 @@ class ImplicitMappingBuilder<S, D> {
 
     int total() {
       return tokens.size();
+    }
+
+    double orderMatchWeight() {
+      return 1. + orderMatches * 0.1;
     }
   }
 
