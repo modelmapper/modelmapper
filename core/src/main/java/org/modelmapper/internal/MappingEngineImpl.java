@@ -16,6 +16,7 @@
 package org.modelmapper.internal;
 
 import java.lang.reflect.Type;
+import net.jodah.typetools.TypeResolver.Unknown;
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
@@ -261,7 +262,7 @@ public class MappingEngineImpl implements MappingEngine {
   private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
       Object source, MappingImpl mapping) {
     Class<?> sourceType = mapping.getSourceType();
-    if (Object.class.equals(sourceType) && source != null)
+    if (source != null)
       sourceType = source.getClass();
     boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
