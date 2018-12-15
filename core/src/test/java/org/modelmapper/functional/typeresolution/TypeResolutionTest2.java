@@ -12,7 +12,9 @@ import org.testng.annotations.Test;
 /**
  * @author https://github.com/andy-m
  */
-@Test(groups = "functional")
+@Test(groups = "functional", enabled = false)
+// Currently, ModelMapper handle this in a unsafe way, so we are not going
+// to support for this scenario.
 public class TypeResolutionTest2 extends AbstractTest {
   public static class Source {
     SourceInner<?> value;
