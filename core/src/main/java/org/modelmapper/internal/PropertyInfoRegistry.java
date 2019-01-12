@@ -34,24 +34,48 @@ import org.modelmapper.internal.PropertyInfoImpl.MethodMutator;
  * @author Jonathan Halterman
  */
 class PropertyInfoRegistry {
-  private static final Map<Integer, Mutator> MUTATOR_CACHE = new ConcurrentHashMap<Integer, Mutator>();
-  private static final Map<Integer, Accessor> ACCESSOR_CACHE = new ConcurrentHashMap<Integer, Accessor>();
-  private static final Map<Integer, FieldPropertyInfo> FIELD_CACHE = new ConcurrentHashMap<Integer, FieldPropertyInfo>();
 
-  private static Integer hashCodeFor(Class<?> initialType, String propertyName,
-      Configuration configuration) {
-    int result = 31 + initialType.hashCode();
-    result = 31 * result + propertyName.hashCode();
-    result = 31 * result + configuration.hashCode();
-    return result;
+  private static final Map<PropertyInfoKey, Mutator> MUTATOR_CACHE = new ConcurrentHashMap<PropertyInfoKey, Mutator>();
+  private static final Map<PropertyInfoKey, Accessor> ACCESSOR_CACHE = new ConcurrentHashMap<PropertyInfoKey, Accessor>();
+  private static final Map<PropertyInfoKey, FieldPropertyInfo> FIELD_CACHE = new ConcurrentHashMap<PropertyInfoKey, FieldPropertyInfo>();
+
+  private static class PropertyInfoKey {
+    private final Class<?> initialType;
+    private final String propertyName;
+    private final Configuration configuration;
+
+    PropertyInfoKey(Class<?> initialType, String propertyName, Configuration configuration) {
+      this.initialType = initialType;
+      this.propertyName = propertyName;
+      this.configuration = configuration;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof PropertyInfoKey))
+        return false;
+      PropertyInfoKey other = (PropertyInfoKey) o;
+      return initialType.equals(other.initialType) && propertyName.equals(other.propertyName)
+          && configuration.equals(other.configuration);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 31 + initialType.hashCode();
+      result = 31 * result + propertyName.hashCode();
+      result = 31 * result + configuration.hashCode();
+      return result;
+    }
   }
 
   /**
    * Returns an accessor for the {@code accessorName}, else {@code null} if none exists.
    */
   static Accessor accessorFor(Class<?> type, String accessorName, InheritingConfiguration configuration) {
-    Integer hashCode = hashCodeFor(type, accessorName, configuration);
-    if (!ACCESSOR_CACHE.containsKey(hashCode) || !FIELD_CACHE.containsKey(hashCode)) {
+    PropertyInfoKey key = new PropertyInfoKey(type, accessorName, configuration);
+    if (!ACCESSOR_CACHE.containsKey(key) || !FIELD_CACHE.containsKey(key)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
       for (Entry<String, Accessor> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors().entrySet()) {
@@ -62,9 +86,9 @@ class PropertyInfoRegistry {
       }
     }
 
-    if (ACCESSOR_CACHE.containsKey(hashCode))
-      return ACCESSOR_CACHE.get(hashCode);
-    return FIELD_CACHE.get(hashCode);
+    if (ACCESSOR_CACHE.containsKey(key))
+      return ACCESSOR_CACHE.get(key);
+    return FIELD_CACHE.get(key);
   }
 
   /**
@@ -73,11 +97,11 @@ class PropertyInfoRegistry {
    */
   static synchronized Accessor accessorFor(Class<?> type, Method method,
       Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(type, name, configuration);
-    Accessor accessor = ACCESSOR_CACHE.get(hashCode);
+    PropertyInfoKey key = new PropertyInfoKey(type, name, configuration);
+    Accessor accessor = ACCESSOR_CACHE.get(key);
     if (accessor == null) {
       accessor = new MethodAccessor(type, method, name);
-      ACCESSOR_CACHE.put(hashCode, accessor);
+      ACCESSOR_CACHE.put(key, accessor);
     }
 
     return accessor;
@@ -88,11 +112,11 @@ class PropertyInfoRegistry {
    */
   static synchronized FieldPropertyInfo fieldPropertyFor(Class<?> type, Field field,
       Configuration configuration, String name) {
-    Integer hashCode = hashCodeFor(type, name, configuration);
-    FieldPropertyInfo fieldPropertyInfo = FIELD_CACHE.get(hashCode);
+    PropertyInfoKey key = new PropertyInfoKey(type, name, configuration);
+    FieldPropertyInfo fieldPropertyInfo = FIELD_CACHE.get(key);
     if (fieldPropertyInfo == null) {
       fieldPropertyInfo = new FieldPropertyInfo(type, field, name);
-      FIELD_CACHE.put(hashCode, fieldPropertyInfo);
+      FIELD_CACHE.put(key, fieldPropertyInfo);
     }
 
     return fieldPropertyInfo;
@@ -104,8 +128,8 @@ class PropertyInfoRegistry {
    * validated to ensure that it accepts one argument and returns void.class.
    */
   static synchronized Mutator mutatorFor(Class<?> type, String name, InheritingConfiguration configuration) {
-    Integer hashCode = hashCodeFor(type, name, configuration);
-    if (!MUTATOR_CACHE.containsKey(hashCode) || !FIELD_CACHE.containsKey(hashCode)) {
+    PropertyInfoKey key = new PropertyInfoKey(type, name, configuration);
+    if (!MUTATOR_CACHE.containsKey(key) || !FIELD_CACHE.containsKey(key)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
       for (Entry<String, Mutator> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getMutators().entrySet()) {
@@ -116,9 +140,9 @@ class PropertyInfoRegistry {
       }
     }
 
-    if (MUTATOR_CACHE.containsKey(hashCode))
-      return MUTATOR_CACHE.get(hashCode);
-    return FIELD_CACHE.get(hashCode);
+    if (MUTATOR_CACHE.containsKey(key))
+      return MUTATOR_CACHE.get(key);
+    return FIELD_CACHE.get(key);
   }
 
   /**
@@ -127,11 +151,11 @@ class PropertyInfoRegistry {
    */
   static synchronized Mutator mutatorFor(Class<?> type, Method method, Configuration configuration,
       String name) {
-    Integer hashCode = hashCodeFor(type, name, configuration);
-    Mutator mutator = MUTATOR_CACHE.get(hashCode);
+    PropertyInfoKey key = new PropertyInfoKey(type, name, configuration);
+    Mutator mutator = MUTATOR_CACHE.get(key);
     if (mutator == null) {
       mutator = new MethodMutator(type, method, name);
-      MUTATOR_CACHE.put(hashCode, mutator);
+      MUTATOR_CACHE.put(key, mutator);
     }
 
     return mutator;

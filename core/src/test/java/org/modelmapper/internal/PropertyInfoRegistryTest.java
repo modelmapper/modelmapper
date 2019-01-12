@@ -27,6 +27,16 @@ public class PropertyInfoRegistryTest extends AbstractTest {
     }
   }
 
+  static class ForHashCollision {
+    public String AaAa() {
+      return "HashCode of 'AaAa' string equals 'BBBB'";
+    }
+
+    public String BBBB() {
+      return "HashCode of 'BBBB' string equals 'AaAa'";
+    }
+  }
+
   public void shouldResolveSeparatePropertyInfoForDifferentInitialTypes() throws Exception {
     Method getId = Entity.class.getMethod("getId");
     Accessor longGetId = PropertyInfoRegistry.accessorFor(LongEntity.class, getId,
@@ -49,5 +59,17 @@ public class PropertyInfoRegistryTest extends AbstractTest {
         modelMapper.getConfiguration(), "getId");
 
     assertTrue(longGetId1 == longGetId2);
+  }
+
+  public void shouldOvercomeHashCollision() throws Exception {
+    // "AaAa".hashCode() == "BBBB".hashCode()
+    Method methodAaAa = ForHashCollision.class.getMethod("AaAa");
+    Method methodBBBB = ForHashCollision.class.getMethod("BBBB");
+    final Accessor accessorAaAa = PropertyInfoRegistry.accessorFor(ForHashCollision.class,
+        methodAaAa, modelMapper.getConfiguration(), methodAaAa.getName());
+    final Accessor accessorBBBB = PropertyInfoRegistry.accessorFor(ForHashCollision.class,
+        methodBBBB, modelMapper.getConfiguration(), methodBBBB.getName());
+
+    assertFalse(accessorAaAa.equals(accessorBBBB));
   }
 }
