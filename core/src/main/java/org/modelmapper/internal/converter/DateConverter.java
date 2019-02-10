@@ -55,17 +55,18 @@ class DateConverter implements ConditionalConverter<Object, Date> {
       return null;
 
     Class<?> destinationType = context.getDestinationType();
+    String destinationPath = context.getDestinationPath();
 
     if (source instanceof Date)
-      return dateFor(((Date) source).getTime(), destinationType);
+      return dateFor(((Date) source).getTime(), destinationType, destinationPath);
     if (source instanceof Calendar)
-      return dateFor(((Calendar) source).getTimeInMillis(), destinationType);
+      return dateFor(((Calendar) source).getTimeInMillis(), destinationType, destinationPath);
     if (source instanceof XMLGregorianCalendar)
       return dateFor(((XMLGregorianCalendar) source).toGregorianCalendar().getTimeInMillis(),
-          destinationType);
+          destinationType, destinationPath);
     if (source instanceof Long)
-      return dateFor(((Long) source).longValue(), destinationType);
-    return dateFor(source.toString(), context.getDestinationType());
+      return dateFor(((Long) source).longValue(), destinationType, destinationPath);
+    return dateFor(source.toString(), context.getDestinationType(), destinationPath);
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
@@ -76,7 +77,7 @@ class DateConverter implements ConditionalConverter<Object, Date> {
         : MatchResult.NONE;
   }
 
-  Date dateFor(long source, Class<?> destinationType) {
+  Date dateFor(long source, Class<?> destinationType, String destinationPath) {
     if (destinationType.equals(Date.class))
       return new Date(source);
     if (destinationType.equals(java.sql.Date.class))
@@ -86,13 +87,13 @@ class DateConverter implements ConditionalConverter<Object, Date> {
     if (destinationType.equals(Timestamp.class))
       return new Timestamp(source);
 
-    throw new Errors().errorMapping(source, destinationType).toMappingException();
+    throw new Errors().errorMapping(source, destinationType, destinationPath).toMappingException();
   }
 
-  Date dateFor(String source, Class<?> destinationType) {
+  Date dateFor(String source, Class<?> destinationType, String destinationPath) {
     String sourceString = toString().trim();
     if (sourceString.length() == 0)
-      throw new Errors().errorMapping(source, destinationType).toMappingException();
+      throw new Errors().errorMapping(source, destinationType, destinationPath).toMappingException();
 
     if (destinationType.equals(java.sql.Date.class)) {
       try {
@@ -124,6 +125,6 @@ class DateConverter implements ConditionalConverter<Object, Date> {
       }
     }
 
-    throw new Errors().errorMapping(source, destinationType).toMappingException();
+    throw new Errors().errorMapping(source, destinationType, destinationPath).toMappingException();
   }
 }

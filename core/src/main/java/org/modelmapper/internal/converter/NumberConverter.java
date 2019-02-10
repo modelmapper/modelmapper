@@ -61,18 +61,19 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
       return null;
 
     Class<?> destinationType = Primitives.wrapperFor(context.getDestinationType());
+    String destinationPath = context.getDestinationPath();
 
     if (source instanceof Number)
-      return numberFor((Number) source, destinationType);
+      return numberFor((Number) source, destinationType, destinationPath);
     if (source instanceof Boolean)
-      return numberFor(((Boolean) source).booleanValue() ? 1 : 0, destinationType);
+      return numberFor(((Boolean) source).booleanValue() ? 1 : 0, destinationType, destinationPath);
     if (source instanceof Date && Long.class.equals(destinationType))
       return Long.valueOf(((Date) source).getTime());
     if (source instanceof Calendar && Long.class.equals(destinationType))
       return Long.valueOf(((Calendar) source).getTime().getTime());
     if (source instanceof XMLGregorianCalendar && Long.class.equals(destinationType))
       return ((XMLGregorianCalendar) source).toGregorianCalendar().getTimeInMillis();
-    return numberFor(source.toString(), destinationType);
+    return numberFor(source.toString(), destinationType, destinationPath);
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
@@ -90,7 +91,7 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
   /**
    * Creates a Number for the {@code source} and {@code destinationType}.
    */
-  Number numberFor(Number source, Class<?> destinationType) {
+  Number numberFor(Number source, Class<?> destinationType, String destinationPath) {
     if (destinationType.equals(source.getClass()))
       return source;
 
@@ -149,13 +150,13 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
         return BigInteger.valueOf(source.longValue());
     }
 
-    throw new Errors().errorMapping(source, destinationType).toMappingException();
+    throw new Errors().errorMapping(source, destinationType, destinationPath).toMappingException();
   }
 
   /**
    * Creates a Number for the {@code source} and {@code destinationType}.
    */
-  Number numberFor(String source, Class<?> destinationType) {
+  Number numberFor(String source, Class<?> destinationType, String destinationPath) {
     String sourceString = source.trim();
     if (sourceString.length() == 0)
       return null;
@@ -178,9 +179,9 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
       if (destinationType.equals(BigInteger.class))
         return new BigInteger(source);
     } catch (Exception e) {
-      throw new Errors().errorMapping(source, destinationType, e).toMappingException();
+      throw new Errors().errorMapping(source, destinationType, destinationPath, e).toMappingException();
     }
 
-    throw new Errors().errorMapping(source, destinationType).toMappingException();
+    throw new Errors().errorMapping(source, destinationType, destinationPath).toMappingException();
   }
 }

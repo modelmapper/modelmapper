@@ -185,6 +185,11 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   @Override
+  public String getDestinationPath() {
+    return destinationPath;
+  }
+
+  @Override
   public Mapping getMapping() {
     return mapping;
   }
@@ -313,10 +318,10 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
           parent.getDestinationValueByType(mutator.getType()),
           parent.getDestinationValueByMemberName(current, mutator.getName()));
       if (next == null && source != null)
-        next = mappingEngine.createDestinationViaGlobalProvider(parent.parentSource, mutator.getType(), parent.errors);
+        next = mappingEngine.createDestinationViaGlobalProvider(parent.parentSource, mutator.getType(), destPath, parent.errors);
 
       if (next != null) {
-        mutator.setValue(current, next);
+        mutator.setValue(current, next, destPath);
         parent.destinationCache.put(destPath, next);
       }
       current = next;

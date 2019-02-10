@@ -185,7 +185,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     try {
       result = engine.typeMap(context, this);
     } catch (Throwable t) {
-      context.errors.errorMapping(sourceType, destinationType, t);
+      context.errors.errorMapping(sourceType, destinationType, context.getDestinationPath(), t);
     }
 
     context.errors.throwMappingExceptionIfErrorsExist();
@@ -201,7 +201,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
     try {
       engine.typeMap(context, this);
     } catch (Throwable t) {
-      context.errors.errorMapping(sourceType, destinationType, t);
+      context.errors.errorMapping(sourceType, destinationType, context.getDestinationPath(), t);
     }
 
     context.errors.throwMappingExceptionIfErrorsExist();

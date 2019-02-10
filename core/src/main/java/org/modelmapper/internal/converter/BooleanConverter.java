@@ -45,7 +45,7 @@ class BooleanConverter implements ConditionalConverter<Object, Boolean> {
       if (FALSE_STRINGSS[i].equals(stringValue))
         return Boolean.FALSE;
 
-    throw new Errors().errorMapping(context.getSource(), context.getDestinationType())
+    throw new Errors().errorMapping(context.getSource(), context.getDestinationType(), context.getDestinationPath())
         .toMappingException();
   }
 
