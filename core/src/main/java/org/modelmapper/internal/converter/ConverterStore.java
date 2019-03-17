@@ -15,21 +15,21 @@
  */
 package org.modelmapper.internal.converter;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Jonathan Halterman
  */
 public final class ConverterStore {
   private static final ConditionalConverter<?, ?>[] DEFAULT_CONVERTERS = new ConditionalConverter<?, ?>[] {
-      new ArrayConverter(), new CollectionConverter(), new MapConverter(),
-      new AssignableConverter(), new StringConverter(), new EnumConverter(), new NumberConverter(),
-      new BooleanConverter(), new CharacterConverter(), new DateConverter(),
-      new CalendarConverter() };
+          new ArrayConverter(), new MergingCollectionConverter(), new MapConverter(),
+          new AssignableConverter(), new StringConverter(), new EnumConverter(), new NumberConverter(),
+          new BooleanConverter(), new CharacterConverter(), new DateConverter(),
+          new CalendarConverter() };
 
   private final List<ConditionalConverter<?, ?>> converters;
 

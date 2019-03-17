@@ -15,19 +15,13 @@
  */
 package org.modelmapper.config;
 
-import java.util.List;
-
 import org.modelmapper.Condition;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
-import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.*;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
-import org.modelmapper.spi.MatchingStrategy;
-import org.modelmapper.spi.NameTokenizer;
-import org.modelmapper.spi.NameTransformer;
-import org.modelmapper.spi.NamingConvention;
-import org.modelmapper.spi.ValueReader;
-import org.modelmapper.spi.ValueWriter;
+
+import java.util.List;
 
 /**
  * Configures conventions used during the matching process.
@@ -259,6 +253,21 @@ public interface Configuration {
   boolean isDeepCopyEnabled();
 
   /**
+   * Returns whether collections should be 'merged' when mapped.
+   * When {@code true}, mapping a source collection of size {@code m}
+   * to a destination collection of size {@code n} with {@code m < n} results
+   * in a collection with the first {@code m} elements mapped from the source and elements from
+   * {@code m+1} to {@code n} being preserved from the destination collection.
+   * When {@code false} the elements of the destination collection are not preserved if they are not present
+   * in the source collection.
+   *
+   * @see #setCollectionsMergeEnabled(boolean)
+   * @see org.modelmapper.internal.converter.MergingCollectionConverter
+   * @see org.modelmapper.internal.converter.NonMergingCollectionConverter
+   */
+  boolean isCollectionsMergeEnabled();
+
+  /**
    * Sets whether destination properties that match more than one source property should be ignored.
    * When true, ambiguous destination properties are skipped during the matching process. When
    * false, a ConfigurationException is thrown when ambiguous properties are encountered.
@@ -352,6 +361,19 @@ public interface Configuration {
    * @see org.modelmapper.internal.converter.AssignableConverter
    */
   Configuration setDeepCopyEnabled(boolean enabled);
+
+  /**
+   * Sets whether the 'merging' of collections should be enabled. When {@code true} (default), ModelMapper will
+   * map the elements of the source collection to the destination collection and keep any elements of the destination collection
+   * when the source collection is smaller than the destination collection.
+   * When {@code false} the destination collection only consists of the elements of the source collection after mapping.
+   *
+   * @param enabled
+   * @see #isCollectionsMergeEnabled()
+   * @see org.modelmapper.internal.converter.MergingCollectionConverter
+   * @see org.modelmapper.internal.converter.NonMergingCollectionConverter
+   */
+  Configuration setCollectionsMergeEnabled(boolean enabled);
 
   /**
    * Sets whether to use an OSGi Class Loader Bridge as described in the following article:
