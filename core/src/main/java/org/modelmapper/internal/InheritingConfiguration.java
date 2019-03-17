@@ -15,8 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import java.util.List;
-
 import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
@@ -26,16 +24,14 @@ import org.modelmapper.convention.NameTransformers;
 import org.modelmapper.convention.NamingConventions;
 import org.modelmapper.internal.converter.AssignableConverter;
 import org.modelmapper.internal.converter.ConverterStore;
+import org.modelmapper.internal.converter.MergingCollectionConverter;
+import org.modelmapper.internal.converter.NonMergingCollectionConverter;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.valueaccess.ValueAccessStore;
 import org.modelmapper.internal.valuemutate.ValueMutateStore;
-import org.modelmapper.spi.ConditionalConverter;
-import org.modelmapper.spi.MatchingStrategy;
-import org.modelmapper.spi.NameTokenizer;
-import org.modelmapper.spi.NameTransformer;
-import org.modelmapper.spi.NamingConvention;
-import org.modelmapper.spi.ValueReader;
-import org.modelmapper.spi.ValueWriter;
+import org.modelmapper.spi.*;
+
+import java.util.List;
 
 /**
  * Inheritable mapping configuration implementation.
@@ -64,6 +60,7 @@ public class InheritingConfiguration implements Configuration {
   private Boolean fullTypeMatchingRequired;
   private Boolean implicitMatchingEnabled;
   private Boolean skipNullEnabled;
+  private Boolean collectionsMergeEnabled;
   private Boolean useOSGiClassLoaderBridging;
 
   /**
@@ -90,6 +87,7 @@ public class InheritingConfiguration implements Configuration {
     implicitMatchingEnabled = Boolean.TRUE;
     skipNullEnabled = Boolean.FALSE;
     useOSGiClassLoaderBridging = Boolean.FALSE;
+    collectionsMergeEnabled = Boolean.TRUE;
   }
 
   /**
@@ -122,6 +120,7 @@ public class InheritingConfiguration implements Configuration {
       fullTypeMatchingRequired = source.fullTypeMatchingRequired;
       implicitMatchingEnabled = source.implicitMatchingEnabled;
       skipNullEnabled = source.skipNullEnabled;
+      collectionsMergeEnabled = source.collectionsMergeEnabled;
     }
   }
 
@@ -327,6 +326,11 @@ public class InheritingConfiguration implements Configuration {
   }
 
   @Override
+  public boolean isCollectionsMergeEnabled() {
+    return converterStore.hasConverter(NonMergingCollectionConverter.class);
+  }
+
+  @Override
   public Configuration setAmbiguityIgnored(boolean ignore) {
     this.ambiguityIgnored = ignore;
     return this;
@@ -386,6 +390,22 @@ public class InheritingConfiguration implements Configuration {
       converterStore.removeConverter(AssignableConverter.class);
     else if (!enabled && converterStore.hasConverter(AssignableConverter.class))
       converterStore.addConverter(new AssignableConverter());
+    return this;
+  }
+
+  @Override
+  public Configuration setCollectionsMergeEnabled(boolean enabled) {
+    if (enabled && !converterStore.hasConverter(MergingCollectionConverter.class)) {
+      if (converterStore.hasConverter(NonMergingCollectionConverter.class)) {
+        converterStore.removeConverter(NonMergingCollectionConverter.class);
+      }
+      converterStore.addConverter(new MergingCollectionConverter());
+    } else if (!enabled && !converterStore.hasConverter(NonMergingCollectionConverter.class)) {
+        if (converterStore.hasConverter(MergingCollectionConverter.class)){
+            converterStore.removeConverter(MergingCollectionConverter.class);
+        }
+        converterStore.addConverter(new NonMergingCollectionConverter());
+    }
     return this;
   }
 

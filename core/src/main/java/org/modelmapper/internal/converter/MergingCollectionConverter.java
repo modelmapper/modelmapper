@@ -15,19 +15,20 @@
  */
 package org.modelmapper.internal.converter;
 
-import java.util.Collection;
-import java.util.Iterator;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.MappingContextHelper;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 /**
  * Converts {@link Collection} and array instances to {@link Collection} instances.
- * 
+ *
  * @author Jonathan Halterman
  */
-class CollectionConverter implements ConditionalConverter<Object, Collection<Object>> {
+public class MergingCollectionConverter implements ConditionalConverter<Object, Collection<Object>> {
   @Override
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return Iterables.isIterable(sourceType) && Collection.class.isAssignableFrom(destinationType) ? MatchResult.FULL
