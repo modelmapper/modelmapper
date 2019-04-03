@@ -31,7 +31,7 @@ import java.util.Date;
 
 /**
  * Utilities for working with types.
- * 
+ *
  * @author Jonathan Halterman
  */
 public final class Types {
@@ -76,6 +76,8 @@ public final class Types {
       return true;
     if (type.getName().contains("$$EnhancerBy"))
       return true;
+    if (type.getName().contains("$HibernateProxy$"))
+      return true;
     if (Proxy.isProxyClass(type))
       return true;
     return isProxiedByJavassist(type);
@@ -108,7 +110,7 @@ public final class Types {
   /**
    * Returns the raw type for the {@code type}. If {@code type} is a TypeVariable or a WildcardType
    * then the first upper bound is returned. is returned.
-   * 
+   *
    * @throws IllegalArgumentException if {@code type} is not a Class, ParameterizedType,
    *           GenericArrayType, TypeVariable or WildcardType.
    */
