@@ -17,6 +17,8 @@ package org.modelmapper.internal.converter;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -103,7 +105,7 @@ class DateConverter implements ConditionalConverter<Object, Date> {
             .toMappingException();
       }
     }
-
+    
     if (destinationType.equals(Time.class)) {
       try {
         return Time.valueOf(source);
@@ -121,6 +123,17 @@ class DateConverter implements ConditionalConverter<Object, Date> {
         throw new Errors().addMessage(
             "String must be in JDBC format [yyyy-MM-dd HH:mm:ss.fffffffff] "
                 + "to create a java.sql.Timestamp").toMappingException();
+      }
+    }
+    
+    if (destinationType.equals(java.util.Date.class)) {
+      try {
+      	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return simpleDateFormat.parse(source);
+      } catch (ParseException e) {
+        throw new Errors().addMessage(
+            "String must be in DATE format [yyyy-MM-dd] to create a java.util.Date")
+            .toMappingException();
       }
     }
 
