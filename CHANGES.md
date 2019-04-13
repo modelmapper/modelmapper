@@ -1,3 +1,14 @@
+# 2.3.3
+
+### New Features
+
+* Provides setCollectionsMergeEnabled configuration
+
+### Bug Fixes
+
+* Date converter supports java.util.Date
+* Supports HibernateProxy
+
 # 2.3.2
 
 * #416: asm7.0 support
