@@ -31,8 +31,9 @@ import org.modelmapper.internal.Errors;
  * @author Chun Han Hsiao
  */
 public class ProtobufHelper {
-  private ProtobufHelper() {
-  }
+  private static final char CASE_MASK = 0x20;
+
+  private ProtobufHelper() {}
 
   public static boolean hasBuilder(Class<?> builderType, String field) {
     return builder(builderType, field) != null;
@@ -41,7 +42,7 @@ public class ProtobufHelper {
   @SuppressWarnings("unchecked")
   public static Class<? extends Builder> builder(Class<?> builderType, String field) {
     try {
-      String methodName = "get" + firstCharToUpperCase(field) + "Builder";
+      String methodName = "get" + formatMethodName(field) + "Builder";
       return (Class<? extends Builder>) builderType.getMethod(methodName).getReturnType();
     } catch (NoSuchMethodException e) {
       return null;
@@ -57,7 +58,7 @@ public class ProtobufHelper {
   }
 
   public static Method getter(Class<?> type, String field) throws NoSuchMethodException {
-    String methodName = "get" + firstCharToUpperCase(field);
+    String methodName = "get" + formatMethodName(field);
     return type.getMethod(methodName);
   }
 
@@ -71,7 +72,7 @@ public class ProtobufHelper {
   }
 
   public static Method setterForBuilder(Class<?> type, String field) throws NoSuchMethodException {
-    String methodName = "set" + firstCharToUpperCase(field);
+    String methodName = "set" + formatMethodName(field);
     for (Method method : type.getMethods()) {
       if (isSetterForBuilder(method, methodName))
         return method;
@@ -80,7 +81,7 @@ public class ProtobufHelper {
   }
 
   public static Method setter(Class<?> type, String field) throws NoSuchMethodException {
-    String methodName = "set" + firstCharToUpperCase(field);
+    String methodName = "set" + formatMethodName(field);
     for (Method method : type.getMethods()) {
       if (isSetterForPrimitive(method, methodName))
         return method;
@@ -89,7 +90,7 @@ public class ProtobufHelper {
   }
 
   public static Method hasMethod(Class<?> type, String field) throws NoSuchMethodException {
-    String methodName = "has" + firstCharToUpperCase(field);
+    String methodName = "has" + formatMethodName(field);
     return type.getMethod(methodName);
   }
 
@@ -111,8 +112,32 @@ public class ProtobufHelper {
     }
   }
 
-  private static String firstCharToUpperCase(String str) {
+  private static String formatMethodName(String str) {
+    if (str.contains("_")) {
+      return formatSnakeCaseMethodName(str);
+    }
+
     return str.substring(0, 1).toUpperCase() + str.substring(1);
+  }
+
+  private static String formatSnakeCaseMethodName(String str) {
+    StringBuilder methodName = new StringBuilder();
+
+    for (int i = 0; i < str.length(); ++i) {
+      if (str.charAt(i) == '_' && i + 1 < str.length()) {
+        char c = str.charAt(++i);
+
+        if ((c >= 'a') && (c <= 'z')) {
+          methodName.append((char) (c ^ CASE_MASK));
+        } else {
+          methodName.append(c);
+        }
+      } else {
+        methodName.append(str.charAt(i));
+      }
+    }
+
+    return methodName.substring(0, 1).toUpperCase() + methodName.substring(1);
   }
 
   private static boolean isSetterForPrimitive(Method method, String methodName) {

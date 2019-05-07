@@ -2,10 +2,13 @@ package org.modelmapper.protobuf;
 
 import com.google.protobuf.BoolValue;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.protobuf.pojo.ProtoCommon;
+import org.modelmapper.protobuf.pojo.TestMessageProto.TestMessage;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -21,6 +24,18 @@ public class ProtobufModuleTest {
 
     public void setSomeBoolValue(final Boolean someBoolValue) {
       this.someBoolValue = someBoolValue;
+    }
+  }
+
+  static class MessageDto {
+    private String messageContent;
+
+    public String getMessageContent() {
+      return messageContent;
+    }
+
+    public void setMessageContent(String messageContent) {
+      this.messageContent = messageContent;
     }
   }
 
@@ -89,5 +104,16 @@ public class ProtobufModuleTest {
     ProtoCommon.TestBoolValue testBoolValue = modelMapper.map(booleanDto, ProtoCommon.TestBoolValue.Builder.class).build();
 
     assertTrue(testBoolValue.getSomeBoolValue().getValue());
+  }
+  public void shouldMapNameWithUnderScore() {
+    ModelMapper mapper = new ModelMapper().registerModule(new ProtobufModule());
+    mapper.getConfiguration().setDestinationNameTokenizer(NameTokenizers.UNDERSCORE);
+
+    MessageDto messageDto = new MessageDto();
+    messageDto.setMessageContent("value");
+
+    TestMessage message = mapper.map(messageDto, TestMessage.Builder.class).build();
+
+    assertEquals(message.getMessageContent().getValue(), messageDto.getMessageContent());
   }
 }
