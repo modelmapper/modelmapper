@@ -40,7 +40,7 @@ public interface ConfigurableMapExpression<S, D> extends ReferenceMapExpression<
    *
    * @param converter a converter convert source property to destination property
    */
-  ReferenceMapExpression<S, D> using(Converter<?, ?> converter);
+  ConfigurableMapExpression<S, D> using(Converter<?, ?> converter);
 
   /**
    * Uses {@code provider} to instantiate  an instance for destination property
@@ -54,7 +54,7 @@ public interface ConfigurableMapExpression<S, D> extends ReferenceMapExpression<
    *
    * @param provider a provider instantiate destination property
    */
-  ReferenceMapExpression<S, D> with(Provider<?> provider);
+  ConfigurableMapExpression<S, D> with(Provider<?> provider);
 
   /**
    * Uses {@code condition} to determine the mapping should fire or skip
@@ -68,5 +68,5 @@ public interface ConfigurableMapExpression<S, D> extends ReferenceMapExpression<
    *
    * @param condition a condition to apply the mapping action should be invoked or not
    */
-  ReferenceMapExpression<S, D> when(Condition<?, ?> condition);
+  ConfigurableMapExpression<S, D> when(Condition<?, ?> condition);
 }

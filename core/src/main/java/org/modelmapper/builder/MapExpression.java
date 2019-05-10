@@ -15,7 +15,10 @@
  */
 package org.modelmapper.builder;
 
+import org.modelmapper.Condition;
+import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.Provider;
 
 /**
  * Expresses mapping.
@@ -24,7 +27,7 @@ import org.modelmapper.PropertyMap;
  * 
  * @author Jonathan Halterman
  */
-public interface MapExpression<D> {
+public interface MapExpression<S, D> {
   /**
    * Defines a mapping to a destination. See the EDSL examples at {@link PropertyMap}.
    * 
@@ -52,4 +55,65 @@ public interface MapExpression<D> {
    *           {@link PropertyMap#configure()}.
    */
   void map(Object source, Object destination);
+
+  /**
+   * Specifies that mapping for the destination property be skipped during the mapping process. See
+   * the EDSL examples at {@link PropertyMap}.
+   *
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  D skip();
+
+  /**
+   * Specifies that mapping to the {@code destination} be skipped during the mapping process. See
+   * the EDSL examples at {@link PropertyMap}.
+   *
+   * @param destination to skip
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  void skip(Object destination);
+
+  /**
+   * Specifies that mapping from the {@code source} to the {@code destination} be skipped during the
+   * mapping process. See the EDSL examples at {@link PropertyMap}.
+   *
+   * @param source to skip
+   * @param destination to skip
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  void skip(Object source, Object destination);
+
+  /**
+   * Specifies the {@code provider} to be used for providing instances of the mapped property. When
+   * used with deep mapping the {@code provider} should provide an instance of the <b>last</b>
+   * destination property. See the {@link PropertyMap EDSL examples}.
+   *
+   * @param provider to use for providing the destination property
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  MapExpression<S, D> with(Provider<?> provider);
+  /**
+   * Specifies the {@code converter} to use for converting to the destination property hierarchy.
+   * When used with deep mapping the {@code converter} should convert to an instance of the
+   * <b>last</b> destination property. See the {@link PropertyMap EDSL examples}.
+   *
+   * @param converter to use when mapping the property
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  MapExpression<S, D> using(Converter<?, ?> converter);
+
+  /**
+   * Specifies the {@code condition} that must apply in order for mapping to take place for a
+   * particular destination property hierarchy. See the {@link PropertyMap EDSL examples}.
+   *
+   * @param condition that must apply when mapping the property
+   * @throws IllegalStateException if called from outside the context of
+   *           {@link PropertyMap#configure()}.
+   */
+  MapExpression<S, D> when(Condition<?, ?> condition);
 }

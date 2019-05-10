@@ -15,6 +15,25 @@
  */
 package org.modelmapper.internal;
 
+import org.modelmapper.Condition;
+import org.modelmapper.ConfigurationException;
+import org.modelmapper.Converter;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.Provider;
+import org.modelmapper.builder.MapExpression;
+import org.modelmapper.internal.ExplicitMappingVisitor.VisitedMapping;
+import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
+import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
+import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
+import org.modelmapper.internal.PropertyInfoImpl.ValueWriterPropertyInfo;
+import org.modelmapper.internal.util.Assert;
+import org.modelmapper.internal.util.Members;
+import org.modelmapper.internal.util.Types;
+import org.modelmapper.spi.PropertyType;
+import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
+import org.objectweb.asm.ClassReader;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -29,31 +48,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.modelmapper.Condition;
-import org.modelmapper.ConfigurationException;
-import org.modelmapper.Converter;
-import org.modelmapper.PropertyMap;
-import org.modelmapper.Provider;
-import org.modelmapper.builder.ConditionExpression;
-import org.modelmapper.internal.ExplicitMappingVisitor.VisitedMapping;
-import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
-import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
-import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
-import org.modelmapper.internal.PropertyInfoImpl.ValueWriterPropertyInfo;
-import org.modelmapper.internal.util.Assert;
-import org.modelmapper.internal.util.Members;
-import org.modelmapper.internal.util.Types;
-import org.modelmapper.spi.PropertyType;
-import org.modelmapper.spi.ValueReader;
-import org.modelmapper.spi.ValueWriter;
-import org.objectweb.asm.ClassReader;
-
 /**
  * Builds explicit property mappings.
  *
  * @author Jonathan Halterman
  */
-public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
+public class ExplicitMappingBuilder<S, D> implements MapExpression<S, D> {
   private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
   private static Method PROPERTY_MAP_CONFIGURE;
 
@@ -192,7 +192,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     return null;
   }
 
-  public ConditionExpression<S, D> using(Converter<?, ?> converter) {
+  public MapExpression<S, D> using(Converter<?, ?> converter) {
     saveLastMapping();
     if (converter == null)
       errors.errorNullArgument("converter");
@@ -201,7 +201,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     return this;
   }
 
-  public ConditionExpression<S, D> when(Condition<?, ?> condition) {
+  public MapExpression<S, D> when(Condition<?, ?> condition) {
     saveLastMapping();
     if (condition == null)
       errors.errorNullArgument("condition");
@@ -210,7 +210,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     return this;
   }
 
-  public ConditionExpression<S, D> with(Provider<?> provider) {
+  public MapExpression<S, D> with(Provider<?> provider) {
     saveLastMapping();
     if (provider == null)
       errors.errorNullArgument("provider");

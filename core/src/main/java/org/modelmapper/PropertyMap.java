@@ -16,10 +16,7 @@
 package org.modelmapper;
 
 import net.jodah.typetools.TypeResolver;
-
-import org.modelmapper.builder.ConverterExpression;
 import org.modelmapper.builder.MapExpression;
-import org.modelmapper.builder.ProviderExpression;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.ExplicitMappingBuilder;
 import org.modelmapper.internal.util.Assert;
@@ -341,7 +338,7 @@ public abstract class PropertyMap<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final MapExpression<D> using(Converter<?, ?> converter) {
+  protected final MapExpression<S, D> using(Converter<?, ?> converter) {
     assertBuilder();
     return builder.using(converter);
   }
@@ -354,7 +351,7 @@ public abstract class PropertyMap<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final ProviderExpression<S, D> when(Condition<?, ?> condition) {
+  protected final MapExpression<S, D> when(Condition<?, ?> condition) {
     assertBuilder();
     return builder.when(condition);
   }
@@ -368,7 +365,7 @@ public abstract class PropertyMap<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  protected final ConverterExpression<S, D> with(Provider<?> provider) {
+  protected final MapExpression<S, D> with(Provider<?> provider) {
     assertBuilder();
     return builder.with(provider);
   }
