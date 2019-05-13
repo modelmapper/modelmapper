@@ -20,7 +20,7 @@ import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
-import org.modelmapper.builder.MapExpression;
+import org.modelmapper.builder.ConditionExpression;
 import org.modelmapper.internal.ExplicitMappingVisitor.VisitedMapping;
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
 import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
  *
  * @author Jonathan Halterman
  */
-public class ExplicitMappingBuilder<S, D> implements MapExpression<S, D> {
+public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
   private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
   private static Method PROPERTY_MAP_CONFIGURE;
 
@@ -192,7 +192,7 @@ public class ExplicitMappingBuilder<S, D> implements MapExpression<S, D> {
     return null;
   }
 
-  public MapExpression<S, D> using(Converter<?, ?> converter) {
+  public ConditionExpression<S, D> using(Converter<?, ?> converter) {
     saveLastMapping();
     if (converter == null)
       errors.errorNullArgument("converter");
@@ -201,7 +201,7 @@ public class ExplicitMappingBuilder<S, D> implements MapExpression<S, D> {
     return this;
   }
 
-  public MapExpression<S, D> when(Condition<?, ?> condition) {
+  public ConditionExpression<S, D> when(Condition<?, ?> condition) {
     saveLastMapping();
     if (condition == null)
       errors.errorNullArgument("condition");
@@ -210,7 +210,7 @@ public class ExplicitMappingBuilder<S, D> implements MapExpression<S, D> {
     return this;
   }
 
-  public MapExpression<S, D> with(Provider<?> provider) {
+  public ConditionExpression<S, D> with(Provider<?> provider) {
     saveLastMapping();
     if (provider == null)
       errors.errorNullArgument("provider");

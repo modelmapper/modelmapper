@@ -1,25 +1,18 @@
 package org.modelmapper.functional.lambda;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.fail;
-
 import org.modelmapper.AbstractTest;
-import org.modelmapper.Asserts;
-import org.modelmapper.Condition;
-import org.modelmapper.ConfigurationException;
-import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 @Test
 public class TypeMapLambdaDeepMapTest extends AbstractTest {
@@ -99,7 +92,7 @@ public class TypeMapLambdaDeepMapTest extends AbstractTest {
     TypeMap<ParentSrc, ParentDest> typeMap = modelMapper.createTypeMap(ParentSrc.class, ParentDest.class);
     typeMap.addMappings(
         new ExpressionMap<ParentSrc, ParentDest>() {
-          public void configure(ConfigurableMapExpression<ParentSrc, ParentDest> mapping) {
+          public void configure(ConfigurableConditionExpression<ParentSrc, ParentDest> mapping) {
             mapping.with(new Provider<Dest>() {
               public Dest get(ProvisionRequest<Dest> request) {
                 return dest;

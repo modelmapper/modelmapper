@@ -1,16 +1,16 @@
 package org.modelmapper.functional.lambda;
 
-import static org.testng.Assert.assertEquals;
-
 import org.modelmapper.AbstractTest;
 import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 @Test
 public class TypeMapLambdaFromConstantTest extends AbstractTest {
@@ -39,7 +39,7 @@ public class TypeMapLambdaFromConstantTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.typeMap(Src.class, Dest.class)
         .addMappings(new ExpressionMap<Src, Dest>() {
           @Override
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.map(srcGetter(), destSetter());
           }
         });

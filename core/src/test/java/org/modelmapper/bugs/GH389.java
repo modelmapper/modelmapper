@@ -1,16 +1,17 @@
 package org.modelmapper.bugs;
 
-import static org.testng.Assert.assertEquals;
-
-import java.util.Collections;
-import java.util.List;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Converters;
 import org.modelmapper.ExpressionMap;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.testng.Assert.assertEquals;
 
 @Test
 public class GH389 extends AbstractTest {
@@ -58,7 +59,7 @@ public class GH389 extends AbstractTest {
     modelMapper.typeMap(WrapperDTO.class, Wrapper.class)
         .addMappings(new ExpressionMap<WrapperDTO, Wrapper>() {
           @Override
-          public void configure(ConfigurableMapExpression<WrapperDTO, Wrapper> mapping) {
+          public void configure(ConfigurableConditionExpression<WrapperDTO, Wrapper> mapping) {
             mapping.using(Converters.Collection.first().to(Wrapper.class)).map(
                 new SourceGetter<WrapperDTO>() {
                   @Override

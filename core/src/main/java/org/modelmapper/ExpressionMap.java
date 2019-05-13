@@ -15,11 +15,11 @@
  */
 package org.modelmapper;
 
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 
 /**
  * Represents an operation that accepts {@code mapping} and use functions
- * defined in {@link ConfigurableMapExpression} to configure a {@link TypeMap}
+ * defined in {@link ConfigurableConditionExpression} to configure a {@link TypeMap}
  *
  * <pre>
  *   modelMapper.addMappings(mapper -> {
@@ -37,5 +37,5 @@ public interface ExpressionMap<S, D> {
   /**
    * Performs the operation to configure {@link TypeMap}
    */
-  void configure(ConfigurableMapExpression<S, D> mapping);
+  void configure(ConfigurableConditionExpression<S, D> mapping);
 }

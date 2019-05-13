@@ -1,17 +1,18 @@
 package org.modelmapper.functional.converter;
 
-import static org.testng.Assert.assertEquals;
-
-import java.util.Collections;
-import java.util.List;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Converters;
 import org.modelmapper.ExpressionMap;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.testng.Assert.assertEquals;
 
 @Test
 public class CollectionFirstElementTest extends AbstractTest {
@@ -59,7 +60,7 @@ public class CollectionFirstElementTest extends AbstractTest {
     modelMapper.typeMap(Source.class, Destination.class)
         .addMappings(new ExpressionMap<Source, Destination>() {
           @Override
-          public void configure(ConfigurableMapExpression<Source, Destination> mapping) {
+          public void configure(ConfigurableConditionExpression<Source, Destination> mapping) {
             mapping.using(Converters.Collection.first().to(DItem.class)).map(
                 getItems(), setItem());
           }
@@ -80,7 +81,7 @@ public class CollectionFirstElementTest extends AbstractTest {
     modelMapper.typeMap(Source.class, Destination.class)
         .addMappings(new ExpressionMap<Source, Destination>() {
           @Override
-          public void configure(ConfigurableMapExpression<Source, Destination> mapping) {
+          public void configure(ConfigurableConditionExpression<Source, Destination> mapping) {
             mapping.using(Converters.Collection.<SItem>first().map(converter)).map(
                 getItems(), setItem());
           }

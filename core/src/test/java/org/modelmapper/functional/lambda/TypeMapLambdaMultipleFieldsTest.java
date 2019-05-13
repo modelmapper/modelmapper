@@ -1,20 +1,20 @@
 package org.modelmapper.functional.lambda;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 @Test
 public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
@@ -86,7 +86,7 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
   public void shouldAddMappings() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(new ExpressionMap<Src, Dest>() {
-      public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+      public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
         mapping.map(srcTextGetter(), destTextSetter());
         mapping.map(srcNumberGetter(), destNumberSetter());
       }
@@ -103,7 +103,7 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
         new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.using(new Converter<String, String>() {
               public String convert(MappingContext<String, String> context) {
                 return context.getSource().toUpperCase();
@@ -128,7 +128,7 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
         new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.skip(destTextSetter());
             mapping.map(srcNumberGetter(), destNumberSetter());
           }
@@ -145,7 +145,7 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
         new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.when(new Condition<String, String>() {
               public boolean applies(MappingContext<String, String> context) {
                 return context.getSource().equals("foo");

@@ -18,7 +18,7 @@ package org.modelmapper.internal;
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
 
@@ -26,33 +26,33 @@ import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import static org.modelmapper.internal.util.Assert.notNull;
 
 /**
- * {@link ConfigurableMapExpression} implementation
+ * {@link ConfigurableConditionExpression} implementation
  *
  * @author Chun Han Hsiao
  */
-class ConfigurableMapExpressionImpl<S, D> implements ConfigurableMapExpression<S, D> {
+class ConfigurableConditionExpressionImpl<S, D> implements ConfigurableConditionExpression<S, D> {
   TypeMapImpl<S, D> typeMap;
   private MappingOptions options = new MappingOptions();
 
-  public ConfigurableMapExpressionImpl(TypeMapImpl<S, D> typeMap) {
+  public ConfigurableConditionExpressionImpl(TypeMapImpl<S, D> typeMap) {
     this.typeMap = typeMap;
   }
 
-  public ConfigurableMapExpression<S, D> using(Converter<?, ?> converter) {
+  public ConfigurableConditionExpression<S, D> using(Converter<?, ?> converter) {
     notNull(converter, "converter");
 
     options.converter = converter;
     return this;
   }
 
-  public ConfigurableMapExpression<S, D> with(Provider<?> provider) {
+  public ConfigurableConditionExpression<S, D> with(Provider<?> provider) {
     notNull(provider, "provider");
 
     options.provider = provider;
     return this;
   }
 
-  public ConfigurableMapExpression<S, D> when(Condition<?, ?> condition) {
+  public ConfigurableConditionExpression<S, D> when(Condition<?, ?> condition) {
     notNull(condition, "condition");
 
     options.condition = condition;
