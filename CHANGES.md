@@ -1,3 +1,9 @@
+# 2.3.4
+
+### New Features
+
+* Supports protocol buffer with model in snake case
+
 # 2.3.3
 
 ### New Features
