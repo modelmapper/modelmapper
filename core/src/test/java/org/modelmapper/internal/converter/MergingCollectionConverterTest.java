@@ -161,4 +161,13 @@ public class MergingCollectionConverterTest extends AbstractConverterTest {
     // Negative
     assertEquals(converter.match(Map.class, ArrayList.class), MatchResult.NONE);
   }
+
+  public void testMergeBehaviourSetToFalseAndThanToTrue() {
+    modelMapper.getConfiguration().setCollectionsMergeEnabled(true); // default in 2.3.3
+    modelMapper.getConfiguration().setCollectionsMergeEnabled(false);
+    modelMapper.getConfiguration().setCollectionsMergeEnabled(true); // back to default
+
+    List<D> result = modelMapper.map(Arrays.asList(new S()), new org.modelmapper.TypeToken<List<D>>() {}.getType());
+    assertTrue(result.get(0) instanceof D);
+  }
 }
