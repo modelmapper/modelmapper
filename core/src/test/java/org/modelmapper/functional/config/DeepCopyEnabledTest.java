@@ -35,6 +35,8 @@ public class DeepCopyEnabledTest extends AbstractTest {
 
   public void shouldDeepCopy() {
     modelMapper.getConfiguration().setDeepCopyEnabled(true);
+    modelMapper.getConfiguration().setDeepCopyEnabled(false);
+    modelMapper.getConfiguration().setDeepCopyEnabled(true);
 
     Source source = new Source(new Property("text"));
     Destination destination = modelMapper.map(source, Destination.class);
@@ -51,6 +53,8 @@ public class DeepCopyEnabledTest extends AbstractTest {
   }
 
   public void shouldNotDeepCopy() {
+    modelMapper.getConfiguration().setDeepCopyEnabled(false);
+    modelMapper.getConfiguration().setDeepCopyEnabled(true);
     modelMapper.getConfiguration().setDeepCopyEnabled(false);
 
     Source source = new Source(new Property("text"));

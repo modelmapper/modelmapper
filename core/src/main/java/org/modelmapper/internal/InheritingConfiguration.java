@@ -395,16 +395,10 @@ public class InheritingConfiguration implements Configuration {
 
   @Override
   public Configuration setCollectionsMergeEnabled(boolean enabled) {
-    if (enabled && !converterStore.hasConverter(MergingCollectionConverter.class)) {
-      if (converterStore.hasConverter(NonMergingCollectionConverter.class)) {
-        converterStore.removeConverter(NonMergingCollectionConverter.class);
-      }
-      converterStore.addConverter(new MergingCollectionConverter());
-    } else if (!enabled && !converterStore.hasConverter(NonMergingCollectionConverter.class)) {
-        if (converterStore.hasConverter(MergingCollectionConverter.class)){
-            converterStore.removeConverter(MergingCollectionConverter.class);
-        }
-        converterStore.addConverter(new NonMergingCollectionConverter());
+    if (enabled) {
+      converterStore.replaceConverter(NonMergingCollectionConverter.class, new MergingCollectionConverter());
+    } else {
+      converterStore.replaceConverter(MergingCollectionConverter.class, new NonMergingCollectionConverter());
     }
     return this;
   }
