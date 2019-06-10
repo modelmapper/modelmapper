@@ -263,7 +263,7 @@ public class MappingEngineImpl implements MappingEngine {
       Object source, MappingImpl mapping) {
     Class<?> sourceType = mapping.getSourceType();
     if (source != null)
-      sourceType = source.getClass();
+      sourceType = Types.deProxy(source.getClass());
     boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
     Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
     Type genericDestinationType = context.genericDestinationPropertyType(mapping.getLastDestinationProperty().getGenericType());
