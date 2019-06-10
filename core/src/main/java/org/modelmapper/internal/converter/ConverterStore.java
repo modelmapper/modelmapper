@@ -83,6 +83,29 @@ public final class ConverterStore {
     return this;
   }
 
+  /**
+   * Replaces the converter of specified class with the given instance.
+   * <p>
+   * If the converter to replace is not found than no replace is performed,
+   * the converters are left untouched.
+   *
+   * @param converterClass to replace
+   * @param converter instance with which to replace it
+   * @return converter store itself
+   */
+  public ConverterStore replaceConverter(Class<? extends ConditionalConverter<?, ?>> converterClass, ConditionalConverter<?, ?> converter) {
+      ConditionalConverter<?, ?> matchConverter = getConverterByType(converterClass);
+      if (matchConverter != null) {
+        int idx = converters.indexOf(matchConverter);
+        if (idx != -1) {
+          // because of concurrency do not use List#set(int, T obj) to avoid to replace a wrong converter
+          converters.remove(matchConverter);
+          converters.add(idx, converter);
+        }
+      }
+      return this;
+  }
+
   private ConditionalConverter<?, ?> getConverterByType(Class<? extends ConditionalConverter<?, ?>> converterClass) {
     for (ConditionalConverter<?, ?> converter : converters) {
       if (converter.getClass().equals(converterClass))
@@ -90,4 +113,5 @@ public final class ConverterStore {
     }
     return null;
   }
+
 }
