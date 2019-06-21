@@ -15,20 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
@@ -47,6 +33,20 @@ import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
 import org.modelmapper.spi.ValueWriter;
 import org.objectweb.asm.ClassReader;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Builds explicit property mappings.

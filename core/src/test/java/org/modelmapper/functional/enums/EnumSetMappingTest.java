@@ -1,27 +1,21 @@
 package org.modelmapper.functional.enums;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
-import org.modelmapper.AbstractProvider;
 import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.Provider;
-import org.modelmapper.builder.ConfigurableMapExpression;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.SourceGetter;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 
 @Test
@@ -79,7 +73,7 @@ public class EnumSetMappingTest {
 		ModelMapper mapper = new ModelMapper();
 		mapper.typeMap(A.class, B.class)
 				.addMappings(new ExpressionMap<A, B>() {
-					public void configure(ConfigurableMapExpression<A, B> mapping) {
+					public void configure(ConfigurableConditionExpression<A, B> mapping) {
 						mapping.using(enumConverter).map(new SourceGetter<A>() {
 							public Object get(A source) {
 								return source.getEnumsA();

@@ -16,8 +16,6 @@
 package org.modelmapper.builder;
 
 import org.modelmapper.Condition;
-import org.modelmapper.Converter;
-import org.modelmapper.Provider;
 
 /**
  * Represents mapping operations.
@@ -27,34 +25,7 @@ import org.modelmapper.Provider;
  *
  * @author Chun Han Hsiao
  */
-public interface ConfigurableMapExpression<S, D> extends ReferenceMapExpression<S, D> {
-  /**
-   * Uses {@code converter} to convert a source property to destination property
-   *
-   * <pre>
-   * {@code
-   *   using(converter).<String>map(Src::getCustomer, Dest::setCustomerId)
-   *   using(ctx -> ctx.getSource().getName().toUpperCase()).<String>map(src -> src.getCustomer().getId(), Dest::setCustomerId)
-   * }
-   * </pre>
-   *
-   * @param converter a converter convert source property to destination property
-   */
-  ReferenceMapExpression<S, D> using(Converter<?, ?> converter);
-
-  /**
-   * Uses {@code provider} to instantiate  an instance for destination property
-   *
-   * <pre>
-   * {@code
-   *   with(provider).<String>map(Src::getCustomer, Dest::setCustomer)
-   *   with(req -> new Customer()).<Customer>map(Src::getCustomer, Dest::setCustomer)
-   * }
-   * </pre>
-   *
-   * @param provider a provider instantiate destination property
-   */
-  ReferenceMapExpression<S, D> with(Provider<?> provider);
+public interface ConfigurableConditionExpression<S, D> extends ConfigurableProviderExpression<S, D> {
 
   /**
    * Uses {@code condition} to determine the mapping should fire or skip
@@ -68,5 +39,5 @@ public interface ConfigurableMapExpression<S, D> extends ReferenceMapExpression<
    *
    * @param condition a condition to apply the mapping action should be invoked or not
    */
-  ReferenceMapExpression<S, D> when(Condition<?, ?> condition);
+  ConfigurableProviderExpression<S, D> when(Condition<?, ?> condition);
 }

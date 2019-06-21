@@ -15,16 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
-
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
@@ -39,6 +29,16 @@ import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceGetter;
 import org.modelmapper.spi.TypeSafeSourceGetter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeMap;
 
 /**
  * TypeMap implementation.
@@ -263,7 +263,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   @Override
   public TypeMap<S, D> addMappings(ExpressionMap<S, D> mapper) {
-    mapper.configure(new ConfigurableMapExpressionImpl<S, D>(this));
+    mapper.configure(new ConfigurableConditionExpressionImpl<S, D>(this));
     return this;
   }
 

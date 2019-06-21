@@ -35,5 +35,5 @@ public interface ConditionExpression<S, D> extends ProviderExpression<S, D> {
    * @throws IllegalStateException if called from outside the context of
    *           {@link PropertyMap#configure()}.
    */
-  ConditionExpression<S, D> when(Condition<?, ?> condition);
+  ProviderExpression<S, D> when(Condition<?, ?> condition);
 }

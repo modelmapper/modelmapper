@@ -15,61 +15,60 @@
  */
 package org.modelmapper.internal;
 
-import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
-import static org.modelmapper.internal.util.Assert.notNull;
-
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.spi.SourceGetter;
-import org.modelmapper.builder.ConfigurableMapExpression;
+
+import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
+import static org.modelmapper.internal.util.Assert.notNull;
 
 /**
- * {@link ConfigurableMapExpression} implementation
+ * {@link ConfigurableConditionExpression} implementation
  *
  * @author Chun Han Hsiao
  */
-class ConfigurableMapExpressionImpl<S, D> implements ConfigurableMapExpression<S, D> {
+class ConfigurableConditionExpressionImpl<S, D> implements ConfigurableConditionExpression<S, D> {
   TypeMapImpl<S, D> typeMap;
+  private MappingOptions options = new MappingOptions();
 
-  public ConfigurableMapExpressionImpl(TypeMapImpl<S, D> typeMap) {
+  public ConfigurableConditionExpressionImpl(TypeMapImpl<S, D> typeMap) {
     this.typeMap = typeMap;
   }
 
-  public ReferenceMapExpression<S, D> using(Converter<?, ?> converter) {
+  public ConfigurableConditionExpression<S, D> using(Converter<?, ?> converter) {
     notNull(converter, "converter");
 
-    MappingOptions options = new MappingOptions();
     options.converter = converter;
-    return new ReferenceMapExpressionImpl<S, D>(typeMap, options);
+    return this;
   }
 
-  public ReferenceMapExpression<S, D> with(Provider<?> provider) {
+  public ConfigurableConditionExpression<S, D> with(Provider<?> provider) {
     notNull(provider, "provider");
 
-    MappingOptions options = new MappingOptions();
     options.provider = provider;
-    return new ReferenceMapExpressionImpl<S, D>(typeMap, options);
+    return this;
   }
 
-  public ReferenceMapExpression<S, D> when(Condition<?, ?> condition) {
+  public ConfigurableConditionExpression<S, D> when(Condition<?, ?> condition) {
     notNull(condition, "condition");
 
-    MappingOptions options = new MappingOptions();
     options.condition = condition;
-    return new ReferenceMapExpressionImpl<S, D>(typeMap, options);
+    return this;
   }
 
   public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     notNull(sourceGetter, "sourceGetter");
     notNull(destinationSetter, "destinationSetter");
-    new ReferenceMapExpressionImpl<S, D>(typeMap).map(sourceGetter, destinationSetter);
+    new ReferenceMapExpressionImpl<S, D>(typeMap, options).map(sourceGetter, destinationSetter);
+    options = new MappingOptions();
   }
 
   public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     notNull(destinationSetter, "destinationSetter");
-    new ReferenceMapExpressionImpl<S, D>(typeMap).skip(destinationSetter);
+    new ReferenceMapExpressionImpl<S, D>(typeMap, options).skip(destinationSetter);
+    options = new MappingOptions();
   }
 }

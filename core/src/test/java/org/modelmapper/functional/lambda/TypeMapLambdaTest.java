@@ -1,23 +1,23 @@
 package org.modelmapper.functional.lambda;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.fail;
-
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Asserts;
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
+import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.SourceGetter;
-import org.modelmapper.ExpressionMap;
-import org.modelmapper.builder.ConfigurableMapExpression;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 
 @Test
 @SuppressWarnings("unused")
@@ -68,7 +68,7 @@ public class TypeMapLambdaTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
         new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.using(new Converter<String, String>() {
               public String convert(MappingContext<String, String> context) {
                 return context.getSource().toUpperCase();
@@ -85,7 +85,7 @@ public class TypeMapLambdaTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
         new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.skip(destSetter());
           }
         });
@@ -98,7 +98,7 @@ public class TypeMapLambdaTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
         new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableMapExpression<Src, Dest> mapping) {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
             mapping.when(new Condition<String, String>() {
               public boolean applies(MappingContext<String, String> context) {
                 return context.getSource().equals("foo");
