@@ -1,3 +1,14 @@
+# 2.3.5
+
+### New Features
+
+* Supports expression chain (when -> with -> using -> map)
+
+### Bug Fixes
+
+* Fixes deproxy when implicit mapping is disabled
+* Improves on configuration converter store
+
 # 2.3.4
 
 ### New Features
