@@ -64,4 +64,21 @@ public class InheritingConfigurationTest {
 	  assertTrue(inheritingConfig.isFullTypeMatchingRequired());
   }
   
+  public void testCollectionsMergeEnabled() {
+      InheritingConfiguration config = new InheritingConfiguration();
+      assertTrue(config.isCollectionsMergeEnabled());
+      config.setCollectionsMergeEnabled(false);
+      assertFalse(config.isCollectionsMergeEnabled());
+      config.setCollectionsMergeEnabled(true);
+      assertTrue(config.isCollectionsMergeEnabled());
+  }
+
+  public void testDeepCopyEnabled() {
+      InheritingConfiguration config = new InheritingConfiguration();
+      assertFalse(config.isDeepCopyEnabled());
+      config.setDeepCopyEnabled(true);
+      assertTrue(config.isDeepCopyEnabled());
+      config.setDeepCopyEnabled(false);
+      assertFalse(config.isDeepCopyEnabled());
+  }
 }

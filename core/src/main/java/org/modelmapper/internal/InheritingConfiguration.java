@@ -322,12 +322,12 @@ public class InheritingConfiguration implements Configuration {
 
   @Override
   public boolean isDeepCopyEnabled() {
-    return converterStore.hasConverter(AssignableConverter.class);
+    return !converterStore.hasConverter(AssignableConverter.class);
   }
 
   @Override
   public boolean isCollectionsMergeEnabled() {
-    return converterStore.hasConverter(NonMergingCollectionConverter.class);
+    return converterStore.hasConverter(MergingCollectionConverter.class);
   }
 
   @Override
@@ -388,7 +388,7 @@ public class InheritingConfiguration implements Configuration {
   public Configuration setDeepCopyEnabled(boolean enabled) {
     if (enabled && converterStore.hasConverter(AssignableConverter.class))
       converterStore.removeConverter(AssignableConverter.class);
-    else if (!enabled && converterStore.hasConverter(AssignableConverter.class))
+    else if (!enabled && !converterStore.hasConverter(AssignableConverter.class))
       converterStore.addConverter(new AssignableConverter());
     return this;
   }
