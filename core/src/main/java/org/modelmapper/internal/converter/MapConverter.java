@@ -15,6 +15,8 @@
  */
 package org.modelmapper.internal.converter;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -23,6 +25,8 @@ import java.util.Map.Entry;
 
 import net.jodah.typetools.TypeResolver;
 import net.jodah.typetools.TypeResolver.Unknown;
+
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
@@ -31,7 +35,7 @@ import org.modelmapper.spi.PropertyMapping;
 
 /**
  * Converts {@link Map} instances to each other.
- * 
+ *
  * @author Jonathan Halterman
  */
 class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object>> {
@@ -54,6 +58,10 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
         keyElementType = elementTypes[0] == Unknown.class ? Object.class : elementTypes[0];
         valueElementType = elementTypes[1] == Unknown.class ? Object.class : elementTypes[1];
       }
+    } else if (context.getGenericDestinationType() instanceof ParameterizedType) {
+      Type[] elementTypes = ((ParameterizedType) context.getGenericDestinationType()).getActualTypeArguments();
+      keyElementType = Types.rawTypeFor(elementTypes[0]);
+      valueElementType = Types.rawTypeFor(elementTypes[1]);
     }
 
     for (Entry<?, ?> entry : source.entrySet()) {

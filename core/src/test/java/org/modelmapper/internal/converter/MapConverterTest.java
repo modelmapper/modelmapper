@@ -1,14 +1,19 @@
 package org.modelmapper.internal.converter;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.modelmapper.ModelMapper;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
@@ -138,6 +143,20 @@ public class MapConverterTest extends AbstractConverterTest {
     assertTrue(d.a instanceof SortedMap);
     assertTrue(d.b instanceof SortedMap);
     assertTrue(d.rawmap instanceof SortedMap);
+  }
+
+  public void shouldConvertWithGenericTypes() {
+    Map<Integer, BigDecimal> numbers = Collections.singletonMap(1, BigDecimal.valueOf(2));
+
+    Type mapType = new org.modelmapper.TypeToken<Map<Long, String>>() {}.getType();
+    Map<Long, String> mixed =  new ModelMapper().map(numbers, mapType);
+
+    assertFalse(mixed.isEmpty());
+    assertTrue(mixed.size() == 1);
+    assertTrue(mixed.keySet().iterator().next() instanceof Long);
+    assertTrue(mixed.keySet().iterator().next() == 1l);
+    assertTrue(mixed.values().iterator().next() instanceof String);
+    assertTrue(mixed.values().iterator().next().equals("2"));
   }
 
   public void testMatches() {
