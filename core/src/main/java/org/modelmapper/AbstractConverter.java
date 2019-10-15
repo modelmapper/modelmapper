@@ -31,7 +31,7 @@ import org.modelmapper.spi.MappingContext;
  */
 public abstract class AbstractConverter<S, D> implements Converter<S, D> {
 
-  private MappingEngineImpl mappingEngine;
+  private static MappingEngineImpl mappingEngine;
 
   /**
    * Delegates conversion to {@link #convert(Object)}.
@@ -62,6 +62,6 @@ public abstract class AbstractConverter<S, D> implements Converter<S, D> {
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     Assert.notNull(mappingEngine, "mappingEngine");
-    return this.mappingEngine.map(source, Types.deProxy(source.getClass()), null, TypeToken.<Destination>of(destinationType), null);
+    return mappingEngine.map(source, Types.deProxy(source.getClass()), null, TypeToken.<Destination>of(destinationType), null);
   }
 }
