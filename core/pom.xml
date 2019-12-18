@@ -13,27 +13,11 @@
 
   <properties>
     <cglib.version>3.2.9</cglib.version>
-    <asm.version>7.0</asm.version>
     <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.5.0</typetools.version>
     <bytebuddy.version>1.9.4</bytebuddy.version>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-commons</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
+  
   <dependencies>
     <dependency>
       <groupId>org.ow2.asm</groupId>
@@ -146,6 +130,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
         <configuration>
           <suiteXmlFiles>
             <suiteXmlFile>src/test/resources/testngAll.xml</suiteXmlFile>
@@ -197,6 +182,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.2</version>
         <configuration>
           <archive>
             <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
