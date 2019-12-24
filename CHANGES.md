@@ -1,3 +1,9 @@
+# 2.3.6
+
+### New Features
+
+* Supports Java 13
+
 # 2.3.5
 
 ### New Features
