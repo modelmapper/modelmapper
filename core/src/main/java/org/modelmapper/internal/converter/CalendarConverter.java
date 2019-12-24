@@ -71,7 +71,7 @@ class CalendarConverter implements ConditionalConverter<Object, Object> {
     Class<?> destinationType = context.getDestinationType();
     if (!Calendar.class.isAssignableFrom(destinationType)
         && !destinationType.equals(XMLGregorianCalendar.class))
-      throw new Errors().errorMapping(source, destinationType).toMappingException();
+      throw new Errors().errorMapping(source, destinationType, context.getDestinationPath()).toMappingException();
 
     GregorianCalendar calendar = new GregorianCalendar();
 

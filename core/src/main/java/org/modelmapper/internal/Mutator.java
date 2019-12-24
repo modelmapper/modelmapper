@@ -21,5 +21,5 @@ package org.modelmapper.internal;
  * @author Jonathan Halterman
  */
 interface Mutator extends InternalPropertyInfo {
-  void setValue(Object subject, Object value);
+  void setValue(Object subject, Object value, String destinationPath);
 }

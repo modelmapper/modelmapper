@@ -74,11 +74,11 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       }
     }
 
-    public void setValue(Object subject, Object value) {
+    public void setValue(Object subject, Object value, String destinationPath) {
       try {
         member.set(subject, value);
       } catch (Exception e) {
-        throw new Errors().errorSettingValue(member, value, e).toMappingException();
+        throw new Errors().errorSettingValue(member, value, destinationPath, e).toMappingException();
       }
     }
 
@@ -121,11 +121,11 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
       return member.getGenericParameterTypes()[0];
     }
 
-    public void setValue(Object subject, Object value) {
+    public void setValue(Object subject, Object value, String destinationPath) {
       try {
         member.invoke(subject, value);
       } catch (Exception e) {
-        throw new Errors().errorSettingValue(member, value, e).toMappingException();
+        throw new Errors().errorSettingValue(member, value, destinationPath, e).toMappingException();
       }
     }
 
@@ -214,7 +214,7 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     }
 
     @Override
-    public void setValue(Object subject, Object value) {
+    public void setValue(Object subject, Object value, String destinationPath) {
       valueWriterMember.setValue(subject, value);
     }
 

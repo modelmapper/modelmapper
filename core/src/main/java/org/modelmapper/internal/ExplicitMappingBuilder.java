@@ -294,7 +294,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
         Object nextProxy = field.getValue(proxy);
         if (nextProxy == null) {
           nextProxy = createProxy(field.getType());
-          field.setValue(proxy, nextProxy);
+          field.setValue(proxy, nextProxy, field.getName() + ".");
         }
         proxy = nextProxy;
       }

@@ -82,6 +82,11 @@ public interface MappingContext<S, D> {
   Type getGenericDestinationType();
 
   /**
+   * Returns the destination absolute path.
+   */
+  String getDestinationPath();
+
+  /**
    * Returns the mapping associated with the mapping request else {@code null} if the request did
    * not originate from a {@code TypeMap}.
    */

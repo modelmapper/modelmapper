@@ -167,7 +167,7 @@ public class MatchingStrategyTestSupport {
       return memberClass;
     }
 
-    public void setValue(Object subject, Object value) {
+    public void setValue(Object subject, Object value, String destinationPath) {
     }
 
     public Object getValue(Object subject) {

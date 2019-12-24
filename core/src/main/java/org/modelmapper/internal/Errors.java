@@ -172,23 +172,27 @@ public final class Errors {
     return addMessage(t, "Failed to get value from %s", member);
   }
 
-  public Errors errorInstantiatingDestination(Class<?> type, Throwable t) {
+  public Errors errorInstantiatingDestination(Class<?> type, String destinationPath, Throwable t) {
+    String destinationInfo = destinationPath.isEmpty() ? "" : " Destination path: " + destinationPath;
     return addMessage(
         t,
-        "Failed to instantiate instance of destination %s. Ensure that %s has a non-private no-argument constructor.",
-        type, type);
+        "Failed to instantiate instance of destination %s. Ensure that %s has a non-private no-argument constructor.%s",
+        type, type, destinationInfo);
   }
 
-  public Errors errorMapping(Object source, Class<?> destinationType) {
-    return addMessage("Error mapping %s to %s", source, Types.toString(destinationType));
+  public Errors errorMapping(Object source, Class<?> destinationType, String destinationPath) {
+    String destinationInfo = destinationPath.isEmpty() ? "" : ", destination path: " + destinationPath;
+    return addMessage("Error mapping %s%s", source, Types.toString(destinationType), destinationInfo);
   }
 
-  public Errors errorMapping(Object source, Type destinationType, Throwable t) {
-    return addMessage(t, "Error mapping %s to %s", source, Types.toString(destinationType));
+  public Errors errorMapping(Object source, Type destinationType, String destinationPath, Throwable t) {
+    String destinationInfo = destinationPath.isEmpty() ? "" : ", destination path: " + destinationPath;
+    return addMessage(t, "Error mapping %s to %s%s", source, Types.toString(destinationType), destinationInfo);
   }
 
-  public Errors errorSettingValue(Member member, Object value, Throwable t) {
-    return addMessage(t, "Failed to set value '%s' on %s", value, member);
+  public Errors errorSettingValue(Member member, Object value, String destinationPath, Throwable t) {
+    String destinationInfo = destinationPath.isEmpty() ? "" : ", destination path: " + destinationPath;
+    return addMessage(t, "Failed to set value '%s' on %s%s", value, member, destinationInfo);
   }
 
   public Errors errorTooLarge(Object source, Class<?> destinationType) {
