@@ -57,6 +57,10 @@ public class ProtobufHelper {
     throw new Errors().addMessage("Invalid protocol buffer type: %s", type.getName()).toConfigurationException();
   }
 
+  public static Class<?> fieldType(Class<?> type, String memberName) throws NoSuchFieldException {
+    return type.getDeclaredField(formatFieldName(memberName)).getType();
+  }
+
   public static Method getter(Class<?> type, String field) throws NoSuchMethodException {
     String methodName = "get" + formatMethodName(field);
     return type.getMethod(methodName);
@@ -110,6 +114,15 @@ public class ProtobufHelper {
     } catch (InvocationTargetException e) {
       throw new Errors().addMessage(e, "Invalid protocol buffer type").toConfigurationException();
     }
+  }
+
+  private static String formatFieldName(String str) {
+    if (str.contains("_")) {
+      String upperSnakeCase = formatSnakeCaseMethodName(str);
+      return upperSnakeCase.substring(0, 1).toLowerCase() + upperSnakeCase.substring(1) + "_";
+    }
+
+    return str + "_";
   }
 
   private static String formatMethodName(String str) {

@@ -15,12 +15,21 @@
  */
 package org.modelmapper.protobuf;
 
+import static org.modelmapper.spi.StrongTypeConditionalConverter.wrap;
+
+import com.google.protobuf.BoolValue;
+import com.google.protobuf.DoubleValue;
+import com.google.protobuf.Int32Value;
+import com.google.protobuf.Int64Value;
+import com.google.protobuf.StringValue;
+import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.Module;
 import org.modelmapper.protobuf.primitive.BoolConverters;
 import org.modelmapper.protobuf.primitive.DoubleConverters;
 import org.modelmapper.protobuf.primitive.IntConverters;
 import org.modelmapper.protobuf.primitive.StringConverters;
+import org.modelmapper.spi.ConditionalConverter;
 
 /**
  * Module to support protocol buffer with ModelMapper..
@@ -33,31 +42,32 @@ public class ProtobufModule implements Module {
     modelMapper.getConfiguration().addValueReader(new ProtobufValueReader());
     modelMapper.getConfiguration().addValueWriter(new ProtobufValueWriter());
 
-    modelMapper.getConfiguration().getConverters().add(new MessageToBuilderConverter());
+    List<ConditionalConverter<?, ?>> converters = modelMapper.getConfiguration().getConverters();
+    converters.add(new MessageToBuilderConverter());
 
-    modelMapper.addConverter(BoolConverters.BOOL_TO_BOOL_VALUE);
-    modelMapper.addConverter(BoolConverters.BOOL_VALUE_TO_BOOL);
-    modelMapper.addConverter(BoolConverters.BOOL_TO_BUILDER);
-    modelMapper.addConverter(BoolConverters.BUILDER_TO_BOOL);
+    converters.add(wrap(Boolean.class, BoolValue.class, BoolConverters.BOOL_TO_BOOL_VALUE));
+    converters.add(wrap(BoolValue.class, Boolean.class, BoolConverters.BOOL_VALUE_TO_BOOL));
+    converters.add(wrap(Boolean.class, BoolValue.Builder.class, BoolConverters.BOOL_TO_BUILDER));
+    converters.add(wrap(BoolValue.Builder.class, Boolean.class, BoolConverters.BUILDER_TO_BOOL));
 
-    modelMapper.addConverter(IntConverters.LONG_TO_LONG_VALUE);
-    modelMapper.addConverter(IntConverters.LONG_VALUE_TO_LONG);
-    modelMapper.addConverter(IntConverters.LONG_TO_BUILDER);
-    modelMapper.addConverter(IntConverters.BUILDER_TO_LONG);
+    converters.add(wrap(Long.class, Int64Value.class, IntConverters.LONG_TO_LONG_VALUE));
+    converters.add(wrap(Int64Value.class, Long.class, IntConverters.LONG_VALUE_TO_LONG));
+    converters.add(wrap(Long.class, Int64Value.Builder.class, IntConverters.LONG_TO_BUILDER));
+    converters.add(wrap(Int64Value.Builder.class, Long.class, IntConverters.BUILDER_TO_LONG));
 
-    modelMapper.addConverter(IntConverters.INT_TO_INT_VALUE);
-    modelMapper.addConverter(IntConverters.INT_VALUE_TO_INT);
-    modelMapper.addConverter(IntConverters.INT_TO_BUILDER);
-    modelMapper.addConverter(IntConverters.BUILDER_TO_INT);
+    converters.add(wrap(Integer.class, Int32Value.class, IntConverters.INT_TO_INT_VALUE));
+    converters.add(wrap(Int32Value.class, Integer.class, IntConverters.INT_VALUE_TO_INT));
+    converters.add(wrap(Integer.class, Int32Value.Builder.class, IntConverters.INT_TO_BUILDER));
+    converters.add(wrap(Int32Value.Builder.class, Integer.class, IntConverters.BUILDER_TO_INT));
 
-    modelMapper.addConverter(DoubleConverters.DOUBLE_TO_DOUBLE_VALUE);
-    modelMapper.addConverter(DoubleConverters.DOUBLE_VALUE_TO_DOUBLE);
-    modelMapper.addConverter(DoubleConverters.DOUBLE_TO_BUILDER);
-    modelMapper.addConverter(DoubleConverters.BUILDER_TO_DOUBLE);
+    converters.add(wrap(Double.class, DoubleValue.class, DoubleConverters.DOUBLE_TO_DOUBLE_VALUE));
+    converters.add(wrap(DoubleValue.class, Double.class, DoubleConverters.DOUBLE_VALUE_TO_DOUBLE));
+    converters.add(wrap(Double.class, DoubleValue.Builder.class, DoubleConverters.DOUBLE_TO_BUILDER));
+    converters.add(wrap(DoubleValue.Builder.class, Double.class, DoubleConverters.BUILDER_TO_DOUBLE));
 
-    modelMapper.addConverter(StringConverters.STRING_TO_STRING_VALUE);
-    modelMapper.addConverter(StringConverters.STRING_VALUE_TO_STRING);
-    modelMapper.addConverter(StringConverters.STRING_TO_BUILDER);
-    modelMapper.addConverter(StringConverters.BUILDER_TO_STRING);
+    converters.add(wrap(String.class, StringValue.class, StringConverters.STRING_TO_STRING_VALUE));
+    converters.add(wrap(StringValue.class, String.class, StringConverters.STRING_VALUE_TO_STRING));
+    converters.add(wrap(String.class, StringValue.Builder.class, StringConverters.STRING_TO_BUILDER));
+    converters.add(wrap(StringValue.Builder.class, String.class, StringConverters.BUILDER_TO_STRING));
   }
 }

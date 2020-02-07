@@ -30,16 +30,20 @@ import org.modelmapper.spi.ValueWriter;
 public class ProtobufValueWriter implements ValueWriter<Builder> {
   @Override
   public void setValue(Builder destination, Object value, String memberName) {
+    if (value == null)
+      return;
+
     try {
-      if (ProtobufHelper.hasBuilder(destination.getClass(), memberName)) {
-        Method method = ProtobufHelper.setterForBuilder(destination.getClass(), memberName);
+      Class<? extends Builder> destinationType = destination.getClass();
+      if (value instanceof Builder) {
+        Method method = ProtobufHelper.setterForBuilder(destinationType, memberName);
         method.invoke(destination, value);
       } else {
-        Method method = ProtobufHelper.getter(destination.getClass(), memberName);
+        Method method = ProtobufHelper.setter(destination.getClass(), memberName);
         method.invoke(destination, value);
       }
     } catch (NoSuchMethodException e) {
-      throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+      throw new Errors().addMessage(e, "Cannot set the member").toMappingException();
     } catch (IllegalAccessException e) {
       throw new Errors().addMessage(e, "Cannot set the member").toMappingException();
     } catch (InvocationTargetException e) {
@@ -48,25 +52,16 @@ public class ProtobufValueWriter implements ValueWriter<Builder> {
   }
 
   @Override
-  public Member<Builder> getMember(Class<Builder> destinationType, String memberName) {
+  public Member<Builder> getMember(Class<Builder> destinationType, final String memberName) {
     try {
-      final Class<?> memberType = ProtobufHelper.getter(destinationType, memberName)
-          .getReturnType();
-      final Method setter = ProtobufHelper.setter(destinationType, memberName);
+      final Class<?> memberType = ProtobufHelper.fieldType(destinationType, memberName);
       return new Member<Builder>(memberType) {
         @Override
         public void setValue(Builder destination, Object value) {
-          try {
-            if (value != null)
-              setter.invoke(destination, value);
-          } catch (IllegalAccessException e) {
-            throw new Errors().addMessage(e, "Cannot set the member").toMappingException();
-          } catch (InvocationTargetException e) {
-            throw new Errors().addMessage(e, "Cannot set the member").toMappingException();
-          }
+          ProtobufValueWriter.this.setValue(destination, value, memberName);
         }
       };
-    } catch (NoSuchMethodException e) {
+    } catch (NoSuchFieldException e) {
       throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
     }
   }
