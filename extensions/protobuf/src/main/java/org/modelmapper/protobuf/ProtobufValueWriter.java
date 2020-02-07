@@ -19,6 +19,7 @@ import com.google.protobuf.Message.Builder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.Errors;
 import org.modelmapper.spi.ValueWriter;
 
@@ -28,6 +29,12 @@ import org.modelmapper.spi.ValueWriter;
  * @author Chun Han Hsiao
  */
 public class ProtobufValueWriter implements ValueWriter<Builder> {
+  private ModelMapper modelMapper;
+
+  public ProtobufValueWriter(ModelMapper modelMapper) {
+    this.modelMapper = modelMapper;
+  }
+
   @Override
   public void setValue(Builder destination, Object value, String memberName) {
     if (value == null)
@@ -38,6 +45,13 @@ public class ProtobufValueWriter implements ValueWriter<Builder> {
       if (value instanceof Builder) {
         Method method = ProtobufHelper.setterForBuilder(destinationType, memberName);
         method.invoke(destination, value);
+      } else if (value instanceof Iterable) {
+        Class<?> iterableType = ProtobufHelper.iterableType(destinationType, memberName);
+        Method method = ProtobufHelper.adder(destinationType, memberName);
+        for (Object element : (Iterable<?>) value) {
+          Object destElement = modelMapper.map(element, iterableType);
+          method.invoke(destination, destElement);
+        }
       } else {
         Method method = ProtobufHelper.setter(destination.getClass(), memberName);
         method.invoke(destination, value);
@@ -62,6 +76,8 @@ public class ProtobufValueWriter implements ValueWriter<Builder> {
         }
       };
     } catch (NoSuchFieldException e) {
+      throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
+    } catch (NoSuchMethodException e) {
       throw new Errors().addMessage(e, "Cannot get the member").toMappingException();
     }
   }

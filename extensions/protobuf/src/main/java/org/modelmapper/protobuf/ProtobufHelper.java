@@ -57,8 +57,12 @@ public class ProtobufHelper {
     throw new Errors().addMessage("Invalid protocol buffer type: %s", type.getName()).toConfigurationException();
   }
 
-  public static Class<?> fieldType(Class<?> type, String memberName) throws NoSuchFieldException {
-    return type.getDeclaredField(formatFieldName(memberName)).getType();
+  public static Class<?> fieldType(Class<?> type, String memberName)
+      throws NoSuchFieldException, NoSuchMethodException {
+    final Class<?> fieldType = type.getDeclaredField(formatFieldName(memberName)).getType();
+    if (Iterable.class.isAssignableFrom(fieldType))
+      return fieldType;
+    return getter(type, memberName).getReturnType();
   }
 
   public static Method getter(Class<?> type, String field) throws NoSuchMethodException {
@@ -91,6 +95,19 @@ public class ProtobufHelper {
         return method;
     }
     throw new NoSuchMethodException(methodName);
+  }
+
+  public static Method adder(Class<?> type, String field) throws NoSuchMethodException {
+    String methodName = "add" + formatMethodName(field);
+    for (Method method : type.getMethods()) {
+      if (isSetterForBuilder(method, methodName))
+        return method;
+    }
+    throw new NoSuchMethodException(methodName);
+  }
+
+  public static Class<?> iterableType(Class<?> type, String field) throws NoSuchMethodException {
+    return adder(type, field).getParameterTypes()[0];
   }
 
   public static Method hasMethod(Class<?> type, String field) throws NoSuchMethodException {

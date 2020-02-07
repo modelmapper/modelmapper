@@ -40,7 +40,7 @@ public class ProtobufModule implements Module {
   @Override
   public void setupModule(ModelMapper modelMapper) {
     modelMapper.getConfiguration().addValueReader(new ProtobufValueReader());
-    modelMapper.getConfiguration().addValueWriter(new ProtobufValueWriter());
+    modelMapper.getConfiguration().addValueWriter(new ProtobufValueWriter(modelMapper));
 
     List<ConditionalConverter<?, ?>> converters = modelMapper.getConfiguration().getConverters();
     converters.add(new MessageToBuilderConverter());
