@@ -89,7 +89,7 @@ class ProxyFactory {
 
     try {
       final DynamicType.Unloaded<T> unloaded = new ByteBuddy()
-		      .with(new NamingStrategy.SuffixingRandom("ByteBuddy", NO_PREFIX))
+          .with(new NamingStrategy.SuffixingRandom("ByteBuddy", NO_PREFIX))
           .subclass(type)
           .method(METHOD_FILTER)
           .intercept(InvocationHandlerAdapter.of(interceptor))
