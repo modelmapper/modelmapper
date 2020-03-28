@@ -75,7 +75,7 @@ class PropertyInfoRegistry {
    */
   static Accessor accessorFor(Class<?> type, String accessorName, InheritingConfiguration configuration) {
     PropertyInfoKey key = new PropertyInfoKey(type, accessorName, configuration);
-    if (!ACCESSOR_CACHE.containsKey(key) || !FIELD_CACHE.containsKey(key)) {
+    if (!ACCESSOR_CACHE.containsKey(key) && !FIELD_CACHE.containsKey(key)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
       for (Entry<String, Accessor> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors().entrySet()) {
@@ -129,7 +129,7 @@ class PropertyInfoRegistry {
    */
   static synchronized Mutator mutatorFor(Class<?> type, String name, InheritingConfiguration configuration) {
     PropertyInfoKey key = new PropertyInfoKey(type, name, configuration);
-    if (!MUTATOR_CACHE.containsKey(key) || !FIELD_CACHE.containsKey(key)) {
+    if (!MUTATOR_CACHE.containsKey(key) && !FIELD_CACHE.containsKey(key)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
       for (Entry<String, Mutator> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getMutators().entrySet()) {
