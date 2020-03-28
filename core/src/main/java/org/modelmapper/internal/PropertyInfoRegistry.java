@@ -75,7 +75,7 @@ class PropertyInfoRegistry {
    */
   static Accessor accessorFor(Class<?> type, String accessorName, InheritingConfiguration configuration) {
     PropertyInfoKey key = new PropertyInfoKey(type, accessorName, configuration);
-    if (!ACCESSOR_CACHE.containsKey(key) || !FIELD_CACHE.containsKey(key)) {
+    if (!ACCESSOR_CACHE.containsKey(key) && !FIELD_CACHE.containsKey(key)) {
       @SuppressWarnings("unchecked")
       Class<Object> uncheckedType = (Class<Object>) type;
       for (Entry<String, Accessor> entry : TypeInfoRegistry.typeInfoFor(uncheckedType, configuration).getAccessors().entrySet()) {
