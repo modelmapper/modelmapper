@@ -1,3 +1,9 @@
+# 2.3.7
+
+### Bug Fixes
+
+* Fixed issues #520 and #528, which caused excessive locking in PropertyInfoRegistry.
+
 # 2.3.6
 
 ### New Features
