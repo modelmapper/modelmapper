@@ -8,3 +8,4 @@ release.properties
 .settings/
 _site/
 user-manual/
+*.iml
