@@ -1,12 +1,18 @@
 package org.modelmapper.internal;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import org.modelmapper.config.Configuration.AccessLevel;
+import org.modelmapper.convention.NameTransformers;
+import org.modelmapper.convention.NamingConventions;
+import org.modelmapper.internal.valueaccess.ValueAccessStore;
+import org.modelmapper.spi.PropertyType;
+import org.testng.annotations.Test;
 
 import java.lang.reflect.Member;
+import java.util.Map;
 
-import org.modelmapper.config.Configuration.AccessLevel;
-import org.testng.annotations.Test;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
 
 /**
  * @author Jonathan Halterman
@@ -18,6 +24,74 @@ public class PropertyInfoSetResolverTest {
     protected int b;
     int c;
     @SuppressWarnings("unused") private int d;
+
+    public int getA() {
+      return a;
+    }
+
+    public void setA(int a) {
+      this.a = a;
+    }
+
+    public int getB() {
+      return b;
+    }
+
+    public void setB(int b) {
+      this.b = b;
+    }
+
+    public int getC() {
+      return c;
+    }
+
+    public void setC(int c) {
+      this.c = c;
+    }
+
+    public int getD() {
+      return d;
+    }
+
+    public void setD(int d) {
+      this.d = d;
+    }
+  }
+
+  public void whenIsFieldMatchingEnabledThenPropertyTypeShouldBeEqualsField() {
+    Members members = new Members();
+    InheritingConfiguration configuration = spy(new InheritingConfiguration());
+    when(configuration.isFieldMatchingEnabled()).thenReturn(true);
+    when(configuration.getFieldAccessLevel()).thenReturn(AccessLevel.PRIVATE);
+
+    when(configuration.getSourceNamingConvention()).thenReturn(NamingConventions.JAVABEANS_ACCESSOR);
+    when(configuration.getSourceNameTransformer()).thenReturn(NameTransformers.JAVABEANS_ACCESSOR);
+
+    Map<String, Accessor> accessors = PropertyInfoSetResolver
+            .resolveAccessors(members, Members.class, configuration);
+
+    assertEquals(accessors.get("a").getPropertyType(), PropertyType.FIELD);
+    assertEquals(accessors.get("b").getPropertyType(), PropertyType.FIELD);
+    assertEquals(accessors.get("c").getPropertyType(), PropertyType.FIELD);
+    assertEquals(accessors.get("d").getPropertyType(), PropertyType.FIELD);
+  }
+
+  public void whenIsNotFieldMatchingEnabledThenPropertyTypeShouldBeEqualsMethod() {
+    Members members = new Members();
+    InheritingConfiguration configuration = spy(new InheritingConfiguration());
+    when(configuration.isFieldMatchingEnabled()).thenReturn(false);
+    when(configuration.getFieldAccessLevel()).thenReturn(AccessLevel.PRIVATE);
+
+    when(configuration.getSourceNamingConvention()).thenReturn(NamingConventions.JAVABEANS_ACCESSOR);
+    when(configuration.getSourceNameTransformer()).thenReturn(NameTransformers.JAVABEANS_ACCESSOR);
+
+    Map<String, Accessor> accessors = PropertyInfoSetResolver
+            .resolveAccessors(members, Members.class, configuration);
+
+    assertEquals(accessors.get("a").getPropertyType(), PropertyType.METHOD);
+    assertEquals(accessors.get("b").getPropertyType(), PropertyType.METHOD);
+    assertEquals(accessors.get("c").getPropertyType(), PropertyType.METHOD);
+    assertEquals(accessors.get("d").getPropertyType(), PropertyType.METHOD);
   }
 
   public void testCanAccessMember() throws Exception {
