@@ -111,8 +111,9 @@ final class PropertyInfoSetResolver {
     Map<String, PI> properties = new LinkedHashMap<String, PI>();
     if (configuration.isFieldMatchingEnabled()) {
       properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, true)));
+    } else {
+        properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, false)));
     }
-    properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, false)));
     return properties;
   }
 
