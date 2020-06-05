@@ -1,3 +1,13 @@
+# 2.3.8
+
+### New Features
+
+* Update typetools to 0.6.2
+
+### Bug Fixes
+
+* #482: NullPointerException on openJDK 11
+
 # 2.3.7
 
 ### Bug Fixes
