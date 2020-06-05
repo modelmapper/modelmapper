@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import static net.bytebuddy.NamingStrategy.SuffixingRandom.NO_PREFIX;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
@@ -23,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.NamingStrategy;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassInjector;
@@ -87,6 +89,7 @@ class ProxyFactory {
 
     try {
       final DynamicType.Unloaded<T> unloaded = new ByteBuddy()
+          .with(new NamingStrategy.SuffixingRandom("ByteBuddy", NO_PREFIX))
           .subclass(type)
           .method(METHOD_FILTER)
           .intercept(InvocationHandlerAdapter.of(interceptor))
