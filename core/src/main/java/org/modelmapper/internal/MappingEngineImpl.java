@@ -153,7 +153,7 @@ public class MappingEngineImpl implements MappingEngine {
 
       converter = typeMap.getPostConverter();
       if (converter != null)
-        convert(context, converter);
+        return convert(context, converter);
     }
 
     return context.getDestination();
