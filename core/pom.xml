@@ -13,7 +13,7 @@
 
   <properties>
     <cglib.version>3.2.9</cglib.version>
-    <asm.version>7.2</asm.version>
+    <asm.version>9.0</asm.version>
     <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.6.2</typetools.version>
     <bytebuddy.version>1.9.4</bytebuddy.version>
