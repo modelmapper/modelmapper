@@ -113,7 +113,7 @@ public class TypeResolutionTest2 extends AbstractTest {
         if (typeMappings.containsKey(sourceClass)) {
           requestedClass = typeMappings.get(sourceClass);
           try {
-            return requestedClass.newInstance();
+            return requestedClass.getDeclaredConstructor().newInstance();
           } catch (Exception e) {
             throw new RuntimeException(e);
           }

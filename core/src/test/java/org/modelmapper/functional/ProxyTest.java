@@ -66,6 +66,7 @@ public class ProxyTest extends AbstractTest {
         .make()
         .load(Source.class.getClassLoader())
         .getLoaded()
+        .getDeclaredConstructor()
         .newInstance();
 
     Dest dest = modelMapper.map(proxy, Dest.class);
