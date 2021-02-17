@@ -1,6 +1,5 @@
 package org.modelmapper.internal.valuemutate;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import org.modelmapper.AbstractTest;

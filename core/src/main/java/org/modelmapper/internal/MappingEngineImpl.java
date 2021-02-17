@@ -16,7 +16,6 @@
 package org.modelmapper.internal;
 
 import java.lang.reflect.Type;
-import net.jodah.typetools.TypeResolver.Unknown;
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;

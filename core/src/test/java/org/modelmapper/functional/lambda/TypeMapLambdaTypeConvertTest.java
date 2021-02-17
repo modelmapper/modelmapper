@@ -5,7 +5,6 @@ import static org.testng.Assert.assertEquals;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.modelmapper.TypeToken;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;

@@ -1,7 +1,6 @@
 package org.modelmapper.functional.config;
 
 import org.modelmapper.AbstractTest;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;

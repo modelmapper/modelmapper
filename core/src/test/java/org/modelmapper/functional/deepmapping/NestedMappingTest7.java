@@ -1,10 +1,8 @@
 package org.modelmapper.functional.deepmapping;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.TypeMap;
 import org.testng.annotations.Test;
 
 /**
