@@ -16,7 +16,6 @@
 package org.modelmapper.internal.converter;
 
 import org.modelmapper.internal.MappingContextImpl;
-import org.modelmapper.internal.util.Objects;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 

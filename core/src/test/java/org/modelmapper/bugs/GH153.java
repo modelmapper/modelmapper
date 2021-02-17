@@ -3,7 +3,6 @@ package org.modelmapper.bugs;
 import java.util.Date;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.testng.Assert;
 import org.testng.annotations.Test;

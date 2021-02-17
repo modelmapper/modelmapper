@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.spi.Mapping;
-import org.modelmapper.spi.MappingContext;
 import org.testng.annotations.Test;
 
 /**

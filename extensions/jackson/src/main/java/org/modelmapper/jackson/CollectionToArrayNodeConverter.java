@@ -1,22 +1,15 @@
 package org.modelmapper.jackson;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import org.modelmapper.MappingException;
 import org.modelmapper.internal.Errors;
-import org.modelmapper.internal.util.MappingContextHelper;
-import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.MappingContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Converts {@link ArrayNode} instances to {@link Collection} instances.

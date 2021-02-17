@@ -1,11 +1,15 @@
 package org.modelmapper.functional.inherit;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import org.modelmapper.*;
+import org.modelmapper.AbstractProvider;
+import org.modelmapper.AbstractTest;
+import org.modelmapper.Asserts;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.Provider;
+import org.modelmapper.TypeMap;
 import org.testng.annotations.Test;
 
 @Test

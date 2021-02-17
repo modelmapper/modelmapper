@@ -19,10 +19,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.spi.NameableType;
-import org.modelmapper.spi.SourceGetter;
 import org.modelmapper.spi.TypeSafeSourceGetter;
 
 /**

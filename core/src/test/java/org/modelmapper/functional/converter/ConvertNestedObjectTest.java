@@ -3,7 +3,6 @@ package org.modelmapper.functional.converter;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.TypeMap;
 import org.modelmapper.spi.MappingContext;
 import org.testng.annotations.Test;
 

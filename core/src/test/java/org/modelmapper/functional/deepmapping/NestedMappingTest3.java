@@ -3,7 +3,6 @@ package org.modelmapper.functional.deepmapping;
 import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.testng.annotations.Test;
 

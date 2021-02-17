@@ -16,7 +16,6 @@
 package org.modelmapper.spi;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Writes values to a destination. Allows for integration with 3rd party libraries.

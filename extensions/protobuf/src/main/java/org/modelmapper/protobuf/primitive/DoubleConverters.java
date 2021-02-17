@@ -16,7 +16,6 @@
 package org.modelmapper.protobuf.primitive;
 
 import com.google.protobuf.DoubleValue;
-import com.google.protobuf.Int64Value;
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 
