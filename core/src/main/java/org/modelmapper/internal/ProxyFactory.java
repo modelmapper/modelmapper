@@ -110,7 +110,9 @@ class ProxyFactory {
   }
 
   private static boolean isProxyUnsupported(Class<?> type) {
-    return type.equals(String.class) || Collection.class.isAssignableFrom(type);
+    return type.equals(String.class)
+        || type.equals(Object.class)
+        || Collection.class.isAssignableFrom(type);
   }
 
   private static <T> ClassLoadingStrategy<ClassLoader> chooseClassLoadingStrategy(Class<T> type) {
