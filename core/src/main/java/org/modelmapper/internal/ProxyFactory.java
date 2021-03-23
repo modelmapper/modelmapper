@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.NamingStrategy;
 import net.bytebuddy.description.method.MethodDescription;
@@ -77,12 +78,11 @@ class ProxyFactory {
   /**
    * @throws ErrorsException if the proxy for {@code type} cannot be generated or instantiated
    */
-  @SuppressWarnings("unchecked")
   static <T> T proxyFor(Class<T> type, InvocationHandler interceptor, Errors errors, boolean useOSGiClassLoaderBridging)
       throws ErrorsException {
     if (Primitives.isPrimitive(type))
       return Primitives.defaultValueForWrapper(type);
-    if (type.equals(String.class))
+    if (isProxyUnsupported(type))
       return null;
     if (Modifier.isFinal(type.getModifiers()))
       throw errors.invocationAgainstFinalClass(type).toException();
@@ -107,6 +107,10 @@ class ProxyFactory {
     } catch (Throwable t) {
       throw errors.errorInstantiatingProxy(type, t).toException();
     }
+  }
+
+  private static boolean isProxyUnsupported(Class<?> type) {
+    return type.equals(String.class) || Collection.class.isAssignableFrom(type);
   }
 
   private static <T> ClassLoadingStrategy<ClassLoader> chooseClassLoadingStrategy(Class<T> type) {
