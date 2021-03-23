@@ -33,9 +33,11 @@ import static org.modelmapper.internal.util.Assert.notNull;
 class ConfigurableConditionExpressionImpl<S, D> implements ConfigurableConditionExpression<S, D> {
   TypeMapImpl<S, D> typeMap;
   private MappingOptions options = new MappingOptions();
+  private final ReferenceMapExpressionImpl<S, D> expression;
 
   public ConfigurableConditionExpressionImpl(TypeMapImpl<S, D> typeMap) {
     this.typeMap = typeMap;
+    this.expression = new ReferenceMapExpressionImpl<S, D>(typeMap, options);
   }
 
   public ConfigurableConditionExpression<S, D> using(Converter<?, ?> converter) {
@@ -62,13 +64,11 @@ class ConfigurableConditionExpressionImpl<S, D> implements ConfigurableCondition
   public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     notNull(sourceGetter, "sourceGetter");
     notNull(destinationSetter, "destinationSetter");
-    new ReferenceMapExpressionImpl<S, D>(typeMap, options).map(sourceGetter, destinationSetter);
-    options = new MappingOptions();
+    expression.map(sourceGetter, destinationSetter);
   }
 
   public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     notNull(destinationSetter, "destinationSetter");
-    new ReferenceMapExpressionImpl<S, D>(typeMap, options).skip(destinationSetter);
-    options = new MappingOptions();
+    expression.skip(destinationSetter);
   }
 }

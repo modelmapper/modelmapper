@@ -88,6 +88,14 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     Provider<?> provider;
     int skipType;
     boolean mapFromSource;
+
+    void reset() {
+      condition = null;
+      converter = null;
+      provider = null;
+      skipType = 0;
+      mapFromSource = false;
+    }
   }
 
   static <S, D> Collection<MappingImpl> build(Class<S> sourceType, Class<D> destinationType,

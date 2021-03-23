@@ -15,13 +15,12 @@
  */
 package org.modelmapper.internal;
 
-import net.jodah.typetools.TypeResolver;
-
 import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 
+import net.jodah.typetools.TypeResolver;
+import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.spi.SourceGetter;
 
 /**
@@ -33,8 +32,11 @@ import org.modelmapper.spi.SourceGetter;
  * @author Chun Han Hsiao
  */
 class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
-  private TypeMapImpl<S, D> typeMap;
-  private MappingOptions options;
+  private final TypeMapImpl<S, D> typeMap;
+  private final MappingOptions options;
+  private final PropertyReferenceCollector collector;
+  private final S source;
+  private final D destination;
 
   ReferenceMapExpressionImpl(TypeMapImpl<S, D> typeMap) {
     this(typeMap, new MappingOptions());
@@ -43,13 +45,20 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   ReferenceMapExpressionImpl(TypeMapImpl<S, D> typeMap, MappingOptions options) {
     this.typeMap = typeMap;
     this.options = options;
+    this.collector = new PropertyReferenceCollector(typeMap.configuration, options);
+    try {
+      this.source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(),
+          collector.getProxyErrors());
+      this.destination = ProxyFactory
+          .proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(),
+              collector.getProxyErrors());
+    } catch (ErrorsException e) {
+      throw e.getErrors().toConfigurationException();
+    }
   }
 
   public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
-    PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, options);
-
     try {
-      S source = ProxyFactory.proxyFor(typeMap.getSourceType(), collector.newSourceInterceptor(), collector.getProxyErrors());
       Object sourceProperty = sourceGetter.get(source);
       if (source == sourceProperty)
         collector.mapFromSource(typeMap.getSourceType());
@@ -64,7 +73,6 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     }
 
     try {
-      D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getProxyErrors());
       destinationSetter.accept(destination, destinationValue(destinationSetter));
     } catch (NullPointerException e) {
       if (collector.getProxyErrors().hasErrors())
@@ -75,16 +83,15 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     }
 
     typeMap.addMapping(collector.collect());
+    collector.reset();
   }
 
   public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     options.skipType = 1;
-
-    PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, options);
-    D destination = ProxyFactory.proxyFor(typeMap.getDestinationType(), collector.newDestinationInterceptor(), collector.getErrors());
     destinationSetter.accept(destination, destinationValue(destinationSetter));
 
     typeMap.addMapping(collector.collect());
+    collector.reset();
   }
 
   private <V> V destinationValue(DestinationSetter<D, V> destinationSetter) {

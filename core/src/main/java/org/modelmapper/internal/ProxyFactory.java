@@ -43,6 +43,8 @@ import org.objenesis.ObjenesisStd;
  */
 class ProxyFactory {
   private static final Objenesis OBJENESIS = new ObjenesisStd();
+  private static final ByteBuddy BYTEBUDDY = new ByteBuddy()
+      .with(new NamingStrategy.SuffixingRandom("ByteBuddy", NO_PREFIX));
   private static final ElementMatcher<? super MethodDescription> METHOD_FILTER = not(
       named("hashCode").or(named("equals")));
   private static final Method PRIVATE_LOOKUP_IN;
@@ -88,20 +90,22 @@ class ProxyFactory {
       throw errors.invocationAgainstFinalClass(type).toException();
 
     try {
-      final DynamicType.Unloaded<T> unloaded = new ByteBuddy()
-          .with(new NamingStrategy.SuffixingRandom("ByteBuddy", NO_PREFIX))
+      final DynamicType.Unloaded<T> unloaded = BYTEBUDDY
           .subclass(type)
           .method(METHOD_FILTER)
           .intercept(InvocationHandlerAdapter.of(interceptor))
           .make();
       final ClassLoadingStrategy<ClassLoader> classLoadingStrategy = chooseClassLoadingStrategy(type);
+      final ClassLoader classLoader = useOSGiClassLoaderBridging
+          ? BridgeClassLoaderFactory.getClassLoader(type)
+          : type.getClassLoader();
       if (classLoadingStrategy != null) {
         return OBJENESIS.newInstance(unloaded
-            .load(useOSGiClassLoaderBridging ? BridgeClassLoaderFactory.getClassLoader(type) : type.getClassLoader(), classLoadingStrategy)
+            .load(classLoader, classLoadingStrategy)
             .getLoaded());
       } else {
         return OBJENESIS.newInstance(unloaded
-            .load(useOSGiClassLoaderBridging ? BridgeClassLoaderFactory.getClassLoader(type) : type.getClassLoader())
+            .load(classLoader)
             .getLoaded());
       }
     } catch (Throwable t) {

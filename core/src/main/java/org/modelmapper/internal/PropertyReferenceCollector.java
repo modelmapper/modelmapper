@@ -30,18 +30,18 @@ import org.modelmapper.spi.TypeSafeSourceGetter;
  * @author Chun Han Hsiao
  */
 class PropertyReferenceCollector {
-  private InheritingConfiguration config;
-  private ExplicitMappingBuilder.MappingOptions options;
-  private List<Accessor> accessors;
-  private List<Mutator> mutators;
+  private final InheritingConfiguration config;
+  private final ExplicitMappingBuilder.MappingOptions options;
+  private final List<Accessor> accessors;
+  private final List<Mutator> mutators;
 
   // This field will be set with a value if the mapping is map from source
   private Class<?> sourceType;
   // This field will be set with a value if the mapping is map from constant
   private Object constant;
 
-  private Errors errors;
-  private Errors proxyErrors;
+  private final Errors errors;
+  private final Errors proxyErrors;
 
   public static <S, D> List<Accessor> collect(TypeMapImpl<S, D> typeMap, TypeSafeSourceGetter<S, ?> sourceGetter) {
     PropertyReferenceCollector collector = new PropertyReferenceCollector(typeMap.configuration, null);
@@ -144,10 +144,16 @@ class PropertyReferenceCollector {
       errors.addMessage("Illegal DestinationSetter defined");
     errors.throwConfigurationExceptionIfErrorsExist();
     if (sourceType != null)
-      return new SourceMappingImpl(sourceType, mutators, options);
+      return new SourceMappingImpl(sourceType, new ArrayList<Mutator>(mutators), options);
     if (accessors.isEmpty())
-      return new ConstantMappingImpl(constant, mutators, options);
-    return new PropertyMappingImpl(accessors, mutators, options);
+      return new ConstantMappingImpl(constant, new ArrayList<Mutator>(mutators), options);
+    return new PropertyMappingImpl(new ArrayList<Accessor>(accessors), new ArrayList<Mutator>(mutators), options);
+  }
+
+  void reset() {
+    mutators.clear();
+    accessors.clear();
+    options.reset();
   }
 
   public Errors getErrors() {
