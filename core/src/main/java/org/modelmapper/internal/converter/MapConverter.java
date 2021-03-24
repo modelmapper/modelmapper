@@ -19,9 +19,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import net.jodah.typetools.TypeResolver;
 import net.jodah.typetools.TypeResolver.Unknown;
@@ -53,8 +53,8 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
     if (mapping != null && mapping instanceof PropertyMapping) {
       PropertyInfo destInfo = ((PropertyMapping) mapping).getLastDestinationProperty();
       Class<?>[] elementTypes = TypeResolver.resolveRawArguments(destInfo.getGenericType(),
-          destInfo.getMember().getDeclaringClass());
-      if (elementTypes != null) {
+          Map.class);
+      if (elementTypes != null && elementTypes.length == 2) {
         keyElementType = elementTypes[0] == Unknown.class ? Object.class : elementTypes[0];
         valueElementType = elementTypes[1] == Unknown.class ? Object.class : elementTypes[1];
       }
