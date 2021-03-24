@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.modelmapper.Provider;
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
@@ -48,7 +47,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   /** Tracks destination objects for each source. Used for circular mapping. */
   final Map<Object, Object> sourceToDestination;
   /** Tracks intermediate destination objects on the path to the destination */
-  final List<Object> intermediateDestinations;
+  final Map<String, Object> intermediateDestinations;
   final Errors errors;
   private final MappingContextImpl<?, ?> parent;
   private D destination;
@@ -88,7 +87,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     destinationCache = new HashMap<String, Object>();
     shadedPaths = new ArrayList<String>();
     sourceToDestination = new IdentityHashMap<Object, Object>();
-    intermediateDestinations = new ArrayList<Object>();
+    intermediateDestinations = new HashMap<String, Object>();
   }
 
   /**
@@ -118,7 +117,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     destinationCache = inheritValues ? context.destinationCache : new HashMap<String, Object>();
     shadedPaths = inheritValues ? context.shadedPaths : new ArrayList<String>();
     sourceToDestination = context.sourceToDestination;
-    intermediateDestinations = new ArrayList<Object>();
+    intermediateDestinations = new HashMap<String, Object>();
   }
 
 
@@ -310,7 +309,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
       // Obtain from cache
       Object next = Objects.firstNonNull(
           Objects.callable(parent.destinationCache.get(destPath)),
-          parent.getDestinationValueByType(mutator.getType()),
+          parent.getCyclicReferenceByPath(destPath),
           parent.getDestinationValueByMemberName(current, mutator.getName()));
       if (next == null && source != null)
         next = mappingEngine.createDestinationViaGlobalProvider(parent.parentSource, mutator.getType(), parent.errors);
@@ -341,17 +340,11 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     };
   }
 
-  Callable<Object> getDestinationValueByType(final Class<?> type) {
+  Callable<Object> getCyclicReferenceByPath(final String destinationPath) {
     return new Callable<Object>() {
       @Override
       public Object call() {
-        for (Object intermediateDestination : intermediateDestinations) {
-          // Match intermediate destinations to mutator by type
-          if (intermediateDestination.getClass().equals(type)) {
-            return intermediateDestination;
-          }
-        }
-        return null;
+        return intermediateDestinations.get(destinationPath);
       }
     };
   }

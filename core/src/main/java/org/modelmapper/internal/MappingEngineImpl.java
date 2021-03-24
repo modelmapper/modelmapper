@@ -15,7 +15,12 @@
  */
 package org.modelmapper.internal;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
@@ -32,11 +37,6 @@ import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.MappingEngine;
 import org.modelmapper.spi.PropertyMapping;
-
-import java.lang.reflect.Constructor;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MappingEngine implementation that caches ConditionalConverters by source and destination type
@@ -191,15 +191,17 @@ public class MappingEngineImpl implements MappingEngine {
   private Object resolveSourceValue(MappingContextImpl<?, ?> context, Mapping mapping) {
     Object source = context.getSource();
     if (mapping instanceof PropertyMappingImpl) {
+      StringBuilder destPathBuilder = new StringBuilder().append(context.destinationPath);
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
         context.setParentSource(source);
+        destPathBuilder.append(accessor.getName()).append('.');
         source = accessor.getValue(source);
         if (source == null)
           return null;
         if (!Iterables.isIterable(source.getClass())) {
           Object circularDest = context.sourceToDestination.get(source);
           if (circularDest != null)
-            context.intermediateDestinations.add(circularDest);
+            context.intermediateDestinations.put(destPathBuilder.toString(), circularDest);
         }
       }
     } else if (mapping instanceof ConstantMapping)
