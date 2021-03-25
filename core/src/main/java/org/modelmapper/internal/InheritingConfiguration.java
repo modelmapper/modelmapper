@@ -15,6 +15,8 @@
  */
 package org.modelmapper.internal;
 
+import java.util.List;
+
 import org.modelmapper.Condition;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
@@ -29,9 +31,13 @@ import org.modelmapper.internal.converter.NonMergingCollectionConverter;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.valueaccess.ValueAccessStore;
 import org.modelmapper.internal.valuemutate.ValueMutateStore;
-import org.modelmapper.spi.*;
-
-import java.util.List;
+import org.modelmapper.spi.ConditionalConverter;
+import org.modelmapper.spi.MatchingStrategy;
+import org.modelmapper.spi.NameTokenizer;
+import org.modelmapper.spi.NameTransformer;
+import org.modelmapper.spi.NamingConvention;
+import org.modelmapper.spi.ValueReader;
+import org.modelmapper.spi.ValueWriter;
 
 /**
  * Inheritable mapping configuration implementation.
@@ -59,6 +65,7 @@ public class InheritingConfiguration implements Configuration {
   private Boolean ambiguityIgnored;
   private Boolean fullTypeMatchingRequired;
   private Boolean implicitMatchingEnabled;
+  private Boolean preferNestedProperties;
   private Boolean skipNullEnabled;
   private Boolean collectionsMergeEnabled;
   private Boolean useOSGiClassLoaderBridging;
@@ -85,6 +92,7 @@ public class InheritingConfiguration implements Configuration {
     ambiguityIgnored = Boolean.FALSE;
     fullTypeMatchingRequired = Boolean.FALSE;
     implicitMatchingEnabled = Boolean.TRUE;
+    preferNestedProperties = Boolean.TRUE;
     skipNullEnabled = Boolean.FALSE;
     useOSGiClassLoaderBridging = Boolean.FALSE;
     collectionsMergeEnabled = Boolean.TRUE;
@@ -119,6 +127,7 @@ public class InheritingConfiguration implements Configuration {
       propertyCondition = source.propertyCondition;
       fullTypeMatchingRequired = source.fullTypeMatchingRequired;
       implicitMatchingEnabled = source.implicitMatchingEnabled;
+      preferNestedProperties = source.preferNestedProperties;
       skipNullEnabled = source.skipNullEnabled;
       collectionsMergeEnabled = source.collectionsMergeEnabled;
     }
@@ -307,6 +316,13 @@ public class InheritingConfiguration implements Configuration {
   }
 
   @Override
+  public boolean isPreferNestedProperties() {
+    return preferNestedProperties == null
+        ? Assert.notNull(parent).isPreferNestedProperties()
+        : preferNestedProperties;
+  }
+
+  @Override
   public boolean isSkipNullEnabled() {
     return skipNullEnabled == null
         ? Assert.notNull(parent).isSkipNullEnabled()
@@ -375,6 +391,12 @@ public class InheritingConfiguration implements Configuration {
   @Override
   public Configuration setImplicitMappingEnabled(boolean enabled) {
     implicitMatchingEnabled = enabled;
+    return this;
+  }
+
+  @Override
+  public Configuration setPreferNestedProperties(boolean enabled) {
+    preferNestedProperties = enabled;
     return this;
   }
 

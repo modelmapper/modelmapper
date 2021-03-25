@@ -230,6 +230,22 @@ public interface Configuration {
   boolean isImplicitMappingEnabled();
 
   /**
+   * Returns whether nested properties were preferred when ModelMapper were building the type map
+   * with implicit mapping. When {@code true} (default), ModelMapper will prefer looking for nested
+   * properties for a mapping definition.
+   *
+   * This option should be disabled when you are trying to map a model contains circular reference.
+   *
+   * <pre>
+   *  modelMapper.createTypeMap(SourceTree.class, DestinationTree.class,
+   *    modelMapper.getConfiguration().copy().setPreferNestedProperties(false));
+   * </pre>
+   *
+   * @see #setPreferNestedProperties(boolean)
+   */
+  boolean isPreferNestedProperties();
+
+  /**
    * Returns whether a property mapping will be skipped if the property value is {@code null}.
    * When {@code true}, ModelMapper will always not set {@code null} to destination property.
    *
@@ -342,6 +358,23 @@ public interface Configuration {
    * @see #isImplicitMappingEnabled()
    */
   Configuration setImplicitMappingEnabled(boolean enabled);
+
+  /**
+   * Sets whether nested properties were preferred when ModelMapper were building the type map with
+   * implicit mapping. When {@code true} (default), ModelMapper will prefer looking for nested
+   * properties for a mapping definition.
+   *
+   * This option should be disabled when you are trying to map a model contains circular reference.
+   *
+   * <pre>
+   *  modelMapper.createTypeMap(SourceTree.class, DestinationTree.class,
+   *    modelMapper.getConfiguration().copy().setPreferNestedProperties(false));
+   * </pre>
+   *
+   * @param enabled whether prefer nested properties
+   * @see #isPreferNestedProperties()
+   */
+  Configuration setPreferNestedProperties(boolean enabled);
 
   /**
    * Sets whether a property should be skipped or not when the property value is {@code null}.

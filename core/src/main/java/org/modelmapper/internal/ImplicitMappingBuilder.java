@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.modelmapper.Converter;
 import org.modelmapper.TypeMap;
+import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.internal.PropertyInfoImpl.ValueReaderPropertyInfo;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
@@ -172,10 +173,13 @@ class ImplicitMappingBuilder<S, D> {
       boolean doneMatching = false;
 
       if (matchingStrategy.matches(propertyNameInfo)) {
-        if (destinationTypes.contains(destinationMutator.getType())) {
+        if (destinationTypes.contains(destinationMutator.getType()))
           mappings.add(new PropertyMappingImpl(propertyNameInfo.getSourceProperties(),
               propertyNameInfo.getDestinationProperties(), true));
-        } else {
+        else if (!configuration.isPreferNestedProperties() && MatchingStrategies.STRICT.matches(propertyNameInfo))
+          mappings.add(new PropertyMappingImpl(propertyNameInfo.getSourceProperties(),
+              propertyNameInfo.getDestinationProperties(), false));
+        else {
           TypeMap<?, ?> propertyTypeMap = typeMapStore.get(accessor.getType(),
               destinationMutator.getType(), null);
           PropertyMappingImpl mapping = null;
