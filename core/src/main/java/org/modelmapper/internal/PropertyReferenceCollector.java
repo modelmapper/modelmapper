@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.modelmapper.internal.PropertyInfoImpl.MethodAccessor;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.TypeSafeSourceGetter;
@@ -142,6 +143,8 @@ class PropertyReferenceCollector {
   MappingImpl collect() {
     if (mutators.isEmpty())
       errors.addMessage("Illegal DestinationSetter defined");
+    if (options.skipType == 1 && options.condition != null && accessors.isEmpty())
+      errors.addMessage("Source properties must be provided when conditional skip, please use when().skip(sourceGetter, destinationSetter) instead");
     errors.throwConfigurationExceptionIfErrorsExist();
     if (sourceType != null)
       return new SourceMappingImpl(sourceType, new ArrayList<Mutator>(mutators), options);

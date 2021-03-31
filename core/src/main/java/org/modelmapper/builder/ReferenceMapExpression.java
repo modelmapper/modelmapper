@@ -58,4 +58,19 @@ public interface ReferenceMapExpression<S, D> {
    * @param <V> the value type of the setter
    */
   <V> void skip(DestinationSetter<D, V> destinationSetter);
+
+  /**
+   * Skip the mapping from the source property of {@code sourceGetter} to the destination property
+   * of {@code destinationSetter}
+   *
+   * <pre>
+   * {@code
+   *   <String>skip(Source::getValue, Dest::setValue)
+   * }
+   * </pre>
+   *
+   * @param destinationSetter a method reference to destination setter
+   * @param <V> the value type of the setter
+   */
+  <V> void skip(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter);
 }

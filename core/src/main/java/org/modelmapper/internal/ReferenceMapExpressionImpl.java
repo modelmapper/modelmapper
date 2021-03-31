@@ -16,6 +16,7 @@
 package org.modelmapper.internal;
 
 import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
+import static org.modelmapper.internal.util.Assert.notNull;
 
 import net.jodah.typetools.TypeResolver;
 import org.modelmapper.builder.ReferenceMapExpression;
@@ -57,7 +58,33 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     }
   }
 
+  @Override
   public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
+    visitSource(sourceGetter);
+    visitDestination(destinationSetter);
+    typeMap.addMapping(collector.collect());
+    collector.reset();
+  }
+
+  @Override
+  public <V> void skip(DestinationSetter<D, V> destinationSetter) {
+    options.skipType = 1;
+    visitDestination(destinationSetter);
+    typeMap.addMapping(collector.collect());
+    collector.reset();
+  }
+
+  @Override
+  public <V> void skip(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
+    options.skipType = 1;
+    visitSource(sourceGetter);
+    visitDestination(destinationSetter);
+    typeMap.addMapping(collector.collect());
+    collector.reset();
+  }
+
+  private void visitSource(SourceGetter<S> sourceGetter) {
+    notNull(sourceGetter, "sourceGetter");
     try {
       Object sourceProperty = sourceGetter.get(source);
       if (source == sourceProperty)
@@ -71,7 +98,10 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     } catch (ErrorsException e) {
       throw e.getErrors().toConfigurationException();
     }
+  }
 
+  private <V> void visitDestination(DestinationSetter<D, V> destinationSetter) {
+    notNull(destinationSetter, "destinationSetter");
     try {
       destinationSetter.accept(destination, destinationValue(destinationSetter));
     } catch (NullPointerException e) {
@@ -81,17 +111,6 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     } catch (ErrorsException e) {
       throw e.getErrors().toConfigurationException();
     }
-
-    typeMap.addMapping(collector.collect());
-    collector.reset();
-  }
-
-  public <V> void skip(DestinationSetter<D, V> destinationSetter) {
-    options.skipType = 1;
-    destinationSetter.accept(destination, destinationValue(destinationSetter));
-
-    typeMap.addMapping(collector.collect());
-    collector.reset();
   }
 
   private <V> V destinationValue(DestinationSetter<D, V> destinationSetter) {

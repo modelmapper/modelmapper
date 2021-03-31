@@ -1,8 +1,13 @@
 package org.modelmapper.functional.lambda;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
+
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Asserts;
 import org.modelmapper.Condition;
+import org.modelmapper.Conditions;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
@@ -14,10 +19,6 @@ import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.fail;
 
 @Test
 @SuppressWarnings("unused")
@@ -92,6 +93,40 @@ public class TypeMapLambdaTest extends AbstractTest {
 
     typeMap.validate();
     assertNull(typeMap.map(new Src("foo")).destText);
+  }
+
+  public void shouldAddMappingWithConditionalSkip() {
+    TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
+    typeMap.addMappings(
+        new ExpressionMap<Src, Dest>() {
+          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
+            mapping.when(Conditions.isNull()).skip(srcGetter(), destSetter());
+          }
+        });
+    typeMap.validate();
+
+    Dest dest = new Dest();
+    typeMap.map(new Src("foo"), dest);
+    assertEquals(dest.destText, "foo");
+    typeMap.map(new Src(null), dest);
+    assertEquals(dest.destText, "foo");
+  }
+
+  public void shouldFailedWhenConditionalSkipWithoutSourceGetter() {
+    TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
+
+    try {
+      typeMap.addMappings(
+          new ExpressionMap<Src, Dest>() {
+            public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
+              mapping.when(Conditions.isNull()).skip(destSetter());
+            }
+          });
+      fail();
+    } catch (ConfigurationException e) {
+      Asserts.assertContains(e.getMessage(),
+          "Source properties must be provided when conditional skip, please use when().skip(sourceGetter, destinationSetter) instead");
+    }
   }
 
   public void shouldAddMappingWithCondition() {

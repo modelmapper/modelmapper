@@ -15,15 +15,15 @@
  */
 package org.modelmapper.internal;
 
+import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
+import static org.modelmapper.internal.util.Assert.notNull;
+
 import org.modelmapper.Condition;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.builder.ConfigurableConditionExpression;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
-
-import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
-import static org.modelmapper.internal.util.Assert.notNull;
 
 /**
  * {@link ConfigurableConditionExpression} implementation
@@ -70,5 +70,12 @@ class ConfigurableConditionExpressionImpl<S, D> implements ConfigurableCondition
   public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     notNull(destinationSetter, "destinationSetter");
     expression.skip(destinationSetter);
+  }
+
+  @Override
+  public <V> void skip(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
+    notNull(sourceGetter, "sourceGetter");
+    notNull(destinationSetter, "destinationSetter");
+    expression.skip(sourceGetter, destinationSetter);
   }
 }
