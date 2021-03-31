@@ -1,3 +1,28 @@
+# 2.4.0
+
+### New Features
+
+* New API `when(condition).skip(src, dest)`
+* New configuration `preferNestedProperties` for better support circular reference mapping
+
+### Bug Fixes
+
+* Fixed #414 - Eliminates warnings while defining explicit mapping on collections
+* Fixed #462 - Improves performance when creating explicit mapping on a giant model
+* Fixed #392 - Fixes handling protobuf iterable
+* Fixed #581 - Fix wrong circular reference
+* Fixed #550 - Resolve key value types correctly
+
+# 2.3.9
+
+### New Features
+
+* Upgrade ASM for Java 15
+
+### Bug Fixes
+
+* Fixed #553 - the result of post converter was dropped
+
 # 2.3.8
 
 ### New Features
