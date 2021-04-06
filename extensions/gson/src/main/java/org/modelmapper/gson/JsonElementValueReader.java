@@ -15,15 +15,15 @@
  */
 package org.modelmapper.gson;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import java.util.Collection;
 import java.util.Set;
 
 import org.modelmapper.internal.util.Lists;
 import org.modelmapper.spi.ValueReader;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 /**
  * JsonElement ValueReader implementation.
@@ -60,7 +60,8 @@ public class JsonElementValueReader implements ValueReader<JsonElement> {
   @Override
   public Member<JsonElement> getMember(JsonElement source, String memberName) {
     final Object value = get(source, memberName);
-    return new Member<JsonElement>(JsonElement.class) {
+    final Class<?> type = value != null ? value.getClass() : JsonElement.class;
+    return new Member<JsonElement>(type) {
       @Override
       public JsonElement getOrigin() {
         if (value instanceof JsonElement)

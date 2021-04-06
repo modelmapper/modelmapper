@@ -15,14 +15,14 @@
  */
 package org.modelmapper.jackson;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.POJONode;
+
 import java.io.IOException;
 import java.util.Collection;
 
 import org.modelmapper.internal.util.Lists;
 import org.modelmapper.spi.ValueReader;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.POJONode;
 
 /**
  * JsonNode ValueReader implementation.
@@ -62,7 +62,8 @@ public class JsonNodeValueReader implements ValueReader<JsonNode> {
 
   public Member<JsonNode> getMember(JsonNode source, String memberName) {
     final Object value = get(source, memberName);
-    return new Member<JsonNode>(JsonNode.class) {
+    final Class<?> type = value != null ? value.getClass() : JsonNode.class;
+    return new Member<JsonNode>(type) {
       @Override
       public JsonNode getOrigin() {
         if (value instanceof JsonNode)
