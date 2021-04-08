@@ -85,14 +85,14 @@ public class GH6 extends AbstractTest {
     }
   }
 
-  public void shouldNotInstantiateIntermediateObjects() {
+  public void shouldInstantiateIntermediateObjects() {
     Dest dest = modelMapper.map(new Source(), Dest.class);
     assertNull(dest.message);
 
     Source source = new Source();
     source.message = new SourceMessage();
     dest = modelMapper.map(source, Dest.class);
-    assertNull(dest.message);
+    assertNotNull(dest.message);
   }
 
   public void shouldNotInstantiateIntermediateObjectOnProvidedDestination() {

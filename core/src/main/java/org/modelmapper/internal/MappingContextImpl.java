@@ -312,7 +312,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
         break;
       Mutator mutator = mutatorChain.get(i);
       String destPath = destPathBuilder.append(mutator.getName()).append('.').toString();
-      // Obtain from cache
+      Object source = parent.parentSource.getSource(destPath);
       Object next = Objects.firstNonNull(
           Objects.callable(parent.destinationCache.get(destPath)),
           parent.getCyclicReferenceByPath(destPath),

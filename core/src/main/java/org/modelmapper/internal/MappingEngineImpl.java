@@ -193,9 +193,9 @@ public class MappingEngineImpl implements MappingEngine {
     if (mapping instanceof PropertyMappingImpl) {
       StringBuilder destPathBuilder = new StringBuilder().append(context.destinationPath);
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
-        context.addParentSource(destPathBuilder.toString(), source);
         destPathBuilder.append(accessor.getName()).append('.');
         source = accessor.getValue(source);
+        context.addParentSource(destPathBuilder.toString(), source);
         if (source == null)
           return null;
         if (!Iterables.isIterable(source.getClass())) {
@@ -204,8 +204,10 @@ public class MappingEngineImpl implements MappingEngine {
             context.intermediateDestinations.put(destPathBuilder.toString(), circularDest);
         }
       }
-    } else if (mapping instanceof ConstantMapping)
+    } else if (mapping instanceof ConstantMapping) {
       source = ((ConstantMapping) mapping).getConstant();
+      context.addParentSource("", source);
+    }
     return source;
   }
 
