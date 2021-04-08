@@ -26,7 +26,6 @@ import java.util.TreeMap;
 import net.jodah.typetools.TypeResolver;
 import net.jodah.typetools.TypeResolver.Unknown;
 
-import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConditionalConverter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
@@ -48,10 +47,10 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
         : context.getDestination();
     Mapping mapping = context.getMapping();
 
-    Class<?> keyElementType = Object.class;
-    Class<?> valueElementType = Object.class;
-    if (mapping != null && mapping instanceof PropertyMapping) {
-      PropertyInfo destInfo = ((PropertyMapping) mapping).getLastDestinationProperty();
+    Type keyElementType = Object.class;
+    Type valueElementType = Object.class;
+    if (mapping instanceof PropertyMapping) {
+      PropertyInfo destInfo = mapping.getLastDestinationProperty();
       Class<?>[] elementTypes = TypeResolver.resolveRawArguments(destInfo.getGenericType(),
           Map.class);
       if (elementTypes != null && elementTypes.length == 2) {
@@ -60,8 +59,8 @@ class MapConverter implements ConditionalConverter<Map<?, ?>, Map<Object, Object
       }
     } else if (context.getGenericDestinationType() instanceof ParameterizedType) {
       Type[] elementTypes = ((ParameterizedType) context.getGenericDestinationType()).getActualTypeArguments();
-      keyElementType = Types.rawTypeFor(elementTypes[0]);
-      valueElementType = Types.rawTypeFor(elementTypes[1]);
+      keyElementType = elementTypes[0];
+      valueElementType = elementTypes[1];
     }
 
     for (Entry<?, ?> entry : source.entrySet()) {

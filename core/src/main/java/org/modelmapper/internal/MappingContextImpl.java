@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.modelmapper.Provider;
 import org.modelmapper.Provider.ProvisionRequest;
 import org.modelmapper.TypeMap;
@@ -141,8 +142,12 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
+  @SuppressWarnings("unchecked")
   @Override
   public <CS, CD> MappingContext<CS, CD> create(CS source, Type destinationType) {
+    if (destinationType instanceof Class) {
+      return create(source, (Class<CD>) destinationType);
+    }
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
     TypeToken<CD> destinationTypeToken = TypeToken.of(destinationType);
