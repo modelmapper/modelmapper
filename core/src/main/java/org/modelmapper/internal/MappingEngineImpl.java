@@ -193,7 +193,7 @@ public class MappingEngineImpl implements MappingEngine {
     if (mapping instanceof PropertyMappingImpl) {
       StringBuilder destPathBuilder = new StringBuilder().append(context.destinationPath);
       for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
-        context.setParentSource(source);
+        context.addParentSource(destPathBuilder.toString(), source);
         destPathBuilder.append(accessor.getName()).append('.');
         source = accessor.getValue(source);
         if (source == null)

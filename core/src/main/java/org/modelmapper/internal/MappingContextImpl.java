@@ -63,7 +63,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
   private final MappingEngineImpl mappingEngine;
   private final S source;
   private final Class<S> sourceType;
-  private Object parentSource;
+  private final SourceChain parentSource;
   private TypeMap<S, D> typeMap;
   /** Tracks destination hierarchy paths that were shaded by a condition */
   private final List<String> shadedPaths;
@@ -76,6 +76,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     parent = null;
     this.source = source;
     this.sourceType = sourceType;
+    this.parentSource = new SourceChain();
     this.destination = destination;
     this.destinationPath = "";
     this.destinationType = destinationType;
@@ -269,8 +270,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
       sourceToDestination.put(source, destination);
   }
 
-  void setParentSource(Object parentSource) {
-    this.parentSource = parentSource;
+  void addParentSource(String path, Object parentSource) {
+    this.parentSource.addSource(path, parentSource);
   }
 
   void setTypeMap(TypeMap<S, D> typeMap) {
@@ -317,7 +318,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
           parent.getCyclicReferenceByPath(destPath),
           parent.getDestinationValueByMemberName(current, mutator.getName()));
       if (next == null && source != null)
-        next = mappingEngine.createDestinationViaGlobalProvider(parent.parentSource, mutator.getType(), parent.errors);
+        next = mappingEngine.createDestinationViaGlobalProvider(
+            parent.parentSource.getSource(destPath), mutator.getType(), parent.errors);
 
       if (next != null) {
         mutator.setValue(current, next);
@@ -382,5 +384,22 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
 
   public boolean isProvidedDestination() {
     return providedDestination;
+  }
+
+  private static class SourceChain {
+    private final Map<String, Object> sources = new HashMap<String, Object>();
+    private Object lastSource;
+
+    public void addSource(String path, Object source) {
+      sources.put(path, source);
+      lastSource = source;
+    }
+
+    public Object getSource(String path) {
+      Object source = sources.get(path);
+      if (source == null)
+        source = lastSource;
+      return source;
+    }
   }
 }
