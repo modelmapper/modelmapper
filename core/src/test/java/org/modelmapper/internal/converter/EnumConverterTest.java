@@ -18,11 +18,23 @@ public class EnumConverterTest extends AbstractConverterTest {
   }
 
   enum Source {
-    a, b, c
+    a,
+    b,
+    c,
+    d {
+      @Override
+      public boolean isD() {
+        return true;
+      }
+    };
+
+    public boolean isD() {
+      return false;
+    }
   }
 
   enum Dest {
-    a, B, c
+    a, B, c, d
   }
 
   static class DTO {
@@ -33,10 +45,12 @@ public class EnumConverterTest extends AbstractConverterTest {
     assertEquals(convert(Source.a), Dest.a);
     assertNull(convert(Source.b));
     assertEquals(convert(Source.c), Dest.c);
+    assertEquals(convert(Source.d), Dest.d);
   }
 
   public void testMatches() {
     assertEquals(converter.match(Source.class, Dest.class), MatchResult.FULL);
+    assertEquals(converter.match(Source.d.getClass(), Dest.d.getClass()), MatchResult.FULL);
 
     // Negative
     assertEquals(converter.match(Source.class, Map.class), MatchResult.NONE);

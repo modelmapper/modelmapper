@@ -42,7 +42,11 @@ class EnumConverter implements ConditionalConverter<Object, Enum<?>> {
   }
 
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
-    return destinationType.isEnum() && (sourceType.isEnum() || sourceType == String.class) ? MatchResult.FULL
+    return isEnum(destinationType) && (isEnum(sourceType) || sourceType == String.class) ? MatchResult.FULL
         : MatchResult.NONE;
+  }
+
+  private boolean isEnum( Class<?> type ) {
+      return type.isAnonymousClass() ? isEnum( type.getSuperclass() ) : type.isEnum();
   }
 }
