@@ -1,3 +1,14 @@
+# 2.4.1
+
+### Bug Fixes
+
+* Bump dependency for better support on Java 12 and Java 16
+* Fix anonymous enum conversion
+* Fixed #512 - Create intermediate object depends on if match source found
+* Fixed #573 - Keep parent source chain to have correct source in context
+* Fixed #547 - Fixed generic type info for Map's value type
+* Fixed #563 - Resolve more specific instead of generic one in value reader
+
 # 2.4.0
 
 ### New Features
