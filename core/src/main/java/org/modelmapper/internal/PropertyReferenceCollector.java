@@ -157,6 +157,8 @@ class PropertyReferenceCollector {
     mutators.clear();
     accessors.clear();
     options.reset();
+    sourceType = null;
+    constant = null;
   }
 
   public Errors getErrors() {
