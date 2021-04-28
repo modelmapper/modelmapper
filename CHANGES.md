@@ -1,3 +1,9 @@
+# 2.4.2
+
+### Bug Fixes
+
+* Fixed #608 - addMappings failed while adding multiple mappings
+
 # 2.4.1
 
 ### Bug Fixes
