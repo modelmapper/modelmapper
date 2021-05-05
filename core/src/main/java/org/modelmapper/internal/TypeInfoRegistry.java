@@ -65,7 +65,7 @@ class TypeInfoRegistry {
    */
   static <T> TypeInfoImpl<T> typeInfoFor(T source, Class<T> sourceType,
       InheritingConfiguration configuration) {
-    if (configuration.valueAccessStore.getFirstSupportedReader(sourceType) != null)
+    if (configuration.valueAccessStore.getFirstSupportedReader(sourceType) != null && source != null)
       return new TypeInfoImpl<T>(source, sourceType, configuration);
     return typeInfoFor(sourceType, configuration);
   }
