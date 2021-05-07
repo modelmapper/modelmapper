@@ -195,4 +195,9 @@ public final class Types {
         && !Iterables.isIterable(type)
         && !Types.isGroovyType(type);
   }
+
+  public static boolean isInternalType(Class<?> type) {
+    String packageName = type.getPackage().getName();
+    return packageName.startsWith("java.");
+  }
 }

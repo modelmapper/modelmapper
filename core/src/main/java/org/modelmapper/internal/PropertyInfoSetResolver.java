@@ -20,9 +20,9 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.NameTransformer;
 import org.modelmapper.spi.NameableType;
 import org.modelmapper.spi.NamingConvention;
@@ -124,6 +124,9 @@ final class PropertyInfoSetResolver {
    */
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
       Class<?> initialType, Class<?> type, ResolveRequest<M, PI> resolveRequest) {
+    if (!Types.mightContainsProperties(type) || Types.isInternalType(type)) {
+      return new LinkedHashMap<String, PI>();
+    }
     Map<String, PI> properties = new LinkedHashMap<String, PI>();
     Class<?> superType = type.getSuperclass();
     if (superType != null && superType != Object.class && superType != Enum.class)
