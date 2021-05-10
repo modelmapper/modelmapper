@@ -1,3 +1,10 @@
+# 2.4.3
+
+### Bug Fixes
+
+* Fixed #606 - Fix random ClassCastException on java 11
+* Fixed #613 - Fix java internal api usage issue on java 16
+
 # 2.4.2
 
 ### Bug Fixes
