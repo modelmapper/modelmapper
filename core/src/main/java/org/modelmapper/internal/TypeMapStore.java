@@ -15,14 +15,18 @@
  */
 package org.modelmapper.internal;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Jonathan Halterman
@@ -80,7 +84,7 @@ public final class TypeMapStore {
    */
   @SuppressWarnings("unchecked")
   public <S, D> TypeMap<S, D> get(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
-    TypeMap<S, D> typeMap = (TypeMap<S, D>) typeMaps.get(TypePair.of(sourceType, destinationType, typeMapName));
+    TypeMap<S, D> typeMap = getTypeMap(sourceType, destinationType, typeMapName);
     if (typeMap != null)
       return typeMap;
 
@@ -115,8 +119,7 @@ public final class TypeMapStore {
       String typeMapName, PropertyMap<S, D> propertyMap, Converter<S, D> converter,
       MappingEngineImpl engine) {
     synchronized (lock) {
-      TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
-      TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
+      TypeMapImpl<S, D> typeMap = getTypeMap(sourceType, destinationType, typeMapName);
 
       if (typeMap == null) {
         typeMap = new TypeMapImpl<S, D>(sourceType, destinationType, typeMapName, config, engine);
@@ -128,7 +131,7 @@ public final class TypeMapStore {
           ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore);
 
         if (typeMap.isFullMatching()) {
-          typeMaps.put(typePair, typeMap);
+          typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
         }
       } else if (propertyMap != null) {
         typeMap.addMappings(propertyMap);
@@ -183,4 +186,23 @@ public final class TypeMapStore {
     }
     return typePairs;
   }
+
+  @SuppressWarnings("unchecked")
+  private <S, D> TypeMapImpl<S, D> getTypeMap(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
+    TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
+
+    TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
+    if (typeMap == null && isAnonymousEnumSubclass(sourceType)) {
+      typeMap = (TypeMapImpl<S, D>) typeMaps.get(
+              TypePair.of((Class<S>) sourceType.getSuperclass(), destinationType, typeMapName)
+      );
+    }
+
+    return typeMap;
+  }
+
+  private <S> boolean isAnonymousEnumSubclass(Class<S> sourceType) {
+    return sourceType.isAnonymousClass() && sourceType.getSuperclass().isEnum();
+  }
+
 }
