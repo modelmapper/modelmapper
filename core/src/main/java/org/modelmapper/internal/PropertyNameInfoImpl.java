@@ -15,8 +15,9 @@
  */
 package org.modelmapper.internal;
 
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.util.Stack;
 import org.modelmapper.internal.util.ToStringBuilder;
@@ -39,6 +40,9 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
   private final Stack<Tokens> destinationPropertyTokens = new Stack<Tokens>();
   private final Stack<PropertyInfo> sourceProperties = new Stack<PropertyInfo>();
   private final Stack<PropertyInfo> destinationProperties = new Stack<PropertyInfo>();
+
+  private final Map<PropertyInfo, Tokens> sourceTypeTokensCache = new HashMap<PropertyInfo, Tokens>();
+  private final Map<String, Tokens> sourceTokensCache = new HashMap<String, Tokens>();
 
   PropertyNameInfoImpl(Class<?> sourceClass, Configuration configuration) {
     this.sourceClass = sourceClass;
@@ -124,9 +128,11 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
 
   void pushSource(String sourceName, Accessor sourceProperty) {
     NameableType nameableType = NameableType.forPropertyType(sourceProperty.getPropertyType());
-    String[] tokens = configuration.getSourceNameTokenizer().tokenize(sourceName,
-        nameableType);
-    sourcePropertyTokens.push(Tokens.of(tokens));
+    if (!sourceTokensCache.containsKey(sourceName)) {
+      sourceTokensCache.put(sourceName, Tokens.of(configuration.getSourceNameTokenizer()
+          .tokenize(sourceName, nameableType)));
+    }
+    sourcePropertyTokens.push(sourceTokensCache.get(sourceName));
     sourceProperties.push(sourceProperty);
     pushSourcePropertyType(sourceProperty);
   }
@@ -134,10 +140,12 @@ class PropertyNameInfoImpl implements PropertyNameInfo {
   private void pushSourcePropertyType(PropertyInfo sourceProperty) {
     if (sourcePropertyTypeTokens == null)
       return;
-    String typeName = configuration.getSourceNameTransformer().transform(
-        sourceProperty.getType().getSimpleName(), NameableType.CLASS);
-    String[] tokens = configuration.getSourceNameTokenizer().tokenize(typeName,
-        NameableType.CLASS);
-    sourcePropertyTypeTokens.add(Tokens.of(tokens));
+    if (!sourceTypeTokensCache.containsKey(sourceProperty)) {
+      String typeName = configuration.getSourceNameTransformer().transform(
+          sourceProperty.getType().getSimpleName(), NameableType.CLASS);
+      sourceTypeTokensCache.put(sourceProperty, Tokens.of(configuration.getSourceNameTokenizer()
+          .tokenize(typeName, NameableType.CLASS)));
+    }
+    sourcePropertyTypeTokens.add(sourceTypeTokensCache.get(sourceProperty));
   }
 }

@@ -15,14 +15,12 @@
  */
 package org.modelmapper.internal;
 
-import net.jodah.typetools.TypeResolver;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-
+import net.jodah.typetools.TypeResolver;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
@@ -255,14 +253,18 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
-    if (obj == null || !(obj instanceof PropertyInfo))
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
-    PropertyInfoImpl<?> other = (PropertyInfoImpl<?>) obj;
-    return member.getDeclaringClass().equals(other.member.getDeclaringClass())
-        && name.equals(other.getName());
+    }
+    PropertyInfoImpl<?> that = (PropertyInfoImpl<?>) o;
+    if (member != null ? !member.equals(that.member) : that.member != null) {
+      return false;
+    }
+    return name.equals(that.name);
   }
 
   public Class<?> getInitialType() {

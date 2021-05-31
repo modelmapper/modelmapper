@@ -122,8 +122,9 @@ public class TypeResolvingList<T> extends AbstractList<T> {
   private boolean addElement(T element) {
     Assert.notNull(element, "element");
     Class<?> typeArgument = TypeResolver.resolveRawArgument(valueAccessorType, element.getClass());
-    Assert.notNull(typeArgument, "Must declare source type argument <T> for the "
-        + valueAccessorType.getSimpleName());
+    if (typeArgument == null) {
+      throw new IllegalArgumentException("Must declare source type argument <T> for the " + valueAccessorType.getSimpleName());
+    }
     elements.put(element, typeArgument);
     return true;
   }
