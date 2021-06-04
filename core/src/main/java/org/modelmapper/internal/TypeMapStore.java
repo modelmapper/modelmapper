@@ -202,7 +202,9 @@ public final class TypeMapStore {
   }
 
   private <S> boolean isAnonymousEnumSubclass(Class<S> sourceType) {
-    return sourceType.isAnonymousClass() && sourceType.getSuperclass().isEnum();
+    return sourceType.getSuperclass() != null
+        && sourceType.getSuperclass().isEnum()
+        && sourceType.isAnonymousClass();
   }
 
 }
