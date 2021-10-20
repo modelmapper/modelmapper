@@ -18,6 +18,7 @@ package org.modelmapper.config;
 import org.modelmapper.Condition;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
+import org.modelmapper.ResolveSourceValueInterceptor;
 import org.modelmapper.spi.*;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
 
@@ -133,6 +134,14 @@ public interface Configuration {
    * @see #setPropertyCondition(Condition)
    */
   Condition<?, ?> getPropertyCondition();
+
+
+  /**
+   * Return the Interceptor for the mapping engine resolveSourceValue mapping
+   * {@code null} if no interceptor has been configured.
+   * @see #setResolveSourceValueInterceptor(ResolveSourceValueInterceptor)
+   */
+  ResolveSourceValueInterceptor<?> getResolveSourceValueInterceptor();
 
   /**
    * Returns the Provider used for provisioning destination object instances, else {@code null} if
@@ -451,6 +460,12 @@ public interface Configuration {
    * @throws IllegalArgumentException if {@code condition} is null
    */
   Configuration setPropertyCondition(Condition<?, ?> condition);
+
+
+  /**
+   * Sets  interceptor for the mapping engine's resolveSourceValue methods.
+   */
+  Configuration setResolveSourceValueInterceptor(ResolveSourceValueInterceptor<?> interceptor);
 
   /**
    * Sets the {@code provider} to use for providing destination object instances.
