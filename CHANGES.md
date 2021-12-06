@@ -1,3 +1,17 @@
+# 2.4.5
+
+### New Features
+
+* Bump asm for JDK 18 support
+* Bump byte-buddy
+
+# 2.4.4
+
+### Bug Fixes
+
+* Fix anonymous enum conversion
+
+
 # 2.4.3
 
 ### Bug Fixes
