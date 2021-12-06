@@ -314,7 +314,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-      if (args.length == 1) {
+      if (args != null && args.length == 1) {
         sourceConstant = args[0];
         if (sourceConstant != null && sourceConstant == source)
           errors.missingSource();

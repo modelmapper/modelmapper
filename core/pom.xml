@@ -16,7 +16,7 @@
     <asm.version>9.2</asm.version>
     <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.6.3</typetools.version>
-    <bytebuddy.version>1.11.0</bytebuddy.version>
+    <bytebuddy.version>1.12.3</bytebuddy.version>
   </properties>
 
   <dependencyManagement>
