@@ -2,10 +2,6 @@ package org.modelmapper.bugs;
 
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Converters;
-import org.modelmapper.ExpressionMap;
-import org.modelmapper.builder.ConfigurableConditionExpression;
-import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
@@ -57,24 +53,8 @@ public class GH389 extends AbstractTest {
 
   public void shouldMap() {
     modelMapper.typeMap(WrapperDTO.class, Wrapper.class)
-        .addMappings(new ExpressionMap<WrapperDTO, Wrapper>() {
-          @Override
-          public void configure(ConfigurableConditionExpression<WrapperDTO, Wrapper> mapping) {
-            mapping.using(Converters.Collection.first().to(Wrapper.class)).map(
-                new SourceGetter<WrapperDTO>() {
-                  @Override
-                  public Object get(WrapperDTO source) {
-                    return source.getItems();
-                  }
-                },
-                new DestinationSetter<Wrapper, Item>() {
-                  @Override
-                  public void accept(Wrapper destination, Item value) {
-                    destination.setItem(value);
-                  }
-                });
-          }
-        });
+        .addMappings(mapping -> mapping.using(Converters.Collection.first().to(Wrapper.class))
+            .map(WrapperDTO::getItems, Wrapper::setItem));
     Wrapper wrapper = modelMapper.map(new WrapperDTO(Collections.singletonList(new ItemDTO("foo"))), Wrapper.class);
     assertEquals(wrapper.item.text, "foo");
   }

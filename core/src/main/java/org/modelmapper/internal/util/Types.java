@@ -78,6 +78,8 @@ public final class Types {
       return true;
     if (type.getName().contains("$HibernateProxy$"))
       return true;
+    if (type.getName().contains("$MockitoMock$"))
+      return true;
     if (Proxy.isProxyClass(type))
       return true;
     return isProxiedByJavassist(type);

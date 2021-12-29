@@ -1,15 +1,6 @@
 package org.modelmapper.functional.lambda;
 
-import org.modelmapper.AbstractTest;
-import org.modelmapper.Condition;
-import org.modelmapper.Converter;
-import org.modelmapper.ExpressionMap;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
-import org.modelmapper.builder.ConfigurableConditionExpression;
-import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.MappingContext;
-import org.modelmapper.spi.SourceGetter;
+import org.modelmapper.*;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -73,8 +64,8 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
 
   public void shouldAddMapping() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMapping(srcTextGetter(), destTextSetter());
-    typeMap.addMapping(srcNumberGetter(), destNumberSetter());
+    typeMap.addMapping(Src::getSrcText, Dest::setDestText);
+    typeMap.addMapping(Src::getSrcNumber, Dest::setDestNumber);
 
     typeMap.validate();
 
@@ -85,11 +76,9 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
 
   public void shouldAddMappings() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMappings(new ExpressionMap<Src, Dest>() {
-      public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-        mapping.map(srcTextGetter(), destTextSetter());
-        mapping.map(srcNumberGetter(), destNumberSetter());
-      }
+    typeMap.addMappings(mapping -> {
+      mapping.map(Src::getSrcText, Dest::setDestText);
+      mapping.map(Src::getSrcNumber, Dest::setDestNumber);
     });
 
     typeMap.validate();
@@ -102,19 +91,11 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
   public void shouldAddMappingWithConverter() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.using(new Converter<String, String>() {
-              public String convert(MappingContext<String, String> context) {
-                return context.getSource().toUpperCase();
-              }
-            }).map(srcTextGetter(), destTextSetter());
-            mapping.using(new Converter<Integer, Integer>() {
-              public Integer convert(MappingContext<Integer, Integer> context) {
-                return context.getSource() + 1;
-              }
-            }).map(srcNumberGetter(), destNumberSetter());
-          }
+        mapping -> {
+          mapping.using((Converter<String, String>) context -> context.getSource().toUpperCase())
+              .map(Src::getSrcText, Dest::setDestText);
+          mapping.using((Converter<Integer, Integer>) context -> context.getSource() + 1)
+              .map(Src::getSrcNumber, Dest::setDestNumber);
         });
 
     typeMap.validate();
@@ -127,11 +108,9 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
   public void shouldAddMappingWithSkip() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.skip(destTextSetter());
-            mapping.map(srcNumberGetter(), destNumberSetter());
-          }
+        mapping -> {
+          mapping.skip(Dest::setDestText);
+          mapping.map(Src::getSrcNumber, Dest::setDestNumber);
         });
 
     typeMap.validate();
@@ -144,19 +123,9 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
   public void shouldAddMappingWithCondition() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
     typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.when(new Condition<String, String>() {
-              public boolean applies(MappingContext<String, String> context) {
-                return context.getSource().equals("foo");
-              }
-            }).map(srcTextGetter(), destTextSetter());
-            mapping.when(new Condition<Integer, Integer>() {
-              public boolean applies(MappingContext<Integer, Integer> context) {
-                return context.getSource() > 3;
-              }
-            }).map(srcNumberGetter(), destNumberSetter());
-          }
+        mapping -> {
+          mapping.when((Condition<String, String>) context -> context.getSource().equals("foo")).map(Src::getSrcText, Dest::setDestText);
+          mapping.when((Condition<Integer, Integer>) context -> context.getSource() > 3).map(Src::getSrcNumber, Dest::setDestNumber);
         });
 
     typeMap.validate();
@@ -168,39 +137,5 @@ public class TypeMapLambdaMultipleFieldsTest extends AbstractTest {
     Dest dest2 = typeMap.map(new Src("foo", 4));
     assertEquals(dest2.destText, "foo");
     assertEquals(dest2.destNumber, 4);
-  }
-
-
-  private static SourceGetter<Src> srcTextGetter() {
-    return new SourceGetter<Src>() {
-      public Object get(Src source) {
-        return source.getSrcText();
-      }
-    };
-  }
-
-
-  private static SourceGetter<Src> srcNumberGetter() {
-    return new SourceGetter<Src>() {
-      public Object get(Src source) {
-        return source.getSrcNumber();
-      }
-    };
-  }
-
-  private static DestinationSetter<Dest, String> destTextSetter() {
-    return new DestinationSetter<Dest, String>() {
-      public void accept(Dest destination, String value) {
-        destination.setDestText(value);
-      }
-    };
-  }
-
-  private static DestinationSetter<Dest, Integer> destNumberSetter() {
-    return new DestinationSetter<Dest, Integer>() {
-      public void accept(Dest destination, Integer value) {
-        destination.setDestNumber(value);
-      }
-    };
   }
 }

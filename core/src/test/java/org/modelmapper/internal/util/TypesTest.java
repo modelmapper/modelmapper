@@ -11,6 +11,8 @@ import javassist.util.proxy.ProxyFactory;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.NoOp;
 
+import org.testng.SkipException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -26,6 +28,13 @@ public class TypesTest {
   static class NullInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) {
       return null;
+    }
+  }
+
+  @BeforeMethod
+  public void setup() {
+    if (JavaVersions.getMajorVersion() >= 16) {
+      throw new SkipException("Required java < 16");
     }
   }
 

@@ -2,8 +2,6 @@ package org.modelmapper.bugs;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -53,17 +51,9 @@ public class GH364 {
 
   public void shouldWork() {
     modelMapper.typeMap(Source.class, Destination.class)
-        .addMapping(new SourceGetter<Source>() {
-          @Override
-          public Object get(Source source) {
-            return source.getContainer().getValue();
-          }
-        }, new DestinationSetter<Destination, Integer>() {
-          @Override
-          public void accept(Destination destination, Integer value) {
-            destination.setNumberTwo(value);
-          }
-        });
+        .addMapping(
+            source -> source.getContainer().getValue(),
+            Destination::setNumberTwo);
     Destination destination = new Destination();
     modelMapper.map(new Source(), destination);
     assertEquals(destination.numberTwo, 2d);

@@ -11,8 +11,11 @@ import org.modelmapper.Asserts;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.internal.PropertyInfoImpl.FieldPropertyInfo;
+import org.modelmapper.internal.util.JavaVersions;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.PropertyInfo;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -44,6 +47,13 @@ public class TypeMapImplTest {
         return null;
       }
     };
+  }
+
+  @BeforeMethod
+  public void setup() {
+    if (JavaVersions.getMajorVersion() >= 16) {
+      throw new SkipException("Required java < 16");
+    }
   }
 
   public void shouldSortMappings() throws Exception {

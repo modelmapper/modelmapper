@@ -14,6 +14,9 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import org.modelmapper.AbstractTest;
+import org.modelmapper.internal.util.JavaVersions;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -44,6 +47,13 @@ public class ProxyTest extends AbstractTest {
       if (method.getName().equals("getValue"))
         return "abc";
       return null;
+    }
+  }
+
+  @BeforeMethod
+  public void setup() {
+    if (JavaVersions.getMajorVersion() >= 16) {
+      throw new SkipException("Required java < 16");
     }
   }
 

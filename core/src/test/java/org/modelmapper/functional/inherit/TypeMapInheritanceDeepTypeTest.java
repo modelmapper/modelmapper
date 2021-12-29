@@ -1,12 +1,12 @@
 package org.modelmapper.functional.inherit;
 
-import static org.testng.Assert.assertEquals;
-
 import org.modelmapper.AbstractTest;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 @Test
 public class TypeMapInheritanceDeepTypeTest extends AbstractTest {

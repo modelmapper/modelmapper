@@ -1,13 +1,8 @@
 package org.modelmapper.functional.enums;
 
 import org.modelmapper.Converter;
-import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.builder.ConfigurableConditionExpression;
-import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.MappingContext;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -47,15 +42,12 @@ public class EnumSetMappingTest {
 		}
 	}
 
-	private static Converter<EnumSet<?>, EnumSet<?>> enumConverter = new Converter<EnumSet<?>, EnumSet<?>>() {
-		public EnumSet<?> convert(MappingContext<EnumSet<?>, EnumSet<?>> context) {
-			Object source = context.getSource();
-			if (source == null)
-				return null;
+	private static Converter<EnumSet<?>, EnumSet<?>> enumConverter = context -> {
+		Object source = context.getSource();
+		if (source == null)
+			return null;
 
-			return EnumSet.copyOf((EnumSet<?>) source);
-		}
-
+		return EnumSet.copyOf((EnumSet<?>) source);
 	};
 
 	private ModelMapper initMapperWithPropertyMap() {
@@ -72,19 +64,7 @@ public class EnumSetMappingTest {
 	private ModelMapper initMapperWithAddMapping() {
 		ModelMapper mapper = new ModelMapper();
 		mapper.typeMap(A.class, B.class)
-				.addMappings(new ExpressionMap<A, B>() {
-					public void configure(ConfigurableConditionExpression<A, B> mapping) {
-						mapping.using(enumConverter).map(new SourceGetter<A>() {
-							public Object get(A source) {
-								return source.getEnumsA();
-							}
-						}, new DestinationSetter<B, EnumSet<E>>() {
-							public void accept(B destination, EnumSet<E> value) {
-								destination.setEnumsB(value);
-							}
-						});
-					}
-				});
+				.addMappings(mapping -> mapping.using(enumConverter).map(A::getEnumsA, B::setEnumsB));
 		return mapper;
 	}
 

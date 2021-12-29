@@ -7,9 +7,7 @@ import static org.testng.Assert.fail;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.PropertyMap;
-import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.ErrorMessage;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
 
 @Test
@@ -103,16 +101,8 @@ public class GH287 extends AbstractTest {
 
     try {
       modelMapper.typeMap(SourceA.class, DestA.class).addMapping(
-          new SourceGetter<SourceA>() {
-            public Object get(SourceA source) {
-              return source.getChild().getValue();
-            }
-          },
-          new DestinationSetter<DestA, String>() {
-            public void accept(DestA destination, String value) {
-              destination.getChild().setValue(value);
-            }
-          });
+          source -> source.getChild().getValue(),
+          (destination, value) -> destination.getChild().setValue((String) value));
       fail();
     } catch (ConfigurationException e) {
       assertEquals(e.getErrorMessages().size(), 1);
