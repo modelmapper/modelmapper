@@ -12,11 +12,12 @@
   <name>ModelMapper</name>
 
   <properties>
-    <cglib.version>3.2.9</cglib.version>
+    <cglib.version>3.3.0</cglib.version>
     <asm.version>9.2</asm.version>
     <objenesis.version>2.6</objenesis.version>
     <typetools.version>0.6.3</typetools.version>
     <bytebuddy.version>1.12.3</bytebuddy.version>
+    <mockito.version>4.2.0</mockito.version>
   </properties>
 
   <dependencyManagement>
@@ -72,7 +73,7 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>1.9.0</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -84,7 +85,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>4.3.7.Final</version>
+      <version>5.6.3.Final</version>
       <scope>test</scope>
     </dependency>
     <dependency>

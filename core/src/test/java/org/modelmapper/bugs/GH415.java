@@ -3,7 +3,6 @@ package org.modelmapper.bugs;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.TypeToken;
 import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -71,25 +70,14 @@ public class GH415 extends AbstractTest {
   public void shouldMap() {
     AProperties aProperties = new AProperties();
     aProperties.s = "foo";
-    A<AProperties> src = new A<AProperties>();
+    A<AProperties> src = new A<>();
     src.a = 1;
     src.pojo = aProperties;
 
     modelMapper.typeMap(AProperties.class, BProperties.class)
         .include(BInterface.class);
     modelMapper.typeMap(A.class, B.class)
-        .addMapping(new SourceGetter<A>() {
-          @Override
-          public Object get(A source) {
-            return source.getPojo();
-          }
-        }, new DestinationSetter<B, BInterface>() {
-          @Override
-          @SuppressWarnings("unchecked")
-          public void accept(B destination, BInterface value) {
-            destination.setPojo(value);
-          }
-        });
+        .addMapping(A::getPojo, (DestinationSetter<B, BInterface>) B::setPojo);
     B<BProperties> destination = modelMapper.map(src,
         new TypeToken<B<BProperties>>(){}.getType());
     assertEquals(destination.a, 1);

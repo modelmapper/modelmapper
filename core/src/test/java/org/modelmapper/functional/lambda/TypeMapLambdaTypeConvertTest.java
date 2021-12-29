@@ -5,8 +5,6 @@ import static org.testng.Assert.assertEquals;
 import org.modelmapper.AbstractTest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -45,15 +43,7 @@ public class TypeMapLambdaTypeConvertTest extends AbstractTest {
   public void shouldAddMappingStringToInteger() {
     TypeMap<StringWrap, IntegerWrap> typeMap = modelMapper.createTypeMap(StringWrap.class, IntegerWrap.class);
 
-    typeMap.addMapping(new SourceGetter<StringWrap>() {
-      public Object get(StringWrap source) {
-        return source.getValue();
-      }
-    }, new DestinationSetter<IntegerWrap, Integer>() {
-      public void accept(IntegerWrap destination, Integer value) {
-        destination.setValue(value);
-      }
-    });
+    typeMap.addMapping(StringWrap::getValue, IntegerWrap::setValue);
 
     StringWrap src = new StringWrap();
     src.setValue("3");
@@ -62,16 +52,7 @@ public class TypeMapLambdaTypeConvertTest extends AbstractTest {
 
   public void shouldAddMappingIntegerToString() {
     TypeMap<IntegerWrap, StringWrap> typeMap = modelMapper.createTypeMap(IntegerWrap.class, StringWrap.class);
-
-    typeMap.addMapping(new SourceGetter<IntegerWrap>() {
-      public Object get(IntegerWrap source) {
-        return source.getValue();
-      }
-    }, new DestinationSetter<StringWrap, String>() {
-      public void accept(StringWrap destination, String value) {
-        destination.setValue(value);
-      }
-    });
+    typeMap.addMapping(IntegerWrap::getValue, StringWrap::setValue);
 
     IntegerWrap src = new IntegerWrap();
     src.setValue(3);

@@ -4,9 +4,6 @@ import static org.testng.Assert.assertEquals;
 
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.AbstractTest;
-import org.modelmapper.ExpressionMap;
-import org.modelmapper.builder.ConfigurableConditionExpression;
-import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.Test;
 
@@ -20,41 +17,15 @@ public class GH608 extends AbstractTest {
           + (source.getStreetNumberSuffix() == null ? "" : source.getStreetNumberSuffix());
     }
   };
-  private SourceGetter<Location> self = new SourceGetter<Location>() {
-    @Override
-    public Object get(Location source) {
-      return source;
-    }
-  };
-  private SourceGetter<Location> getStreetName = new SourceGetter<Location>() {
-    @Override
-    public Object get(Location source) {
-      return source.getStreetName();
-    }
-  };
-  private DestinationSetter<Address, String> setStreet = new DestinationSetter<Address, String>() {
-    @Override
-    public void accept(Address destination, String value) {
-      destination.setStreet(value);
-    }
-  };
-  private DestinationSetter<Address, String> setHouseNumber = new DestinationSetter<Address, String>() {
-    @Override
-    public void accept(Address destination, String value) {
-      destination.setHouseNumber(value);
-    }
-  };
+  private SourceGetter<Location> self = source -> source;
 
   @Test
   public void testOrder1() {
     modelMapper.getConfiguration().setAmbiguityIgnored(true);
     modelMapper.createTypeMap(Location.class, Address.class)
-        .addMappings(new ExpressionMap<Location, Address>() {
-          @Override
-          public void configure(ConfigurableConditionExpression<Location, Address> mapping) {
-            mapping.map(getStreetName, setStreet);
-            mapping.using(converter).map(self, setHouseNumber);
-          }
+        .addMappings(mapping -> {
+          mapping.map(Location::getStreetName, Address::setStreet);
+          mapping.using(converter).map(self, Address::setHouseNumber);
         });
 
     Location location = new Location("Example Street", "123", "d");
@@ -70,12 +41,9 @@ public class GH608 extends AbstractTest {
     modelMapper.getConfiguration().setAmbiguityIgnored(true);
 
     modelMapper.createTypeMap(Location.class, Address.class)
-        .addMappings(new ExpressionMap<Location, Address>() {
-          @Override
-          public void configure(ConfigurableConditionExpression<Location, Address> mapping) {
-            mapping.using(converter).map(self, setHouseNumber);
-            mapping.map(getStreetName, setStreet);
-          }
+        .addMappings(mapping -> {
+          mapping.using(converter).map(self, Address::setHouseNumber);
+          mapping.map(Location::getStreetName, Address::setStreet);
         });
 
     Location location = new Location("Example Street", "123", "d");

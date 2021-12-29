@@ -1,13 +1,9 @@
 package org.modelmapper.functional.lambda;
 
 import org.modelmapper.AbstractTest;
-import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
-import org.modelmapper.builder.ConfigurableConditionExpression;
-import org.modelmapper.spi.DestinationSetter;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -80,7 +76,8 @@ public class TypeMapLambdaDeepMapTest extends AbstractTest {
 
   public void shouldAddMappingDeeply() {
     TypeMap<ParentSrc, ParentDest> typeMap = modelMapper.createTypeMap(ParentSrc.class, ParentDest.class);
-    typeMap.addMapping(parentSrcGetter(), parentDestSetter());
+    typeMap.addMapping(source -> source.getSrc().getSrcText(),
+        (destination, value) -> destination.getDest().setDestText((String) value));
 
     typeMap.validate();
     assertEquals(typeMap.map(new ParentSrc(new Src("bar"))).getDest().destText, "bar");
@@ -91,57 +88,9 @@ public class TypeMapLambdaDeepMapTest extends AbstractTest {
 
     TypeMap<ParentSrc, ParentDest> typeMap = modelMapper.createTypeMap(ParentSrc.class, ParentDest.class);
     typeMap.addMappings(
-        new ExpressionMap<ParentSrc, ParentDest>() {
-          public void configure(ConfigurableConditionExpression<ParentSrc, ParentDest> mapping) {
-            mapping.with(new Provider<Dest>() {
-              public Dest get(ProvisionRequest<Dest> request) {
-                return dest;
-              }
-            }).map(new SourceGetter<ParentSrc>() {
-              public Object get(ParentSrc source) {
-                return source.getSrc();
-              }
-            }, new DestinationSetter<ParentDest, Dest>() {
-              public void accept(ParentDest destination, Dest value) {
-                destination.setDest(value);
-              }
-            });
-          }
-        });
+        mapping -> mapping.with((Provider<Dest>) request -> dest).map(ParentSrc::getSrc, ParentDest::setDest));
 
     typeMap.validate();
     assertSame(typeMap.map(new ParentSrc(new Src("foo"))).dest, dest);
-  }
-
-  private static SourceGetter<ParentSrc> parentSrcGetter() {
-    return new SourceGetter<ParentSrc>() {
-      public Object get(ParentSrc source) {
-        return source.getSrc().getSrcText();
-      }
-    };
-  }
-
-  private static SourceGetter<Src> srcGetter() {
-    return new SourceGetter<Src>() {
-      public Object get(Src source) {
-        return source.getSrcText();
-      }
-    };
-  }
-
-  private static DestinationSetter<ParentDest, String> parentDestSetter() {
-    return new DestinationSetter<ParentDest, String>() {
-      public void accept(ParentDest destination, String value) {
-        destination.getDest().setDestText(value);
-      }
-    };
-  }
-
-  private static DestinationSetter<Dest, String> destSetter() {
-    return new DestinationSetter<Dest, String>() {
-      public void accept(Dest destination, String value) {
-        destination.setDestText(value);
-      }
-    };
   }
 }

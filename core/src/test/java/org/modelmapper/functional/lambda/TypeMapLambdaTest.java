@@ -6,17 +6,11 @@ import static org.testng.Assert.fail;
 
 import org.modelmapper.AbstractTest;
 import org.modelmapper.Asserts;
-import org.modelmapper.Condition;
 import org.modelmapper.Conditions;
 import org.modelmapper.ConfigurationException;
-import org.modelmapper.Converter;
-import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.modelmapper.builder.ConfigurableConditionExpression;
-import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.MappingContext;
-import org.modelmapper.spi.SourceGetter;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -59,7 +53,7 @@ public class TypeMapLambdaTest extends AbstractTest {
 
   public void shouldAddMapping() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMapping(srcGetter(), destSetter());
+    typeMap.addMapping(Src::getSrcText, Dest::setDestText);
 
     typeMap.validate();
     assertEquals(typeMap.map(new Src("foo")).destText, "foo");
@@ -67,16 +61,8 @@ public class TypeMapLambdaTest extends AbstractTest {
 
   public void shouldAddMappingWithConverter() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.using(new Converter<String, String>() {
-              public String convert(MappingContext<String, String> context) {
-                return context.getSource().toUpperCase();
-              }
-            }).map(srcGetter(), destSetter());
-          }
-        });
+    typeMap.addMappings(mapping -> mapping.using((MappingContext<String, String> context) -> context.getSource().toUpperCase())
+        .map(Src::getSrcText, Dest::setDestText));
 
     typeMap.validate();
     assertEquals(typeMap.map(new Src("foo")).destText, "FOO");
@@ -84,12 +70,7 @@ public class TypeMapLambdaTest extends AbstractTest {
 
   public void shouldAddMappingWithSkip() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.skip(destSetter());
-          }
-        });
+    typeMap.addMappings(mapping -> mapping.skip(Dest::setDestText));
 
     typeMap.validate();
     assertNull(typeMap.map(new Src("foo")).destText);
@@ -97,12 +78,7 @@ public class TypeMapLambdaTest extends AbstractTest {
 
   public void shouldAddMappingWithConditionalSkip() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.when(Conditions.isNull()).skip(srcGetter(), destSetter());
-          }
-        });
+    typeMap.addMappings(mapping -> mapping.when(Conditions.isNull()).skip(Src::getSrcText, Dest::setDestText));
     typeMap.validate();
 
     Dest dest = new Dest();
@@ -116,12 +92,7 @@ public class TypeMapLambdaTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
 
     try {
-      typeMap.addMappings(
-          new ExpressionMap<Src, Dest>() {
-            public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-              mapping.when(Conditions.isNull()).skip(destSetter());
-            }
-          });
+      typeMap.addMappings(mapping -> mapping.when(Conditions.isNull()).skip(Dest::setDestText));
       fail();
     } catch (ConfigurationException e) {
       Asserts.assertContains(e.getMessage(),
@@ -131,16 +102,8 @@ public class TypeMapLambdaTest extends AbstractTest {
 
   public void shouldAddMappingWithCondition() {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
-    typeMap.addMappings(
-        new ExpressionMap<Src, Dest>() {
-          public void configure(ConfigurableConditionExpression<Src, Dest> mapping) {
-            mapping.when(new Condition<String, String>() {
-              public boolean applies(MappingContext<String, String> context) {
-                return context.getSource().equals("foo");
-              }
-            }).map(srcGetter(), destSetter());
-          }
-        });
+    typeMap.addMappings(mapping -> mapping.when((MappingContext<String, String> context) -> context.getSource().equals("foo"))
+        .map(Src::getSrcText, Dest::setDestText));
 
     typeMap.validate();
     assertNull(typeMap.map(new Src("bar")).destText);
@@ -151,29 +114,10 @@ public class TypeMapLambdaTest extends AbstractTest {
     TypeMap<Src, Dest> typeMap = modelMapper.createTypeMap(Src.class, Dest.class);
 
     try {
-      typeMap.addMapping(srcGetter(), new DestinationSetter<Dest, String>() {
-        public void accept(Dest destination, String value) {
-        }
-      });
+      typeMap.addMapping(Src::getSrcText, (destination, value) -> {});
       fail();
     } catch (ConfigurationException e) {
       Asserts.assertContains(e.getMessage(), "Illegal DestinationSetter defined");
     }
-  }
-
-  private static SourceGetter<Src> srcGetter() {
-    return new SourceGetter<Src>() {
-      public Object get(Src source) {
-        return source.getSrcText();
-      }
-    };
-  }
-
-  private static DestinationSetter<Dest, String> destSetter() {
-    return new DestinationSetter<Dest, String>() {
-      public void accept(Dest destination, String value) {
-        destination.setDestText(value);
-      }
-    };
   }
 }
