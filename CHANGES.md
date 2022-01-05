@@ -1,3 +1,8 @@
+# 3.0.0
+
+* Minimum JDK 8
+* Makes the option collectionsMergeEnabled disable by default
+
 # 2.4.5
 
 ### New Features
