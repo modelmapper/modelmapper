@@ -95,7 +95,7 @@ public class InheritingConfiguration implements Configuration {
     preferNestedProperties = Boolean.TRUE;
     skipNullEnabled = Boolean.FALSE;
     useOSGiClassLoaderBridging = Boolean.FALSE;
-    collectionsMergeEnabled = Boolean.TRUE;
+    collectionsMergeEnabled = Boolean.FALSE;
   }
 
   /**
