@@ -28,7 +28,7 @@ public class RecordValueReaderTest {
   protected void beforeClass() throws Exception {
     Class.forName("org.h2.Driver");
     ctx = DSL.using(DriverManager.getConnection("jdbc:h2:mem:test"), SQLDialect.H2);
-    ctx.execute("CREATE TABLE orders (id int(11), customer_id int(11), customer_street_address varchar(25), customer_address_city varchar(25), customer_address_zip varchar(10))");
+    ctx.execute("CREATE TABLE orders (id int, customer_id int, customer_street_address varchar(25), customer_address_city varchar(25), customer_address_zip varchar(10))");
   }
 
   public static class Order {

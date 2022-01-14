@@ -15,6 +15,10 @@
   <name>ModelMapper Groovy</name>
   <description>Groovy tests</description>
 
+  <properties>
+    <groovy.version>1.8.6</groovy.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.modelmapper</groupId>
@@ -25,13 +29,12 @@
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
-      <version>1.8.6</version>
+      <version>${groovy.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <version>6.8.5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

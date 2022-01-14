@@ -21,8 +21,7 @@ public class SpringIntegrationTest {
 
   public void testFromSpring() {
     final DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-    @SuppressWarnings("deprecation")
-    RootBeanDefinition bean = new RootBeanDefinition(Dest.class, false);
+    RootBeanDefinition bean = new RootBeanDefinition(Dest.class, RootBeanDefinition.AUTOWIRE_NO, false);
     beanFactory.registerBeanDefinition("bean", bean);
 
     Provider<?> provider = SpringIntegration.fromSpring(beanFactory);
