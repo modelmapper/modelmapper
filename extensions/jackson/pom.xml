@@ -11,21 +11,15 @@
   <artifactId>modelmapper-jackson</artifactId>
   <name>ModelMapper Jackson Extension</name>
 
-  <properties>
-    <jackson.version>2.2.1</jackson.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

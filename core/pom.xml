@@ -11,87 +11,48 @@
   <artifactId>modelmapper</artifactId>
   <name>ModelMapper</name>
 
-  <properties>
-    <cglib.version>3.3.0</cglib.version>
-    <asm.version>9.2</asm.version>
-    <objenesis.version>2.6</objenesis.version>
-    <typetools.version>0.6.3</typetools.version>
-    <bytebuddy.version>1.12.3</bytebuddy.version>
-    <mockito.version>4.2.0</mockito.version>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm-commons</artifactId>
-        <version>${asm.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-tree</artifactId>
-      <version>${asm.version}</version>
     </dependency>
     <dependency>
       <groupId>org.objenesis</groupId>
       <artifactId>objenesis</artifactId>
-      <version>${objenesis.version}</version>
     </dependency>
     <dependency>
       <groupId>net.jodah</groupId>
       <artifactId>typetools</artifactId>
-      <version>${typetools.version}</version>
     </dependency>
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy-dep</artifactId>
-      <version>${bytebuddy.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->
     <dependency>
       <groupId>javassist</groupId>
       <artifactId>javassist</artifactId>
-      <version>3.12.1.GA</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-jdk14</artifactId>
-      <version>1.5.8</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.4.182</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>5.6.3.Final</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
-      <version>${cglib.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -99,13 +60,11 @@
     <dependency>
       <groupId>net.sf.dozer</groupId>
       <artifactId>dozer</artifactId>
-      <version>5.3.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ma.glasnost.orika</groupId>
       <artifactId>orika-core</artifactId>
-      <version>1.1.6</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

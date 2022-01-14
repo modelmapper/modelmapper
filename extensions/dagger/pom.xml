@@ -11,15 +11,10 @@
   <artifactId>modelmapper-dagger</artifactId>
   <name>ModelMapper Dagger Extension</name>
 
-  <properties>
-    <dagger.version>1.0.1</dagger.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>com.squareup.dagger</groupId>
       <artifactId>dagger</artifactId>
-      <version>${dagger.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
