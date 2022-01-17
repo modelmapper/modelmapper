@@ -27,16 +27,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class ConverterStore {
   private static final ConditionalConverter<?, ?>[] DEFAULT_CONVERTERS = new ConditionalConverter<?, ?>[] {
           new ArrayConverter(), new MergingCollectionConverter(), new MapConverter(),
+          new FromOptionalConverter(),new OptionalConverter(), new ToOptionalConverter(),
           new AssignableConverter(), new StringConverter(), new EnumConverter(), new NumberConverter(),
           new BooleanConverter(), new CharacterConverter(), new DateConverter(),
-          new CalendarConverter(), new FromOptionalConverter(), new OptionalConverter(),
-          new ToOptionalConverter(),
+          new CalendarConverter(),
   };
 
   private final List<ConditionalConverter<?, ?>> converters;
 
   public ConverterStore() {
-    this(new CopyOnWriteArrayList<ConditionalConverter<?, ?>>(DEFAULT_CONVERTERS));
+    this(new CopyOnWriteArrayList<>(DEFAULT_CONVERTERS));
   }
 
   ConverterStore(List<ConditionalConverter<?, ?>> converters) {
