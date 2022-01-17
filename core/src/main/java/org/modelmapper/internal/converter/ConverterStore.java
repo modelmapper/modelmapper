@@ -29,7 +29,9 @@ public final class ConverterStore {
           new ArrayConverter(), new MergingCollectionConverter(), new MapConverter(),
           new AssignableConverter(), new StringConverter(), new EnumConverter(), new NumberConverter(),
           new BooleanConverter(), new CharacterConverter(), new DateConverter(),
-          new CalendarConverter() };
+          new CalendarConverter(), new FromOptionalConverter(), new OptionalConverter(),
+          new ToOptionalConverter(),
+  };
 
   private final List<ConditionalConverter<?, ?>> converters;
 
