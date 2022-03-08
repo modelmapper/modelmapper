@@ -1,3 +1,7 @@
+# 3.1.0
+
+* Migrates optional converters from modelmapper-module-java8
+
 # 3.0.0
 
 * Minimum JDK 8
