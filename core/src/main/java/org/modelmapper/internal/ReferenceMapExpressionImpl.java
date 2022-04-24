@@ -21,8 +21,13 @@ import static org.modelmapper.internal.util.Assert.notNull;
 import net.jodah.typetools.TypeResolver;
 import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.internal.util.Primitives;
+import org.modelmapper.internal.util.Stack;
 import org.modelmapper.spi.DestinationSetter;
+import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.SourceGetter;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * {@link ReferenceMapExpression} implementation
@@ -70,8 +75,42 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     options.skipType = 1;
     visitDestination(destinationSetter);
-    typeMap.addMapping(collector.collect());
+    addMapper();
     collector.reset();
+  }
+
+  public <V> void addMapper(){
+    Stack<Mutator> stack = new Stack<>();
+    ArrayList<Mutator> mutators = new ArrayList<>();
+    ArrayList<Mutator> visited = new ArrayList<>();
+    for (PropertyInfo mutator : collector.collect().getDestinationProperties()) {
+      stack.push((Mutator) mutator);
+      mutators.add((Mutator) mutator);
+      visited.add((Mutator) mutator);
+    }
+    while(!stack.isEmpty()){
+      Mutator mutator = stack.peek();
+      TypeInfo<?> typeInfo = mutator.getTypeInfo(this.typeMap.configuration);
+      if (typeInfo.getMutators().size() != 0){
+        boolean haveLeaf = false;
+        for (Map.Entry<String, Mutator> entry : typeInfo.getMutators().entrySet()) {
+          mutator = entry.getValue();
+          if (!visited.contains(mutator)){
+            stack.push(mutator);
+            mutators.add(mutator);
+            visited.add(mutator);
+            haveLeaf = true;
+            break;
+          }
+        }
+        if (!haveLeaf){
+          mutators.remove(stack.pop());
+        }
+      } else {
+        typeMap.addMapping(new ConstantMappingImpl(null, new ArrayList<Mutator>(mutators), options));
+        mutators.remove(stack.pop());
+      }
+    }
   }
 
   @Override
