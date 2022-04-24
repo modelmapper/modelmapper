@@ -30,7 +30,7 @@ public final class ConverterStore {
           new FromOptionalConverter(),new OptionalConverter(), new ToOptionalConverter(),
           new AssignableConverter(), new StringConverter(), new EnumConverter(), new NumberConverter(),
           new BooleanConverter(), new CharacterConverter(), new DateConverter(),
-          new CalendarConverter(),
+          new CalendarConverter(), new UuidConverter(),
   };
 
   private final List<ConditionalConverter<?, ?>> converters;
