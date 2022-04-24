@@ -1,9 +1,13 @@
 package org.modelmapper;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
+import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.util.Map;
-
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.spi.Mapping;
 import org.testng.annotations.Test;
@@ -129,5 +133,13 @@ public class ModelMapperTest extends AbstractTest {
     assertNotSame(typeMapWithDifferentName, typeMap);
     assertNotSame(typeMapWithDifferentName, typeMapWithName);
     assertSame(modelMapper.typeMap(Person.class, PersonDTO.class, "bar"), typeMapWithDifferentName);
+  }
+
+  public void shouldCreateNamedEmptyTypeMap() {
+    TypeMap<Person, PersonDTO> unnamed = modelMapper.emptyTypeMap(Person.class, PersonDTO.class);
+    TypeMap<Person, PersonDTO> foo = modelMapper.emptyTypeMap(Person.class, PersonDTO.class, "foo");
+    TypeMap<Person, PersonDTO> bar = modelMapper.emptyTypeMap(Person.class, PersonDTO.class, "bar");
+    assertNotSame(unnamed, foo);
+    assertNotSame(foo, bar);
   }
 }

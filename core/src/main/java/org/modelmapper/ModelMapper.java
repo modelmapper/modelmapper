@@ -380,6 +380,22 @@ public class ModelMapper {
   }
 
   /**
+   * Creates an empty TypeMap for the {@code sourceType}, {@code destinationType}.
+   *
+   * @param <S> source type
+   * @param <D> destination type
+   * @throws IllegalArgumentException is {@code sourceType} or {@code destinationType} are null, or {@code TypeMap<Source Type, DestinationType}
+   *  already defined in the TypeMapStore
+   */
+  public <S, D> TypeMap<S, D> emptyTypeMap(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
+    Assert.notNull(sourceType, "sourceType");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(typeMapName, "typeMapName");
+    Assert.isNull(config.typeMapStore.get(sourceType, destinationType, typeMapName), "TypeMap already defined");
+    return config.typeMapStore.createEmptyTypeMap(sourceType, destinationType, typeMapName, config, engine);
+  }
+
+  /**
    * Returns all TypeMaps for the ModelMapper.
    */
   public Collection<TypeMap<?, ?>> getTypeMaps() {
