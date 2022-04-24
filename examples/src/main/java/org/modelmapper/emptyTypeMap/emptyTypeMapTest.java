@@ -1,4 +1,6 @@
-package org.modelmapper;
+package org.modelmapper.emptyTypeMap;
+
+import org.modelmapper.ModelMapper;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
@@ -59,11 +61,16 @@ public class emptyTypeMapTest {
         dog.weight = 50;
 
         modelMapper.emptyTypeMap(Animal.class, AnimalDTO.class, "turning").addMappings(mapper -> {mapper.map(Animal::getName, AnimalDTO::setName); mapper.map(Animal::getWeight, AnimalDTO::setWeight);});
-        AnimalDTO dog_DTO = modelMapper.map(dog, AnimalDTO.class);
-
+        AnimalDTO dog_DTO = modelMapper.map(dog, AnimalDTO.class, "turning");
 
         assertEquals(dog.weight, dog_DTO.weight);
         assertEquals(dog.name, dog_DTO.name);
+
+        modelMapper.emptyTypeMap(Animal.class, AnimalDTO.class, "fail");
+        AnimalDTO dog_DTO2 = modelMapper.map(dog, AnimalDTO.class, "fail");
+
+        assertNotEquals(dog.weight, dog_DTO2.weight);
+        assertNotEquals(dog.name, dog_DTO2.name);
 
     }
 }
