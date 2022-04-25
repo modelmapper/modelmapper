@@ -380,11 +380,11 @@ public class ModelMapper {
   }
 
   /**
-   * Creates an empty TypeMap for the {@code sourceType}, {@code destinationType}
+   * Creates an empty TypeMap for the {@code sourceType}, {@code destinationType}.
    *
    * @param <S> source type
    * @param <D> destination type
-   * @throws IllegalArgumentException is {@code sourceType} or {@code destinationType} are null, or {@code TypeMap<Source Type, DestinationType>}
+   * @throws IllegalArgumentException is {@code sourceType} or {@code destinationType} are null, or {@code TypeMap<Source Type, DestinationType}
    *  already defined in the TypeMapStore
    */
   public <S, D> TypeMap<S, D> emptyTypeMap(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
