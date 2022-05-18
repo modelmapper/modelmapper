@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
-
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.MappingException;
 import org.modelmapper.TypeMap;
@@ -373,6 +372,13 @@ public final class Errors {
 
   Errors sourceOutsideOfMap() {
     return addMessage("'source' cannot be used outside of a map statement.");
+  }
+
+  Errors skipConflict(String skip, List<String> paths) {
+    return addMessage("Not able to skip %s, because there are already nested properties are mapped: [%s]. "
+        + "Do you skip the property after the implicit mappings mapped? "
+        + "We recommended you to create an empty type map, and followed by addMappings and implicitMappings calls",
+        skip, String.join(" ", paths));
   }
 
   void throwMappingExceptionIfErrorsExist() {

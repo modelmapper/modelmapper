@@ -15,13 +15,16 @@
  */
 package org.modelmapper.internal;
 
+import static java.util.stream.Collectors.toList;
 import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import static org.modelmapper.internal.util.Assert.notNull;
 
+import java.util.List;
 import net.jodah.typetools.TypeResolver;
 import org.modelmapper.builder.ReferenceMapExpression;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.DestinationSetter;
+import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.SourceGetter;
 
 /**
@@ -62,7 +65,7 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   public <V> void map(SourceGetter<S> sourceGetter, DestinationSetter<D, V> destinationSetter) {
     visitSource(sourceGetter);
     visitDestination(destinationSetter);
-    typeMap.addMapping(collector.collect());
+    skipMapping(collector.collect());
     collector.reset();
   }
 
@@ -70,8 +73,22 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   public <V> void skip(DestinationSetter<D, V> destinationSetter) {
     options.skipType = 1;
     visitDestination(destinationSetter);
-    typeMap.addMapping(collector.collect());
+    skipMapping(collector.collect());
     collector.reset();
+  }
+
+  private void skipMapping(MappingImpl skipMapping) {
+    String prefix = skipMapping.getPath();
+    List<String> conflictPaths = typeMap.getMappings().stream()
+        .map(Mapping::getPath)
+        .filter(path -> path.startsWith(prefix) && !path.equals(prefix))
+        .collect(toList());
+    if (conflictPaths.isEmpty()) {
+      typeMap.addMapping(skipMapping);
+    } else {
+      collector.getErrors().skipConflict(skipMapping.getPath(), conflictPaths);
+      collector.getErrors().throwConfigurationExceptionIfErrorsExist();
+    }
   }
 
   @Override
