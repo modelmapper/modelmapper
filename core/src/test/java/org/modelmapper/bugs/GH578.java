@@ -1,7 +1,5 @@
 package org.modelmapper.bugs;
 
-import lombok.Data;
-
 import org.modelmapper.AbstractTest;
 import org.modelmapper.ConfigurationException;
 import org.modelmapper.ModelMapper;
@@ -18,25 +16,52 @@ public class GH578 extends AbstractTest {
         BBB;
     }
 
-    @Data
     class TypeA {
         TypeABox box;
+
+        public void setBox(TypeABox box) {
+            this.box = box;
+        }
+
+        public TypeABox getBox() {
+            return box;
+        }
     }
 
-    @Data
     class TypeABox {
         CLASSIFIER param;
 
+        public CLASSIFIER getParam() {
+            return param;
+        }
+
+        public void setParam(CLASSIFIER param) {
+            this.param = param;
+        }
     }
 
-    @Data
     class TypeB {
         TypeBBox box;
+
+        public TypeBBox getBox() {
+            return box;
+        }
+
+        public void setBox(TypeBBox box) {
+            this.box = box;
+        }
     }
 
-    @Data
     class TypeBBox {
         CLASSIFIER param;
+
+        public CLASSIFIER getParam() {
+            return param;
+        }
+
+        public void setParam(CLASSIFIER param) {
+            this.param = param;
+        }
     }
 
     public void testBoxMapping() {
