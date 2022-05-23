@@ -96,7 +96,7 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     options.skipType = 1;
     visitSource(sourceGetter);
     visitDestination(destinationSetter);
-    typeMap.addMapping(collector.collect());
+    skipMapping(collector.collect());
     collector.reset();
   }
 
