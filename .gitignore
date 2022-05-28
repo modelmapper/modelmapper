@@ -1,4 +1,5 @@
 *~
+.idea/
 target/
 docs/
 test-output/
