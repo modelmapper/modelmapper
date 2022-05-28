@@ -15,28 +15,19 @@
  */
 package org.modelmapper.internal;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.modelmapper.Condition;
-import org.modelmapper.ConfigurationException;
-import org.modelmapper.Converter;
-import org.modelmapper.Provider;
-import org.modelmapper.TypeMap;
-import org.modelmapper.TypeToken;
+import org.modelmapper.*;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Objects;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
-import org.modelmapper.spi.ConstantMapping;
-import org.modelmapper.spi.Mapping;
-import org.modelmapper.spi.MappingContext;
-import org.modelmapper.spi.MappingEngine;
-import org.modelmapper.spi.PropertyMapping;
+import org.modelmapper.spi.*;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MappingEngine implementation that caches ConditionalConverters by source and destination type
@@ -105,9 +96,12 @@ public class MappingEngineImpl implements MappingEngine {
       destination = typeMap(contextImpl, typeMap);
     } else {
       Converter<S, D> converter = converterFor(context);
-      if (converter != null && (context.getDestination() == null || context.getParent() != null))
-        destination = convert(context, converter);
-      else if (!Primitives.isPrimitive(context.getSourceType()) && !Primitives.isPrimitive(context.getDestinationType())) {
+      if (converter != null && (context.getDestination() == null || context.getParent() != null)){
+        if (context.getDestinationType().isAssignableFrom(context.getSourceType()) && typeMap != null)
+          destination = typeMap(contextImpl, typeMap);
+        else
+          destination = convert(context, converter);
+      } else if (!Primitives.isPrimitive(context.getSourceType()) && !Primitives.isPrimitive(context.getDestinationType())) {
         // Call getOrCreate in case TypeMap was created concurrently
         typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(),
             context.getDestinationType(), context.getTypeMapName(), this);
