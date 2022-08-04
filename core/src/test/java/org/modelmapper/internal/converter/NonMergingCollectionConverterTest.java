@@ -1,5 +1,6 @@
 package org.modelmapper.internal.converter;
 
+import org.hibernate.collection.internal.PersistentBag;
 import org.modelmapper.spi.ConditionalConverter.MatchResult;
 import org.testng.annotations.Test;
 
@@ -160,5 +161,11 @@ public class NonMergingCollectionConverterTest extends AbstractConverterTest {
 
     // Negative
     assertEquals(converter.match(Map.class, ArrayList.class), MatchResult.NONE);
+  }
+
+  public void itShouldNotThrowAnExceptionIfDestinationIsHibernateProxyObjectAndThereIsNoSession() {
+      List<Integer> sourceList = Arrays.asList(1, 2, 3);
+      Class<?> destinationType = List.class;
+      assertEquals(convert(sourceList, new PersistentBag(), destinationType), sourceList);
   }
 }
