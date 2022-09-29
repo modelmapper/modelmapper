@@ -9,3 +9,4 @@ release.properties
 _site/
 user-manual/
 *.iml
+.idea/
