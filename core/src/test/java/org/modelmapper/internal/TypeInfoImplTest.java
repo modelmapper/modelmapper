@@ -4,6 +4,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.testng.annotations.BeforeClass;
@@ -42,16 +43,25 @@ public class TypeInfoImplTest {
    */
   public void shouldProduceAccessors() {
     List<Mutator> mutators = new ArrayList<Mutator>(personInfo.getMutators().values());
+    List<String> orderMutators = new ArrayList<String>();
+    orderMutators.add(mutators.get(0).getMember().getName()); 
+    orderMutators.add(mutators.get(1).getMember().getName());                           
+    Collections.sort(orderMutators);                    
     assertEquals(mutators.size(), 2);
-    assertEquals(mutators.get(0).getMember().getName(), "setFirstName");
-    assertEquals(mutators.get(1).getMember().getName(), "age");
+    assertEquals(orderMutators.get(0), "age");
+    assertEquals(orderMutators.get(1), "setFirstName");
   }
 
   public void shouldProduceMutators() {
     List<Accessor> accessors = new ArrayList<Accessor>(personInfo.getAccessors().values());
+    List<String> orderAccessors = new ArrayList<String>();
+    for (int i = 0; i < accessors.size(); i++) {
+      orderAccessors.add(accessors.get(i).getMember().getName()); 
+    }                      
+    Collections.sort(orderAccessors);
     assertEquals(accessors.size(), 3);
-    assertEquals(accessors.get(0).getMember().getName(), "firstName");
-    assertEquals(accessors.get(1).getMember().getName(), "age");
-    assertEquals(accessors.get(2).getMember().getName(), "getLastName");
+    assertEquals(orderAccessors.get(0), "age");
+    assertEquals(orderAccessors.get(1), "firstName");
+    assertEquals(orderAccessors.get(2), "getLastName");
   }
 }
