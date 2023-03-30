@@ -64,10 +64,8 @@ public class GH204 extends AbstractTest {
 
     modelMapper.validate();
 
-    assertEquals("foo",
-        modelMapper.map(new SomeDto("foo"), SomeEntity.class).otherValue);
-    assertEquals("bar",
-        modelMapper.map(new SomeEntity("bar"), SomeDto.class).someValue);
+    assertEquals(modelMapper.map(new SomeDto("foo"), SomeEntity.class).otherValue, "foo");
+    assertEquals(modelMapper.map(new SomeEntity("bar"), SomeDto.class).someValue, "bar");
   }
 
   public void shouldMappingMethod2() {
@@ -86,10 +84,8 @@ public class GH204 extends AbstractTest {
 
     modelMapper.validate();
 
-    assertEquals("foo",
-        modelMapper.map(new SomeDto("foo"), SomeEntity.class).otherValue);
-    assertEquals("bar",
-        modelMapper.map(new SomeEntity("bar"), SomeDto.class).someValue);
+    assertEquals(modelMapper.map(new SomeDto("foo"), SomeEntity.class).otherValue, "foo");
+    assertEquals(modelMapper.map(new SomeEntity("bar"), SomeDto.class).someValue, "bar");
   }
 
   public void shouldMappingMethod3() {
@@ -108,9 +104,7 @@ public class GH204 extends AbstractTest {
 
     modelMapper.validate();
 
-    assertEquals("foo",
-        modelMapper.map(new SomeDto("foo"), SomeEntity.class).otherValue);
-    assertEquals("bar",
-        modelMapper.map(new SomeEntity("bar"), SomeDto.class).someValue);
+    assertEquals(modelMapper.map(new SomeDto("foo"), SomeEntity.class).otherValue, "foo");
+    assertEquals(modelMapper.map(new SomeEntity("bar"), SomeDto.class).someValue, "bar");
   }
 }

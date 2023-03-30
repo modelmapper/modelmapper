@@ -36,6 +36,6 @@ public class GH109 extends AbstractTest {
     Source s = new Source();
     s.value = Integer.valueOf(42);
     Destination dest = modelMapper.map(s, Destination.class);
-    assertEquals(42, dest.value);
+    assertEquals(dest.value, 42);
   }
 }

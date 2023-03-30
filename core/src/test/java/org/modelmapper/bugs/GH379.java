@@ -41,7 +41,7 @@ public class GH379 extends AbstractTest {
 
     Type destinationType = new TypeToken<PageModel<SubjectModel>>(){}.getType();
     PageModel<SubjectModel> destination = modelMapper.map(page, destinationType);
-    assertEquals(2, destination.items.size());
+    assertEquals(destination.items.size(), 2);
     assertEquals(SubjectModel.class, destination.items.get(0).getClass());
   }
 }

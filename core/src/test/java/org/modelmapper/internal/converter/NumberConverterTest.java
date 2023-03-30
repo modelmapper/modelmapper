@@ -239,8 +239,8 @@ public class NumberConverterTest extends AbstractConverterTest {
 
   @Test(dataProvider = "typesProvider")
   public void testBooleanToNumber(Class<?> type) {
-    assertEquals(0, ((Number) convert(Boolean.FALSE, type)).intValue());
-    assertEquals(1, ((Number) convert(Boolean.TRUE, type)).intValue());
+    assertEquals(((Number) convert(Boolean.FALSE, type)).intValue(), 0);
+    assertEquals(((Number) convert(Boolean.TRUE, type)).intValue(), 1);
   }
 
   public void testInvalidByteAmount() {
@@ -253,13 +253,13 @@ public class NumberConverterTest extends AbstractConverterTest {
     assertEquals(new Byte(Byte.MAX_VALUE), convert(max, Byte.class));
 
     try {
-      assertEquals(null, convert(minMinusOne, Byte.class));
+      assertEquals(convert(minMinusOne, Byte.class), null);
       fail();
     } catch (Exception e) {
     }
 
     try {
-      assertEquals(null, convert(maxPlusOne, Byte.class));
+      assertEquals(convert(maxPlusOne, Byte.class), null);
       fail();
     } catch (Exception e) {
     }
@@ -272,7 +272,7 @@ public class NumberConverterTest extends AbstractConverterTest {
     assertEquals(new Float(Float.MAX_VALUE), convert(max, Float.class));
 
     try {
-      assertEquals(null, convert(tooBig, Float.class));
+      assertEquals(convert(tooBig, Float.class), null);
       fail("More than maximum, expected ConversionException");
     } catch (Exception expected) {
     }
@@ -288,13 +288,13 @@ public class NumberConverterTest extends AbstractConverterTest {
     assertEquals(new Integer(Integer.MAX_VALUE), convert(max, Integer.class));
 
     try {
-      assertEquals(null, convert(minMinusOne, Integer.class));
+      assertEquals(convert(minMinusOne, Integer.class), null);
       fail("Less than minimum, expected ConversionException");
     } catch (Exception expected) {
     }
 
     try {
-      assertEquals(null, convert(maxPlusOne, Integer.class));
+      assertEquals(convert(maxPlusOne, Integer.class), null);
       fail("More than maximum, expected ConversionException");
     } catch (Exception expected) {
     }
@@ -310,13 +310,13 @@ public class NumberConverterTest extends AbstractConverterTest {
     assertEquals(new Short(Short.MAX_VALUE), convert(max, Short.class));
 
     try {
-      assertEquals(null, convert(minMinusOne, Short.class));
+      assertEquals(convert(minMinusOne, Short.class), null);
       fail("Less than minimum, expected ConversionException");
     } catch (Exception expected) {
     }
 
     try {
-      assertEquals(null, convert(maxPlusOne, Short.class));
+      assertEquals(convert(maxPlusOne, Short.class), null);
       fail("More than maximum, expected ConversionException");
     } catch (Exception expected) {
     }
