@@ -47,9 +47,9 @@ public class BooleanConverterTest extends AbstractConverterTest {
 
   protected void testConversionValues(String[] trueValues, String[] falseValues) {
     for (int i = 0; i < trueValues.length; i++)
-      assertEquals(Boolean.TRUE, convert(trueValues[i]));
+      assertEquals(convert(trueValues[i]), Boolean.TRUE);
     for (int i = 0; i < falseValues.length; i++)
-      assertEquals(Boolean.FALSE, convert(falseValues[i]));
+      assertEquals(convert(falseValues[i]), Boolean.FALSE);
   }
 
   public void testSupported() {

@@ -70,10 +70,10 @@ public class GH386 extends AbstractTest {
     OuterDto outerDto = new OuterDto(2L,"dto", Arrays.asList(innerDto));
 
     modelMapper.map(outer, outerDto);
-    assertEquals(2L, (long) outerDto.id);
-    assertEquals(1, outerDto.inners.size());
-    assertEquals(1L, (long) outerDto.inners.get(0).id);
-    assertEquals("domain", outerDto.inners.get(0).description);
-    assertEquals("domain", outerDto.inners.get(0).name);
+    assertEquals((long) outerDto.id, 2L);
+    assertEquals(outerDto.inners.size(), 1);
+    assertEquals((long) outerDto.inners.get(0).id, 1L);
+    assertEquals(outerDto.inners.get(0).description, "domain");
+    assertEquals(outerDto.inners.get(0).name, "domain");
   }
 }

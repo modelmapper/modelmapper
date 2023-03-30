@@ -71,7 +71,7 @@ public class GH249 extends AbstractTest {
     pojoAgent.setRoles(new HashSet<Role>(Arrays.asList(new Role("foo"), new Role("bar"))));
 
     DomainAgent domainAgent = modelMapper.map(pojoAgent, DomainAgent.class);
-    assertEquals(2, domainAgent.getRoles().size());
+    assertEquals(domainAgent.getRoles().size(), 2);
   }
 
   public void shouldMapExistDestination() {
@@ -83,6 +83,6 @@ public class GH249 extends AbstractTest {
 
     modelMapper.map(pojoAgent, domainAgent);
 
-    assertEquals(2, domainAgent.getRoles().size());
+    assertEquals(domainAgent.getRoles().size(), 2);
   }
 }

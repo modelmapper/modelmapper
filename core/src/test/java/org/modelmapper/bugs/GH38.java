@@ -47,6 +47,6 @@ public class GH38 extends AbstractTest {
     Mockito.when(a.getName()).thenReturn("hello");
     B b = modelMapper.map(a, B.class);
 
-    Assert.assertEquals("hello", b.getNameProp());
+    Assert.assertEquals(b.getNameProp(), "hello");
   }
 }

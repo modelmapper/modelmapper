@@ -100,8 +100,8 @@ public class BuilderTest {
 
     Source source = new Source("foo", "bar");
     Destination destination = modelMapper.map(source, Destination.Builder.class).build();
-    assertEquals("foo", destination.foo);
-    assertEquals("bar", destination.bar);
+    assertEquals(destination.foo, "foo");
+    assertEquals(destination.bar, "bar");
   }
 
   public void shouldMapWithDifferentPrefix() {
@@ -112,7 +112,7 @@ public class BuilderTest {
 
     Source source = new Source("foo", "bar");
     Destination destination = modelMapper.map(source, Destination.BuilderWith.class).build();
-    assertEquals("foo", destination.foo);
-    assertEquals("bar", destination.bar);
+    assertEquals(destination.foo, "foo");
+    assertEquals(destination.bar, "bar");
   }
 }
