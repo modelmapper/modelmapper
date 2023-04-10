@@ -172,6 +172,10 @@ public class InheritingConfiguration implements Configuration {
       return false;
     if (isFieldMatchingEnabled() != other.isFieldMatchingEnabled())
       return false;
+    if (getSourceNamingConvention() != other.getSourceNamingConvention())
+      return false;
+    if (getDestinationNamingConvention() != other.getDestinationNamingConvention())
+      return false;
     return true;
   }
 
