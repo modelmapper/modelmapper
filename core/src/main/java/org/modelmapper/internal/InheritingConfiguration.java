@@ -287,6 +287,8 @@ public class InheritingConfiguration implements Configuration {
     result = prime * result + getDestinationNameTransformer().hashCode();
     result = prime * result + getFieldAccessLevel().hashCode();
     result = prime * result + getMethodAccessLevel().hashCode();
+    result = prime * result + getSourceNamingConvention().hashCode();
+    result = prime * result + getDestinationNamingConvention().hashCode();
     result = prime * result + (isFieldMatchingEnabled() ? 1231 : 1237);
     return result;
   }
