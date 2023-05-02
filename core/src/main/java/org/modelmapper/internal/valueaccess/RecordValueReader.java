@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Handles reading from java.lang.Record instances.
+ *
+ * @author okaponta
+ */
 public class RecordValueReader implements ValueReader<Record> {
     @Override
     public Object get(Record record, String memberName) {
