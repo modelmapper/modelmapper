@@ -31,6 +31,7 @@ public final class ValueAccessStore {
   public ValueAccessStore() {
     // Register defaults
     valueReaders.add(new MapValueReader());
+    valueReaders.add(new RecordValueReader());
   }
 
   /**
