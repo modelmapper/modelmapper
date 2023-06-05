@@ -80,6 +80,8 @@ public final class Types {
       return true;
     if (type.getName().contains("$MockitoMock$"))
       return true;
+    if (type.getName().contains("$$Permazen"))
+      return true;
     if (Proxy.isProxyClass(type))
       return true;
     return isProxiedByJavassist(type);
