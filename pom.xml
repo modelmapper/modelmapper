@@ -18,10 +18,10 @@
   <inceptionYear>2011</inceptionYear>
 
   <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
     <cglib.version>3.3.0</cglib.version>
-    <asm.version>9.4</asm.version>
+    <asm.version>9.6</asm.version>
     <objenesis.version>3.2</objenesis.version>
     <typetools.version>0.6.3</typetools.version>
     <bytebuddy.version>1.12.3</bytebuddy.version>
@@ -39,7 +39,7 @@
     <jackson.version>2.13.1</jackson.version>
     <jooq.version>3.1.0</jooq.version>
     <protobuf.version>3.19.3</protobuf.version>
-    <spring.version>5.3.14</spring.version>
+    <spring.version>6.0.12</spring.version>
   </properties>
 
   <licenses>
