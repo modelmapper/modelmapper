@@ -22,24 +22,23 @@
     <maven.compiler.source>21</maven.compiler.source>
     <cglib.version>3.3.0</cglib.version>
     <asm.version>9.6</asm.version>
-    <objenesis.version>3.2</objenesis.version>
+    <objenesis.version>3.3</objenesis.version>
     <typetools.version>0.6.3</typetools.version>
-    <bytebuddy.version>1.12.3</bytebuddy.version>
-    <javassist.version>3.12.1.GA</javassist.version>
-    <h2.version>2.0.206</h2.version>
-    <hibernate.version>5.6.3.Final</hibernate.version>
-    <slf4j.version>1.5.8</slf4j.version>
+    <bytebuddy.version>1.14.9</bytebuddy.version>
+    <javassist.version>3.29.2-GA</javassist.version>
+    <h2.version>2.2.224</h2.version>
+    <hibernate.version>5.6.15.Final</hibernate.version>
     <testng.version>7.5</testng.version>
     <mockito.version>4.2.0</mockito.version>
     <dozer.version>5.5.1</dozer.version>
     <orika.version>1.5.4</orika.version>
     <dagger.version>1.0.1</dagger.version>
-    <gson.version>2.8.9</gson.version>
-    <guice.version>5.0.1</guice.version>
-    <jackson.version>2.13.1</jackson.version>
-    <jooq.version>3.1.0</jooq.version>
-    <protobuf.version>3.19.3</protobuf.version>
-    <spring.version>6.0.12</spring.version>
+    <gson.version>2.10.1</gson.version>
+    <guice.version>7.0.0</guice.version>
+    <jackson.version>2.15.3</jackson.version>
+    <jooq.version>3.18.7</jooq.version>
+    <protobuf.version>3.24.4</protobuf.version>
+    <spring.version>6.0.13</spring.version>
   </properties>
 
   <licenses>
@@ -118,7 +117,7 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>javassist</groupId>
+        <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
         <version>${javassist.version}</version>
         <scope>test</scope>
