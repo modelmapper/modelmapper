@@ -1,3 +1,7 @@
+# 3.2.0
+
+* Bump asm and byte-buddy for JDK 21 support
+
 # 3.1.0
 
 * Migrates optional converters from modelmapper-module-java8
