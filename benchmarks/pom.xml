@@ -5,7 +5,7 @@
   <parent>
     <artifactId>modelmapper-parent</artifactId>
     <groupId>org.modelmapper</groupId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.2.0</version>
   </parent>
 
   <artifactId>benchmarks</artifactId>
