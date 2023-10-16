@@ -21,10 +21,10 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <cglib.version>3.3.0</cglib.version>
-    <asm.version>9.4</asm.version>
+    <asm.version>9.6</asm.version>
     <objenesis.version>3.2</objenesis.version>
     <typetools.version>0.6.3</typetools.version>
-    <bytebuddy.version>1.12.3</bytebuddy.version>
+    <bytebuddy.version>1.14.9</bytebuddy.version>
     <javassist.version>3.12.1.GA</javassist.version>
     <h2.version>2.0.206</h2.version>
     <hibernate.version>5.6.3.Final</hibernate.version>
