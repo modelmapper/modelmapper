@@ -4,7 +4,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +51,7 @@ public class ArrayConverterTest extends AbstractConverterTest {
   }
 
   public void shouldConvertFromSet() {
-    Set<Integer> source = new HashSet<Integer>(Arrays.asList(3, 4, 5));
+    Set<Integer> source = new LinkedHashSet<Integer>(Arrays.asList(3, 4, 5));
     String[] dest = (String[]) convert(source, String[].class);
     assertEquals(Arrays.asList(dest), Arrays.asList("3", "4", "5"));
   }
