@@ -65,4 +65,19 @@ public class MatchingStrategies {
    * </ul>
    */
   public static final MatchingStrategy STRICT = new StrictMatchingStrategy();
+
+  /**
+   * A matching strategy that allows for source properties to be strictly matched to destination
+   * properties, while respecting flat to nested or nested to flat structure.
+   * This strategy allows for complete matching accuracy, ensuring that no mismatches or
+   * ambiguity occurs. It requires that property name tokens on the source and destination side
+   * match each other precisely, while respecting the flat to nested or nested to flat structure. The following rules apply:
+   *
+   * <ul>
+   * <li>Tokens are matched in <i>strict flat nested</i> order</li>
+   * <li>All destination property name tokens must be matched</li>
+   * <li>All source property names must have all tokens matched</li>
+   * </ul>
+   */
+  public static final MatchingStrategy STRICT_FLAT_NESTED = new StrictFlatNestedMatchingStrategy();
 }
