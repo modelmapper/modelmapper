@@ -11,7 +11,7 @@ import static org.testng.Assert.assertNotNull;
 import org.testng.annotations.Test;
 
 /**
- * @author Jonathan Halterman
+ * @author Fabian Landwehr
  */
 @Test
 public class MultipleSourcePropertiesToNestedTargetPropertyTest extends AbstractTest {
