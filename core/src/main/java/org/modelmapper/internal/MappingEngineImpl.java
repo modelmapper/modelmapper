@@ -37,6 +37,7 @@ import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.MappingEngine;
 import org.modelmapper.spi.PropertyMapping;
+import org.modelmapper.spi.SourceMapping;
 
 /**
  * MappingEngine implementation that caches ConditionalConverters by source and destination type
@@ -206,6 +207,8 @@ public class MappingEngineImpl implements MappingEngine {
       }
     } else if (mapping instanceof ConstantMapping) {
       source = ((ConstantMapping) mapping).getConstant();
+      context.addParentSource("", source);
+    } else if (mapping instanceof SourceMapping ) {
       context.addParentSource("", source);
     }
     return source;
