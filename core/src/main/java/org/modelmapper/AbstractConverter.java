@@ -16,32 +16,52 @@
 package org.modelmapper;
 
 import net.jodah.typetools.TypeResolver;
+import org.modelmapper.internal.MappingEngineImpl;
+import org.modelmapper.internal.util.Assert;
+import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.MappingContext;
 
 /**
  * Converter support class. Allows for simpler Converter implementations.
- * 
+ *
  * @param <S> source type
  * @param <D> destination type
- * 
+ *
  * @author Jonathan Halterman
  */
 public abstract class AbstractConverter<S, D> implements Converter<S, D> {
+
+  private static MappingEngineImpl mappingEngine;
+
   /**
    * Delegates conversion to {@link #convert(Object)}.
    */
   public D convert(MappingContext<S, D> context) {
+    if (mappingEngine == null) {
+      mappingEngine = (MappingEngineImpl) context.getMappingEngine();
+    }
     return convert(context.getSource());
   }
 
   @Override
   public String toString() {
     return String.format("Converter<%s, %s>",
-        (Object[]) TypeResolver.resolveRawArguments(Converter.class, getClass()));
+            (Object[]) TypeResolver.resolveRawArguments(Converter.class, getClass()));
   }
 
   /**
    * Converts {@code source} to an instance of type {@code D}.
    */
   protected abstract D convert(S source);
+
+  /**
+   * @param source          - source object
+   * @param destinationType - destination class
+   */
+  protected <Destination> Destination map(Object source, Class<Destination> destinationType) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destinationType, "destinationType");
+    Assert.notNull(mappingEngine, "mappingEngine");
+    return mappingEngine.map(source, Types.deProxy(source.getClass()), null, TypeToken.<Destination>of(destinationType), null);
+  }
 }
