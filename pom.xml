@@ -26,7 +26,7 @@
     <typetools.version>0.6.3</typetools.version>
     <bytebuddy.version>1.14.9</bytebuddy.version>
     <javassist.version>3.12.1.GA</javassist.version>
-    <h2.version>2.0.206</h2.version>
+    <h2.version>2.2.220</h2.version>
     <hibernate.version>5.6.3.Final</hibernate.version>
     <slf4j.version>1.5.8</slf4j.version>
     <testng.version>7.5</testng.version>
