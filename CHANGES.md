@@ -181,7 +181,7 @@
 * Provided TypeMap::addImplicitMappings and ModelMapper::emptyTypeMap
 * Provided deepCopy configuration
 * Lambda api improvement: mapping from source
-* Inhert TypeMap from source's property
+* Inherit TypeMap from source's property
 
 ### Bug Fixes
 
@@ -346,7 +346,7 @@ For field references:
 * Fixed #80 - ModelMapper extensions use maven backward dependencies
 * Fixed #82 - Ignore enums when traversing Enum types
 * Fixed #85 - Allow non-void setter return types
-* FIxed #91 - Add shaded cglib to Export-Package for better OSGi-support
+* Fixed #91 - Add shaded cglib to Export-Package for better OSGi-support
 
 ### API Changes
 
@@ -362,7 +362,7 @@ For field references:
 
 ### Bug Fixes
 
-* Fixed #74 - Null intermdiate values possible when instance requested via global provider
+* Fixed #74 - Null intermediate values possible when instance requested via global provider
 
 # 0.6.0 
 8/2/2013
@@ -482,7 +482,7 @@ For TypeTokens:
 9/12/2012
 
 * Fixed #2 - Add support for circular references
-* Fixed #9 - Overriding intemediate objects in provided destinations
+* Fixed #9 - Overriding intermediate objects in provided destinations
 * Fixed conversion of char[] to String
 * Fixed GC #20 - Improved hashCode in TypeInfoRegistry
 * Completed GC #21 - Implement strict matching strategy
@@ -496,7 +496,7 @@ For TypeTokens:
 * Added support for auto-TypeMap merging
 * Fixed #3: Disambiguation enhancements
 * Fixed #4: Added source to ProvisionRequest
-* Fixed #5: Incorrect shading of null paramters
+* Fixed #5: Incorrect shading of null parameters
 * Fixed #7: Conversion skipped when source is null
 * Fixed GC #8: Skipped circular properties
 * Fixed GC #10: Incorrect mappings created for multiple source mappings
