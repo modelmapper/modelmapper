@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 /**
  * Tests a scenario where the destination members are fulfilled from various parts of the source
  * object graph. Requires the loose matching strategy.
- * 
+ *
  * <pre>
  * Order
  *   OrderSourceInfo sourceInfo;
@@ -17,20 +17,20 @@ import org.testng.annotations.Test;
  *   OrderDestinationInfo destinationInfo;
  *     Address customerAddress;
  *   int companyId;
- *     
+ *
  * OrderDTO
  *   OrderMailingData data;
  *     Company company;
  *       int companyId;
  *       String company;
  *     Address customerAddress;
- *   
+ *
  * Order=>OrderDTO
- *   comapnyId->data.company.companyId
+ *   companyId->data.company.companyId
  *   sourceInfo.company->data.company.company
  *   destinationInfo.customerAddress->data.customerAddress
  * </pre>
- * 
+ *
  * @author Jonathan Halterman
  */
 @Test(groups = "functional")

@@ -51,19 +51,19 @@ public class InheritingConfigurationTest {
     config2.setMethodAccessLevel(AccessLevel.PRIVATE);
     assertFalse(config1.equals(config2));
   }
-  
-  public void testFullMatchingRequiredDefualtsToFalse() {
+
+  public void testFullMatchingRequiredDefaultsToFalse() {
 	  InheritingConfiguration config = new InheritingConfiguration();
 	  assertFalse(config.isFullTypeMatchingRequired());
   }
-  
+
   public void testFullMatchingRequiredIsInherited() {
 	  InheritingConfiguration originConfig = new InheritingConfiguration();
 	  originConfig.setFullTypeMatchingRequired(true);
 	  InheritingConfiguration inheritingConfig = new InheritingConfiguration(originConfig, true);
 	  assertTrue(inheritingConfig.isFullTypeMatchingRequired());
   }
-  
+
   public void testCollectionsMergeEnabled() {
       InheritingConfiguration config = new InheritingConfiguration();
       assertTrue(config.isCollectionsMergeEnabled());

@@ -73,7 +73,7 @@ public final class Iterables {
   @SuppressWarnings("unchecked")
   public static Object getElement(Object iterable, int index) {
     if (iterable.getClass().isArray())
-      return getElementFromArrary(iterable, index);
+      return getElementFromArray(iterable, index);
     if (iterable instanceof Collection)
       return getElementFromCollection((Collection<Object>) iterable, index);
 
@@ -87,7 +87,7 @@ public final class Iterables {
    * @param index the index
    * @return null if the array doesn't have the element at index, otherwise, return the element
    */
-  public static Object getElementFromArrary(Object array, int index) {
+  public static Object getElementFromArray(Object array, int index) {
     try {
       return Array.get(array, index);
     } catch (ArrayIndexOutOfBoundsException e) {

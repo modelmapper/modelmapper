@@ -73,7 +73,7 @@ public class MembersTest {
     assertEquals(setter.getDeclaringClass(), Parent.class);
   }
 
-  public void shuoldGetMethodForChildClass() {
+  public void shouldGetMethodForChildClass() {
     Method getter = Members.methodFor(Child.class, "getter", (Class<?>[]) null);
     Method setter = Members.methodFor(Child.class, "setter", new Class<?>[] { String.class });
     Method childGetter = Members.methodFor(Child.class, "childGetter", (Class<?>[]) null);
