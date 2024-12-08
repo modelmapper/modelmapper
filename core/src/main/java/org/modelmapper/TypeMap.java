@@ -280,7 +280,7 @@ public interface TypeMap<S, D> {
   TypeMap<S, D> addMappings(ExpressionMap<S, D> mapper);
 
   /**
-   * Constructs a new TypeMap derived from {@code this}. The derived TypeMap will includes
+   * Constructs a new TypeMap derived from {@code this}. The derived TypeMap will include
    * all {@code mappings} from the base {@link TypeMap}, but will NOT include {@code converter},
    * {@code condition}, and {@code provider} from the base {@link TypeMap}.
    *

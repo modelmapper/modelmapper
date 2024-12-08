@@ -171,7 +171,7 @@
 * Fixed #363: Fixes OSGi loading issue
 * Fixed #364: Resolves type correctly
 * Fixed #370: Fixes MapValueReader get wrong field type
-* Fixed #372: Explicit property mapping will failed when using source(propertyPath) with List type
+* Fixed #372: Explicit property mapping will be failed when using source(propertyPath) with List type
 
 # 2.1.0
 
