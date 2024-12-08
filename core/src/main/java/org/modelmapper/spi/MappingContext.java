@@ -28,7 +28,7 @@ import org.modelmapper.TypeMap;
 public interface MappingContext<S, D> {
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destination} which
-   * inherits all other information from the this MappingContext.
+   * inherits all other information from this MappingContext.
    *
    * @param <CS> child source type
    * @param <CD> child destination type
@@ -41,7 +41,7 @@ public interface MappingContext<S, D> {
 
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destinationType} which
-   * inherits all other information from the this MappingContext.
+   * inherits all other information from this MappingContext.
    *
    * @param <CS> child source type
    * @param <CD> child destination type
@@ -54,7 +54,7 @@ public interface MappingContext<S, D> {
 
   /**
    * Creates a new child MappingContext for the {@code source} and {@code destinationType} which
-   * inherits all other information from the this MappingContext.
+   * inherits all other information from this MappingContext.
    *
    * @param <CS> child source type
    * @param <CD> child destination type

@@ -16,7 +16,7 @@
 package org.modelmapper.spi;
 
 /**
- * Represents an operation for getting an property from source
+ * Represents an operation for getting a property from source
  *
  * @param <S> source type
  * @param <P> property type

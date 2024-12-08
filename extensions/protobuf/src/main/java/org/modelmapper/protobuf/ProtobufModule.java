@@ -32,7 +32,7 @@ import org.modelmapper.protobuf.primitive.StringConverters;
 import org.modelmapper.spi.ConditionalConverter;
 
 /**
- * Module to support protocol buffer with ModelMapper..
+ * Module to support protocol buffer with ModelMapper.
  *
  * @author Chun Han Hsiao
  */

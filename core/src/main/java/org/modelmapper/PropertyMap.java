@@ -251,7 +251,7 @@ public abstract class PropertyMap<S, D> {
   }
 
   /**
-   * Defines a mapping for the {@code subject}. See the See the <a href="#0">EDSL examples</a>.
+   * Defines a mapping for the {@code subject}. See the <a href="#0">EDSL examples</a>.
    * 
    * @param subject to map
    * @throws IllegalStateException if called from outside the context of
@@ -263,7 +263,7 @@ public abstract class PropertyMap<S, D> {
   }
 
   /**
-   * Defines a mapping from the {@code source} to the {@code destination}. See the See the <a
+   * Defines a mapping from the {@code source} to the {@code destination}. See the <a
    * href="#0">EDSL examples</a>.
    * 
    * @param source to map from
