@@ -576,7 +576,7 @@ public class ModelMapper {
   private <S, D> TypeMap<S, D> createTypeMapInternal(S source, Class<S> sourceType,
       Class<D> destinationType, String typeMapName, Configuration configuration) {
     if (source != null)
-      sourceType = Types.<S>deProxy(source.getClass());
+      sourceType = Types.<S>deProxiedClass(source);
     Assert.state(config.typeMapStore.get(sourceType, destinationType, typeMapName) == null,
         "A TypeMap already exists for %s and %s", sourceType, destinationType);
     return config.typeMapStore.create(source, sourceType, destinationType, typeMapName,
@@ -585,8 +585,8 @@ public class ModelMapper {
 
   private <D> D mapInternal(Object source, D destination, Type destinationType, String typeMapName) {
     if (destination != null)
-      destinationType = Types.<D>deProxy(destination.getClass());
-    return engine.<Object, D>map(source, Types.<Object>deProxy(source.getClass()), destination,
+      destinationType = Types.<D>deProxiedClass(destination);
+    return engine.<Object, D>map(source, Types.<Object>deProxiedClass(source), destination,
         TypeToken.<D>of(destinationType), typeMapName);
   }
 }

@@ -38,26 +38,26 @@ public class TypesTest {
     }
   }
 
-  public void shouldDeProxyJavassistProxy() {
+  public void shouldDeProxyJavassistProxy() throws Exception {
     ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.setSuperclass(Foo.class);
-    Class<?> proxy = proxyFactory.createClass();
+    Object proxy = proxyFactory.create(new Class[0], new Object[0]);
 
-    assertEquals(Types.deProxy(proxy), Foo.class);
+    assertEquals(Types.deProxiedClass(proxy), Foo.class);
   }
 
   public void shouldDeProxyCGLibProxy() {
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(ArrayList.class);
     enhancer.setCallbackTypes(new Class[] { NoOp.class });
-    Class<?> proxy = enhancer.createClass();
+    Object proxy = enhancer.create();
 
-    assertEquals(Types.deProxy(proxy), ArrayList.class);
+    assertEquals(Types.deProxiedClass(proxy), ArrayList.class);
   }
 
   public void shouldDeProxyDynamicProxy() {
     final Object proxy = Proxy.newProxyInstance(TypesTest.class.getClassLoader(),
             new Class<?>[]{Bar.class}, new NullInvocationHandler());
-    assertEquals(Types.deProxy(proxy.getClass()), Bar.class);
+    assertEquals(Types.deProxiedClass(proxy), Bar.class);
   }
 }

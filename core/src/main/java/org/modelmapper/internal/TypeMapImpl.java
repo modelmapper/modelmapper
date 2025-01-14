@@ -177,7 +177,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   @Override
   public D map(S source) {
-    Class<S> sourceType = Types.deProxy(source.getClass());
+    Class<S> sourceType = Types.deProxiedClass(source);
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, null,
         destinationType, null, name, engine);
     D result = null;
@@ -194,7 +194,7 @@ class TypeMapImpl<S, D> implements TypeMap<S, D> {
 
   @Override
   public void map(S source, D destination) {
-    Class<S> sourceType = Types.deProxy(source.getClass());
+    Class<S> sourceType = Types.deProxiedClass(source);
     MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
         destination, destinationType, null, name, engine);
 

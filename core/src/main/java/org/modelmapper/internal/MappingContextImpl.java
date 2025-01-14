@@ -128,8 +128,8 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     Assert.notNull(source, "source");
     Assert.notNull(destination, "destination");
 
-    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()),
-        destination, Types.<CD>deProxy(destination.getClass()), null, mapping, false);
+    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxiedClass(source),
+        destination, Types.<CD>deProxiedClass(destination), null, mapping, false);
   }
 
   /** Creates a child MappingContext for an element of a destination collection. */
@@ -138,7 +138,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     Assert.notNull(source, "source");
     Assert.notNull(destinationType, "destinationType");
 
-    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
+    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxiedClass(source), null,
         destinationType, null, null, false);
   }
 
@@ -153,7 +153,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     Assert.notNull(destinationType, "destinationType");
     TypeToken<CD> destinationTypeToken = TypeToken.of(destinationType);
 
-    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxy(source.getClass()), null,
+    return new MappingContextImpl<CS, CD>(this, source, Types.<CS>deProxiedClass(source), null,
         destinationTypeToken.getRawType(), destinationTypeToken.getType(), mapping, false);
   }
 
