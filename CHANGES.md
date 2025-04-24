@@ -1,3 +1,7 @@
+# 3.2.3
+
+* Bump `org.testing` to 7.5.1 due to CVE
+
 # 3.2.0
 
 * Bump asm and byte-buddy for JDK 21 support
