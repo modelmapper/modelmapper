@@ -15,6 +15,16 @@
  */
 package org.modelmapper.internal.util;
 
+import org.modelmapper.internal.util.plugins.ByteBuddyProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.EnhancerProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.HibernateProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.JavaAssistProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.JavaProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.MockitoProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.PermazenProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.ProxyDiscoveryPlugin;
+import org.modelmapper.internal.util.plugins.SpringCglibProxyDiscoveryPlugin;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -22,12 +32,14 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Utilities for working with types.
@@ -35,65 +47,62 @@ import java.util.Date;
  * @author Jonathan Halterman
  */
 public final class Types {
-  private static Class<?> JAVASSIST_PROXY_FACTORY_CLASS;
-  private static Method JAVASSIST_IS_PROXY_CLASS_METHOD;
+  private static final List<ProxyDiscoveryPlugin> proxyDiscoveryPlugins = new CopyOnWriteArrayList<>();
 
   static {
-    try {
-      JAVASSIST_PROXY_FACTORY_CLASS = Types.class.getClassLoader().loadClass(
-          "javassist.util.proxy.ProxyFactory");
-      JAVASSIST_IS_PROXY_CLASS_METHOD = JAVASSIST_PROXY_FACTORY_CLASS.getMethod("isProxyClass",
-          new Class<?>[] { Class.class });
-    } catch (Exception ignore) {
-    }
+    final List<ProxyDiscoveryPlugin> defaultPlugins = new ArrayList<>();
+    defaultPlugins.add(new ByteBuddyProxyDiscoveryPlugin());
+    defaultPlugins.add(new EnhancerProxyDiscoveryPlugin());
+    defaultPlugins.add(new HibernateProxyDiscoveryPlugin());
+    defaultPlugins.add(new MockitoProxyDiscoveryPlugin());
+    defaultPlugins.add(new PermazenProxyDiscoveryPlugin());
+    defaultPlugins.add(new SpringCglibProxyDiscoveryPlugin());
+    defaultPlugins.add(new JavaProxyDiscoveryPlugin());
+    defaultPlugins.add(new JavaAssistProxyDiscoveryPlugin());
+    proxyDiscoveryPlugins.addAll(defaultPlugins);
   }
 
   /**
-   * Returns the proxied type, if any, else returns the given {@code type}.
+   * Adds a new plugin to support proxy discovery for unknown types.
+   *
+   * @param plugin The nonnull plugin
    */
+  public static void addProxyDiscoveryPlugin(ProxyDiscoveryPlugin plugin) {
+    if (plugin == null) {
+      throw new IllegalArgumentException("Argument 'plugin' must not be null");
+    }
+    proxyDiscoveryPlugins.add(plugin);
+  }
+
   @SuppressWarnings("unchecked")
-  public static <T> Class<T> deProxy(Class<?> type) {
-    // Ignore JDK proxies
-    if (type.isInterface())
-      return (Class<T>) type;
-
-    if (isProxied(type)) {
-      final Class<?> superclass = type.getSuperclass();
-      if (!superclass.equals(Object.class) && !superclass.equals(Proxy.class))
-        return (Class<T>) superclass;
-      else {
-        Class<?>[] interfaces = type.getInterfaces();
-        if (interfaces.length > 0)
-          return (Class<T>) interfaces[0];
+  public static <T> Class<T> deProxiedClass(Object object) {
+    if (object == null) {
+      return null;
+    }
+    Object target = object;
+    outer:
+    while (true) {
+      for (ProxyDiscoveryPlugin plugin : proxyDiscoveryPlugins) {
+        Object result = plugin.getProxyTarget(target);
+        if (result != null && result != target) {
+          target = result;
+          continue outer;
+        }
       }
+      break;
     }
-
-    return (Class<T>) type;
+    if (target instanceof Class) {
+      return (Class<T>) target;
+    } else {
+      return (Class<T>) target.getClass();
+    }
   }
 
-  public static boolean isProxied(Class<?> type) {
-    if (type.getName().contains("$ByteBuddy$"))
-      return true;
-    if (type.getName().contains("$$EnhancerBy"))
-      return true;
-    if (type.getName().contains("$HibernateProxy$"))
-      return true;
-    if (type.getName().contains("$MockitoMock$"))
-      return true;
-    if (type.getName().contains("$$Permazen"))
-      return true;
-    if (Proxy.isProxyClass(type))
-      return true;
-    return isProxiedByJavassist(type);
-  }
-
-  private static boolean isProxiedByJavassist(Class<?> type) {
-    try {
-      return JAVASSIST_IS_PROXY_CLASS_METHOD != null
-          && (Boolean) JAVASSIST_IS_PROXY_CLASS_METHOD.invoke(null, type);
-    } catch (Exception ignore) {
+  public static boolean isProxied(Object object) {
+    if (object == null) {
+      return false;
     }
-    return false;
+    return deProxiedClass(object) != object.getClass();
   }
 
   /**

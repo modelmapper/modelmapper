@@ -10,3 +10,5 @@ _site/
 user-manual/
 *.iml
 .idea/
+dependency-reduced-pom.xml
+

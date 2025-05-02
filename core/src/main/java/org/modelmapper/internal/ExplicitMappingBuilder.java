@@ -344,7 +344,7 @@ public class ExplicitMappingBuilder<S, D> implements ConditionExpression<S, D> {
     if (sourceValue != null) {
       if (sourceValue == source)
         options.mapFromSource = true;
-      else if (!Types.isProxied(sourceValue.getClass()))
+      else if (!Types.isProxied(sourceValue))
         sourceConstant = sourceValue;
     }
   }

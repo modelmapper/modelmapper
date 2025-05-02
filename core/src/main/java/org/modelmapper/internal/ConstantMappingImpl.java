@@ -64,6 +64,6 @@ class ConstantMappingImpl extends MappingImpl implements ConstantMapping {
 
   @Override
   public Class<?> getSourceType() {
-    return constant == null ? Object.class : Types.deProxy(constant.getClass());
+    return constant == null ? Object.class : Types.deProxiedClass(constant);
   }
 }
