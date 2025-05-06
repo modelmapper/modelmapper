@@ -76,7 +76,7 @@ public final class Types {
       return true;
     if (type.getName().contains("$$EnhancerBy"))
       return true;
-    if (type.getName().contains("$HibernateProxy$"))
+    if (type.getName().contains("$HibernateProxy"))
       return true;
     if (type.getName().contains("$MockitoMock$"))
       return true;
