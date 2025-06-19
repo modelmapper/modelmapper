@@ -101,6 +101,14 @@
               <shadedPattern>org.modelmapper.internal.typetools</shadedPattern>
             </relocation>
           </relocations>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/versions/**</exclude>
+              </excludes>
+            </filter>
+          </filters>
         </configuration>
       </plugin>
       <plugin>
