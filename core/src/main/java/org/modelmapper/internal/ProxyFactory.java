@@ -92,22 +92,33 @@ class ProxyFactory {
     try {
       final DynamicType.Unloaded<T> unloaded = BYTEBUDDY
           .subclass(type)
+          .defineField("$mmHandler", InvocationHandler.class, Modifier.PRIVATE)
           .method(METHOD_FILTER)
-          .intercept(InvocationHandlerAdapter.of(interceptor))
+          .intercept(InvocationHandlerAdapter.toField("$mmHandler"))
           .make();
       final ClassLoadingStrategy<ClassLoader> classLoadingStrategy = chooseClassLoadingStrategy(type);
       final ClassLoader classLoader = useOSGiClassLoaderBridging
           ? BridgeClassLoaderFactory.getClassLoader(type)
           : type.getClassLoader();
+      final T instance;
       if (classLoadingStrategy != null) {
-        return OBJENESIS.newInstance(unloaded
+        instance = OBJENESIS.newInstance(unloaded
             .load(classLoader, classLoadingStrategy)
             .getLoaded());
       } else {
-        return OBJENESIS.newInstance(unloaded
+        instance = OBJENESIS.newInstance(unloaded
             .load(classLoader)
             .getLoaded());
       }
+      // set the handler per instance to avoid class-static retention of the interceptor
+      try {
+        java.lang.reflect.Field f = instance.getClass().getDeclaredField("$mmHandler");
+        f.setAccessible(true);
+        f.set(instance, interceptor);
+      } catch (NoSuchFieldException | IllegalAccessException e) {
+        throw new IllegalStateException("Failed to set proxy handler field", e);
+      }
+      return instance;
     } catch (Throwable t) {
       throw errors.errorInstantiatingProxy(type, t).toException();
     }
