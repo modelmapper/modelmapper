@@ -95,7 +95,9 @@ class ImplicitMappingBuilder<S, D> {
    * {@code sourceTypeInfo}'s accessor hierarchy.
    */
   private void matchDestination(TypeInfo<?> destinationTypeInfo) {
-    destinationTypes.add(destinationTypeInfo.getType());
+    if (!(propertyNameInfo.getDestinationProperties().size() == 0)){
+      destinationTypes.add(destinationTypeInfo.getType());
+    }
 
     for (Map.Entry<String, Mutator> entry : destinationTypeInfo.getMutators().entrySet()) {
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
