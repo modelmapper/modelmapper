@@ -4,7 +4,7 @@
   <packaging>pom</packaging>
   <groupId>org.modelmapper</groupId>
   <artifactId>modelmapper-parent</artifactId>
-  <version>3.2.5</version>
+  <version>3.2.6-SNAPSHOT</version>
   <name>ModelMapper Parent</name>
   <description>Simple, Intelligent, Object Mapping</description>
   <url>http://modelmapper.org</url>
@@ -56,7 +56,7 @@
     <connection>scm:git:git@github.com:modelmapper/modelmapper.git</connection>
     <developerConnection>scm:git:git@github.com:modelmapper/modelmapper.git</developerConnection>
     <url>http://github.com/modelmapper/modelmapper/</url>
-    <tag>modelmapper-parent-3.2.5</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
