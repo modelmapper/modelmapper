@@ -218,7 +218,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version><!--$NO-MVN-MAN-VER$ -->
+        <version>3.1.1</version>
         <configuration>
           <releaseProfiles>release</releaseProfiles>
           <arguments>-Prelease</arguments>
