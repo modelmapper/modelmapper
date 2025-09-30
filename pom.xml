@@ -221,7 +221,7 @@
         <version>3.1.1</version>
         <configuration>
           <releaseProfiles>release</releaseProfiles>
-          <arguments>-Prelease</arguments>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
           <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
         </configuration>
       </plugin>
