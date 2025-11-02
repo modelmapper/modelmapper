@@ -79,7 +79,6 @@
         <module>extensions</module>
         <module>examples</module>
         <module>benchmarks</module>
-        <module>tester</module>
     </modules>
 
     <dependencyManagement>
