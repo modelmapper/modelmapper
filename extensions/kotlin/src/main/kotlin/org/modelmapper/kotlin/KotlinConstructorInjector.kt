@@ -2,9 +2,13 @@ package org.modelmapper.kotlin
 
 import org.modelmapper.ConstructorInjector
 import org.modelmapper.ConstructorParam
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 class KotlinConstructorInjector : ConstructorInjector {
+    companion object{
+        val cache = ConcurrentHashMap<Class<*>, Boolean>()
+    }
     override fun getParameters(destinationType: Class<*>): List<ConstructorParam> {
         val kotlinClass: KClass<*> = destinationType.kotlin
         var constructor = kotlinClass.constructors.first()
@@ -19,11 +23,15 @@ class KotlinConstructorInjector : ConstructorInjector {
     }
 
     override fun isApplicable(destinationType: Class<*>): Boolean {
+        if(cache.containsKey(destinationType))return cache[destinationType]!!
         val kotlinClass: KClass<*> = destinationType.kotlin
         for(constructor in kotlinClass.constructors){
-            if(constructor.parameters.size==0)return false
+            if(constructor.parameters.size==0){
+                cache.put(destinationType,false)
+                return false
+            }
         }
-
+        cache.put(destinationType,true)
         return true
     }
 }
