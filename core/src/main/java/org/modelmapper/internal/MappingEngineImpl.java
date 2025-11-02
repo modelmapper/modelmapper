@@ -148,7 +148,9 @@ public class MappingEngineImpl implements MappingEngine {
 
             //EDRFINAL Here does the mapping using the mutators on constructor
             if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
-                if (converter != null) context.setDestination(convert(context, converter), true);
+                if (converter != null) {
+                    context.setDestination(convert(context, converter), true);
+                }
                 for (Mapping mapping : typeMap.getMappings())
                     propertyMap(mapping, context);
             } else {
@@ -375,6 +377,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     private <T> T instantiate(Class<T> type, Errors errors) {
         try {
+            Constructor<T> constructor = type.getDeclaredConstructor();
             Constructor<?>[] constructors = type.getConstructors();
             Constructor<T> defaultCtor = null;
             Constructor<T> otherConstructor = null;
@@ -386,8 +389,12 @@ public class MappingEngineImpl implements MappingEngine {
                     otherConstructor = (Constructor<T>) ctor;
                 }
             }
+            if(otherConstructor==null && defaultCtor==null){
+                defaultCtor = constructor;
+            }
 
-            if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
+            if (otherConstructor != null && configuration.getConstructorInjector() != null &&
+                    defaultCtor == null) {
                 throw new UseConstructorOverrideException(otherConstructor);
             }
 //EDR
