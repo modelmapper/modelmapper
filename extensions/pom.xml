@@ -20,14 +20,49 @@
     <module>jackson</module>
     <module>gson</module>
     <module>jooq</module>
-    <module>protobuf</module>
+      <module>protobuf</module>
+      <module>kotlin</module>
   </modules>
 
-  <dependencies>
+    <properties>
+        <kotlin.version>2.2.0</kotlin.version>
+    </properties>
+
+    <dependencies>
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
       <version>${project.version}</version>
     </dependency>
-  </dependencies>
+<!--      <dependency>-->
+<!--          <groupId>org.junit.jupiter</groupId>-->
+<!--          <artifactId>junit-jupiter</artifactId>-->
+<!--          <version>5.13.0-RC1</version>-->
+<!--          <scope>test</scope>-->
+<!--      </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.jetbrains.kotlin</groupId>-->
+<!--            <artifactId>kotlin-stdlib-jdk8</artifactId>-->
+<!--            <version>${kotlin.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.jetbrains.kotlin</groupId>-->
+<!--            <artifactId>kotlin-test</artifactId>-->
+<!--            <version>${kotlin.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.jetbrains.kotlin</groupId>-->
+<!--            <artifactId>kotlin-stdlib-jdk8</artifactId>-->
+<!--            <version>${kotlin.version}</version>-->
+<!--        </dependency>-->
+    </dependencies>
+
+<!--    <build>-->
+<!--        <plugins>-->
+
+<!--        </plugins>-->
+<!--    </build>-->
+
+
 </project>

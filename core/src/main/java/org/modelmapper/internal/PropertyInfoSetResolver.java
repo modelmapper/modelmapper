@@ -19,7 +19,11 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.modelmapper.ConstructorInjector;
+import org.modelmapper.ConstructorParam;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.util.Types;
@@ -86,6 +90,13 @@ final class PropertyInfoSetResolver {
     return accessors;
   }
 
+  static <T> Map<String, Mutator> resolveMutators(Class<T> type, InheritingConfiguration configuration, ConstructorInjector constructorInjector) {
+    ValueWriter<T> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(type);
+    if (valueWriter != null && valueWriter.isResolveMembersSupport())
+      return resolveMutatorsFromValueWriter(type, configuration, valueWriter);
+    return resolveProperties(type, false, configuration, constructorInjector);
+  }
+
   static <T> Map<String, Mutator> resolveMutators(Class<T> type, InheritingConfiguration configuration) {
     ValueWriter<T> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(type);
     if (valueWriter != null && valueWriter.isResolveMembersSupport())
@@ -113,6 +124,16 @@ final class PropertyInfoSetResolver {
       properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, true)));
     }
     properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, false)));
+    return properties;
+  }
+
+  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
+          Class<?> type, boolean access, Configuration configuration, ConstructorInjector constructorInjector) {
+    Map<String, PI> properties = new LinkedHashMap<String, PI>();
+    if (configuration.isFieldMatchingEnabled()) {
+      properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, true), constructorInjector));
+    }
+    properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, false), constructorInjector));
     return properties;
   }
 
@@ -154,6 +175,57 @@ final class PropertyInfoSetResolver {
     }
 
     return properties;
+  }
+
+  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
+          Class<?> initialType, Class<?> type, ResolveRequest<M, PI> resolveRequest, ConstructorInjector constructorInjector) {
+    if (!Types.mightContainsProperties(type) || Types.isInternalType(type)) {
+      return new LinkedHashMap<String, PI>();
+    }
+    Map<String, PI> properties = new LinkedHashMap<String, PI>();
+    Class<?> superType = type.getSuperclass();
+    if (superType != null && superType != Object.class && superType != Enum.class)
+      properties.putAll(resolveProperties(initialType, superType, resolveRequest));
+    //EDR CREATE GETTER
+    if(constructorInjector !=null && constructorInjector.isApplicable(type)) {
+      List<ConstructorParam> props = constructorInjector.getParameters(type);
+      for (ConstructorParam member : props) {
+        if(resolveRequest.namingConvention.applies(member.getName(), PropertyType.FIELD)){
+          String name = resolveRequest.nameTransformer.transform(member.getName(),
+              PropertyType.FIELD.equals(resolveRequest.propertyType) ? NameableType.FIELD
+                  : NameableType.METHOD);
+          properties.put(name,buildConstrctorMutator(initialType, member, resolveRequest.config, name));
+        }
+      }
+    }
+
+      for (M member : resolveRequest.propertyResolver.membersFor(type)) {
+        if (canAccessMember(member, resolveRequest.accessLevel)
+            && resolveRequest.propertyResolver.isValid(member)
+            && resolveRequest.namingConvention.applies(member.getName(), resolveRequest.propertyType)) {
+          String name = resolveRequest.nameTransformer.transform(member.getName(),
+              PropertyType.FIELD.equals(resolveRequest.propertyType) ? NameableType.FIELD
+                  : NameableType.METHOD);
+          PI info = resolveRequest.propertyResolver.propertyInfoFor(initialType, member,
+              resolveRequest.config, name);
+          properties.put(name, info);
+
+          if (!Modifier.isPublic(member.getModifiers())
+              || !Modifier.isPublic(member.getDeclaringClass().getModifiers()))
+            try {
+              member.setAccessible(true);
+            } catch (SecurityException e) {
+              throw new AssertionError(e);
+            }
+        }
+      }
+
+
+    return properties;
+  }
+
+  private static <PI extends PropertyInfo> PI buildConstrctorMutator(Class<?> initialType, ConstructorParam member, Configuration config, String name) {
+    return (PI)new ConstructorMutator(name,initialType);
   }
 
   @SuppressWarnings("unchecked")

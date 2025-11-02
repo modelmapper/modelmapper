@@ -37,6 +37,16 @@ abstract class MappingImpl implements InternalMapping, Comparable<MappingImpl> {
   protected Provider<?> provider;
   protected Converter<?, ?> converter;
 
+  @Override
+  public boolean isConstructor() {
+      for(PropertyInfo destinationMutator : destinationMutators){
+          if(destinationMutator.getClass()== ConstructorMutator.class ){
+              return true;
+          }
+      }
+      return false;
+  }
+
   /**
    * Creates an implicit mapping.
    */

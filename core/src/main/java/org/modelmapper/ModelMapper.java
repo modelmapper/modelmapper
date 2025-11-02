@@ -50,6 +50,11 @@ public class ModelMapper {
   /**
    * Creates a new ModelMapper.
    */
+  public ModelMapper(ConstructorInjector override) {
+    config = new InheritingConfiguration();
+    engine = new MappingEngineImpl(config,override);
+  }
+
   public ModelMapper() {
     config = new InheritingConfiguration();
     engine = new MappingEngineImpl(config);

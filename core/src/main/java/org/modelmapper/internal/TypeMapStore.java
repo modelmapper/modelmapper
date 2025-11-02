@@ -15,6 +15,7 @@
  */
 package org.modelmapper.internal;
 
+import org.modelmapper.ConstructorInjector;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
@@ -37,6 +38,7 @@ public final class TypeMapStore {
   private final Object lock = new Object();
   /** Default configuration */
   private final InheritingConfiguration config;
+  private ConstructorInjector constructorInjector;
 
   TypeMapStore(InheritingConfiguration config) {
     this.config = config;
@@ -54,7 +56,7 @@ public final class TypeMapStore {
       if (configuration.isImplicitMappingEnabled()
           && Types.mightContainsProperties(typeMap.getSourceType())
           && Types.mightContainsProperties(typeMap.getDestinationType()))
-        ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore);
+        ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore, constructorInjector);
       typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
       return typeMap;
     }
@@ -175,6 +177,7 @@ public final class TypeMapStore {
 
   private <S, D> List<TypePair<?, ?>> getPrimitiveWrapperTypePairs(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
     List<TypePair<?, ?>> typePairs = new ArrayList<TypePair<?, ?>>(1);
+  //EDR Checking for basic primitive/wrapper conversions
     if (Primitives.isPrimitive(sourceType)) {
       typePairs.add(TypePair.of(Primitives.wrapperFor(sourceType), destinationType, typeMapName));
     }
@@ -189,6 +192,7 @@ public final class TypeMapStore {
 
   @SuppressWarnings("unchecked")
   private <S, D> TypeMapImpl<S, D> getTypeMap(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
+    //EDR RESOLVE TYPE MAPS
     TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
 
     TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);
@@ -207,4 +211,7 @@ public final class TypeMapStore {
         && sourceType.isAnonymousClass();
   }
 
+  public void setConstructorOverride(ConstructorInjector constructorInjector) {
+    this.constructorInjector = constructorInjector;
+  }
 }

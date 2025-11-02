@@ -27,6 +27,7 @@ import org.modelmapper.Provider;
  * @author Jonathan Halterman
  */
 public interface Mapping {
+    boolean isConstructor();
   /**
    * Gets the condition that to be satisfied before this mapping can be used to perform a mapping.
    * 

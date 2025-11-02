@@ -17,6 +17,7 @@ package org.modelmapper.internal;
 
 import java.util.Map;
 
+import org.modelmapper.ConstructorInjector;
 import org.modelmapper.config.Configuration;
 
 /**
@@ -49,4 +50,6 @@ interface TypeInfo<T> {
    * Returns the configuration that this type's information is effected by.
    */
   Configuration getConfiguration();
+
+  void setConstructorOverride(ConstructorInjector constructorInjector);
 }

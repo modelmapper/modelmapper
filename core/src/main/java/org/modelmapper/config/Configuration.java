@@ -16,6 +16,7 @@
 package org.modelmapper.config;
 
 import org.modelmapper.Condition;
+import org.modelmapper.ConstructorInjector;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.*;
@@ -162,6 +163,13 @@ public interface Configuration {
    * @see #setSourceNamingConvention(NamingConvention)
    */
   NamingConvention getSourceNamingConvention();
+
+    /**
+     * Gets the constructor injector.
+     *
+     * @see #setConstructorInjector(ConstructorInjector)
+     */
+    ConstructorInjector getConstructorInjector();
 
   /**
    * Gets a thread-safe, mutable, ordered list of internal and user-defined ValueReaders that are
@@ -482,4 +490,11 @@ public interface Configuration {
    * @throws IllegalArgumentException if {@code namingConvention} is null
    */
   Configuration setSourceNamingConvention(NamingConvention namingConvention);
+
+    /**
+     * Allows adding a new constructor injector
+     * @param constructorInjector
+     * @return
+     */
+  Configuration setConstructorInjector(ConstructorInjector constructorInjector);
 }
