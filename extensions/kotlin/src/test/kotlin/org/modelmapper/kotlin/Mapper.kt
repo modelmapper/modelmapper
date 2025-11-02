@@ -63,7 +63,8 @@ class Mapper {
 
         person.name = "Alice"
         person.age = 30
-        var mapper = ModelMapper( KotlinConstructorInjector())
+        var mapper = ModelMapper( )
+        mapper.configuration.setConstructorInjector(KotlinConstructorInjector())
 
         mapper.createTypeMap(Person::class.java, NewPersonMix::class.java)
         var result =mapper.map(person, NewPersonMix::class.java)
@@ -78,7 +79,8 @@ class Mapper {
 
         person.name = "Alice"
         person.age = 30
-        var mapper = ModelMapper( KotlinConstructorInjector())
+        var mapper = ModelMapper( )
+        mapper.configuration.setConstructorInjector(KotlinConstructorInjector())
 
         mapper.createTypeMap(Person::class.java, NewPersonD::class.java)
         var result =mapper.map(person, NewPersonD::class.java)
@@ -90,7 +92,8 @@ class Mapper {
     @Test
     fun testMappingDataClass() {
         val person = PersonD("Alice", 30)
-        var mapper = ModelMapper( KotlinConstructorInjector())
+        var mapper = ModelMapper( )
+        mapper.configuration.setConstructorInjector(KotlinConstructorInjector())
 
         mapper.createTypeMap(PersonD::class.java, NewPersonD::class.java)
         var result =mapper.map(person, NewPersonD::class.java)
@@ -104,7 +107,7 @@ class Mapper {
         val person = Person()
         person.name = "Alice"
         person.age = 30
-        var mapper = ModelMapper( KotlinConstructorInjector())
+        var mapper = ModelMapper( )
         mapper.configuration.setConstructorInjector(KotlinConstructorInjector())
 
         mapper.createTypeMap(Person::class.java, NewPerson::class.java)

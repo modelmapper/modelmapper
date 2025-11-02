@@ -18,6 +18,7 @@ package org.modelmapper.internal;
 import java.util.List;
 
 import org.modelmapper.Condition;
+import org.modelmapper.ConstructorInjector;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
@@ -45,6 +46,7 @@ import org.modelmapper.spi.ValueWriter;
  * @author Jonathan Halterman
  */
 public class InheritingConfiguration implements Configuration {
+  private ConstructorInjector constructorInjector;
   private final Configuration parent;
   public final TypeMapStore typeMapStore;
   public final ConverterStore converterStore;
@@ -265,7 +267,12 @@ public class InheritingConfiguration implements Configuration {
         : sourceNamingConvention;
   }
 
-  @Override
+    @Override
+    public ConstructorInjector getConstructorInjector() {
+        return constructorInjector;
+    }
+
+    @Override
   public List<ValueReader<?>> getValueReaders() {
     return valueAccessStore.getValueReaders();
   }
@@ -473,7 +480,13 @@ public class InheritingConfiguration implements Configuration {
     return this;
   }
 
-  @Override
+    @Override
+    public Configuration setConstructorInjector(ConstructorInjector constructorInjector) {
+      this.constructorInjector = constructorInjector;
+        return this;
+    }
+
+    @Override
   public Configuration setUseOSGiClassLoaderBridging(boolean useOSGiClassLoaderBridging) {
     this.useOSGiClassLoaderBridging = useOSGiClassLoaderBridging;
     return this;
