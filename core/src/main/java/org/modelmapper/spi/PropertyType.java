@@ -26,5 +26,7 @@ public enum PropertyType {
   /** A property that represents a {@link java.lang.reflect.Method} */
   METHOD,
   /** A property obtained from a {@link org.modelmapper.spi.ValueReader} */
-  GENERIC;
+  GENERIC,
+  /** A property that is a constructor parameter */
+  CONSTRUCTOR;
 }

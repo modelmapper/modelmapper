@@ -15,8 +15,12 @@
  */
 package org.modelmapper.internal;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,11 +32,13 @@ import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
 import org.modelmapper.internal.converter.ConverterStore;
+import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Objects;
 import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.internal.util.Types;
 import org.modelmapper.spi.ConstantMapping;
+import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.MappingContext;
 import org.modelmapper.spi.MappingEngine;
@@ -42,7 +48,7 @@ import org.modelmapper.spi.SourceMapping;
 /**
  * MappingEngine implementation that caches ConditionalConverters by source and destination type
  * pairs.
- * 
+ *
  * @author Jonathan Halterman
  */
 public class MappingEngineImpl implements MappingEngine {
@@ -137,6 +143,12 @@ public class MappingEngineImpl implements MappingEngine {
     if (noSkip && typeMap.getConverter() != null)
       return convert(context, typeMap.getConverter());
 
+
+    if (!typeMap.getMappings().isEmpty() && typeMap.getMappings().get(0).isConstructor()) {
+      context.setDestination(typeMapWithConstructor(context, typeMap), true);
+      return context.getDestination();
+    }
+
     if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
       D destination = createDestination(context);
       if (destination == null)
@@ -158,6 +170,14 @@ public class MappingEngineImpl implements MappingEngine {
 
     return context.getDestination();
   }
+
+  private <S, D> D typeMapWithConstructor(MappingContextImpl<S, D> context, TypeMap<S, D> typeMap) {
+    ConstructorMappingsBuilder builder = new ConstructorMappingsBuilder();
+    for (Mapping mapping : typeMap.getMappings())
+      builder.update(mapping, resolveSourceValue(context, mapping));
+    return builder.instantiate(typeMap.getDestinationType(), context.errors);
+  }
+
 
   @SuppressWarnings("unchecked")
   private <S, D> void propertyMap(Mapping mapping, MappingContextImpl<S, D> context) {

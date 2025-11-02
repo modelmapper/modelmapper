@@ -28,6 +28,13 @@ import org.modelmapper.Provider;
  */
 public interface Mapping {
   /**
+   * Returns whether this mapping is for a constructor parameter.
+   *
+   * @return true if it contains a constructor mapping, else false
+   */
+  boolean isConstructor();
+
+  /**
    * Gets the condition that to be satisfied before this mapping can be used to perform a mapping.
    * 
    * @return condition, else null if none was configured

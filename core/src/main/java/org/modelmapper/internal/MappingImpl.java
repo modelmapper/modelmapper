@@ -135,6 +135,12 @@ abstract class MappingImpl implements InternalMapping, Comparable<MappingImpl> {
     return explicit;
   }
 
+  @Override
+  public boolean isConstructor() {
+    return destinationMutators.size() == 1
+        && destinationMutators.get(0).getClass() == PropertyInfoImpl.ConstructorMutator.class;
+  }
+
   MappingOptions getOptions() {
     MappingOptions options = new MappingOptions();
     options.skipType = skipType;

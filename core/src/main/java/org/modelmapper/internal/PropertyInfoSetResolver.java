@@ -20,6 +20,9 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import org.modelmapper.spi.ConstructorInjector;
+import org.modelmapper.ConstructorParam;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
 import org.modelmapper.internal.util.Types;
@@ -33,7 +36,7 @@ import org.modelmapper.spi.ValueWriter;
 
 /**
  * Resolves sets of PropertyInfo for a type's accessors or mutators.
- * 
+ *
  * @author Jonathan Halterman
  */
 final class PropertyInfoSetResolver {
@@ -105,9 +108,26 @@ final class PropertyInfoSetResolver {
     return mutators;
   }
 
-  @SuppressWarnings({ "unchecked" })
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
       Class<?> type, boolean access, Configuration configuration) {
+    if (!access) {
+      Optional<ConstructorInjector> constructorInjector = configuration.getConstructorInjectors()
+          .stream()
+          .filter(ci -> ci.isApplicable(type))
+          .findFirst();
+      if (constructorInjector.isPresent()) {
+        Map<String, PI> properties = new LinkedHashMap<>();
+        for (ConstructorParam member : constructorInjector.get().getParameters(type)) {
+          if (configuration.getDestinationNamingConvention().applies(member.getName(), PropertyType.FIELD)) {
+            String name = configuration.getDestinationNameTransformer().transform(member.getName(),
+                NameableType.FIELD);
+            properties.put(name, buildConstructorMutator(type, member, name));
+          }
+        }
+        return properties;
+      }
+    }
+
     Map<String, PI> properties = new LinkedHashMap<String, PI>();
     if (configuration.isFieldMatchingEnabled()) {
       properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, true)));
@@ -125,12 +145,14 @@ final class PropertyInfoSetResolver {
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
       Class<?> initialType, Class<?> type, ResolveRequest<M, PI> resolveRequest) {
     if (!Types.mightContainsProperties(type) || Types.isInternalType(type)) {
-      return new LinkedHashMap<String, PI>();
+      return new LinkedHashMap<>();
     }
-    Map<String, PI> properties = new LinkedHashMap<String, PI>();
+
+    Map<String, PI> properties = new LinkedHashMap<>();
     Class<?> superType = type.getSuperclass();
     if (superType != null && superType != Object.class && superType != Enum.class)
       properties.putAll(resolveProperties(initialType, superType, resolveRequest));
+
 
     for (M member : resolveRequest.propertyResolver.membersFor(type)) {
       if (canAccessMember(member, resolveRequest.accessLevel)
@@ -154,6 +176,12 @@ final class PropertyInfoSetResolver {
     }
 
     return properties;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <PI extends PropertyInfo> PI buildConstructorMutator(Class<?> initialType,
+      ConstructorParam member, String name) {
+    return (PI) new PropertyInfoImpl.ConstructorMutator(initialType, member, name);
   }
 
   @SuppressWarnings("unchecked")

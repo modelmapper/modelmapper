@@ -15,9 +15,11 @@
  */
 package org.modelmapper.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.Condition;
+import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
@@ -50,6 +52,7 @@ public class InheritingConfiguration implements Configuration {
   public final ConverterStore converterStore;
   public final ValueAccessStore valueAccessStore;
   public final ValueMutateStore valueMutateStore;
+  private List<ConstructorInjector> constructorInjectors = new ArrayList<>();
   private NameTokenizer destinationNameTokenizer;
   private NameTransformer destinationNameTransformer;
   private NamingConvention destinationNamingConvention;
@@ -107,6 +110,7 @@ public class InheritingConfiguration implements Configuration {
     converterStore = source.converterStore;
     valueAccessStore = source.valueAccessStore;
     valueMutateStore = source.valueMutateStore;
+    constructorInjectors = source.constructorInjectors;
 
     if (inherit) {
       this.parent = source;
@@ -275,6 +279,11 @@ public class InheritingConfiguration implements Configuration {
     return valueMutateStore.getValueWriters();
   }
 
+  @Override
+  public List<ConstructorInjector> getConstructorInjectors() {
+    return constructorInjectors;
+  }
+
   /**
    * Produces a hash code from the name transformers, access levels and field matching
    * configuration.
@@ -288,6 +297,7 @@ public class InheritingConfiguration implements Configuration {
     result = prime * result + getFieldAccessLevel().hashCode();
     result = prime * result + getMethodAccessLevel().hashCode();
     result = prime * result + getSourceNamingConvention().hashCode();
+    result = prime * result + getConstructorInjectors().hashCode();
     result = prime * result + getDestinationNamingConvention().hashCode();
     result = prime * result + (isFieldMatchingEnabled() ? 1231 : 1237);
     return result;
@@ -476,6 +486,12 @@ public class InheritingConfiguration implements Configuration {
   @Override
   public Configuration setUseOSGiClassLoaderBridging(boolean useOSGiClassLoaderBridging) {
     this.useOSGiClassLoaderBridging = useOSGiClassLoaderBridging;
+    return this;
+  }
+
+  @Override
+  public Configuration addConstructorInjector(ConstructorInjector constructorInjector) {
+    constructorInjectors.add(constructorInjector);
     return this;
   }
 }

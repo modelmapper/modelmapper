@@ -16,11 +16,13 @@
 package org.modelmapper.internal;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import net.jodah.typetools.TypeResolver;
+import org.modelmapper.ConstructorParam;
 import org.modelmapper.spi.PropertyInfo;
 import org.modelmapper.spi.PropertyType;
 import org.modelmapper.spi.ValueReader;
@@ -107,6 +109,38 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
 
     public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
       return TypeInfoRegistry.typeInfoFor(this, configuration);
+    }
+  }
+
+  static class ConstructorMutator extends PropertyInfoImpl<Constructor<?>> implements Mutator, PropertyInfo {
+    private final ConstructorParam param;
+
+    ConstructorMutator(Class<?> initialType, ConstructorParam param, String name) {
+      super(initialType, param.getConstructor(), PropertyType.CONSTRUCTOR, name);
+      this.param = param;
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+      return null;
+    }
+
+    @Override
+    public void setValue(Object subject, Object value) {
+    }
+
+    @Override
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(type, configuration);
+    }
+
+    @Override
+    public Type getGenericType() {
+      return type;
+    }
+
+    public ConstructorParam getParam() {
+      return param;
     }
   }
 

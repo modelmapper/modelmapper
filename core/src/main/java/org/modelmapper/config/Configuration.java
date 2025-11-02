@@ -16,6 +16,7 @@
 package org.modelmapper.config;
 
 import org.modelmapper.Condition;
+import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.*;
@@ -192,6 +193,13 @@ public interface Configuration {
    * This method is part of the ModelMapper SPI.
    */
   List<ValueWriter<?>> getValueWriters();
+
+  /**
+   * Gets the constructor injectors.
+   *
+   * @see #addConstructorInjector(ConstructorInjector)
+   */
+  List<ConstructorInjector> getConstructorInjectors();
 
   /**
    * Returns {@code true} if ambiguous properties are ignored or {@code false} if they will result
@@ -482,4 +490,12 @@ public interface Configuration {
    * @throws IllegalArgumentException if {@code namingConvention} is null
    */
   Configuration setSourceNamingConvention(NamingConvention namingConvention);
+
+  /**
+   * Adds the {@code constructorInjector} to use when constructing destination object instances during
+   * mapping.
+   *
+   * @throws IllegalArgumentException if {@code constructorInjector} is null
+   */
+  Configuration addConstructorInjector(ConstructorInjector constructorInjector);
 }
