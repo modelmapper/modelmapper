@@ -15,7 +15,6 @@
  */
 package org.modelmapper.internal;
 
-import org.modelmapper.ConstructorInjector;
 import org.modelmapper.Converter;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.TypeMap;
@@ -38,7 +37,6 @@ public final class TypeMapStore {
   private final Object lock = new Object();
   /** Default configuration */
   private final InheritingConfiguration config;
-  private ConstructorInjector constructorInjector;
 
   TypeMapStore(InheritingConfiguration config) {
     this.config = config;
@@ -56,7 +54,7 @@ public final class TypeMapStore {
       if (configuration.isImplicitMappingEnabled()
           && Types.mightContainsProperties(typeMap.getSourceType())
           && Types.mightContainsProperties(typeMap.getDestinationType()))
-        ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore, constructorInjector);
+        ImplicitMappingBuilder.build(source, typeMap, config.typeMapStore, config.converterStore);
       typeMaps.put(TypePair.of(sourceType, destinationType, typeMapName), typeMap);
       return typeMap;
     }
@@ -211,7 +209,4 @@ public final class TypeMapStore {
         && sourceType.isAnonymousClass();
   }
 
-  public void setConstructorOverride(ConstructorInjector constructorInjector) {
-    this.constructorInjector = constructorInjector;
-  }
 }

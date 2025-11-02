@@ -89,13 +89,14 @@ final class PropertyInfoSetResolver {
     }
     return accessors;
   }
-
-  static <T> Map<String, Mutator> resolveMutators(Class<T> type, InheritingConfiguration configuration, ConstructorInjector constructorInjector) {
-    ValueWriter<T> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(type);
-    if (valueWriter != null && valueWriter.isResolveMembersSupport())
-      return resolveMutatorsFromValueWriter(type, configuration, valueWriter);
-    return resolveProperties(type, false, configuration, constructorInjector);
-  }
+//
+//  static <T> Map<String, Mutator> resolveMutators(Class<T> type, InheritingConfiguration configuration
+//  , Construct orInjector constructo rInjector) {
+//    ValueWriter<T> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(type);
+//    if (valueWriter != null && valueWriter.isResolveMembersSupport())
+//      return resolveMutatorsFromValueWriter(type, configuration, valueWriter);
+//    return resolveProperties(type, false, configuration, constru ctorInjector);
+//  }
 
   static <T> Map<String, Mutator> resolveMutators(Class<T> type, InheritingConfiguration configuration) {
     ValueWriter<T> valueWriter = configuration.valueMutateStore.getFirstSupportedWriter(type);
@@ -127,15 +128,17 @@ final class PropertyInfoSetResolver {
     return properties;
   }
 
-  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
-          Class<?> type, boolean access, Configuration configuration, ConstructorInjector constructorInjector) {
-    Map<String, PI> properties = new LinkedHashMap<String, PI>();
-    if (configuration.isFieldMatchingEnabled()) {
-      properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, true), constructorInjector));
-    }
-    properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(configuration, access, false), constructorInjector));
-    return properties;
-  }
+//  private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
+//          Class<?> type, boolean access, Configuration configuration, Construc torInjector constr uctorInjector) {
+//    Map<String, PI> properties = new LinkedHashMap<String, PI>();
+//    if (configuration.isFieldMatchingEnabled()) {
+//      properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(
+//      configuration, access, true), constructor Injector));
+//    }
+//    properties.putAll(resolveProperties(type, type, PropertyInfoSetResolver.<M, PI>resolveRequest(
+//    configuration, access, false), constructo rInjector));
+//    return properties;
+//  }
 
   /**
    * Populates the {@code resolveRequest.propertyInfo} with {@code resolveRequest.propertyResolver}
@@ -178,7 +181,8 @@ final class PropertyInfoSetResolver {
   }
 
   private static <M extends AccessibleObject & Member, PI extends PropertyInfo> Map<String, PI> resolveProperties(
-          Class<?> initialType, Class<?> type, ResolveRequest<M, PI> resolveRequest, ConstructorInjector constructorInjector) {
+          Class<?> initialType, Class<?> type,
+          ResolveRequest<M, PI> resolveRequest) {
     if (!Types.mightContainsProperties(type) || Types.isInternalType(type)) {
       return new LinkedHashMap<String, PI>();
     }
@@ -187,6 +191,7 @@ final class PropertyInfoSetResolver {
     if (superType != null && superType != Object.class && superType != Enum.class)
       properties.putAll(resolveProperties(initialType, superType, resolveRequest));
     //EDR CREATE GETTER
+    ConstructorInjector constructorInjector = resolveRequest.config.getConstructorInjector();
     if(constructorInjector !=null && constructorInjector.isApplicable(type)) {
       List<ConstructorParam> props = constructorInjector.getParameters(type);
       for (ConstructorParam member : props) {

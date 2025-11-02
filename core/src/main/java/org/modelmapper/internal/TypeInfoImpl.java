@@ -17,7 +17,6 @@ package org.modelmapper.internal;
 
 import java.util.Map;
 
-import org.modelmapper.ConstructorInjector;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.spi.NameableType;
 
@@ -33,7 +32,6 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
   private final InheritingConfiguration configuration;
   private volatile Map<String, Accessor> accessors;
   private volatile Map<String, Mutator> mutators;
-  private ConstructorInjector constructorInjector;
 
   TypeInfoImpl(T source, Class<T> sourceType, InheritingConfiguration configuration) {
     this.source = source;
@@ -68,11 +66,6 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
     return configuration;
   }
 
-  @Override
-  public void setConstructorOverride(ConstructorInjector constructorInjector) {
-    this.constructorInjector = constructorInjector;
-  }
-
   /**
    * Lazily initializes and gets mutators.
    */
@@ -80,7 +73,7 @@ class TypeInfoImpl<T> implements TypeInfo<T> {
     if (mutators == null)
       synchronized (this) {
         if (mutators == null)
-          mutators = PropertyInfoSetResolver.resolveMutators(type, configuration, constructorInjector);
+          mutators = PropertyInfoSetResolver.resolveMutators(type, configuration);
       }
 
     return mutators;

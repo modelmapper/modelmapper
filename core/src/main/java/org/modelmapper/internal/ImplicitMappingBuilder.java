@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.modelmapper.ConstructorInjector;
 import org.modelmapper.Converter;
 import org.modelmapper.TypeMap;
 import org.modelmapper.convention.MatchingStrategies;
@@ -70,7 +69,6 @@ class ImplicitMappingBuilder<S, D> {
   private final Map<PropertyInfo, PropertyMappingImpl> intermediateMappings = new HashMap<PropertyInfo, PropertyMappingImpl>();
   /** Mappings which are to be merged in from a pre-existing TypeMap. */
   private final List<InternalMapping> mergedMappings = new ArrayList<InternalMapping>();
-  private ConstructorInjector constructorInjector;
 
   //EDR Build the whole mapping
   static <S, D> void build(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
@@ -78,10 +76,6 @@ class ImplicitMappingBuilder<S, D> {
     new ImplicitMappingBuilder<S, D>(source, typeMap, typeMapStore, converterStore).build();
   }
 
-  static <S, D> void build(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
-                           ConverterStore converterStore, ConstructorInjector constructorInjector) {
-    new ImplicitMappingBuilder<S, D>(source, typeMap, typeMapStore, converterStore, constructorInjector).build();
-  }
 
   ImplicitMappingBuilder(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
@@ -94,17 +88,6 @@ class ImplicitMappingBuilder<S, D> {
     propertyNameInfo = new PropertyNameInfoImpl(typeMap.getSourceType(), configuration);
   }
 
-  ImplicitMappingBuilder(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
-                         ConverterStore converterStore, ConstructorInjector constructorInjector) {
-    this.typeMap = typeMap;
-    this.converterStore = converterStore;
-    this.typeMapStore = typeMapStore;
-    this.configuration = typeMap.configuration;
-    this.constructorInjector = constructorInjector;
-    sourceTypeInfo = TypeInfoRegistry.typeInfoFor(source, typeMap.getSourceType(), configuration);
-    matchingStrategy = configuration.getMatchingStrategy();
-    propertyNameInfo = new PropertyNameInfoImpl(typeMap.getSourceType(), configuration);
-  }
 
   void build() {
     matchDestination(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration));
@@ -117,9 +100,6 @@ class ImplicitMappingBuilder<S, D> {
   private void matchDestination(TypeInfo<?> destinationTypeInfo) {
     destinationTypes.add(destinationTypeInfo.getType());
     //EDR RETRIEVE ALL THE PROPERTIES
-    Set<Map.Entry<String, Mutator>> mutators = null;
-    destinationTypeInfo.setConstructorOverride(constructorInjector);
-    mutators = destinationTypeInfo.getMutators().entrySet();
     for (Map.Entry<String, Mutator> entry : destinationTypeInfo.getMutators().entrySet()) {
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
       String destPath = Strings.join(propertyNameInfo.getDestinationProperties());

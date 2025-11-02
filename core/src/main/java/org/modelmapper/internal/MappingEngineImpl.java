@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.modelmapper.Condition;
 import org.modelmapper.ConfigurationException;
-import org.modelmapper.ConstructorInjector;
 import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
@@ -56,7 +55,6 @@ public class MappingEngineImpl implements MappingEngine {
     private final InheritingConfiguration configuration;
     private final TypeMapStore typeMapStore;
     private final ConverterStore converterStore;
-    private ConstructorInjector constructorInjector;
 
     public MappingEngineImpl(InheritingConfiguration configuration) {
         this.configuration = configuration;
@@ -64,13 +62,6 @@ public class MappingEngineImpl implements MappingEngine {
         this.converterStore = configuration.converterStore;
     }
 
-    public MappingEngineImpl(InheritingConfiguration configuration, ConstructorInjector constructorInjector) {
-        this.configuration = configuration;
-        this.typeMapStore = configuration.typeMapStore;
-        this.typeMapStore.setConstructorOverride(constructorInjector);
-        this.converterStore = configuration.converterStore;
-        this.constructorInjector = constructorInjector;
-    }
 
     /**
      * Initial entry point.
@@ -144,7 +135,7 @@ public class MappingEngineImpl implements MappingEngine {
 
         if (noSkip && typeMap.getConverter() != null) return convert(context, typeMap.getConverter());
 
-        if (constructorInjector == null || !constructorInjector.isApplicable(typeMap.getDestinationType())) {
+        if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
             if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
                 D destination = createDestination(context);
                 if (destination == null) return null;
@@ -156,7 +147,7 @@ public class MappingEngineImpl implements MappingEngine {
             Converter<S, D> converter = typeMap.getPreConverter();
 
             //EDRFINAL Here does the mapping using the mutators on constructor
-            if (constructorInjector == null || !constructorInjector.isApplicable(typeMap.getDestinationType())) {
+            if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
                 if (converter != null) context.setDestination(convert(context, converter), true);
                 for (Mapping mapping : typeMap.getMappings())
                     propertyMap(mapping, context);
@@ -360,7 +351,7 @@ public class MappingEngineImpl implements MappingEngine {
                 }
             }
 
-            if (otherConstructor != null && constructorInjector != null && defaultCtor == null) {
+            if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
                 if (!otherConstructor.isAccessible()) otherConstructor.setAccessible(true);
                 List<Object> realValues = new  ArrayList<>();
                 //EDR REVERSE???
@@ -396,7 +387,7 @@ public class MappingEngineImpl implements MappingEngine {
                 }
             }
 
-            if (otherConstructor != null && constructorInjector != null && defaultCtor == null) {
+            if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
                 throw new UseConstructorOverrideException(otherConstructor);
             }
 //EDR
