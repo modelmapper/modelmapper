@@ -28,7 +28,6 @@ import org.modelmapper.Converter;
 import org.modelmapper.Provider;
 import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
-import org.modelmapper.UseConstructorOverrideException;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Iterables;
 import org.modelmapper.internal.util.Objects;
@@ -362,26 +361,6 @@ public class MappingEngineImpl implements MappingEngine {
   private <T> T instantiate(Class<T> type, Errors errors) {
     try {
       Constructor<T> constructor = type.getDeclaredConstructor();
-      if(configuration.getConstructorInjector().isApplicable(type)) {
-        Constructor<?>[] constructors = type.getConstructors();
-        Constructor<T> defaultCtor = null;
-        Constructor<T> otherConstructor = null;
-        for (Constructor<?> ctor : constructors) {
-          if (ctor.getParameterTypes().length == 0) {
-            defaultCtor = (Constructor<T>) ctor;
-            break;
-          } else {
-            otherConstructor = (Constructor<T>) ctor;
-          }
-        }
-        if (otherConstructor == null && defaultCtor == null) {
-          defaultCtor = constructor;
-        }
-        if (otherConstructor != null && defaultCtor == null) {
-          throw new UseConstructorOverrideException(otherConstructor);
-        }
-        constructor = defaultCtor;
-      }
       if (!constructor.isAccessible())
         constructor.setAccessible(true);
       return constructor.newInstance();
@@ -463,8 +442,6 @@ public class MappingEngineImpl implements MappingEngine {
       return defaultCtor.newInstance();
 
 
-    } catch (UseConstructorOverrideException e) {
-      throw e;
     } catch (Exception e) {
       errors.errorInstantiatingDestination(type, e);
       return null;
