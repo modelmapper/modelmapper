@@ -38,10 +38,6 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   protected final Class<?> type;
   protected final String name;
   private final PropertyType propertyType;
-  //KENDARORG
-  public PropertyInfoImpl( String name,Class<?> initialType) {
-    this(initialType,null, PropertyType.CONSTRUCTOR, name);
-  }
 
   static abstract class AbstractMethodInfo extends PropertyInfoImpl<Method> {
     private AbstractMethodInfo(Class<?> initialType, Method method, String name) {
@@ -111,6 +107,32 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
 
     public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
       return TypeInfoRegistry.typeInfoFor(this, configuration);
+    }
+  }
+
+  static class ConstructorMutator extends PropertyInfoImpl<Method> implements Mutator, PropertyInfo {
+    ConstructorMutator(String name, Class<?> initialType) {
+      super(initialType,null, PropertyType.CONSTRUCTOR, name);
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+      return null;
+    }
+
+    @Override
+    public void setValue(Object subject, Object value) {
+
+    }
+
+    @Override
+    public TypeInfo<?> getTypeInfo(InheritingConfiguration configuration) {
+      return TypeInfoRegistry.typeInfoFor(type, configuration);
+    }
+
+    @Override
+    public Type getGenericType() {
+      return type;
     }
   }
 

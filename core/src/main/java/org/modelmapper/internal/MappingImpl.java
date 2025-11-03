@@ -40,7 +40,7 @@ abstract class MappingImpl implements InternalMapping, Comparable<MappingImpl> {
   @Override
   public boolean isConstructor() {
       for(PropertyInfo destinationMutator : destinationMutators){
-          if(destinationMutator.getClass()== ConstructorMutator.class ){
+          if(destinationMutator.getClass()== PropertyInfoImpl.ConstructorMutator.class ){
               return true;
           }
       }

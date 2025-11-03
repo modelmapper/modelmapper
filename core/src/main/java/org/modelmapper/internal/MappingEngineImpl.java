@@ -362,26 +362,29 @@ public class MappingEngineImpl implements MappingEngine {
   private <T> T instantiate(Class<T> type, Errors errors) {
     try {
       Constructor<T> constructor = type.getDeclaredConstructor();
-      Constructor<?>[] constructors = type.getConstructors();
-      Constructor<T> defaultCtor = null;
-      Constructor<T> otherConstructor = null;
-      for (Constructor<?> ctor : constructors) {
-        if (ctor.getParameterTypes().length == 0) {
-          defaultCtor = (Constructor<T>) ctor;
-          break;
-        } else {
-          otherConstructor = (Constructor<T>) ctor;
+      if(configuration.getConstructorInjector().isApplicable(type)) {
+        Constructor<?>[] constructors = type.getConstructors();
+        Constructor<T> defaultCtor = null;
+        Constructor<T> otherConstructor = null;
+        for (Constructor<?> ctor : constructors) {
+          if (ctor.getParameterTypes().length == 0) {
+            defaultCtor = (Constructor<T>) ctor;
+            break;
+          } else {
+            otherConstructor = (Constructor<T>) ctor;
+          }
         }
+        if (otherConstructor == null && defaultCtor == null) {
+          defaultCtor = constructor;
+        }
+        if (otherConstructor != null && defaultCtor == null) {
+          throw new UseConstructorOverrideException(otherConstructor);
+        }
+        constructor = defaultCtor;
       }
-      if (otherConstructor == null && defaultCtor == null) {
-        defaultCtor = constructor;
-      }
-      if (otherConstructor != null && defaultCtor == null) {
-        throw new UseConstructorOverrideException(otherConstructor);
-      }
-      if (!defaultCtor.isAccessible())
-        defaultCtor.setAccessible(true);
-      return defaultCtor.newInstance();
+      if (!constructor.isAccessible())
+        constructor.setAccessible(true);
+      return constructor.newInstance();
     } catch (Exception e) {
       errors.errorInstantiatingDestination(type, e);
       return null;

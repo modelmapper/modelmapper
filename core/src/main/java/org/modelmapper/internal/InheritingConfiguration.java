@@ -134,6 +134,7 @@ public class InheritingConfiguration implements Configuration {
       preferNestedProperties = source.preferNestedProperties;
       skipNullEnabled = source.skipNullEnabled;
       collectionsMergeEnabled = source.collectionsMergeEnabled;
+      constructorInjector = source.constructorInjector;
     }
   }
 
@@ -299,6 +300,7 @@ public class InheritingConfiguration implements Configuration {
     result = prime * result + getFieldAccessLevel().hashCode();
     result = prime * result + getMethodAccessLevel().hashCode();
     result = prime * result + getSourceNamingConvention().hashCode();
+    result = prime * result + getConstructorInjector().hashCode();
     result = prime * result + getDestinationNamingConvention().hashCode();
     result = prime * result + (isFieldMatchingEnabled() ? 1231 : 1237);
     return result;

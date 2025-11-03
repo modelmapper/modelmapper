@@ -170,8 +170,9 @@ final class PropertyInfoSetResolver {
     return properties;
   }
 
+  @SuppressWarnings("unchecked")
   private static <PI extends PropertyInfo> PI buildConstructorMutator(Class<?> initialType, ConstructorParam member, Configuration config, String name) {
-    return (PI) new ConstructorMutator(name, initialType);
+    return (PI) new PropertyInfoImpl.ConstructorMutator(name, initialType);
   }
 
   @SuppressWarnings("unchecked")
