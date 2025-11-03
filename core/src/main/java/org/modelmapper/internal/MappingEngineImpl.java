@@ -138,8 +138,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     if (noSkip && typeMap.getConverter() != null)
       return convert(context, typeMap.getConverter());
-
-    if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
+    if (!configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
       if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
         D destination = createDestination(context);
         if (destination == null)
@@ -149,7 +148,7 @@ public class MappingEngineImpl implements MappingEngine {
 
     if (noSkip) {
       Converter<S, D> converter = typeMap.getPreConverter();
-      if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
+      if (!configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
         if (converter != null)
           context.setDestination(convert(context, converter), true);
 
@@ -377,14 +376,12 @@ public class MappingEngineImpl implements MappingEngine {
       if (otherConstructor == null && defaultCtor == null) {
         defaultCtor = constructor;
       }
-      if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
+      if (otherConstructor != null && defaultCtor == null) {
         throw new UseConstructorOverrideException(otherConstructor);
       }
       if (!defaultCtor.isAccessible())
         defaultCtor.setAccessible(true);
       return defaultCtor.newInstance();
-    } catch (UseConstructorOverrideException e) {
-      throw e;
     } catch (Exception e) {
       errors.errorInstantiatingDestination(type, e);
       return null;
@@ -451,7 +448,7 @@ public class MappingEngineImpl implements MappingEngine {
         }
       }
 
-      if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
+      if (otherConstructor != null && defaultCtor == null) {
         if (!otherConstructor.isAccessible()) otherConstructor.setAccessible(true);
         List<Object> realValues = new ArrayList<>();
         for (int i = values.size() - 1; i >= 0; i--) {

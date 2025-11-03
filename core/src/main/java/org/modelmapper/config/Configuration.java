@@ -16,7 +16,7 @@
 package org.modelmapper.config;
 
 import org.modelmapper.Condition;
-import org.modelmapper.ConstructorInjector;
+import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.Provider;
 import org.modelmapper.spi.*;
@@ -193,7 +193,6 @@ public interface Configuration {
    * This method is part of the ModelMapper SPI.
    */
   List<ValueWriter<?>> getValueWriters();
-
 
   /**
    * Gets the constructor injector.
@@ -494,6 +493,8 @@ public interface Configuration {
 
   /**
    * Allows adding a new constructor injector
+   *
+   * @throws IllegalArgumentException if {@code constructorInjector} is null
    */
   Configuration setConstructorInjector(ConstructorInjector constructorInjector);
 }

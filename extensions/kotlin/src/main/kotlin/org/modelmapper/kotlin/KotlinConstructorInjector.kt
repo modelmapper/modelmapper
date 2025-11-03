@@ -1,6 +1,6 @@
 package org.modelmapper.kotlin
 
-import org.modelmapper.ConstructorInjector
+import org.modelmapper.spi.ConstructorInjector
 import org.modelmapper.ConstructorParam
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass

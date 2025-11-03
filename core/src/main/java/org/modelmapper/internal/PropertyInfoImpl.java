@@ -38,7 +38,7 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
   protected final Class<?> type;
   protected final String name;
   private final PropertyType propertyType;
-
+  //KENDARORG
   public PropertyInfoImpl( String name,Class<?> initialType) {
     this(initialType,null, PropertyType.CONSTRUCTOR, name);
   }

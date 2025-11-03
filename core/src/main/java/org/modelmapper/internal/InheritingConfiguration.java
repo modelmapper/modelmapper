@@ -18,9 +18,10 @@ package org.modelmapper.internal;
 import java.util.List;
 
 import org.modelmapper.Condition;
-import org.modelmapper.ConstructorInjector;
+import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.Provider;
 import org.modelmapper.config.Configuration;
+import org.modelmapper.convention.ConstructorInjectors;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.convention.NameTransformers;
@@ -98,6 +99,7 @@ public class InheritingConfiguration implements Configuration {
     skipNullEnabled = Boolean.FALSE;
     useOSGiClassLoaderBridging = Boolean.FALSE;
     collectionsMergeEnabled = Boolean.FALSE;
+    constructorInjector = ConstructorInjectors.NO_CONSTRUCTOR_INJECTORS;
   }
 
   /**
@@ -269,7 +271,9 @@ public class InheritingConfiguration implements Configuration {
 
   @Override
   public ConstructorInjector getConstructorInjector() {
-    return constructorInjector;
+    return constructorInjector == null
+        ? Assert.notNull(parent).getConstructorInjector()
+        : constructorInjector;
   }
 
   @Override

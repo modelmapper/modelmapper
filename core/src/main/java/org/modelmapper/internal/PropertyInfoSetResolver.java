@@ -21,7 +21,7 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.modelmapper.ConstructorInjector;
+import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.ConstructorParam;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.config.Configuration.AccessLevel;
@@ -136,7 +136,7 @@ final class PropertyInfoSetResolver {
       properties.putAll(resolveProperties(initialType, superType, resolveRequest));
 
     ConstructorInjector constructorInjector = resolveRequest.config.getConstructorInjector();
-    if (constructorInjector != null && constructorInjector.isApplicable(type)) {
+    if (constructorInjector.isApplicable(type)) {
       List<ConstructorParam> props = constructorInjector.getParameters(type);
       for (ConstructorParam member : props) {
         if (resolveRequest.namingConvention.applies(member.getName(), PropertyType.FIELD)) {
