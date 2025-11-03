@@ -3,7 +3,9 @@ package org.modelmapper.kotlin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNotNull
+import org.junit.jupiter.api.assertThrows
 import org.modelmapper.KModelMapper
+import org.modelmapper.MappingException
 import org.modelmapper.ModelMapper
 
 class Mapper {
@@ -52,6 +54,20 @@ class Mapper {
         assertNotNull(result)
         assertEquals(result.name, person.name)
         assertEquals(result.age, person.age)
+    }
+
+    @Test
+    fun unableToMapWithoutConstructorInjection() {
+        val person = Person()
+
+        person.name = "Alice"
+        person.age = 30
+        val mapper = ModelMapper()
+
+        mapper.createTypeMap(Person::class.java, NewPersonD::class.java)
+        assertThrows<MappingException> {
+            mapper.map(person, NewPersonD::class.java)
+        }
     }
 
     @Test
