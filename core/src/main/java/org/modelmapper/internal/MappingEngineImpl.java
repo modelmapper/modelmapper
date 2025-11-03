@@ -48,416 +48,437 @@ import org.modelmapper.spi.SourceMapping;
  * @author Jonathan Halterman
  */
 public class MappingEngineImpl implements MappingEngine {
-    /**
-     * Cache of conditional converters
-     */
-    private final Map<TypePair<?, ?>, Converter<?, ?>> converterCache = new ConcurrentHashMap<TypePair<?, ?>, Converter<?, ?>>();
-    private final InheritingConfiguration configuration;
-    private final TypeMapStore typeMapStore;
-    private final ConverterStore converterStore;
+  /** Cache of conditional converters */
+  private final Map<TypePair<?, ?>, Converter<?, ?>> converterCache = new ConcurrentHashMap<TypePair<?, ?>, Converter<?, ?>>();
+  private final InheritingConfiguration configuration;
+  private final TypeMapStore typeMapStore;
+  private final ConverterStore converterStore;
 
-    public MappingEngineImpl(InheritingConfiguration configuration) {
-        this.configuration = configuration;
-        this.typeMapStore = configuration.typeMapStore;
-        this.converterStore = configuration.converterStore;
+  public MappingEngineImpl(InheritingConfiguration configuration) {
+    this.configuration = configuration;
+    this.typeMapStore = configuration.typeMapStore;
+    this.converterStore = configuration.converterStore;
+  }
+
+  /**
+   * Initial entry point.
+   */
+  public <S, D> D map(S source, Class<S> sourceType, D destination,
+      TypeToken<D> destinationTypeToken, String typeMapName) {
+    MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType,
+        destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(),
+        typeMapName, this);
+    D result = null;
+
+    try {
+      result = map(context);
+    } catch (ConfigurationException e) {
+      throw e;
+    } catch (ErrorsException e) {
+      throw context.errors.toMappingException();
+    } catch (Throwable t) {
+      context.errors.errorMapping(sourceType, destinationTypeToken.getType(), t);
     }
 
+    context.errors.throwMappingExceptionIfErrorsExist();
+    return result;
+  }
 
-    /**
-     * Initial entry point.
-     */
-    public <S, D> D map(S source, Class<S> sourceType, D destination, TypeToken<D> destinationTypeToken, String typeMapName) {
-        MappingContextImpl<S, D> context = new MappingContextImpl<S, D>(source, sourceType, destination, destinationTypeToken.getRawType(), destinationTypeToken.getType(), typeMapName, this);
-        D result = null;
+  /**
+   * Performs mapping using a TypeMap if one exists, else a converter if one applies, else a newly
+   * created TypeMap. Recursive entry point.
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public <S, D> D map(MappingContext<S, D> context) {
+    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
+    Class<D> destinationType = context.getDestinationType();
 
-        try {
-            result = map(context);
-        } catch (ConfigurationException e) {
-            throw e;
-        } catch (ErrorsException e) {
-            throw context.errors.toMappingException();
-        } catch (Throwable t) {
-            context.errors.errorMapping(sourceType, destinationTypeToken.getType(), t);
-        }
-
-        context.errors.throwMappingExceptionIfErrorsExist();
-        return result;
+    // Resolve some circular dependencies
+    if (!Iterables.isIterable(destinationType)) {
+      D circularDest = contextImpl.destinationForSource();
+      if (circularDest != null && circularDest.getClass().isAssignableFrom(contextImpl.getDestinationType()))
+        return circularDest;
     }
 
-    /**
-     * Performs mapping using a TypeMap if one exists, else a converter if one applies, else a newly
-     * created TypeMap. Recursive entry point.
-     */
-    @Override
+    D destination = null;
+    TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType(),
+        context.getTypeMapName());
+    if (typeMap != null) {
+      destination = typeMap(contextImpl, typeMap);
+    } else {
+      Converter<S, D> converter = converterFor(context);
+      if (converter != null && (context.getDestination() == null || context.getParent() != null))
+        destination = convert(context, converter);
+      else if (!Primitives.isPrimitive(context.getSourceType()) && !Primitives.isPrimitive(context.getDestinationType())) {
+        // Call getOrCreate in case TypeMap was created concurrently
+        typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(),
+            context.getDestinationType(), context.getTypeMapName(), this);
+        destination = typeMap(contextImpl, typeMap);
+      } else if (context.getDestinationType().isAssignableFrom(context.getSourceType()))
+        destination = (D) context.getSource();
+    }
+
+    contextImpl.setDestination(destination, true);
+    return destination;
+  }
+
+  /**
+   * Performs a type mapping for the {@code typeMap} and {@code context}.
+   */
+  <S, D> D typeMap(MappingContextImpl<S, D> context, TypeMap<S, D> typeMap) {
+    if (context.getParent() != null && context.getDestination() == null)
+      context.setDestination(destinationProperty(context), false);
+
+    context.setTypeMap(typeMap);
+
     @SuppressWarnings("unchecked")
-    public <S, D> D map(MappingContext<S, D> context) {
-        MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
-        Class<D> destinationType = context.getDestinationType();
+    Condition<S, D> condition = (Condition<S, D>) typeMap.getCondition();
+    boolean noSkip = condition == null || condition.applies(context);
 
-        // Resolve some circular dependencies
-        if (!Iterables.isIterable(destinationType)) {
-            D circularDest = contextImpl.destinationForSource();
-            if (circularDest != null && circularDest.getClass().isAssignableFrom(contextImpl.getDestinationType()))
-                return circularDest;
+    if (noSkip && typeMap.getConverter() != null)
+      return convert(context, typeMap.getConverter());
+
+    if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
+      if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
+        D destination = createDestination(context);
+        if (destination == null)
+          return null;
+      }
+    }
+
+    if (noSkip) {
+      Converter<S, D> converter = typeMap.getPreConverter();
+      if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
+        if (converter != null)
+          context.setDestination(convert(context, converter), true);
+
+        for (Mapping mapping : typeMap.getMappings())
+          propertyMap(mapping, context);
+      } else {
+        List<Mapping> constructorMappings = new ArrayList<Mapping>();
+        List<Object> data = new ArrayList<>();
+        for (Mapping mapping : typeMap.getMappings()) {
+          if (mapping.isConstructor()) {
+            constructorMappings.add(mapping);
+            data.add(constructorMapResolve(mapping, context));
+          }
+        }
+        D destination = createDestination(context, constructorMappings, data);
+        for (Mapping mapping : typeMap.getMappings()) {
+          if (!mapping.isConstructor()) {
+            propertyMap(mapping, context);
+          }
         }
 
-        D destination = null;
-        TypeMap<S, D> typeMap = typeMapStore.get(context.getSourceType(), context.getDestinationType(), context.getTypeMapName());
-        if (typeMap != null) {
-            destination = typeMap(contextImpl, typeMap);
+        if (converter != null)
+          context.setDestination(convert(context, converter), true);
+        if (destination == null)
+          return null;
+      }
+
+      converter = typeMap.getPostConverter();
+      if (converter != null)
+        context.setDestination(convert(context, converter), true);
+    }
+
+    return context.getDestination();
+  }
+
+  @SuppressWarnings("unchecked")
+  private <S, D> void propertyMap(Mapping mapping, MappingContextImpl<S, D> context) {
+    MappingImpl mappingImpl = (MappingImpl) mapping;
+    String propertyPath = context.destinationPath + mappingImpl.getPath();
+    if (context.isShaded(propertyPath))
+      return;
+    if (mapping.getCondition() == null && mapping.isSkipped()) // skip()
+      return;
+
+    Object source = resolveSourceValue(context, mapping);
+    MappingContextImpl<Object, Object> propertyContext = propertyContextFor(context, source,
+        mappingImpl);
+
+    Condition<Object, Object> condition = (Condition<Object, Object>) Objects.firstNonNull(
+        mapping.getCondition(),
+        context.getTypeMap().getPropertyCondition(),
+        configuration.getPropertyCondition());
+    if (condition != null) {
+      boolean conditionIsTrue = condition.applies(propertyContext);
+      if (conditionIsTrue && mapping.isSkipped()) // when(condition).skip()
+        return;
+      else if (!conditionIsTrue && !mapping.isSkipped()) { // when(condition)
+        context.shadePath(propertyPath);
+        return;
+      }
+    }
+    setDestinationValue(context, propertyContext, mappingImpl);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Object resolveSourceValue(MappingContextImpl<?, ?> context, Mapping mapping) {
+    Object source = context.getSource();
+    if (mapping instanceof PropertyMappingImpl) {
+      StringBuilder destPathBuilder = new StringBuilder().append(context.destinationPath);
+      for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
+        destPathBuilder.append(accessor.getName()).append('.');
+        source = accessor.getValue(source);
+        context.addParentSource(destPathBuilder.toString(), source);
+        if (source == null)
+          return null;
+        if (!Iterables.isIterable(source.getClass())) {
+          Object circularDest = context.sourceToDestination.get(source);
+          if (circularDest != null)
+            context.intermediateDestinations.put(destPathBuilder.toString(), circularDest);
+        }
+      }
+    } else if (mapping instanceof ConstantMapping) {
+      source = ((ConstantMapping) mapping).getConstant();
+      context.addParentSource("", source);
+    } else if (mapping instanceof SourceMapping) {
+      context.addParentSource("", source);
+    }
+    return source;
+  }
+
+  /**
+   * Sets a mapped or converted destination value in the last mapped mutator for the given
+   * {@code mapping}. The final destination value is resolved by walking the {@code mapping}'s
+   * mutator chain and obtaining each destination value in the chain either from the cache, from a
+   * corresponding accessor, from a provider, or by instantiation, in that order.
+   */
+  @SuppressWarnings("unchecked")
+  private <S, D> void setDestinationValue(MappingContextImpl<S, D> context,
+      MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping) {
+    String destPath = context.destinationPath + mapping.getPath();
+    Converter<Object, Object> converter = (Converter<Object, Object>) Objects.firstNonNull(
+        mapping.getConverter(),
+        context.getTypeMap().getPropertyConverter());
+    if (converter != null)
+      context.shadePath(destPath);
+
+    Object destination = propertyContext.getParentDestination();
+    if (destination == null)
+      return;
+
+    Mutator mutator = (Mutator) mapping.getLastDestinationProperty();
+    Accessor accessor = PropertyInfoRegistry.accessorFor(mutator.getInitialType(), mutator.getName(), configuration);
+    Object destinationValue = propertyContext.createDestinationViaProvider();
+    if (destinationValue == null && propertyContext.isProvidedDestination() && accessor != null) {
+      destinationValue = accessor.getValue(destination);
+      propertyContext.setDestination(destinationValue, false);
+    }
+
+    if (converter != null)
+      destinationValue = convert(propertyContext, converter);
+    else if (propertyContext.getSource() != null)
+      destinationValue = map(propertyContext);
+    else {
+      converter = converterFor(propertyContext);
+      if (converter != null)
+        destinationValue = convert(propertyContext, converter);
+    }
+
+    context.destinationCache.put(destPath, destinationValue);
+    if (destinationValue != null || !configuration.isSkipNullEnabled())
+      mutator.setValue(destination,
+          destinationValue == null ? Primitives.defaultValue(mutator.getType())
+              : destinationValue);
+    if (destinationValue == null)
+      context.shadePath(propertyContext.destinationPath);
+  }
+
+  /**
+   * Returns a property context.
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context,
+      Object source, MappingImpl mapping) {
+    Class<?> sourceType = mapping.getSourceType();
+    if (source != null)
+      sourceType = Types.deProxy(source.getClass());
+    boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
+    Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
+    Type genericDestinationType = context.genericDestinationPropertyType(mapping.getLastDestinationProperty().getGenericType());
+    return new MappingContextImpl(context, source, sourceType, null, destinationType, genericDestinationType,
+        mapping, !cyclic);
+  }
+
+  private <S, D> D destinationProperty(MappingContextImpl<S, D> context) {
+    if (!context.isProvidedDestination() || context.getMapping() == null)
+      return null;
+
+    Object intermediateDest = context.getParent().getDestination();
+    @SuppressWarnings("unchecked")
+    List<Mutator> mutatorChain = (List<Mutator>) context.getMapping().getDestinationProperties();
+    for (Mutator mutator : mutatorChain) {
+      if (intermediateDest == null)
+        break;
+
+      Accessor accessor = TypeInfoRegistry.typeInfoFor(intermediateDest.getClass(),
+          configuration)
+          .getAccessors()
+          .get(mutator.getName());
+      if (accessor != null)
+        intermediateDest = accessor.getValue(intermediateDest);
+    }
+
+    @SuppressWarnings("unchecked")
+    D destinationProperty = (D) intermediateDest;
+    return destinationProperty;
+  }
+
+  /**
+   * Performs a mapping using a Converter.
+   */
+  private <S, D> D convert(MappingContext<S, D> context, Converter<S, D> converter) {
+    try {
+      return converter.convert(context);
+    } catch (ErrorsException e) {
+      throw e;
+    } catch (Exception e) {
+      ((MappingContextImpl<S, D>) context).errors.errorConverting(converter,
+          context.getSourceType(), context.getDestinationType(), e);
+      return null;
+    }
+  }
+
+  /**
+   * Retrieves a converter from the store or from the cache.
+   */
+  @SuppressWarnings("unchecked")
+  private <S, D> Converter<S, D> converterFor(MappingContext<S, D> context) {
+    TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType(),
+        context.getTypeMapName());
+    Converter<S, D> converter = (Converter<S, D>) converterCache.get(typePair);
+    if (converter == null) {
+      converter = converterStore.getFirstSupported(context.getSourceType(),
+          context.getDestinationType());
+      if (converter != null)
+        converterCache.put(typePair, converter);
+    }
+
+    return converter;
+  }
+
+  private <T> T instantiate(Class<T> type, Errors errors) {
+    try {
+      Constructor<T> constructor = type.getDeclaredConstructor();
+      Constructor<?>[] constructors = type.getConstructors();
+      Constructor<T> defaultCtor = null;
+      Constructor<T> otherConstructor = null;
+      for (Constructor<?> ctor : constructors) {
+        if (ctor.getParameterTypes().length == 0) {
+          defaultCtor = (Constructor<T>) ctor;
+          break;
         } else {
-            Converter<S, D> converter = converterFor(context);
-            if (converter != null && (context.getDestination() == null || context.getParent() != null))
-                destination = convert(context, converter);
-            else if (!Primitives.isPrimitive(context.getSourceType()) && !Primitives.isPrimitive(context.getDestinationType())) {
-                // Call getOrCreate in case TypeMap was created concurrently
-                typeMap = typeMapStore.getOrCreate(context.getSource(), context.getSourceType(), context.getDestinationType(), context.getTypeMapName(), this);
-                destination = typeMap(contextImpl, typeMap);
-            } else if (context.getDestinationType().isAssignableFrom(context.getSourceType()))
-                destination = (D) context.getSource();
+          otherConstructor = (Constructor<T>) ctor;
         }
+      }
+      if (otherConstructor == null && defaultCtor == null) {
+        defaultCtor = constructor;
+      }
+      if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
+        throw new UseConstructorOverrideException(otherConstructor);
+      }
+      if (!defaultCtor.isAccessible())
+        defaultCtor.setAccessible(true);
+      return defaultCtor.newInstance();
+    } catch (UseConstructorOverrideException e) {
+      throw e;
+    } catch (Exception e) {
+      errors.errorInstantiatingDestination(type, e);
+      return null;
+    }
+  }
 
-        contextImpl.setDestination(destination, true);
-        return destination;
+  @Override
+  public <S, D> D createDestination(MappingContext<S, D> context) {
+    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
+    D destination = contextImpl.createDestinationViaProvider();
+    if (destination == null)
+      destination = instantiate(context.getDestinationType(), contextImpl.errors);
+
+    contextImpl.setDestination(destination, true);
+    return destination;
+  }
+
+  InheritingConfiguration getConfiguration() {
+    return configuration;
+  }
+
+  @SuppressWarnings("unchecked")
+  <S, D> D createDestinationViaGlobalProvider(S source, Class<D> requestedType,
+      Errors errors) {
+    D destination = null;
+    Provider<D> provider = (Provider<D>) configuration.getProvider();
+    if (provider != null) {
+      destination = provider.get(new ProvisionRequestImpl<D>(source, requestedType));
+      validateDestination(requestedType, destination, errors);
+    }
+    if (destination == null)
+      destination = instantiate(requestedType, errors);
+
+    return destination;
+  }
+
+  void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
+    if (destination != null && !destinationType.isAssignableFrom(destination.getClass()))
+      errors.invalidProvidedDestinationInstance(destination, destinationType);
+  }
+
+  private <D, S> D createDestination(MappingContext<S, D> context, List<Mapping> constructorMappings, List<Object> values) {
+    MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
+    D destination = contextImpl.createDestinationViaProvider();
+    if (destination == null) {
+      destination = instantiateWithMappings(context.getDestinationType(), contextImpl.errors, constructorMappings, values);
     }
 
-    /**
-     * Performs a type mapping for the {@code typeMap} and {@code context}.
-     */
-    <S, D> D typeMap(MappingContextImpl<S, D> context, TypeMap<S, D> typeMap) {
-        if (context.getParent() != null && context.getDestination() == null)
-            context.setDestination(destinationProperty(context), false);
+    contextImpl.setDestination(destination, true);
+    return destination;
+  }
 
-        context.setTypeMap(typeMap);
-
-        @SuppressWarnings("unchecked") Condition<S, D> condition = (Condition<S, D>) typeMap.getCondition();
-        boolean noSkip = condition == null || condition.applies(context);
-
-        if (noSkip && typeMap.getConverter() != null) return convert(context, typeMap.getConverter());
-
-        if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
-            if (context.getDestination() == null && Types.isInstantiable(context.getDestinationType())) {
-                D destination = createDestination(context);
-                if (destination == null) return null;
-            }
+  private <T> T instantiateWithMappings(Class<T> type, Errors errors, List<Mapping> mappings, List<Object> values) {
+    try {
+      Constructor<?>[] constructors = type.getConstructors();
+      Constructor<T> defaultCtor = null;
+      Constructor<T> otherConstructor = null;
+      for (Constructor<?> ctor : constructors) {
+        if (ctor.getParameterTypes().length == 0) {
+          defaultCtor = (Constructor<T>) ctor;
+          break;
+        } else if (ctor.getParameterTypes().length == values.size()) {
+          otherConstructor = (Constructor<T>) ctor;
         }
+      }
 
-
-        if (noSkip) {
-            Converter<S, D> converter = typeMap.getPreConverter();
-
-            //EDRFINAL Here does the mapping using the mutators on constructor
-            if (configuration.getConstructorInjector() == null || !configuration.getConstructorInjector().isApplicable(typeMap.getDestinationType())) {
-                if (converter != null) {
-                    context.setDestination(convert(context, converter), true);
-                }
-                for (Mapping mapping : typeMap.getMappings())
-                    propertyMap(mapping, context);
-            } else {
-                List<Mapping> constructorMappings = new ArrayList<Mapping>();
-                List<Object> data = new  ArrayList<>();
-                for (Mapping mapping : typeMap.getMappings()) {
-                    if (mapping.isConstructor()) {
-                        constructorMappings.add(mapping);
-                        data.add(constructorMapResolve(mapping, context));
-                    }
-                }
-                D destination = createDestination(context, constructorMappings,data);
-                for (Mapping mapping : typeMap.getMappings()) {
-                    if (!mapping.isConstructor()) {
-                        propertyMap(mapping, context);
-                    }
-                }
-
-                if (converter != null) context.setDestination(convert(context, converter), true);
-                if (destination == null) return null;
-            }
-
-            converter = typeMap.getPostConverter();
-            if (converter != null) context.setDestination(convert(context, converter), true);
+      if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
+        if (!otherConstructor.isAccessible()) otherConstructor.setAccessible(true);
+        List<Object> realValues = new ArrayList<>();
+        for (int i = values.size() - 1; i >= 0; i--) {
+          realValues.add(values.get(i));
         }
+        return otherConstructor.newInstance(realValues.toArray());
+      }
+      if (!defaultCtor.isAccessible()) defaultCtor.setAccessible(true);
+      return defaultCtor.newInstance();
 
-        return context.getDestination();
 
-
+    } catch (UseConstructorOverrideException e) {
+      throw e;
+    } catch (Exception e) {
+      errors.errorInstantiatingDestination(type, e);
+      return null;
     }
+  }
 
-    private <S, D> Object constructorMapResolve(Mapping mapping, MappingContextImpl<S, D> context) {
+  private <S, D> Object constructorMapResolve(Mapping mapping, MappingContextImpl<S, D> context) {
 
-            MappingImpl mappingImpl = (MappingImpl) mapping;
-            String propertyPath = context.destinationPath + mappingImpl.getPath();
-            if (context.isShaded(propertyPath)) return null;
-            if (mapping.getCondition() == null && mapping.isSkipped()) // skip()
-                return null;
+    MappingImpl mappingImpl = (MappingImpl) mapping;
+    String propertyPath = context.destinationPath + mappingImpl.getPath();
+    if (context.isShaded(propertyPath)) return null;
+    if (mapping.getCondition() == null && mapping.isSkipped()) // skip()
+      return null;
 
-            return  resolveSourceValue(context, mapping);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <S, D> void propertyMap(Mapping mapping, MappingContextImpl<S, D> context) {
-        MappingImpl mappingImpl = (MappingImpl) mapping;
-        String propertyPath = context.destinationPath + mappingImpl.getPath();
-        if (context.isShaded(propertyPath)) return;
-        if (mapping.getCondition() == null && mapping.isSkipped()) // skip()
-            return;
-
-        Object source = resolveSourceValue(context, mapping);
-        MappingContextImpl<Object, Object> propertyContext = propertyContextFor(context, source, mappingImpl);
-
-        Condition<Object, Object> condition = (Condition<Object, Object>) Objects.firstNonNull(mapping.getCondition(), context.getTypeMap().getPropertyCondition(), configuration.getPropertyCondition());
-        if (condition != null) {
-            boolean conditionIsTrue = condition.applies(propertyContext);
-            if (conditionIsTrue && mapping.isSkipped()) // when(condition).skip()
-                return;
-            else if (!conditionIsTrue && !mapping.isSkipped()) { // when(condition)
-                context.shadePath(propertyPath);
-                return;
-            }
-        }
-        setDestinationValue(context, propertyContext, mappingImpl);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object resolveSourceValue(MappingContextImpl<?, ?> context, Mapping mapping) {
-        Object source = context.getSource();
-        if (mapping instanceof PropertyMappingImpl) {
-            StringBuilder destPathBuilder = new StringBuilder().append(context.destinationPath);
-            for (Accessor accessor : (List<Accessor>) ((PropertyMapping) mapping).getSourceProperties()) {
-                destPathBuilder.append(accessor.getName()).append('.');
-                source = accessor.getValue(source);
-                context.addParentSource(destPathBuilder.toString(), source);
-                if (source == null) return null;
-                if (!Iterables.isIterable(source.getClass())) {
-                    Object circularDest = context.sourceToDestination.get(source);
-                    if (circularDest != null)
-                        context.intermediateDestinations.put(destPathBuilder.toString(), circularDest);
-                }
-            }
-        } else if (mapping instanceof ConstantMapping) {
-            source = ((ConstantMapping) mapping).getConstant();
-            context.addParentSource("", source);
-        } else if (mapping instanceof SourceMapping) {
-            context.addParentSource("", source);
-        }
-        return source;
-    }
-
-    /**
-     * Sets a mapped or converted destination value in the last mapped mutator for the given
-     * {@code mapping}. The final destination value is resolved by walking the {@code mapping}'s
-     * mutator chain and obtaining each destination value in the chain either from the cache, from a
-     * corresponding accessor, from a provider, or by instantiation, in that order.
-     */
-    @SuppressWarnings("unchecked")
-    private <S, D> void setDestinationValue(MappingContextImpl<S, D> context, MappingContextImpl<Object, Object> propertyContext, MappingImpl mapping) {
-        String destPath = context.destinationPath + mapping.getPath();
-        Converter<Object, Object> converter = (Converter<Object, Object>) Objects.firstNonNull(mapping.getConverter(), context.getTypeMap().getPropertyConverter());
-        if (converter != null) context.shadePath(destPath);
-
-        Object destination = propertyContext.getParentDestination();
-        //EDRFINAL Here should creat the destination INTRUDER HERE
-        if (destination == null) return;
-
-        Mutator mutator = (Mutator) mapping.getLastDestinationProperty();
-        Accessor accessor = PropertyInfoRegistry.accessorFor(mutator.getInitialType(), mutator.getName(), configuration);
-        Object destinationValue = propertyContext.createDestinationViaProvider();
-        if (destinationValue == null && propertyContext.isProvidedDestination() && accessor != null) {
-            destinationValue = accessor.getValue(destination);
-            propertyContext.setDestination(destinationValue, false);
-        }
-
-        if (converter != null) destinationValue = convert(propertyContext, converter);
-        else if (propertyContext.getSource() != null) destinationValue = map(propertyContext);
-        else {
-            converter = converterFor(propertyContext);
-            if (converter != null) destinationValue = convert(propertyContext, converter);
-        }
-
-        context.destinationCache.put(destPath, destinationValue);
-        if (destinationValue != null || !configuration.isSkipNullEnabled())
-            mutator.setValue(destination, destinationValue == null ? Primitives.defaultValue(mutator.getType()) : destinationValue);
-        if (destinationValue == null) context.shadePath(propertyContext.destinationPath);
-    }
-
-    /**
-     * Returns a property context.
-     */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private MappingContextImpl<Object, Object> propertyContextFor(MappingContextImpl<?, ?> context, Object source, MappingImpl mapping) {
-        Class<?> sourceType = mapping.getSourceType();
-        if (source != null) sourceType = Types.deProxy(source.getClass());
-        boolean cyclic = mapping instanceof PropertyMapping && ((PropertyMappingImpl) mapping).cyclic;
-        Class<Object> destinationType = (Class<Object>) mapping.getLastDestinationProperty().getType();
-        Type genericDestinationType = context.genericDestinationPropertyType(mapping.getLastDestinationProperty().getGenericType());
-        return new MappingContextImpl(context, source, sourceType, null, destinationType, genericDestinationType, mapping, !cyclic);
-    }
-
-    private <S, D> D destinationProperty(MappingContextImpl<S, D> context) {
-        if (!context.isProvidedDestination() || context.getMapping() == null) return null;
-
-        Object intermediateDest = context.getParent().getDestination();
-        @SuppressWarnings("unchecked") List<Mutator> mutatorChain = (List<Mutator>) context.getMapping().getDestinationProperties();
-        for (Mutator mutator : mutatorChain) {
-            if (intermediateDest == null) break;
-
-            Accessor accessor = TypeInfoRegistry.typeInfoFor(intermediateDest.getClass(), configuration).getAccessors().get(mutator.getName());
-            if (accessor != null) intermediateDest = accessor.getValue(intermediateDest);
-        }
-
-        @SuppressWarnings("unchecked") D destinationProperty = (D) intermediateDest;
-        return destinationProperty;
-    }
-
-    /**
-     * Performs a mapping using a Converter.
-     */
-    private <S, D> D convert(MappingContext<S, D> context, Converter<S, D> converter) {
-        try {
-            return converter.convert(context);
-        } catch (ErrorsException e) {
-            throw e;
-        } catch (Exception e) {
-            ((MappingContextImpl<S, D>) context).errors.errorConverting(converter, context.getSourceType(), context.getDestinationType(), e);
-            return null;
-        }
-    }
-
-    /**
-     * Retrieves a converter from the store or from the cache.
-     */
-    @SuppressWarnings("unchecked")
-    private <S, D> Converter<S, D> converterFor(MappingContext<S, D> context) {
-        TypePair<?, ?> typePair = TypePair.of(context.getSourceType(), context.getDestinationType(), context.getTypeMapName());
-        Converter<S, D> converter = (Converter<S, D>) converterCache.get(typePair);
-        if (converter == null) {
-            converter = converterStore.getFirstSupported(context.getSourceType(), context.getDestinationType());
-            if (converter != null) converterCache.put(typePair, converter);
-        }
-
-        return converter;
-    }
-
-    private <T> T instantiateWithMappings(Class<T> type, Errors errors,
-                                          List<Mapping> mappings,
-                                          List<Object> values) {
-        try {
-            Constructor<?>[] constructors = type.getConstructors();
-            Constructor<T> defaultCtor = null;
-            Constructor<T> otherConstructor = null;
-            for (Constructor<?> ctor : constructors) {
-                if (ctor.getParameterTypes().length == 0) {
-                    defaultCtor = (Constructor<T>) ctor;
-                    break;
-                } else if (ctor.getParameterTypes().length == values.size()) {
-                    otherConstructor = (Constructor<T>) ctor;
-                }
-            }
-
-            if (otherConstructor != null && configuration.getConstructorInjector() != null && defaultCtor == null) {
-                if (!otherConstructor.isAccessible()) otherConstructor.setAccessible(true);
-                List<Object> realValues = new  ArrayList<>();
-                //EDR REVERSE???
-                for(int i = values.size() - 1; i >= 0; i--) {
-                    realValues.add(values.get(i));
-                }
-                return otherConstructor.newInstance(realValues.toArray());
-            }
-//EDR
-            if (!defaultCtor.isAccessible()) defaultCtor.setAccessible(true);
-            return defaultCtor.newInstance();
-
-
-        } catch (UseConstructorOverrideException e) {
-            throw e;
-        } catch (Exception e) {
-            errors.errorInstantiatingDestination(type, e);
-            return null;
-        }
-    }
-
-    private <T> T instantiate(Class<T> type, Errors errors) {
-        try {
-            Constructor<T> constructor = type.getDeclaredConstructor();
-            Constructor<?>[] constructors = type.getConstructors();
-            Constructor<T> defaultCtor = null;
-            Constructor<T> otherConstructor = null;
-            for (Constructor<?> ctor : constructors) {
-                if (ctor.getParameterTypes().length == 0) {
-                    defaultCtor = (Constructor<T>) ctor;
-                    break;
-                } else {
-                    otherConstructor = (Constructor<T>) ctor;
-                }
-            }
-            if(otherConstructor==null && defaultCtor==null){
-                defaultCtor = constructor;
-            }
-
-            if (otherConstructor != null && configuration.getConstructorInjector() != null &&
-                    defaultCtor == null) {
-                throw new UseConstructorOverrideException(otherConstructor);
-            }
-//EDR
-            if (!defaultCtor.isAccessible()) defaultCtor.setAccessible(true);
-            return defaultCtor.newInstance();
-
-
-        } catch (UseConstructorOverrideException e) {
-            throw e;
-        } catch (Exception e) {
-            errors.errorInstantiatingDestination(type, e);
-            return null;
-        }
-    }
-
-    private <D, S> D createDestination(MappingContext<S, D> context,
-                                       List<Mapping> constructorMappings,
-                                       List<Object> values) {
-        MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
-        D destination = contextImpl.createDestinationViaProvider();
-        if (destination == null) {
-            //EDRTODO Create instance
-            destination = instantiateWithMappings(
-                    context.getDestinationType(),
-                    contextImpl.errors,constructorMappings,
-                    values);
-        }
-
-        contextImpl.setDestination(destination, true);
-        return destination;
-    }
-
-    @Override
-    public <S, D> D createDestination(MappingContext<S, D> context) {
-        MappingContextImpl<S, D> contextImpl = (MappingContextImpl<S, D>) context;
-        //EDRTODO Adding providers
-        D destination = contextImpl.createDestinationViaProvider();
-        //EDRTODO
-        if (destination == null) destination = instantiate(context.getDestinationType(), contextImpl.errors);
-
-        contextImpl.setDestination(destination, true);
-        return destination;
-    }
-
-    InheritingConfiguration getConfiguration() {
-        return configuration;
-    }
-
-    @SuppressWarnings("unchecked")
-    <S, D> D createDestinationViaGlobalProvider(S source, Class<D> requestedType, Errors errors) {
-        D destination = null;
-        Provider<D> provider = (Provider<D>) configuration.getProvider();
-        if (provider != null) {
-            destination = provider.get(new ProvisionRequestImpl<D>(source, requestedType));
-            validateDestination(requestedType, destination, errors);
-        }
-        if (destination == null) destination = instantiate(requestedType, errors);
-
-        return destination;
-    }
-
-    void validateDestination(Class<?> destinationType, Object destination, Errors errors) {
-        if (destination != null && !destinationType.isAssignableFrom(destination.getClass()))
-            errors.invalidProvidedDestinationInstance(destination, destinationType);
-    }
+    return resolveSourceValue(context, mapping);
+  }
 }

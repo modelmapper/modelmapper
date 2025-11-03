@@ -267,12 +267,12 @@ public class InheritingConfiguration implements Configuration {
         : sourceNamingConvention;
   }
 
-    @Override
-    public ConstructorInjector getConstructorInjector() {
-        return constructorInjector;
-    }
+  @Override
+  public ConstructorInjector getConstructorInjector() {
+    return constructorInjector;
+  }
 
-    @Override
+  @Override
   public List<ValueReader<?>> getValueReaders() {
     return valueAccessStore.getValueReaders();
   }
@@ -480,13 +480,13 @@ public class InheritingConfiguration implements Configuration {
     return this;
   }
 
-    @Override
-    public Configuration setConstructorInjector(ConstructorInjector constructorInjector) {
-      this.constructorInjector = constructorInjector;
-        return this;
-    }
+  @Override
+  public Configuration setConstructorInjector(ConstructorInjector constructorInjector) {
+    this.constructorInjector = constructorInjector;
+    return this;
+  }
 
-    @Override
+  @Override
   public Configuration setUseOSGiClassLoaderBridging(boolean useOSGiClassLoaderBridging) {
     this.useOSGiClassLoaderBridging = useOSGiClassLoaderBridging;
     return this;

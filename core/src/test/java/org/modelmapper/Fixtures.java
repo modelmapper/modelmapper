@@ -16,10 +16,6 @@ public final class Fixtures {
   static class ImmutableModelMapper extends ModelMapper {
     private static final String ERROR_MSG = "ModelMapper for functional tests cannot be configured";
 
-    ImmutableModelMapper() {
-      super();
-    }
-
     @Override
     public Configuration getConfiguration() {
       throw new IllegalStateException(ERROR_MSG);

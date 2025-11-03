@@ -1,15 +1,13 @@
 package org.modelmapper.internal;
 
-import org.modelmapper.spi.PropertyInfo;
-import org.modelmapper.spi.PropertyType;
-
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+/**
+ * This mutator serve as a container for the constructor based types
+ */
 public class ConstructorMutator extends PropertyInfoImpl<Method> implements Mutator, org.modelmapper.spi.PropertyInfo {
-
 
   public ConstructorMutator(String name, Class<?> initialType) {
     super(name, initialType);

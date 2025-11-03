@@ -43,13 +43,11 @@ abstract class PropertyInfoImpl<M extends Member> implements PropertyInfo {
     this(initialType,null, PropertyType.CONSTRUCTOR, name);
   }
 
-
   static abstract class AbstractMethodInfo extends PropertyInfoImpl<Method> {
     private AbstractMethodInfo(Class<?> initialType, Method method, String name) {
       super(initialType, method, PropertyType.METHOD, name);
       method.setAccessible(true);
     }
-
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
       return member.getAnnotation(annotationClass);

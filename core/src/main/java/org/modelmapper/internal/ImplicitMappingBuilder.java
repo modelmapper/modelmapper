@@ -70,12 +70,10 @@ class ImplicitMappingBuilder<S, D> {
   /** Mappings which are to be merged in from a pre-existing TypeMap. */
   private final List<InternalMapping> mergedMappings = new ArrayList<InternalMapping>();
 
-  //EDR Build the whole mapping
   static <S, D> void build(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
     new ImplicitMappingBuilder<S, D>(source, typeMap, typeMapStore, converterStore).build();
   }
-
 
   ImplicitMappingBuilder(S source, TypeMapImpl<S, D> typeMap, TypeMapStore typeMapStore,
       ConverterStore converterStore) {
@@ -88,7 +86,6 @@ class ImplicitMappingBuilder<S, D> {
     propertyNameInfo = new PropertyNameInfoImpl(typeMap.getSourceType(), configuration);
   }
 
-
   void build() {
     matchDestination(TypeInfoRegistry.typeInfoFor(typeMap.getDestinationType(), configuration));
   }
@@ -99,7 +96,7 @@ class ImplicitMappingBuilder<S, D> {
    */
   private void matchDestination(TypeInfo<?> destinationTypeInfo) {
     destinationTypes.add(destinationTypeInfo.getType());
-    //EDR RETRIEVE ALL THE PROPERTIES
+
     for (Map.Entry<String, Mutator> entry : destinationTypeInfo.getMutators().entrySet()) {
       propertyNameInfo.pushDestination(entry.getKey(), entry.getValue());
       String destPath = Strings.join(propertyNameInfo.getDestinationProperties());

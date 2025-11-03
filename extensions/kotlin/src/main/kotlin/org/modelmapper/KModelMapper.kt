@@ -3,7 +3,7 @@ package org.modelmapper
 import org.modelmapper.kotlin.KotlinConstructorInjector
 
 class KModelMapper : ModelMapper {
-    constructor():super(){
+    constructor() : super() {
         configuration.setConstructorInjector(KotlinConstructorInjector())
     }
 }

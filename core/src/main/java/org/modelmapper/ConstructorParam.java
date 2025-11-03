@@ -5,6 +5,12 @@ public class ConstructorParam {
   private final String name;
   private final Class<?> type;
 
+  public ConstructorParam(int index, String name, Class<?> type) {
+    this.index = index;
+    this.name = name;
+    this.type = type;
+  }
+
   public int getIndex() {
     return index;
   }
@@ -15,11 +21,5 @@ public class ConstructorParam {
 
   public Class<?> getType() {
     return type;
-  }
-
-  public ConstructorParam(int index, String name, Class<?> type) {
-    this.index = index;
-    this.name = name;
-    this.type = type;
   }
 }

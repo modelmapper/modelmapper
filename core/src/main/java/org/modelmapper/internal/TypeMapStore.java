@@ -175,7 +175,6 @@ public final class TypeMapStore {
 
   private <S, D> List<TypePair<?, ?>> getPrimitiveWrapperTypePairs(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
     List<TypePair<?, ?>> typePairs = new ArrayList<TypePair<?, ?>>(1);
-  //EDR Checking for basic primitive/wrapper conversions
     if (Primitives.isPrimitive(sourceType)) {
       typePairs.add(TypePair.of(Primitives.wrapperFor(sourceType), destinationType, typeMapName));
     }
@@ -190,7 +189,6 @@ public final class TypeMapStore {
 
   @SuppressWarnings("unchecked")
   private <S, D> TypeMapImpl<S, D> getTypeMap(Class<S> sourceType, Class<D> destinationType, String typeMapName) {
-    //EDR RESOLVE TYPE MAPS
     TypePair<S, D> typePair = TypePair.of(sourceType, destinationType, typeMapName);
 
     TypeMapImpl<S, D> typeMap = (TypeMapImpl<S, D>) typeMaps.get(typePair);

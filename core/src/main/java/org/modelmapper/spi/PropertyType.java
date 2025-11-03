@@ -27,5 +27,6 @@ public enum PropertyType {
   METHOD,
   /** A property obtained from a {@link org.modelmapper.spi.ValueReader} */
   GENERIC,
+  /** A property that is a constructor parameter */
   CONSTRUCTOR;
 }

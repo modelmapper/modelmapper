@@ -27,7 +27,12 @@ import org.modelmapper.Provider;
  * @author Jonathan Halterman
  */
 public interface Mapping {
-    boolean isConstructor();
+  /**
+   * Check if the mapping is relative to a constructor
+   * @return if the mapping is relative to a constructor
+   */
+  boolean isConstructor();
+
   /**
    * Gets the condition that to be satisfied before this mapping can be used to perform a mapping.
    * 

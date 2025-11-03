@@ -164,13 +164,6 @@ public interface Configuration {
    */
   NamingConvention getSourceNamingConvention();
 
-    /**
-     * Gets the constructor injector.
-     *
-     * @see #setConstructorInjector(ConstructorInjector)
-     */
-    ConstructorInjector getConstructorInjector();
-
   /**
    * Gets a thread-safe, mutable, ordered list of internal and user-defined ValueReaders that are
    * used to read source object values during mapping. This list is may be modified to control which
@@ -200,6 +193,14 @@ public interface Configuration {
    * This method is part of the ModelMapper SPI.
    */
   List<ValueWriter<?>> getValueWriters();
+
+
+  /**
+   * Gets the constructor injector.
+   *
+   * @see #setConstructorInjector(ConstructorInjector)
+   */
+  ConstructorInjector getConstructorInjector();
 
   /**
    * Returns {@code true} if ambiguous properties are ignored or {@code false} if they will result
@@ -491,10 +492,8 @@ public interface Configuration {
    */
   Configuration setSourceNamingConvention(NamingConvention namingConvention);
 
-    /**
-     * Allows adding a new constructor injector
-     * @param constructorInjector
-     * @return
-     */
+  /**
+   * Allows adding a new constructor injector
+   */
   Configuration setConstructorInjector(ConstructorInjector constructorInjector);
 }
