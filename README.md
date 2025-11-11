@@ -12,6 +12,7 @@ Visit [modelmapper.org](http://modelmapper.org) to learn more.
 In v2.0, ModelMapper provides modules for 3rd library integration you can easily register by ```modelMapper.registerModule(new TheModule())```.
 
 - [Java 8](https://github.com/chhsiao90/modelmapper-module-java8)
+- [Record](https://github.com/chhsiao90/modelmapper-module-record)
 - [Protocol Buffer](https://github.com/modelmapper/modelmapper/tree/master/extensions/protobuf)
 - [Vavr](https://github.com/julianps/modelmapper-module-vavr)
 
