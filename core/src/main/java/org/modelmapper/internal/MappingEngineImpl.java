@@ -25,12 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.modelmapper.Condition;
-import org.modelmapper.ConfigurationException;
-import org.modelmapper.Converter;
-import org.modelmapper.Provider;
-import org.modelmapper.TypeMap;
-import org.modelmapper.TypeToken;
+import org.modelmapper.*;
 import org.modelmapper.internal.converter.ConverterStore;
 import org.modelmapper.internal.util.Assert;
 import org.modelmapper.internal.util.Iterables;
@@ -217,6 +212,13 @@ public class MappingEngineImpl implements MappingEngine {
         destPathBuilder.append(accessor.getName()).append('.');
         source = accessor.getValue(source);
         context.addParentSource(destPathBuilder.toString(), source);
+
+        ResolveSourceValueInterceptor<?> interceptor = configuration.getResolveSourceValueInterceptor();
+
+        if (interceptor != null) {
+          source = interceptor.use(source);
+        }
+
         if (source == null)
           return null;
         if (!Iterables.isIterable(source.getClass())) {
