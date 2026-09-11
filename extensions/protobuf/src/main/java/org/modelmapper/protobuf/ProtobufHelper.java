@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.modelmapper.internal.Errors;
 
 /**
@@ -106,6 +107,16 @@ public class ProtobufHelper {
     throw new NoSuchMethodException(methodName);
   }
 
+
+  public static Method putAll(Class<?> type, String field) throws NoSuchMethodException {
+    String methodName = "putAll" + formatMethodName(field);
+    for (Method method : type.getMethods()) {
+      if (isPutAll(method, methodName))
+        return method;
+    }
+    throw new NoSuchMethodException(methodName);
+  }
+
   public static Class<?> iterableType(Class<?> type, String field) throws NoSuchMethodException {
     return adder(type, field).getParameterTypes()[0];
   }
@@ -175,6 +186,13 @@ public class ProtobufHelper {
       return false;
     Class<?>[] parameterTypes = method.getParameterTypes();
     return parameterTypes.length == 1 && !Message.Builder.class.isAssignableFrom(parameterTypes[0]);
+  }
+
+  private static boolean isPutAll(Method method, String methodName) {
+    if (!method.getName().equalsIgnoreCase(methodName))
+      return false;
+    Class<?>[] parameterTypes = method.getParameterTypes();
+    return parameterTypes.length == 1 && Map.class.isAssignableFrom(parameterTypes[0]);
   }
 
   private static boolean isSetterForBuilder(Method method, String methodName) {

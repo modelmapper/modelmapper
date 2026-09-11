@@ -1,6 +1,9 @@
 package org.modelmapper.protobuf;
 
 import com.google.protobuf.BoolValue;
+import java.util.HashMap;
+import java.util.Map;
+import org.modelmapper.protobuf.pojo.MapMessageProto;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import org.modelmapper.protobuf.pojo.ProtoCommon;
@@ -36,6 +39,28 @@ public class ProtobufModuleTest {
 
     public void setMessageContent(String messageContent) {
       this.messageContent = messageContent;
+    }
+  }
+
+
+  static class MapMessageDto {
+    private String name;
+    private Map<Integer, String> ids;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public Map<Integer, String> getIds() {
+      return ids;
+    }
+
+    public void setIds(Map<Integer, String> ids) {
+      this.ids = ids;
     }
   }
 
@@ -105,6 +130,23 @@ public class ProtobufModuleTest {
 
     assertTrue(testBoolValue.getSomeBoolValue().getValue());
   }
+
+  public void shouldMapJavaMapToProtobufMapField() {
+    MapMessageDto dto = new MapMessageDto();
+    dto.setName("test");
+    Map<Integer, String> ids = new HashMap<Integer, String>();
+    ids.put(1, "one");
+    ids.put(2, "two");
+    dto.setIds(ids);
+
+    MapMessageProto.MapMessage message =
+        modelMapper.map(dto, MapMessageProto.MapMessage.Builder.class).build();
+
+    assertEquals(message.getName(), "test");
+    assertEquals(message.getIdsMap().get(1), "one");
+    assertEquals(message.getIdsMap().get(2), "two");
+  }
+
   public void shouldMapNameWithUnderScore() {
     ModelMapper mapper = new ModelMapper().registerModule(new ProtobufModule());
     mapper.getConfiguration().setDestinationNameTokenizer(NameTokenizers.UNDERSCORE);

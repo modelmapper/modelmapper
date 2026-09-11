@@ -19,6 +19,7 @@ import com.google.protobuf.Message.Builder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.Errors;
 import org.modelmapper.spi.ValueWriter;
@@ -52,6 +53,9 @@ public class ProtobufValueWriter implements ValueWriter<Builder> {
           Object destElement = modelMapper.map(element, iterableType);
           method.invoke(destination, destElement);
         }
+      } else if (value instanceof Map) {
+        Method method = ProtobufHelper.putAll(destinationType, memberName);
+        method.invoke(destination, value);
       } else {
         Method method = ProtobufHelper.setter(destination.getClass(), memberName);
         method.invoke(destination, value);

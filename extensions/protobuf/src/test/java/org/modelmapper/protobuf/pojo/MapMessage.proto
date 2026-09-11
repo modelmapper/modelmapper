@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package org.modelmapper.protobuf.pojo;
+
+option java_package = "org.modelmapper.protobuf.pojo";
+option java_outer_classname = "MapMessageProto";
+
+message MapMessage {
+  string name = 1;
+  map<int32, string> ids = 2;
+}
