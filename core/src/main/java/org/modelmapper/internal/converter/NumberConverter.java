@@ -145,6 +145,8 @@ class NumberConverter implements ConditionalConverter<Object, Number> {
     if (destinationType.equals(BigInteger.class)) {
       if (source instanceof BigDecimal)
         return ((BigDecimal) source).toBigInteger();
+      else if (source instanceof Float || source instanceof Double)
+        return new BigDecimal(source.doubleValue()).toBigInteger();
       else
         return BigInteger.valueOf(source.longValue());
     }
