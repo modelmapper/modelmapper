@@ -45,6 +45,18 @@ public class NumberConverterTest extends AbstractConverterTest {
     super(new NumberConverter());
   }
 
+  public void shouldConvertFloatingPointValuesBeyondLongRangeToBigInteger() {
+    assertEquals(convert(1e20, BigInteger.class), new BigInteger("100000000000000000000"));
+    assertEquals(convert(-1e20, BigInteger.class), new BigInteger("-100000000000000000000"));
+    assertEquals(convert(Math.scalb(1.0, 63), BigInteger.class), new BigInteger("9223372036854775808"));
+    assertEquals(convert(Math.scalb(1.0f, 64), BigInteger.class), new BigInteger("18446744073709551616"));
+  }
+
+  public void shouldTruncateFloatingPointFractionsTowardsZero() {
+    assertEquals(convert(1.75d, BigInteger.class), BigInteger.ONE);
+    assertEquals(convert(-1.75f, BigInteger.class), BigInteger.ONE.negate());
+  }
+
   @DataProvider(name = "numbersProvider")
   public Object[][] provideNumbers() {
     return new Object[][] { { new Integer(36) }, { new Short("44") }, { new Double(55) },
