@@ -83,6 +83,16 @@ public abstract class AbstractDateConverterTest extends AbstractConverterTest {
   }
 
   @Test(dataProvider = "typesProvider")
+  public void shouldMapXmlGregorianCalendar(Class<?> type) {
+    XMLGregorianCalendar source = dataTypeFactory.newXMLGregorianCalendar("2001-02-03T04:05:06.123Z");
+
+    Object result = modelMapper.map(source, type);
+
+    assertTrue(type.isInstance(result));
+    assertEquals(getTimeInMillis(result), source.toGregorianCalendar().getTimeInMillis());
+  }
+
+  @Test(dataProvider = "typesProvider")
   public void shouldConvertDate2(Class<?> type) {
     String testString = "2006-10-29";
     Calendar calendar = toCalendar(testString, "yyyy-MM-dd");

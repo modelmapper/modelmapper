@@ -97,7 +97,8 @@ class CalendarConverter implements ConditionalConverter<Object, Object> {
   public MatchResult match(Class<?> sourceType, Class<?> destinationType) {
     return (Calendar.class.isAssignableFrom(destinationType) || destinationType == XMLGregorianCalendar.class)
         && (Date.class.isAssignableFrom(sourceType) || Calendar.class.isAssignableFrom(sourceType)
-            || sourceType == XMLGregorianCalendar.class || sourceType == Long.class || sourceType == Long.TYPE) ? MatchResult.FULL
+            || XMLGregorianCalendar.class.isAssignableFrom(sourceType) || sourceType == Long.class
+            || sourceType == Long.TYPE) ? MatchResult.FULL
         : MatchResult.NONE;
   }
 }
