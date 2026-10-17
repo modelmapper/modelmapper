@@ -18,7 +18,10 @@ package org.modelmapper;
 import net.jodah.typetools.TypeResolver;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.modelmapper.config.Configuration;
 import org.modelmapper.internal.Errors;
@@ -482,6 +485,45 @@ public class ModelMapper {
     Assert.notNull(destination, "destination");
     Assert.notNull(typeMapName, "typeMapName");
     mapInternal(source, destination, null, typeMapName);
+  }
+
+  /**
+   * Maps {@code source} to {@code destination}. Mapping is performed according to the corresponding
+   * TypeMap for the {@code typeMapName}. If no TypeMap exists for the {@code source.getClass()},
+   * {@code destination.getClass()} and {@code typeMapName} then one is created.
+   *
+   * @param source object to map from
+   * @param destination object to map to
+   * @param condition object to condition
+   * @param situations object to situations
+   * @throws IllegalArgumentException if {@code source}, {@code destination} or {@code typeMapName}
+   *           are null
+   * @throws ConfigurationException if the ModelMapper cannot find or create a TypeMap for the
+   *           arguments
+   * @throws MappingException if an error occurs while mapping
+   */
+  public void map(Object source, Object destination, HashMap condition, ArrayList<Situation> situations) {
+    Assert.notNull(source, "source");
+    Assert.notNull(destination, "destination");
+    Assert.isTrue(!condition.isEmpty());
+
+    Iterator<Situation> iterator = situations.iterator();
+    Situation situation;
+    String typeMapName;
+    int check = 0;
+
+    while(iterator.hasNext()) {
+      situation = iterator.next();
+      if(situation.getSituation().equals(condition)) {
+        check = 1;
+        mapInternal(source, destination, null, situation.getWay().getName());
+        break;
+      }
+    }
+    if(check == 0){
+      System.out.println("No typeMap match the situation!");
+    }
+
   }
 
   /**
