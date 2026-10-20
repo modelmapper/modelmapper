@@ -16,7 +16,7 @@
     <cglib.version>3.3.0</cglib.version>
     <asm.version>9.10.1</asm.version>
     <objenesis.version>3.2</objenesis.version>
-    <typetools.version>0.6.3</typetools.version>
+    <typetools.version>0.7.0</typetools.version>
     <bytebuddy.version>1.18.14</bytebuddy.version>
     <javassist.version>3.12.1.GA</javassist.version>
     <h2.version>2.2.220</h2.version>
