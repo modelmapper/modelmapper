@@ -20,9 +20,7 @@ import static org.modelmapper.internal.ExplicitMappingBuilder.MappingOptions;
 import static org.modelmapper.internal.util.Assert.notNull;
 
 import java.util.List;
-import net.jodah.typetools.TypeResolver;
 import org.modelmapper.builder.ReferenceMapExpression;
-import org.modelmapper.internal.util.Primitives;
 import org.modelmapper.spi.DestinationSetter;
 import org.modelmapper.spi.Mapping;
 import org.modelmapper.spi.SourceGetter;
@@ -36,6 +34,7 @@ import org.modelmapper.spi.SourceGetter;
  * @author Chun Han Hsiao
  */
 class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
+  private static final Object[] PRIMITIVE_DEFAULTS = {0, 0L, false, 0.0, 0f, (short) 0, (byte) 0, '\0'};
   private final TypeMapImpl<S, D> typeMap;
   private final MappingOptions options;
   private final PropertyReferenceCollector collector;
@@ -120,7 +119,7 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
   private <V> void visitDestination(DestinationSetter<D, V> destinationSetter) {
     notNull(destinationSetter, "destinationSetter");
     try {
-      destinationSetter.accept(destination, destinationValue(destinationSetter));
+      setDestination(destinationSetter);
     } catch (NullPointerException e) {
       if (collector.getProxyErrors().hasErrors())
         throw collector.getProxyErrors().toException();
@@ -130,14 +129,24 @@ class ReferenceMapExpressionImpl<S, D> implements ReferenceMapExpression<S, D> {
     }
   }
 
-  private <V> V destinationValue(DestinationSetter<D, V> destinationSetter) {
-    Class<?>[] typeArguments = TypeResolver.resolveRawArguments(DestinationSetter.class, destinationSetter.getClass());
-    if (typeArguments != null) {
-      Class<?> valueClass = typeArguments[1];
-      if (Primitives.isPrimitive(valueClass)) {
-        return Primitives.defaultValue(Primitives.primitiveFor(valueClass));
+  /**
+   * Calls the setter with a null value. A primitive setter unboxes it and throws a NullPointerException, so retry with
+   * each primitive default until the setter's value type matches. This avoids resolving the setter's type arguments,
+   * which needs the JDK internals for lambdas.
+   */
+  @SuppressWarnings("unchecked")
+  private <V> void setDestination(DestinationSetter<D, V> destinationSetter) {
+    try {
+      destinationSetter.accept(destination, null);
+    } catch (NullPointerException e) {
+      for (Object value : PRIMITIVE_DEFAULTS) {
+        try {
+          destinationSetter.accept(destination, (V) value);
+          return;
+        } catch (ClassCastException ignore) {
+        }
       }
+      throw e;
     }
-    return null;
   }
 }
