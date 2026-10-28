@@ -125,6 +125,12 @@ public class NonMergingCollectionConverterTest extends AbstractConverterTest {
         Arrays.asList("a", "b", "c"));
   }
 
+  public void shouldOverwriteExistingElementWithNull() {
+    List<String> source = Arrays.asList("new", null);
+    List<String> destination = Arrays.asList("old", "stale", "tail");
+    assertEquals(convert(source, destination, List.class), Arrays.asList("new", null));
+  }
+
   static class SrcSortedSet {
     SortedSet<Integer> genericSet = new TreeSet<Integer>(Arrays.asList(3, 1, 2));
     @SuppressWarnings({ "rawtypes", "unchecked" })

@@ -49,9 +49,9 @@ public class NonMergingCollectionConverter implements ConditionalConverter<Objec
     for (Iterator<Object> iterator = Iterables.iterator(source); iterator.hasNext(); index++) {
       Object sourceElement = iterator.next();
       Object element = null;
-      if (originalDestination != null)
-        element = Iterables.getElement(originalDestination, index);
       if (sourceElement != null) {
+        if (originalDestination != null)
+          element = Iterables.getElement(originalDestination, index);
         MappingContext<?, ?> elementContext = element == null
             ? context.create(sourceElement, elementType)
             : context.create(sourceElement, element);
