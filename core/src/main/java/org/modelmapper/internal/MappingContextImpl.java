@@ -315,7 +315,7 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
       Object source = parent.parentSource.getSource(destPath);
       Object next = Objects.firstNonNull(
           Objects.callable(parent.destinationCache.get(destPath)),
-          parent.getCyclicReferenceByPath(destPath),
+          parent.getCyclicReferenceByPath(destPath, mutator.getType()),
           parent.getDestinationValueByMemberName(current, mutator.getName()));
       if (next == null && source != null)
         next = mappingEngine.createDestinationViaGlobalProvider(
@@ -347,11 +347,12 @@ public class MappingContextImpl<S, D> implements MappingContext<S, D>, Provision
     };
   }
 
-  Callable<Object> getCyclicReferenceByPath(final String destinationPath) {
+  Callable<Object> getCyclicReferenceByPath(final String destinationPath, final Class<?> destinationType) {
     return new Callable<Object>() {
       @Override
       public Object call() {
-        return intermediateDestinations.get(destinationPath);
+        Object destination = intermediateDestinations.get(destinationPath);
+        return destinationType.isInstance(destination) ? destination : null;
       }
     };
   }
