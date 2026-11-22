@@ -201,7 +201,14 @@ public final class Types {
   }
 
   public static boolean isInternalType(Class<?> type) {
-    String packageName = type.getPackage().getName();
+    Package typePackage = type.getPackage();
+    if (typePackage == null) {
+      return false;
+    }
+    String packageName = typePackage.getName();
+    if (packageName == null) {
+      return false;
+    }
     return packageName.startsWith("java.");
   }
 }
