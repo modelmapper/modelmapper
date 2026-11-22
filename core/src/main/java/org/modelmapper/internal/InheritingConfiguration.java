@@ -21,6 +21,7 @@ import java.util.List;
 import org.modelmapper.Condition;
 import org.modelmapper.spi.ConstructorInjector;
 import org.modelmapper.Provider;
+import org.modelmapper.ResolveSourceValueInterceptor;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.convention.NameTokenizers;
@@ -61,6 +62,7 @@ public class InheritingConfiguration implements Configuration {
   private AccessLevel methodAccessLevel;
   private Provider<?> provider;
   private Condition<?, ?> propertyCondition;
+  private ResolveSourceValueInterceptor<?> resolveSourceValueInterceptor;
   private NameTokenizer sourceNameTokenizer;
   private NameTransformer sourceNameTransformer;
   private NamingConvention sourceNamingConvention;
@@ -237,6 +239,15 @@ public class InheritingConfiguration implements Configuration {
           ? parent.getPropertyCondition()
           : propertyCondition;
     return propertyCondition;
+  }
+
+  @Override
+  public ResolveSourceValueInterceptor<?> getResolveSourceValueInterceptor() {
+    if (parent != null)
+      return resolveSourceValueInterceptor == null
+              ? parent.getResolveSourceValueInterceptor()
+              : resolveSourceValueInterceptor;
+    return resolveSourceValueInterceptor;
   }
 
   @Override
@@ -456,6 +467,12 @@ public class InheritingConfiguration implements Configuration {
   @Override
   public Configuration setPropertyCondition(Condition<?, ?> condition) {
     propertyCondition = Assert.notNull(condition);
+    return this;
+  }
+
+  @Override
+  public Configuration setResolveSourceValueInterceptor(ResolveSourceValueInterceptor<?> condition) {
+    resolveSourceValueInterceptor = Assert.notNull(condition);
     return this;
   }
 
